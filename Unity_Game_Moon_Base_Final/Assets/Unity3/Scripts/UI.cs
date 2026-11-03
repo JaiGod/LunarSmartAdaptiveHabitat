@@ -54,24 +54,23 @@ namespace Hunch3
             t.font = F; t.fontSize = size; t.color = col; t.alignment = align; t.text = text; t.supportRichText = true; t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Truncate;
             t.raycastTarget = false; return t;
         }
+        // Mission-console look: flat dark slate, a thin steel edge, white text. No gradients, no animation.
+        // A caller's explicit colour (red STOP, green confirm, selected tab) is kept but toned down so it reads as a status, not a toy.
+        public static readonly Color BtnBase = new Color(0.13f, 0.17f, 0.23f, 0.96f), BtnEdge = new Color(0.45f, 0.55f, 0.65f, 0.9f);
         public static Button Btn(Transform parent, string label, Vector2 anchor, Vector2 pos, Vector2 size, Action onClick, Color? col = null, int fs = 26)
         {
-            var img = Panel(parent, "Btn_" + label, anchor, pos, size, col ?? Fun(label));
-            Round(img);                                                                                     // soft, rounded "candy" shape
-            var ol = img.gameObject.AddComponent<Outline>(); ol.effectDistance = new Vector2(3, -3);        // chunky border…
-            var rb = img.gameObject.AddComponent<RainbowEdge>(); rb.outline = ol; rb.phase = Mathf.Abs((label ?? "").GetHashCode() % 100) / 100f;   // …that slowly cycles through the rainbow
-            var shine = Panel(img.transform, "Shine", new Vector2(0.5f, 1f), new Vector2(0, -3), new Vector2(size.x - 14, size.y * 0.42f), new Color(1f, 1f, 1f, 0.22f), new Vector2(0.5f, 1f));
-            Round(shine); shine.raycastTarget = false;                                                       // glossy highlight on top
-            var b = img.gameObject.AddComponent<Button>(); var cb = b.colors; cb.highlightedColor = new Color(1.3f, 1.3f, 1.3f); cb.pressedColor = new Color(0.7f, 0.7f, 0.7f); b.colors = cb;
+            Color fill = col.HasValue ? Color.Lerp(BtnBase, col.Value, 0.55f) : BtnBase; fill.a = 0.96f;
+            var img = Panel(parent, "Btn_" + label, anchor, pos, size, fill);
+            Round(img, 2.2f);                                                                               // small 4-px-ish corner radius
+            var ol = img.gameObject.AddComponent<Outline>(); ol.effectDistance = new Vector2(1, -1); ol.effectColor = BtnEdge;
+            var b = img.gameObject.AddComponent<Button>(); var cb = b.colors;
+            cb.normalColor = Color.white; cb.highlightedColor = new Color(1.25f, 1.25f, 1.25f); cb.pressedColor = new Color(0.75f, 0.75f, 0.75f); cb.selectedColor = Color.white; cb.fadeDuration = 0.08f; b.colors = cb;
             b.onClick.AddListener(() => { try { onClick?.Invoke(); } catch (Exception e) { Debug.LogException(e); } });
-            var t = Label(img.transform, label, fs, Color.white, new Vector2(0.5f, 0.5f), Vector2.zero, size - new Vector2(10, 6), TextAnchor.MiddleCenter); t.fontStyle = FontStyle.Bold;
-            var sh = t.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0, 0, 0, 0.6f); sh.effectDistance = new Vector2(2, -2);
+            var t = Label(img.transform, label, fs, new Color(0.93f, 0.96f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, size - new Vector2(14, 6), TextAnchor.MiddleCenter);
             return b;
         }
-        // kid-friendly rainbow: every button gets its own bright colour (same label → same colour every time)
-        static readonly Color[] FunColors = {
-            new Color(0.95f, 0.26f, 0.26f), new Color(1f, 0.52f, 0.1f), new Color(0.93f, 0.72f, 0.05f), new Color(0.2f, 0.74f, 0.3f), new Color(0.06f, 0.7f, 0.66f),
-            new Color(0.16f, 0.56f, 1f), new Color(0.33f, 0.38f, 0.98f), new Color(0.6f, 0.34f, 0.98f), new Color(0.88f, 0.28f, 0.84f), new Color(1f, 0.38f, 0.58f) };
+        /// kept for callers that still ask for a per-label colour: now always the console base (no rainbow)
+        public static Color Fun(string label) => BtnBase;
 
         // rounded-rectangle sprite (9-sliced, so any button size keeps the same round corners)
         static Sprite round;
@@ -99,11 +98,6 @@ namespace Hunch3
         {
             if (!img) return img;
             img.sprite = RoundSprite; img.type = Image.Type.Sliced; img.pixelsPerUnitMultiplier = mul; return img;
-        }
-        public static Color Fun(string label)
-        {
-            int h = 17; foreach (char ch in label ?? "") h = h * 31 + ch;
-            var c = FunColors[Mathf.Abs(h) % FunColors.Length]; c.a = 0.96f; return c;
         }
         public static string Bar(float v, int n = 10) { int k = Mathf.Clamp(Mathf.RoundToInt(v * n), 0, n); return new string('|', k) + new string('.', n - k); }
         public static string Hex(Color c) => ColorUtility.ToHtmlStringRGB(c);
@@ -187,7 +181,7 @@ namespace Hunch3
   Tab  (Y)   Crew Interface — your data, AI actions, overrides, privacy
   M    (X)   Big map            N   Navigate to a room (arrows + trail)
   P    (B)   Autopilot — the AI plays as you      Y (A) accept · R decline AI offer
-  F1  AI dashboard   F2  CMO console   F3  Team meeting   F4  Tabletop simulation   F5  Board scenarios Q1–Q6
+  F1  AI dashboard   F2  CMO console   F3  Team meeting   F4  Tabletop simulation   F5  Board scenarios Q1–Q6   F11  ARES deliverables D1–D4
   C   Config A ↔ B (conflict protocol)   T  time speed   Z  zone info cards   Q  main menu (VR: left-stick click)   U  unstuck   F12 screenshot   Esc  close / menu
 <b>Life</b>  Sleep: E on your bed (Pod 1) — 1 real minute = the whole night, lights OFF, sunrise wake-up · Ladder: E on it, then W / S (VR: stick or grip-and-pull)
   G (VR: raise a hand + wave)  wave hello · F6  safety drill / alarm (red lights, klaxon, muster) · F9  door walk test
@@ -224,8 +218,12 @@ namespace Hunch3
             if (alpha < 1f && m.HasProperty("_Surface")) { m.SetFloat("_Surface", 1); m.SetFloat("_Blend", 0); m.SetFloat("_SrcBlend", 5); m.SetFloat("_DstBlend", 10); m.SetFloat("_ZWrite", 0); m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT"); m.renderQueue = 3000; }
             return m;
         }
-        // Holographic 3D map model on the Command node briefing table
-        Transform holo, holoYou, holoSrc; const float HoloScale = 0.011f;
+        // Holographic 3D map of the habitat on the Command node briefing table.
+        // Looks like a real table-top projector: a metal emitter puck, a faint light beam, a clean floor plan
+        // (floors bright, walls faint), only the habitat itself (no rover, flags, crew or loose props), scaled to fit
+        // inside the table, a slow scan line and a gentle flicker.
+        Transform holo, holoYou, holoSrc, holoScan; Material holoFloor, holoWall, holoCone, holoScanMat; float holoTop, holoH, holoScale = 0.011f;
+        Vector3 HoloMap(Vector3 world) => holo.TransformPoint(holoSrc.InverseTransformPoint(world));
         void BuildHologram()
         {
             var table = Util.Find("N39_Briefing_Table"); var src = Util.Find("LunarHabitat_Unity3_Habitat");
@@ -233,13 +231,68 @@ namespace Hunch3
             // pre-built, non-static copy made by the editor Builder (never Instantiate the static-batched habitat at runtime)
             var ct = Util.Find("HoloMap_Model"); if (!ct) return;
             var copy = ct.gameObject; copy.SetActive(true);
-            var mat = Glow(new Color(0.3f, 0.9f, 1f), 0.35f);
-            foreach (var r in copy.GetComponentsInChildren<MeshRenderer>(true)) { if (r.gameObject.layer == 30 || r.bounds.size.magnitude > 30) { r.enabled = false; continue; } var ms = new Material[r.sharedMaterials.Length]; for (int i = 0; i < ms.Length; i++) ms[i] = mat; r.sharedMaterials = ms; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; }
-            holo = copy.transform; holoSrc = src; holo.localScale = src.localScale * HoloScale; holo.rotation = src.rotation;
-            var tb = table.GetComponent<Renderer>() ? table.GetComponent<Renderer>().bounds : new Bounds(table.position, Vector3.one);
-            Vector3 top = new Vector3(tb.center.x, tb.max.y + 0.25f, tb.center.z);
-            holo.position = top + src.position * HoloScale;   // maps the habitat core (world origin) onto the table
-            var you = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(you.GetComponent<Collider>()); you.transform.localScale = Vector3.one * 0.03f; you.GetComponent<Renderer>().sharedMaterial = Glow(UIKit.Gold); holoYou = you.transform; holoYou.name = "HoloMap_YouAreHere";
+            holo = copy.transform; holoSrc = src;
+            // 1) lay the copy over the real habitat at full size, so every part can be judged by its real size and place
+            holo.SetParent(null, true); holo.position = src.position; holo.rotation = src.rotation; holo.localScale = src.lossyScale;
+            if (Nav.wp.Count == 0) Nav.Build();
+            Bounds foot = new Bounds(src.position, Vector3.one); bool any = false;
+            foreach (var w in Nav.wp.Values) { if (!any) { foot = new Bounds(w.position, Vector3.one); any = true; } else foot.Encapsulate(w.position); }
+            foot.Expand(new Vector3(14f, 6f, 14f));     // walls and hull sit a few metres beyond the walkway waypoints
+            string[] skip = { "crew", "rover", "flag", "terrain", "solar", "antenna", "tower", "lander", "rock", "regolith", "sky", "earth", "sun_", "astronaut", "evasuit", "chair", "seat", "plant", "lamp", "screen", "label", "sign", "beacon", "table" };
+            holoFloor = Glow(new Color(0.35f, 0.9f, 1f), 0.30f);
+            holoWall = Glow(new Color(0.25f, 0.75f, 1f), 0.07f);
+            Bounds kept = foot; bool keptAny = false;
+            foreach (var r in copy.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                var bnd = r.bounds; string n = r.name.ToLowerInvariant(); float big = Mathf.Max(bnd.size.x, bnd.size.y, bnd.size.z);
+                bool keep = r.gameObject.layer != 30 && big >= 1.2f && big < 30f && foot.Contains(bnd.center);
+                if (keep) foreach (var k in skip) if (n.Contains(k)) { keep = false; break; }
+                if (!keep) { r.enabled = false; continue; }
+                bool floor = bnd.size.y < 0.45f && Mathf.Max(bnd.size.x, bnd.size.z) > 1.5f;     // flat & wide = a deck → the readable floor plan
+                var m = floor ? holoFloor : holoWall; var ms = new Material[r.sharedMaterials.Length]; for (int i = 0; i < ms.Length; i++) ms[i] = m;
+                r.sharedMaterials = ms; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+                if (!keptAny) { kept = bnd; keptAny = true; } else kept.Encapsulate(bnd);
+            }
+            // 2) shrink it so the whole habitat fits inside the table top, lowest deck floating just above the emitter
+            var tb = table.GetComponent<Renderer>() ? table.GetComponent<Renderer>().bounds : new Bounds(table.position, Vector3.one * 1.5f);
+            float tableR = Mathf.Min(tb.extents.x, tb.extents.z);
+            holoScale = Mathf.Min(0.03f, (tableR * 1.6f) / Mathf.Max(kept.size.x, kept.size.z, 1f));
+            holo.localScale = src.lossyScale * holoScale; holo.position = Vector3.zero;
+            float emitterH = 0.05f, lift = 0.12f;
+            Vector3 top = new Vector3(tb.center.x, tb.max.y + emitterH + lift, tb.center.z);
+            Vector3 anchor = new Vector3(kept.center.x, kept.min.y, kept.center.z);
+            holo.position = top - HoloMap(anchor);
+            holoTop = tb.max.y; holoH = Mathf.Max(0.15f, kept.size.y * holoScale) + emitterH + lift;
+            // 3) the projector hardware: a brushed-metal puck with a glowing lens ring, a faint light beam and a cyan glow light
+            var lit = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            var metal = new Material(lit); metal.color = new Color(0.22f, 0.24f, 0.27f); if (metal.HasProperty("_BaseColor")) metal.SetColor("_BaseColor", metal.color); if (metal.HasProperty("_Metallic")) metal.SetFloat("_Metallic", 0.85f); if (metal.HasProperty("_Smoothness")) metal.SetFloat("_Smoothness", 0.6f);
+            Transform Part(PrimitiveType t, string nm, Vector3 pos, Vector3 scl, Material m)
+            {
+                var g = GameObject.CreatePrimitive(t); g.name = nm; Destroy(g.GetComponent<Collider>()); g.transform.position = pos; g.transform.localScale = scl;
+                var rr = g.GetComponent<Renderer>(); rr.sharedMaterial = m; rr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; return g.transform;
+            }
+            float pr = Mathf.Min(0.22f, tableR * 0.35f);
+            Part(PrimitiveType.Cylinder, "HoloProjector_Base", new Vector3(tb.center.x, tb.max.y + emitterH * 0.5f, tb.center.z), new Vector3(pr * 2f, emitterH * 0.5f, pr * 2f), metal);
+            Part(PrimitiveType.Cylinder, "HoloProjector_LensRing", new Vector3(tb.center.x, tb.max.y + emitterH + 0.002f, tb.center.z), new Vector3(pr * 1.5f, 0.003f, pr * 1.5f), Glow(new Color(0.4f, 0.95f, 1f)));
+            Part(PrimitiveType.Cylinder, "HoloProjector_Lens", new Vector3(tb.center.x, tb.max.y + emitterH + 0.004f, tb.center.z), new Vector3(pr * 1.2f, 0.003f, pr * 1.2f), metal);
+            holoCone = Glow(new Color(0.3f, 0.85f, 1f), 0.035f);
+            float coneR = tableR * 0.85f;
+            Part(PrimitiveType.Cylinder, "HoloProjector_Beam", new Vector3(tb.center.x, tb.max.y + emitterH + holoH * 0.5f, tb.center.z), new Vector3(coneR * 2f, holoH * 0.5f, coneR * 2f), holoCone);
+            holoScanMat = Glow(new Color(0.6f, 1f, 1f), 0.12f);
+            holoScan = Part(PrimitiveType.Cylinder, "HoloProjector_ScanLine", new Vector3(tb.center.x, tb.max.y + emitterH, tb.center.z), new Vector3(coneR * 2f, 0.001f, coneR * 2f), holoScanMat);
+            var gl = new GameObject("HoloProjector_Glow").AddComponent<Light>(); gl.type = LightType.Point; gl.color = new Color(0.35f, 0.85f, 1f); gl.range = 1.6f; gl.intensity = 0.8f; gl.shadows = LightShadows.None;
+            gl.transform.position = new Vector3(tb.center.x, tb.max.y + 0.3f, tb.center.z);
+            // 4) "you are here": a small gold dot that follows you around the map
+            var you = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(you.GetComponent<Collider>()); you.transform.localScale = Vector3.one * 0.025f; you.GetComponent<Renderer>().sharedMaterial = Glow(UIKit.Gold); holoYou = you.transform; holoYou.name = "HoloMap_YouAreHere";
+        }
+        void AnimateHologram()
+        {
+            if (!holo) return;
+            float t = Time.time;
+            float flick = 0.92f + 0.05f * Mathf.Sin(t * 13f) + 0.03f * Mathf.Sin(t * 37f);
+            void A(Material m, Color c, float a) { if (!m) return; var col = new Color(c.r, c.g, c.b, a * flick); m.color = col; if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", col); }
+            A(holoFloor, new Color(0.35f, 0.9f, 1f), 0.30f); A(holoWall, new Color(0.25f, 0.75f, 1f), 0.07f); A(holoCone, new Color(0.3f, 0.85f, 1f), 0.035f);
+            if (holoScan) { var p = holoScan.position; p.y = holoTop + 0.05f + Mathf.Repeat(t * 0.12f, 1f) * holoH; holoScan.position = p; }
         }
 
         void Update()
@@ -275,7 +328,9 @@ namespace Hunch3
             mapCam.transform.rotation = Quaternion.Euler(90, pr.cam.transform.eulerAngles.y, 0);
             if (pr.cam) pr.cam.cullingMask &= ~(1 << 31);
             if (youMarker) { youMarker.position = fp + Vector3.up * 2.0f; youMarker.rotation = Quaternion.Euler(0, pr.cam.transform.eulerAngles.y, 0); youMarker.localScale = Vector3.one * (bigMapBg.gameObject.activeSelf ? 5f : 1.6f); }
-            if (holoYou && holo) holoYou.position = holo.position + (fp + Vector3.up * 0.9f - holoSrc.position) * HoloScale;
+            if (holoYou && holo) holoYou.position = HoloMap(fp) + Vector3.up * 0.015f;
+            AnimateHologram();
+            if (planLegend && bigMapBg.gameObject.activeSelf) planLegend.text = FloorPlan.Legend() + $"\n\n<b>Scale</b>: map width ≈ {mapCam.orthographicSize * 2f * mapCam.aspect:0} m";
             UpdateNav(pr);
         }
 
@@ -337,7 +392,19 @@ namespace Hunch3
         }
         public void ToggleZoneCards() { showZoneCards = !showZoneCards; zoneCard.transform.parent.gameObject.SetActive(showZoneCards); }
         public void ToggleHelp() { help.transform.parent.gameObject.SetActive(!help.transform.parent.gameObject.activeSelf); }
-        public void ToggleBigMap() { bigMapBg.gameObject.SetActive(!bigMapBg.gameObject.activeSelf); }
+        Text planLegend;
+        public bool BigMapOpen => bigMapBg && bigMapBg.gameObject.activeSelf;
+        public void ToggleBigMap()
+        {
+            bool on = !bigMapBg.gameObject.activeSelf; bigMapBg.gameObject.SetActive(on);
+            FloorPlan.I?.Show(on);
+            if (zoneCard) zoneCard.transform.parent.gameObject.SetActive(!on && showZoneCards);
+            if (on && !planLegend)
+            {
+                var lg = UIKit.Panel(bigMapBg.transform, "PlanLegend", new Vector2(1, 0.5f), new Vector2(8, 0), new Vector2(500, 860), new Color(0.03f, 0.05f, 0.1f, 0.92f), new Vector2(0, 0.5f));
+                planLegend = UIKit.Label(lg.transform, "", 18, Color.white, new Vector2(0, 1), new Vector2(12, -10), new Vector2(476, 840), TextAnchor.UpperLeft, new Vector2(0, 1));
+            }
+        }
         public void AnswerOffer(bool yes)
         {
             if (currentOffer == null || currentOffer.done) return;
@@ -352,21 +419,6 @@ namespace Hunch3
     }
 
     /// Animated rainbow border for buttons (kid-friendly): the outline colour drifts slowly through the hues.
-    public class RainbowEdge : MonoBehaviour
-    {
-        public Outline outline; public float phase;
-        Vector3 baseScale; bool init;
-        void Update()
-        {
-            if (!init) { baseScale = transform.localScale; init = true; }
-            float t = Time.unscaledTime;
-            // gentle sine-wave "breathing": every button pulses a little, each one slightly out of step with its neighbours
-            float s = 1f + 0.035f * Mathf.Sin(t * 2.4f + phase * 6.283f);
-            transform.localScale = baseScale * s;
-            if (!outline) return;
-            var c = Color.HSVToRGB(Mathf.Repeat(t * 0.12f + phase, 1f), 0.75f, 1f); c.a = 0.95f;
-            outline.effectColor = c;
-            outline.effectDistance = new Vector2(3f + 1.2f * Mathf.Sin(t * 3f + phase * 6.283f), -(3f + 1.2f * Mathf.Sin(t * 3f + phase * 6.283f)));   // the rainbow border ripples too
-        }
-    }
+    /// (retired) the old rainbow/pulse effect — kept as an empty component so nothing that still adds it breaks
+    public class RainbowEdge : MonoBehaviour { public Outline outline; public float phase; }
 }

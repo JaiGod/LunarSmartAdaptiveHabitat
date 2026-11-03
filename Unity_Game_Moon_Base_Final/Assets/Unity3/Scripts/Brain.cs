@@ -75,7 +75,7 @@ namespace Hunch3
         public float responseAckLimitH = 0.25f;
         public static float AckLimitH(int cond) => cond == (int)Cond.Anxiety || cond == (int)Cond.Fatigue ? 0.25f : 1.0f;   // acute: 15 min · slow-building: 1 h                 // Tier 3: 15 min to acknowledge before backup chain
 
-        public class Proto { public int tier; public float start; public float monitorUntil; public float startScore; public float cooldownUntil = -1; public bool refused; public int responder = -1; public float ackDeadline = -1; public bool acked; }
+        public class Proto { public bool mcNotified; public int tier; public float start; public float monitorUntil; public float startScore; public float cooldownUntil = -1; public bool refused; public int responder = -1; public float ackDeadline = -1; public bool acked; }
         readonly Dictionary<(int, int), Proto> active = new Dictionary<(int, int), Proto>();
 
         public const float Unset = -1e9f;
@@ -157,6 +157,45 @@ namespace Hunch3
             return Mathf.Clamp01(f + N(0.04f));
         }
 
+        /// Crew member says "that reading is wrong": the sensor that pushed hardest on their most-flagged condition counts
+        /// 20% less for them from now on (never below 40%), and the current support for that condition stops.
+        /// "Talk to me" — a non-judgemental AI companion for disclosing how you feel. It listens, reflects, offers ONE option,
+        /// never diagnoses, and keeps the conversation in your private log. It only involves a human if YOU ask, or if the
+        /// Tier-3 safety rule applies (and then it tells you first).
+        static readonly string[] CompanionLine = {
+            "That sounds like a lot to carry right now. Would a few slow breaths with the pod light help, or would you rather just talk?",
+            "Thank you for telling me. Feeling flat out here makes sense — it's a strange place to live. Want to do something small together, like checking the tomatoes?",
+            "Living this close to people is hard sometimes. You don't have to tell me who. Would some space in the commons help, or a private chat with the CMO?",
+            "You've been pushing hard. It's OK to rest — the work will still be here. Shall I hold your messages for 20 minutes?",
+            "It's fair to want more say in your day. What would you choose to do next if it were completely up to you?",
+            "Same walls every day gets old. Want me to surprise you with a new Earth view or a soundscape you've never heard?" };
+        int companionTurn;
+        public string Companion(CrewMember c)
+        {
+            int k = 0; float best = -1; for (int i = 0; i < 6; i++) if (c.smooth[i] > best) { best = c.smooth[i]; k = i; }
+            string say = best < CondSpec.T1 && companionTurn++ % 2 == 0 ? "I'm here whenever you want to talk. How has today been for you?" : CompanionLine[k];
+            Log(c.id, "companion", "AI companion: \"" + say + "\" (private conversation — nobody else sees it).");
+            return say;
+        }
+        public void SelfCheck(CrewMember c, float mood01, float stress01)
+        {
+            c.selfMood = mood01; c.selfStress = stress01; c.selfAt = SimClock.hours;
+            Log(c.id, "selfcheck", $"Self-check: mood {(mood01 < 0.3f ? "good" : mood01 < 0.7f ? "OK" : "low")}, stress {(stress01 < 0.3f ? "low" : stress01 < 0.7f ? "medium" : "high")} — counts for 24 h, private to you.");
+        }
+        public string Feedback(CrewMember c)
+        {
+            int k = -1; float best = -1; for (int i = 0; i < 6; i++) if (c.tier[i] > 0 && c.smooth[i] > best) { best = c.smooth[i]; k = i; }
+            if (k < 0) { for (int i = 0; i < 6; i++) if (c.smooth[i] > best) { best = c.smooth[i]; k = i; } }
+            int top = -1; float tv = -1;
+            for (int s = 0; s < 9; s++) { if (SensorSpec.W[k, s] <= 0 || !c.SensorUsable(s)) continue; float v = SensorSpec.W[k, s] * c.fbWeight[s] * Feature(c, (Cond)k, (Sensor)s); if (v > tv) { tv = v; top = s; } }
+            if (top < 0) return "Nothing to correct right now.";
+            c.fbWeight[top] = Mathf.Max(0.4f, c.fbWeight[top] * 0.8f);
+            if (c.tier[k] > 0) Refuse(c, k);
+            string msg = $"Thanks — {SensorSpec.Name[top]} now counts {c.fbWeight[top]:P0} for you when judging {CondSpec.Name[k]}. Support for it stopped.";
+            Log(c.id, "feedback", msg, 0, k);
+            return msg;
+        }
+
         public void Detect(float dt)
         {
             foreach (var c in crew)
@@ -171,17 +210,26 @@ namespace Hunch3
                         float w = SensorSpec.W[k, s]; if (w <= 0) continue; full += w;
                         if (!c.SensorUsable(s)) continue;
                         if (c.sensors[s] == SensorHealth.Degraded) w *= 0.5f;
+                        w *= c.fbWeight[s];
                         num += w * Feature(c, (Cond)k, (Sensor)s); den += w;
                     }
+                    // voluntary self-check (2 questions, Crew Interface) counts for 24 h as an extra signal for anxiety and depression.
+                    // It is the planned fallback when a sensor fails (board Q4): it restores confidence without adding hardware.
+                    if ((k == 0 || k == 1) && SimClock.hours - c.selfAt < 24f)
+                    {
+                        float v = k == 0 ? c.selfStress : c.selfMood;
+                        if (v >= 0) { float sw = 0.3f * full; num += sw * v; den += sw; }
+                    }
+                    c.score[k] = den > 0 ? Mathf.Clamp01(num / den) : 0;        // weighted average of every available signal
+                    den = Mathf.Min(den, full);                                  // confidence can't exceed 100 %
                     confSum += den; confFull += full;
-                    c.score[k] = den > 0 ? num / den : 0;
                     float a = 1 - Mathf.Exp(-dt / CondSpec.TauHours[k]);
                     c.smooth[k] += (c.score[k] - c.smooth[k]) * a;
                     float conf = full > 0 ? den / full : 0;
                     // duration assessment
-                    if (c.smooth[k] >= CondSpec.T1) { if (c.aboveSince[k] <= Unset) c.aboveSince[k] = SimClock.hours; }
+                    if (c.smooth[k] >= c.Thr(k, CondSpec.T1)) { if (c.aboveSince[k] <= Unset) c.aboveSince[k] = SimClock.hours; }
                     else c.aboveSince[k] = Unset;
-                    int target = c.smooth[k] >= CondSpec.T3 ? 3 : c.smooth[k] >= CondSpec.T2 ? 2 : c.smooth[k] >= CondSpec.T1 ? 1 : 0;
+                    int target = c.smooth[k] >= c.Thr(k, CondSpec.T3) ? 3 : c.smooth[k] >= c.Thr(k, CondSpec.T2) ? 2 : c.smooth[k] >= c.Thr(k, CondSpec.T1) ? 1 : 0;
                     float persistH = CondSpec.PersistHours[k];
                     // tabletop redesign: when the depression signal is CORROBORATED by two independent signals (poor sleep AND low
                     // activity), start silent, reversible Tier-1 support at once and shorten the Tier-2+ persistence 48 h → 36 h.
@@ -203,14 +251,14 @@ namespace Hunch3
         }
 
         // ---------- response protocols ----------
-        static readonly string[,] T1Text = {
+        public static readonly string[,] T1Text = {
             {"Dim zone to 2400 K amber, alpha (10 Hz) binaural bed, +1.5 °C to 23 °C, lavender (linalool)"},
             {"Morning bright-light 10 000 lux (shared zones), green spectra + petrichor in greenhouse, favourite music queued"},
             {"Stagger meal/route timing so the pair is not forced together; warm calm light in commons"},
             {"Work zone 6500 K, airflow 0.4 m/s, CO2 scrub to <600 ppm, peppermint/rosemary"},
             {"Quiet mode: AI notifications reduced; free-choice slots added to schedule"},
             {"Dynamic hue drift, new soundscape rotation, new Earth-view set, scent rotation"} };
-        static readonly string[] T2Offer = {
+        public static readonly string[] T2Offer = {
             "I've noticed you might benefit from a break — the VR retreat and lounge are set up calm and warm if you'd like to use them.",
             "Fancy tending the greenhouse with me? The tomatoes are ready to harvest. I can also book a family call tonight.",
             "Would you like a quiet space for a while? I can set up the commons and deploy the acoustic screens in the wardroom.",
@@ -225,7 +273,13 @@ namespace Hunch3
             if (!active.TryGetValue(key, out var p)) { p = new Proto(); active[key] = p; }
             if (newT == 0)
             {
-                if (p.tier > 0) Log(c.id, "resolve", $"{CondSpec.Name[k]} resolved — environment restored gradually; baseline updated.", 0, k);
+                if (p.tier > 0)
+                {
+                    float before = c.baseline[k]; c.baseline[k] = Mathf.Clamp(0.9f * c.baseline[k] + 0.1f * c.smooth[k], 0.05f, 0.4f);
+                    Log(c.id, "resolve", $"{CondSpec.Name[k]} resolved after {SimClock.hours - p.start:0.#} h — environment restored gradually over 30 min (air purge first); personal baseline {before:F2}→{c.baseline[k]:F2}.", 0, k);
+                    if (p.mcNotified || p.tier >= 3) Log(c.id, "mc", "Mission Control review log closed: episode resolved.", 0, k);
+                }
+                p.mcNotified = false;
                 p.tier = 0; p.refused = false; onIntervention?.Invoke("restore:" + Lever[k], c.id, k);
                 if (escalatedTo.ContainsKey(c.id) && c.MaxTier < 3) escalatedTo.Remove(c.id);
                 return;
@@ -238,8 +292,21 @@ namespace Hunch3
         void RunTier(CrewMember c, int k, int t, float conf, Proto p)
         {
             p.start = SimClock.hours; p.monitorUntil = SimClock.hours + CondSpec.MonitorHours[k]; p.startScore = c.smooth[k];
+            // AGENCY TEST (ARES constraint: no intervention that worsens autonomy deprivation)
+            //  • someone already showing autonomy deprivation gets NO silent changes — the AI asks instead
+            //  • nobody gets more than 3 silent changes in 24 h (the habitat must not feel like it is constantly steering you)
+            c.silentAt.RemoveAll(h => SimClock.hours - h > 24f);
+            bool autonomyGuard = k != (int)Cond.Autonomy && c.tier[(int)Cond.Autonomy] >= 1;
+            bool budgetFull = c.silentAt.Count >= 3;
+            if (t == 1 && (autonomyGuard || budgetFull))
+            {
+                Log(c.id, "agency", $"T1 {CondSpec.Name[k]} NOT applied silently — {(autonomyGuard ? "this person already feels over-controlled" : "3 silent changes already today")}. Asking instead.", 1, k);
+                if (c.id == playerId && !headless) onToast?.Invoke($"I could adjust your zone to help with {CondSpec.Name[k].ToLower()}. Want me to? (Crew Interface → AI actions)");
+                return;
+            }
             if (t >= 1)
             {
+                c.silentAt.Add(SimClock.hours);
                 string where = k == 1 && !c.aiPodAccess ? " (shared zones only — pod not invited)" : "";
                 Log(c.id, "tier1", $"T1 {CondSpec.Name[k]}: {T1Text[k, 0]}{where}. Confidence {conf:P0}.", 1, k);
                 onIntervention?.Invoke(Lever[k] + ":1", c.id, k);
@@ -296,7 +363,8 @@ namespace Hunch3
             string who = responder == 0 ? "Mission Control" : C(responder).name;
             Log(c.id, "inform", $"{c.name} informed FIRST: \"I've asked {who} to check in with you. Only they will see the details.\"", 3, k);
             Log(c.id, "tier3", $"T3 {CondSpec.Name[k]} → escalated to {who}. Tier-2 environment support continues.", 3, k);
-            if (responder == 0) Log(c.id, "mc", "Mission Control notified (2.6 s light delay) after crew member was informed.", 3, k);
+            Log(c.id, "mc", "Logged for Mission Control review at the next comm window: condition, tier and times only — no raw sensor data.", 3, k);
+            if (responder == 0) { p.mcNotified = true; Log(c.id, "mc", "Mission Control notified directly (no crew responder available; 2.6 s light delay) after the crew member was informed.", 3, k); }
             onIntervention?.Invoke("tier3", c.id, k);
             if (!headless && (responder == playerId || c.id == playerId)) onToast?.Invoke($"TIER 3: {CondSpec.Name[k]} — {who} has been asked to respond.");
         }
@@ -330,6 +398,10 @@ namespace Hunch3
                     p.responder = next; p.ackDeadline = SimClock.hours + AckLimitH(k); escalatedTo[c.id] = next == 0 ? commanderId : next;
                     if (headless && next != 0) { p.acked = true; Log(c.id, "ack", $"{C(next).name} acknowledged.", 3, k); }
                 }
+                // Mission Control is told DIRECTLY only when: (a) no crew responder (above), (b) Tier 3 still unresolved after 24 h,
+                // or (c) the responder chain ran out. Always AFTER the crew member was informed.
+                if (p.tier >= 3 && !p.mcNotified && SimClock.hours - p.start > 24f)
+                { p.mcNotified = true; Log(c.id, "mc", $"Tier 3 {CondSpec.Name[k]} unresolved after 24 h → Mission Control flight surgeon notified ({c.name} was told first).", 3, k); }
                 if (SimClock.hours < p.monitorUntil) continue;
                 float now = c.smooth[k];
                 if (now < p.startScore * 0.85f || now < CondSpec.T1)
@@ -372,7 +444,27 @@ namespace Hunch3
             ApplySupport(dtHours);
             Detect(dtHours);
             Monitor();
+            // DATA RETENTION: derived scores live only in memory; personal log entries older than 30 days are deleted automatically,
+            // except Tier-3 / safety events (kept for the mission medical record, which only the person and the CMO can open).
+            if (Mathf.FloorToInt(SimClock.hours) != lastPruneH)
+            {
+                lastPruneH = Mathf.FloorToInt(SimClock.hours);
+                foreach (var c in crew) c.log.RemoveAll(l => SimClock.hours - l.simHour > RetentionDays * 24f && l.tier < 3);
+                log.RemoveAll(l => SimClock.hours - l.simHour > RetentionDays * 24f && l.tier < 3);
+            }
             foreach (var o in offers) if (!o.done && SimClock.hours > o.expires) { o.done = true; Log(o.crew, "expire", "Offer expired without answer — treated as 'not now', no further push."); }
+        }
+
+        public const float RetentionDays = 30f; int lastPruneH = -1;
+        /// the crew member deletes their own AI history (everything except Tier-3 / safety events)
+        public int DeleteMyHistory(CrewMember c)
+        {
+            int n = c.log.RemoveAll(l => l.tier < 3);
+            log.RemoveAll(l => l.crew == c.id && l.tier < 3);
+            for (int s = 0; s < 9; s++) c.fbWeight[s] = 1f;
+            c.selfMood = c.selfStress = -1;
+            Log(c.id, "privacy", $"{c.name} deleted their AI history ({n} entries). Safety (Tier 3) records are kept for the medical record only.");
+            return n;
         }
 
         public void SetTension(int a, int b, float v) { C(a).tension[b] = v; C(b).tension[a] = v; }

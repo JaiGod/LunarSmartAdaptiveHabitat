@@ -45,6 +45,9 @@ namespace Hunch3
                     break;
                 case 4:
                     { var c = e.C(3); c.sensors[(int)Sensor.Cortisol] = SensorHealth.Failed; SimClock.hours = Mathf.Max(SimClock.hours, 44 * 24f); e.Step(0.02f);
+                      float confBefore = c.confidence; e.SelfCheck(c, 0.5f, 0.5f); e.Step(0.02f);
+                      e.Log(3, "care", "Cortisol patch out until resupply (Day 90): weekly CMO wellness chat booked with Tanaka's agreement; daily 2-question self-check offered.", 0);
+                      sb.AppendLine($"Daily self-check (2 taps in the Crew Interface) replaces part of the lost signal: confidence {confBefore:P0} → {c.confidence:P0} after Tanaka's first self-check.");
                       sb.AppendLine("<b>Q4 — Cortisol patch fails on Day 45; resupply on Day 90.</b>");
                       sb.AppendLine($"Degraded mode: cortisol removed, depression weights renormalised over sleep, voice, face, movement, HRV → Tanaka confidence now {c.confidence:P0}.");
                       sb.AppendLine("Below 50 % confidence a condition can't go above Tier 1 on sensors alone (so no false alarms); instead the AI schedules a weekly CMO wellness chat + a 2-question self-check in the Crew Interface to replace the missing signal.");

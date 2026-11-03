@@ -37,7 +37,7 @@ namespace Hunch3
 
         public void Build()
         {
-            string title = id switch { "crew" => "CREW INTERFACE — Cmdr. J. Rana (only you see this)", "dashboard" => "AI PSYCHOLOGICAL MONITORING DASHBOARD — Command", "cmo" => "CHIEF MEDICAL OFFICER CONSOLE — Tier 3 queue", "meeting" => "DAILY PLANNING CONFERENCE — Team meeting", "tabletop" => "TABLETOP SIMULATION — 72-hour mission window", "scenarios" => "AGENCY REVIEW BOARD — live scenarios Q1–Q6", "nav" => "NAVIGATE — choose a destination", "menu" => "MAIN MENU (VR wrist menu · Q on desktop)", "eclss" => "ECLSS — life support status", "drive" => "PRESSURISED / OPEN ROVER — EVA destinations", _ => id };
+            string title = id switch { "crew" => "CREW INTERFACE — Cmdr. J. Rana (only you see this)", "dashboard" => "AI PSYCHOLOGICAL MONITORING DASHBOARD — Command", "cmo" => "CHIEF MEDICAL OFFICER CONSOLE — Tier 3 queue", "meeting" => "DAILY PLANNING CONFERENCE — Team meeting", "tabletop" => "TABLETOP SIMULATION — 72-hour mission window", "scenarios" => "AGENCY REVIEW BOARD — live scenarios Q1–Q6", "nav" => "NAVIGATE — choose a destination", "menu" => "MAIN MENU (VR wrist menu · Q on desktop)", "eclss" => "ECLSS — life support status", "drive" => "PRESSURISED / OPEN ROVER — EVA destinations", "docs" => "PROJECT ARES DELIVERABLES D1–D4 (live from the AI engine) · F11", _ => id };
             UIKit.Label(root, $"<b>{title}</b>", 32, UIKit.Accent, TL, new Vector2(24, -14), new Vector2(1300, 46), TextAnchor.UpperLeft, TL);
             UIKit.Btn(root, "Close ✕", TR, new Vector2(-20, -14), new Vector2(150, 50), () => Panels.Close(id), new Color(0.45f, 0.15f, 0.15f), 22).GetComponent<RectTransform>().pivot = TR;
             body = UIKit.Label(root, "", 21, Color.white, TL, new Vector2(24, -70), new Vector2(940, 860), TextAnchor.UpperLeft, TL);
@@ -45,25 +45,36 @@ namespace Hunch3
         }
         void Btn(string label, int col, int row, Action a, Color? c = null)
         {
-            var b = UIKit.Btn(root, label, TR, new Vector2(-20 - col * 500, -80 - row * 62), new Vector2(480, 54), () => { a(); Refresh(); Rebuild(); }, c, 20);
+            var b = UIKit.Btn(root, label, TR, new Vector2(-20 - col * 500, -80 - row * rowStep), new Vector2(480, rowStep - 8), () => { a(); Refresh(); Rebuild(); }, c, 20);
             b.GetComponent<RectTransform>().pivot = TR; dyn.Add(b.gameObject);
         }
         void Rebuild() { foreach (var g in dyn) Destroy(g); dyn.Clear(); Buttons(); }
         void Update() { if (Time.time > next) { next = Time.time + 0.5f; Refresh(); } }
 
+        float rowStep = 62f;
         void Buttons()
         {
             var me = E.C(1); int r = 0;
+            rowStep = id == "crew" && (Panels.crewTab == "privacy" || Panels.crewTab == "overrides") ? 56f : 62f;
             switch (id)
             {
                 case "crew":
                     foreach (var tab in new[] { "wellness", "ai actions", "overrides", "privacy", "preferences" })
                     { string t = tab; Btn((Panels.crewTab == t ? "▶ " : "") + t.ToUpper(), 0, r++, () => Panels.crewTab = t, Panels.crewTab == t ? new Color(0.15f, 0.5f, 0.7f) : null); }
                     r++;
+                    if (Panels.crewTab == "wellness")
+                    {
+                        string[] ml = { "good", "OK", "low" }, sl = { "low", "medium", "high" };
+                        int mi = me.selfMood < 0 ? -1 : Mathf.RoundToInt(me.selfMood * 2), si = me.selfStress < 0 ? -1 : Mathf.RoundToInt(me.selfStress * 2);
+                        Btn("Self-check 1/2 · my mood today: " + (mi < 0 ? "tap" : ml[mi]), 0, r++, () => { int n = (mi + 1) % 3; E.SelfCheck(me, n / 2f, me.selfStress < 0 ? 0f : me.selfStress); }, new Color(0.2f, 0.4f, 0.55f));
+                        Btn("Talk to the AI companion (private)", 0, r++, () => HUD.I?.Toast("AI: " + E.Companion(me)), new Color(0.35f, 0.3f, 0.6f));
+                        Btn("Self-check 2/2 · my stress today: " + (si < 0 ? "tap" : sl[si]), 0, r++, () => { int n = (si + 1) % 3; E.SelfCheck(me, me.selfMood < 0 ? 0f : me.selfMood, n / 2f); }, new Color(0.2f, 0.4f, 0.55f));
+                    }
                     if (Panels.crewTab == "overrides")
                     {
                         Btn(AIAuthority.Blocked ? "✓ AI DISALLOWED — tap to allow again" : "⛔ DISALLOW AI CONTROL (off switch)", 0, r++, () => AIAuthority.Toggle(), AIAuthority.Blocked ? new Color(0.15f, 0.45f, 0.25f) : new Color(0.75f, 0.1f, 0.1f));
                         for (int k = 0; k < 6; k++) if (me.tier[k] > 0) { int kk = k; Btn($"STOP: {CondSpec.Name[k]} support", 0, r++, () => E.Refuse(me, kk), new Color(0.5f, 0.2f, 0.15f)); }
+                        Btn("That reading is wrong (teach the AI)", 0, r++, () => HUD.I?.Toast(E.Feedback(me)), new Color(0.35f, 0.3f, 0.6f));
                         Btn("Pause ALL AI adjustments 24 h", 0, r++, () => { me.pauseUntilHour = SimClock.hours + 24; E.Log(1, "pause", "Crew paused all AI adjustments for 24 h."); }, new Color(0.5f, 0.2f, 0.15f));
                         Btn((me.notifyEverySilentChange ? "☑" : "☐") + " Tell me about EVERY silent change", 0, r++, () => me.notifyEverySilentChange = !me.notifyEverySilentChange);
                         Btn("Restore my room to default", 0, r++, () => { for (int k = 0; k < 6; k++) if (me.tier[k] > 0) E.Refuse(me, k); HabitatEnvironment.I?.Apply("restore:", 1, 0); E.Log(1, "override", "Crew restored their environment to default; AI holds back."); });
@@ -75,11 +86,14 @@ namespace Hunch3
                         foreach (int s in new[] { 3, 4, 6, 1 }) { int ss = s; Btn((me.optOut[s] ? "☑ opted out: " : "☐ opt out: ") + SensorSpec.Name[s], 0, r++, () => { me.optOut[ss] = !me.optOut[ss]; E.Log(1, "privacy", (me.optOut[ss] ? "Opted out of " : "Re-enabled ") + SensorSpec.Name[ss]); }); }
                         Btn("Pause psych monitoring 72 h (max)", 0, r++, () => { me.pauseUntilHour = SimClock.hours + 72; E.Log(1, "privacy", "Psych monitoring paused 72 h; CMO told only that a pause is active."); });
                         Btn("Export my full data log", 0, r++, () => ExportLog(me));
+                        Btn("Delete my AI history", 0, r++, () => HUD.I?.Toast($"Deleted {E.DeleteMyHistory(me)} entries. Only Tier-3 safety records remain (you + CMO only)."), new Color(0.5f, 0.2f, 0.15f));
                         Btn((me.shareHealthWithCmo ? "☑" : "☐") + " Share my health-station results with the CMO", 0, r++, () => { me.shareHealthWithCmo = !me.shareHealthWithCmo; E.Log(1, "privacy", me.shareHealthWithCmo ? "Health-station results now shared with the CMO." : "Health-station results private again."); });
                     }
                     else if (Panels.crewTab == "preferences")
                     {
                         Btn("Pod light: warm 2700 K", 0, r++, () => { if (EthicsGuard.CanActInPod(me, "pod light")) E.Log(1, "pref", "Pod light set to warm 2700 K."); else E.Log(1, "pref", "Preference saved; applied when you invite the AI into your pod."); });
+                        Btn("My quarters: warmer +0.5 °C", 0, r++, () => MyRoom(me, +0.5f));
+                        Btn("My quarters: cooler −0.5 °C", 0, r++, () => MyRoom(me, -0.5f));
                         Btn("Scent: lavender / citrus / none", 0, r++, () => E.Log(1, "pref", "Scent preference cycled."));
                         Btn("Music: pre-mission playlist", 0, r++, () => E.Log(1, "pref", "Favourite playlist queued for free time."));
                     }
@@ -103,6 +117,14 @@ namespace Hunch3
                     Btn("Rebalance workload (lighter afternoon)", 0, r++, () => { foreach (var c in E.crew) c.fatigue -= 0.1f; E.Log(0, "meeting", "Workload rebalanced."); });
                     Btn("Book Earth family-call slots", 0, r++, () => { foreach (var c in E.crew) c.mood += 0.05f; E.Log(0, "meeting", "Family-call slots booked in the private booth."); });
                     break;
+                case "docs":
+                    Btn("◀ Previous page", 0, r++, () => DesignDocs.page--, new Color(0.2f, 0.3f, 0.45f));
+                    Btn("Next page ▶", 0, r++, () => DesignDocs.page++, new Color(0.15f, 0.45f, 0.6f));
+                    r++;
+                    foreach (var sec in DesignDocs.Sections) { string ss = sec; bool here = DesignDocs.Current.section == ss; Btn((here ? "▶ " : "") + ss, 0, r++, () => DesignDocs.Jump(ss), here ? new Color(0.15f, 0.5f, 0.7f) : null); }
+                    r++;
+                    Btn("Export all to Reports folder", 0, r++, () => HUD.I?.Toast("Saved: " + DesignDocs.ExportAll()), new Color(0.15f, 0.45f, 0.25f));
+                    break;
                 case "tabletop":
                     Btn("▶ Run 72-hour simulation", 0, r++, () => { TabletopSim.Run(); }, new Color(0.15f, 0.45f, 0.25f));
                     break;
@@ -118,7 +140,7 @@ namespace Hunch3
                             ("Find my bed · B", () => { Panels.CloseAll(); BedFinder.I?.Toggle(); }),
                             ("Third-person view · F", () => { Panels.CloseAll(); ThirdPersonView.I?.Toggle(); }),
                             ("Crew Interface (my data & overrides)", () => Panels.Open("crew")), ("Navigate to a room", () => Panels.Open("nav")),
-                            ("AI Dashboard (sensors, matrix, limits)", () => Panels.Open("dashboard")), ("CMO console (Tier 3)", () => Panels.Open("cmo")),
+                            ("ARES deliverables D1–D4 · F11", () => Panels.Open("docs")), ("AI Dashboard (sensors, matrix, limits)", () => Panels.Open("dashboard")), ("CMO console (Tier 3)", () => Panels.Open("cmo")),
                             ("Team meeting", () => Panels.Open("meeting")), ("Tabletop simulation (72 h)", () => Panels.Open("tabletop")),
                             ("Board scenarios Q1–Q6", () => Panels.Open("scenarios")), ("Big map on / off", () => { Panels.CloseAll(); HUD.I?.ToggleBigMap(); }),
                             ("Autopilot on / off", () => { Panels.CloseAll(); if (PlayerRig.I) PlayerRig.I.autopilot = !PlayerRig.I.autopilot; }),
@@ -159,6 +181,15 @@ namespace Hunch3
             Vector3 p = t.position; p.y = 0; var hit = Physics.Raycast(p + Vector3.up * 200, Vector3.down, out var h, 400) ? h.point : p;
             pr.Teleport(hit + (pr.FeetPosition - hit).normalized * 6f + Vector3.up * 0.3f);
             HUD.I?.Toast($"Rover traverse complete → {label}. (Suit O2 keeps counting!)"); Panels.Close(id);
+        }
+        /// private retreat: temperature is the OCCUPANT's control, independent of the rest of the habitat (18–26 °C)
+        void MyRoom(CrewMember me, float d)
+        {
+            var env = HabitatEnvironment.I; if (!env) return;
+            foreach (var z in env.zones.Where(z => z.name == "Private_Quarters1" || z.name == "Private_Pod1"))
+            { z.tempC = Mathf.Clamp(z.tempC + d, 18f, 26f); z.dTemp = z.tempC; }
+            var q = env.Get("Private_Quarters1");
+            E.Log(1, "pref", $"You set your quarters to {(q != null ? q.tempC : 21.5f):0.0} °C (your room only; the AI never changes it unless you invite it).");
         }
         void ExportLog(CrewMember me)
         {
@@ -246,11 +277,18 @@ namespace Hunch3
                     if (avgF <= 0.45f && avgN >= 0.5f && maxT <= 0.35f) sb.AppendLine("• Team looks good. Keep the routine and protect free time.");
                     sb.AppendLine("\nRecent decisions:"); foreach (var l in E.log.Where(l => l.kind == "meeting").Reverse().Take(5)) sb.AppendLine("  " + l.Time + " " + l.text);
                     break;
+                case "docs":
+                    {
+                        var pg = DesignDocs.Current;
+                        sb.AppendLine($"<b><color=#{UIKit.Hex(UIKit.Gold)}>{pg.title}</color></b>   <size=16>(page {DesignDocs.page + 1}/{DesignDocs.Pages.Count})</size>");
+                        sb.Append(pg.body());
+                    }
+                    break;
                 case "tabletop": sb.Append(TabletopSim.lastReport ?? "Runs the real AI engine headless over 72 sim-hours with two simultaneous events (depression + conflict), a cortisol-sensor failure and the CMO on EVA during a Tier 3. Produces a timeline, successes/failures and redesign notes, saved to Reports/."); break;
                 case "scenarios": sb.Append(Scenarios.lastExplain ?? "Pick a board question. The scenario is set up LIVE in the habitat and the AI's response is explained here and in the dashboard/CMO console."); break;
                 case "menu": sb.Append("Point the ray,\npull the trigger.\n\nVR buttons\nY  crew UI\nX  map\nB  autopilot\nA  accept offer\nL-stick click\n   this menu\nGrip  teleport\nL-stick  move\nR-stick  turn\nHand up + wave\n   say hello"); break;
                 case "nav": sb.Append("Pick a room.\nA gold arrow, an on-screen compass and a glowing floor trail guide you there\n(ladder between decks)."); break;
-                case "eclss": var env = HabitatEnvironment.I; sb.AppendLine($"O2 {env.o2Percent:0.0}% · pressure {env.pressureKPa:0.0} kPa · water {env.waterL:0} L (98% recovery) · power {env.powerKW:0} kW"); foreach (var z in env.zones.Where(z => z.type != "transition")) sb.AppendLine($"  {z.name,-24} CO2 {z.co2:0} ppm  {z.tempC:0.0} °C  airflow {z.airflow:0.00} m/s  scent {z.scent}"); sb.AppendLine("\nAI may adjust comfort levers only. Life-safety set-points are human-only (hard limit #3)."); break;
+                case "eclss": var env = HabitatEnvironment.I; sb.AppendLine($"O2 {env.o2Percent:0.0}% · pressure {env.pressureKPa:0.0} kPa · water {env.waterL:0} L (98% recovery) · power {env.powerKW:0} kW"); foreach (var z in env.zones.Where(z => z.type != "transition")) sb.AppendLine($"  {z.name,-24} CO2 {z.co2:0} ppm  {z.tempC:0.0} °C  RH {z.humidity:0}%  air {z.airflow:0.00} m/s  scent {z.scent}"); sb.AppendLine("\nAI may adjust comfort levers only. Life-safety set-points are human-only (hard limit #3)."); break;
                 case "drive": sb.Append("Rover traverses (must be suited). Real NASA spacing: fission power ~1 km from crew."); break;
             }
             body.text = sb.ToString();

@@ -82,10 +82,10 @@ namespace Hunch3
             var c = UIKit.Canvas("MenuCanvas", true, new Vector2(1800, 1150)); c.transform.position = new Vector3(0, 1.6f, 2.6f); c.transform.localScale = Vector3.one * 0.0013f;
             var bg = UIKit.Panel(c.transform, "Bg", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1800, 1150), new Color(0.03f, 0.02f, 0.1f, 0.82f));
             UIKit.Label(bg.transform, "<b>LUNAR SMART ADAPTIVE HABITAT</b>", 74, new Color(0.4f, 0.95f, 1f), new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(1700, 100), TextAnchor.UpperCenter);
-            sub = UIKit.Label(bg.transform, "NASA HUNCH 2025-26 · AI Psychological Monitoring for Positive Crew Mental Health · 4 crew · 1/6 g", 28, new Color(1f, 0.6f, 0.95f), new Vector2(0.5f, 1), new Vector2(0, -130), new Vector2(1700, 44), TextAnchor.UpperCenter);
+            sub = UIKit.Label(bg.transform, "NASA HUNCH 2025-26 · AI Psychological Monitoring for Positive Crew Mental Health · 4 crew · 1/6 g", 28, new Color(0.65f, 0.8f, 0.9f), new Vector2(0.5f, 1), new Vector2(0, -130), new Vector2(1700, 44), TextAnchor.UpperCenter);
             string[] labels = { "▶  START MISSION (sandbox)", "◎  GUIDED ZONE TOUR (autopilot)", "⚖  AGENCY BOARD SCENARIOS Q1–Q6", "⏱  TABLETOP SIMULATION (72 h)", "☰  CREW INTERFACE DEMO", "⚙  SETTINGS", "★  CREDITS", "✕  QUIT" };
             Action[] acts = { () => Go(GameMode.Sandbox), () => Go(GameMode.Tour), () => Go(GameMode.Scenario), () => Go(GameMode.Tabletop), () => Go(GameMode.InterfaceDemo), () => Toggle(settingsPanel), () => Toggle(creditsPanel), Quit };
-            Color[] cols = { new Color(0.1f, 0.6f, 0.4f), new Color(0.1f, 0.4f, 0.75f), new Color(0.55f, 0.25f, 0.75f), new Color(0.75f, 0.45f, 0.1f), new Color(0.15f, 0.5f, 0.6f), new Color(0.3f, 0.3f, 0.45f), new Color(0.5f, 0.4f, 0.1f), new Color(0.5f, 0.15f, 0.2f) };
+            Color? slate = null; Color?[] cols = { new Color(0.1f, 0.55f, 0.35f), slate, slate, slate, slate, slate, slate, new Color(0.55f, 0.15f, 0.15f) };   // console grey; green = start, red = quit
             for (int i = 0; i < labels.Length; i++)
             { var b = UIKit.Btn(bg.transform, labels[i], new Vector2(0.5f, 1), new Vector2(i < 4 ? -440 : 440, -260 - (i % 4) * 120), new Vector2(820, 96), acts[i], cols[i], 34); b.name = "Menu_" + i; }
             UIKit.Label(bg.transform, "VR: point & pull the trigger · Desktop: click · In-game: H for help", 24, new Color(0.8f, 0.8f, 1f), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(1700, 40), TextAnchor.LowerCenter);
@@ -113,12 +113,12 @@ namespace Hunch3
             for (int i = 0; i < grid.Count; i++)
             {
                 if (!grid[i]) continue;
-                var col = Color.HSVToRGB((t * 0.05f + i * 0.13f) % 1f, 0.75f, 1f) * (0.8f + 0.2f * Mathf.Sin(t * 2 + i));
+                var col = new Color(0.15f, 0.45f, 0.7f) * (0.75f + 0.25f * Mathf.Sin(t * 0.6f + i * 0.4f));   // steady console blue, slow soft glow
                 var m = grid[i].sharedMaterial; if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", col); m.color = col;
             }
             if (moon) moon.Rotate(0, 8 * Time.deltaTime, 0); if (ring) ring.Rotate(0, -20 * Time.deltaTime, 0);
             if (holo) { holo.Rotate(0, 25 * Time.deltaTime, 0); holo.position = new Vector3(2.3f, 1.2f + 0.08f * Mathf.Sin(t * 1.5f), 2.4f); }
-            if (sub) sub.color = Color.Lerp(new Color(1f, 0.6f, 0.95f), new Color(0.5f, 0.9f, 1f), 0.5f + 0.5f * Mathf.Sin(t));
+            if (sub) sub.color = new Color(0.65f, 0.8f, 0.9f);
             var kb = UnityEngine.InputSystem.Keyboard.current;
             if (kb != null && kb.enterKey.wasPressedThisFrame) Go(GameMode.Sandbox);
         }

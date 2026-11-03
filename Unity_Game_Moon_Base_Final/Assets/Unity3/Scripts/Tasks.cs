@@ -48,7 +48,7 @@ namespace Hunch3
         // what the simulation has shown so far
         readonly HashSet<string> zoneTypesSeen = new HashSet<string>();
         static readonly string[] AresTypes = { "communal", "private", "work", "exercise", "nature", "transition" };
-        bool sawExercise, sawMap, sawDashboard, sawCrewUI;
+        bool sawExercise, sawMap, sawDashboard, sawCrewUI, sawMatrix;
         readonly HashSet<string> events = new HashSet<string>();
         LogEntry lastSeen; float nextCheck;
 
@@ -107,6 +107,9 @@ namespace Hunch3
             Add("exercise", "D1", "Exercise in the Exercise bay (no false alarm)",
                 "Walk to the Exercise bay and press E on the treadmill, bike or resistance machine. Your heart-rate rise is tagged as exercise, so the AI does NOT treat it as anxiety.",
                 () => sawExercise, () => NavZone(z => z.type == "exercise", "Exercise bay"));
+            Add("matrix", "D1", "Read the sensor-to-condition matrix (D1)",
+                "Press F11 (VR: menu → ARES deliverables) and page through D1: every sensor's signal, threshold, 2+ failure modes, mass and power.",
+                () => sawMatrix, () => { DesignDocs.Jump("D1 Sensors"); DesignDocs.page++; Panels.Open("docs"); });
             // D2 — spatial design
             Add("zones", "D2", "Visit all 6 ARES zones",
                 "Walk into a communal, private, work, exercise, nature and transition zone. The zone card (top right) names each one and why it is designed that way.",
@@ -232,6 +235,7 @@ namespace Hunch3
                 var e = E; if (e != null && e.C(1).exercising) sawExercise = true;
                 if (GameObject.Find("Panel_dashboard")) sawDashboard = true;
                 if (GameObject.Find("Panel_crew")) sawCrewUI = true;
+                if (GameObject.Find("Panel_docs") && DesignDocs.Current.section == "D1 Sensors" && DesignDocs.page >= 1) sawMatrix = true;
                 Scan();
                 foreach (var t in tasks)
                 {
@@ -293,7 +297,7 @@ namespace Hunch3
         public void ResetAll()
         {
             foreach (var t in tasks) { t.done = false; t.doneAt = ""; }
-            zoneTypesSeen.Clear(); events.Clear(); sawExercise = sawMap = sawDashboard = sawCrewUI = false;
+            zoneTypesSeen.Clear(); events.Clear(); sawExercise = sawMap = sawDashboard = sawCrewUI = sawMatrix = false;
             var e = E; lastSeen = e != null && e.log.Count > 0 ? e.log[e.log.Count - 1] : null;   // only count what happens from now on
             focus = null; Save(); HUD.I?.Toast("Rubric checklist reset — start again from task 1.");
         }
@@ -410,6 +414,7 @@ namespace Hunch3
         void Column(Transform bg, string[] secs, float x)
         {
             float y = -84; var TL = new Vector2(0, 1); var cur = Current;
+            int nRows = tasks.Count(t => secs.Contains(t.sec)); float step = Mathf.Min(58f, (860f - secs.Length * 44f) / Mathf.Max(1, nRows)), rowH = step - 4f;
             foreach (var code in secs)
             {
                 var sec = Sections.First(s => s.code == code); var list = tasks.Where(t => t.sec == code).ToList();
@@ -418,7 +423,7 @@ namespace Hunch3
                 y -= 36;
                 foreach (var t in list)
                 {
-                    var row = UIKit.Round(UIKit.Panel(bg, "Row_" + t.id, TL, new Vector2(x, y), new Vector2(712, 54), t.done ? new Color(0.08f, 0.3f, 0.16f, 0.9f) : t == cur ? new Color(0.35f, 0.26f, 0.05f, 0.95f) : new Color(0.1f, 0.13f, 0.2f, 0.9f), TL), 1.4f).transform;
+                    var row = UIKit.Round(UIKit.Panel(bg, "Row_" + t.id, TL, new Vector2(x, y), new Vector2(712, rowH), t.done ? new Color(0.08f, 0.3f, 0.16f, 0.9f) : t == cur ? new Color(0.35f, 0.26f, 0.05f, 0.95f) : new Color(0.1f, 0.13f, 0.2f, 0.9f), TL), 1.4f).transform;
                     UIKit.Label(row, t.done ? "<color=#4CFF8A><b>✓</b></color>" : "<color=#FFFFFF>☐</color>", 30, Color.white, new Vector2(0, 0.5f), new Vector2(10, 0), new Vector2(34, 50), TextAnchor.MiddleLeft, new Vector2(0, 0.5f));
                     string sub = t.done ? $"<size=14><color=#9FE8B5>done {t.doneAt}</color></size>" : (t.progress != null ? $"<size=14><color=#FFE08A>{t.progress()}</color></size>" : "");
                     UIKit.Label(row, "<b>" + t.title + "</b>" + (sub.Length > 0 ? "\n" + sub : ""), 18, Color.white, new Vector2(0, 0.5f), new Vector2(46, 0), new Vector2(t.done ? 650 : 400, 52), TextAnchor.MiddleLeft, new Vector2(0, 0.5f));
@@ -433,7 +438,7 @@ namespace Hunch3
                         var b1 = UIKit.Btn(row, tt.guide != null ? "Guide me" : "Do next", new Vector2(1, 0.5f), new Vector2(bx, 0), new Vector2(120, 42), () => { focus = tt; CloseList(); tt.guide?.Invoke(); HUD.I?.Toast("Next task: " + tt.title); }, new Color(0.15f, 0.45f, 0.7f), 16);
                         b1.GetComponent<RectTransform>().pivot = new Vector2(1, 0.5f);
                     }
-                    y -= 58;
+                    y -= step;
                 }
                 y -= 8;
             }
@@ -530,7 +535,7 @@ namespace Hunch3
             if (!canvas || !Visible || Time.time < next) return; next = Time.time + 1f;
             var e = Sim.I != null ? Sim.I.engine : null; if (e == null) return;
             // hide on desktop when a big panel is open (it would cover it)
-            if (!(PlayerRig.I && PlayerRig.I.isXR)) bg.gameObject.SetActive(!Panels.AnyOpen && !SleepSystem.PlayerAsleep);
+            if (!(PlayerRig.I && PlayerRig.I.isXR)) bg.gameObject.SetActive(!Panels.AnyOpen && !SleepSystem.PlayerAsleep && !(HUD.I && HUD.I.BigMapOpen));
 
             var env = HabitatEnvironment.I;
             float co2 = env && env.zones.Count > 0 ? env.zones.Average(z => z.co2) : e.zoneCO2Ppm;

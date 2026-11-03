@@ -129,6 +129,11 @@ namespace Hunch3
         public bool[] optOut = new bool[9];
         public float pauseUntilHour = -1;     // psych-monitoring pause (max 72 h)
         public SensorHealth[] sensors = new SensorHealth[9];
+        public float[] baseline = { 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f };   // personal resting score per condition, updated after every resolved episode
+        public float Thr(int k, float t) => t + Mathf.Clamp(baseline[k] - 0.2f, 0f, 0.05f);   // a person whose normal is higher gets a slightly higher bar (max +0.05)
+        public List<float> silentAt = new List<float>();   // times of silent Tier-1 changes (agency budget: max 3 per 24 h)
+        public float selfMood = -1, selfStress = -1, selfAt = -99;   // voluntary 2-question self-check (0 = good … 1 = bad); counts for 24 h
+        public float[] fbWeight = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };   // crew feedback "that reading is wrong" lowers a sensor's weight for THIS person only (min 0.4)
         public List<LogEntry> log = new List<LogEntry>();
         public int MaxTier { get { int m = 0; for (int i = 0; i < 6; i++) m = Mathf.Max(m, tier[i]); return m; } }
         public float Wellbeing => Mathf.Clamp01(0.4f * mood + 0.25f * (1 - stress) + 0.2f * sleepQ + 0.15f * (1 - fatigue));

@@ -28,6 +28,7 @@ namespace Hunch3.EditorTools
         [MenuItem("HUNCH 3/1. Build scenes")] public static void BuildScenesMenu() { Run(() => { Materials(); Scenes(); }); }
         [MenuItem("HUNCH 3/2. Build Windows .exe")] public static void BuildExeMenu() { Run(BuildWindows); }
         [MenuItem("HUNCH 3/3. Build Quest .apk")] public static void BuildApkMenu() { Run(BuildAndroid); }
+        [MenuItem("HUNCH 3/4. Build WebGL (Unity Play) + zip")] public static void BuildWebMenu() { Run(BuildWebGL); }
         public static void BuildAll() { Run(() => { Materials(); Scenes(); BuildWindows(); }, true); }
         public static void BuildScenesOnly() { Run(() => { Materials(); Scenes(); }, true); }
 
@@ -307,6 +308,37 @@ namespace Hunch3.EditorTools
             R($"windows build: {rep.summary.result} · {rep.summary.totalErrors} errors · {rep.summary.totalSize / 1e6:0} MB → {opts.locationPathName}");
             foreach (var st in rep.steps) foreach (var m in st.messages) if (m.type == LogType.Error || m.type == LogType.Exception) R($"  build error [{st.name}]: {m.content}");
             if (rep.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) throw new Exception("Windows build failed");
+        }
+        /// Web version for Unity Play (play.unity.com): Builds/WebGL + Builds/LunarHabitat_WebGL.zip to upload by hand.
+        /// Same settings that fixed the unity2 black screen: Brotli + decompression fallback, exceptions with stack traces, clean cache.
+        static void BuildWebGL()
+        {
+            string u3 = "C:/Users/jaine/Downloads/Nasa/official projects for nasa/unity 3"; string root = Directory.Exists(u3) ? u3 : Path.GetFullPath("..");
+            string outDir = Path.Combine(root, "Builds/WebGL"); Directory.CreateDirectory(outDir);
+            if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL)) throw new Exception("WebGL module is not installed for this Unity version — Unity Hub → Installs → 6000.3.21f1 → Add modules → WebGL Build Support");
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.WebGL, BuildTarget.WebGL);
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+            PlayerSettings.WebGL.decompressionFallback = true;
+            PlayerSettings.WebGL.dataCaching = true;
+            PlayerSettings.WebGL.maximumMemorySize = 4096;
+            PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.FullWithStacktrace;
+            PlayerSettings.SetManagedStrippingLevel(UnityEditor.Build.NamedBuildTarget.WebGL, ManagedStrippingLevel.Low);
+            // the web build has no headset: XR stays off, the desktop fallback (WASD + mouse) runs
+            var opts = new BuildPlayerOptions { scenes = new[] { MenuScene, HabScene }, locationPathName = outDir, target = BuildTarget.WebGL, options = BuildOptions.CleanBuildCache };
+            var rep = BuildPipeline.BuildPlayer(opts);
+            R($"webgl build: {rep.summary.result} · {rep.summary.totalErrors} errors · {rep.summary.totalSize / 1e6:0} MB → {outDir}");
+            foreach (var st in rep.steps) foreach (var m in st.messages) if (m.type == LogType.Error || m.type == LogType.Exception) R($"  build error [{st.name}]: {m.content.Split('\n')[0]}");
+            if (rep.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) throw new Exception("WebGL build failed");
+            string zip = Path.Combine(root, "Builds/LunarHabitat_WebGL.zip"); if (File.Exists(zip)) File.Delete(zip);
+            using (var fs = new FileStream(zip, FileMode.Create))
+            using (var arc = new System.IO.Compression.ZipArchive(fs, System.IO.Compression.ZipArchiveMode.Create))
+                foreach (var f in Directory.GetFiles(outDir, "*", SearchOption.AllDirectories))
+                {
+                    var e = arc.CreateEntry(f.Substring(outDir.Length + 1).Replace('\\', '/'), System.IO.Compression.CompressionLevel.Fastest);
+                    using (var o = e.Open()) using (var i = File.OpenRead(f)) i.CopyTo(o);
+                }
+            R($"zip for Unity Play: {zip} ({new FileInfo(zip).Length / 1000000} MB; limit 500 MB)");
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
         }
         static void BuildAndroid()
         {

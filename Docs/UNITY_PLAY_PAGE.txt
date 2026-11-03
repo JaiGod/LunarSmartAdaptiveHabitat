@@ -1,0 +1,30 @@
+=== Unity Play (play.unity.com) — page text for the final game ===
+
+TITLE
+Lunar Smart Adaptive Habitat
+
+SHORT DESCRIPTION (one line)
+A 4-person lunar habitat where an AI watches crew mental health and quietly adapts light, sound, scent and air — NASA HUNCH Project ARES.
+
+DESCRIPTION
+Walk a complete lunar base in 1/6 g: four private sleep domes, a wardroom, lab, greenhouse, exercise bay, medical/storm shelter, airlock with suitports and a rover.
+An AI psychological-monitoring system reads 9 sensors (never a camera or mic in private rooms), scores six conditions — anxiety, depression, conflict, fatigue, autonomy deprivation, sensory monotony — and responds in three tiers:
+• Tier 1: silent, reversible environment changes (always in your personal log)
+• Tier 2: a gentle offer you can accept or decline
+• Tier 3: a human takes over (CMO → Commander → Mission Control), and you are told first
+You are the Commander. Sleep in your pod, exercise, go on EVA, run the team meeting — or play the Agency Review Board and try to break the AI: fail a sensor, refuse an offer, hit the AI off switch.
+
+HOW TO PLAY
+WASD move · mouse look · E use · Tab crew interface · M annotated floor plan · F1 AI dashboard · F2 CMO console · F5 board scenarios Q1–Q6 · F4 72-hour tabletop · F11 Project ARES deliverables · O AI off switch · H help
+
+TAGS
+nasa, simulation, space, moon, habitat, ai, education, vr, first-person, science
+
+CREDITS
+© 2026 Jaineil R. — design, 3D habitat, software · with thanks to Angel C. (research & requirements) and Farhan K. (physical model). NASA HUNCH 2025-26, Project ARES.
+
+=== Upload steps ===
+1. play.unity.com → sign in → "Upload game" (or your profile → Games → Add).
+2. Upload: C:\Users\jaine\Downloads\Nasa\official projects for nasa\unity 3\Builds\LunarHabitat_WebGL.zip
+3. Paste the text above. Cover image: a screenshot from Builds\Windows\Reports or take one in game.
+4. Publish → copy the game URL → it goes in the README "Play in browser" button.

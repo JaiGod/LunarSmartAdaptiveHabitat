@@ -109,6 +109,7 @@ namespace Hunch3
             if (Key(UnityEngine.InputSystem.Key.F3)) Panels.Toggle("meeting");
             if (Key(UnityEngine.InputSystem.Key.F4)) Panels.Toggle("tabletop");
             if (Key(UnityEngine.InputSystem.Key.F5)) Panels.Toggle("scenarios");
+            if (Key(UnityEngine.InputSystem.Key.F11)) Panels.Toggle("docs");
             if (Key(UnityEngine.InputSystem.Key.C)) HabitatEnvironment.I?.SetConfigB(!GameState.configB);
             if (Key(UnityEngine.InputSystem.Key.T)) { GameState.timeScale = GameState.timeScale >= 600 ? 1 : GameState.timeScale >= 60 ? 600 : 60; HUD.I?.Toast($"Time speed: 1 s = {GameState.timeScale / 60f:0.#} sim min"); }
             if (Key(UnityEngine.InputSystem.Key.Z)) HUD.I?.ToggleZoneCards();

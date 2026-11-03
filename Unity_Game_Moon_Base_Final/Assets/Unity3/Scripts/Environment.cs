@@ -11,7 +11,12 @@ namespace Hunch3
         public List<Light> lights = new List<Light>();
         public Color baseColor; public float baseIntensity = 1f;
         public Color targetColor; public float targetMul = 1f; public bool hueDrift; public string activeLever = "";
-        public float co2 = 520f, tempC = 21.5f, airflow = 0.15f; public string scent = "none"; public string audio = "habitat hum";
+        public float co2 = 520f, tempC = 21.5f, airflow = 0.15f, humidity = 50f; public string scent = "none"; public string audio = "habitat hum";
+        // the zone's own design defaults (ARES brief §4.1) — the AI levers move away from these and 'restore' comes back to them
+        public float dTemp = 21.5f, dAir = 0.15f, dHum = 50f, dK = 4500f; public string dScent = "none";
+        public float nextScentH; public bool occupied;
+        public float restoreStartH = -1; public Color restoreFrom; public float restoreFromMul = 1f; public bool purging;
+        public Dictionary<Light, Color> design = new Dictionary<Light, Color>();     // design colour per light (transition = gradient)
         public bool IsPrivate => type == "private";
         public Dictionary<Light, Color> orig = new Dictionary<Light, Color>();
         public Dictionary<Light, float> origI = new Dictionary<Light, float>();
@@ -66,10 +71,40 @@ namespace Hunch3
                 if (tag) { z.type = tag.Get("ares_type", "shared"); z.lighting = tag.Get("lighting"); z.purpose = tag.Get("purpose"); float.TryParse(tag.Get("radius", "3"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out z.radius); }
                 foreach (var l in allLights) if (Vector3.Distance(l.transform.position, z.center) < z.radius + 1.2f && Mathf.Abs(l.transform.position.y - z.center.y) < 3.2f) { z.lights.Add(l); z.orig[l] = l.color; z.origI[l] = l.intensity; }
                 z.baseColor = z.type == "communal" ? Util.Cct(2800) : z.type == "work" ? Util.Cct(6500) : z.type == "exercise" ? Util.Cct(5000) : Util.Cct(4500);
+                switch (z.type)
+                {   //                       temp  airflow humidity  CCT    scent
+                    case "communal":   D(z, 22.0f, 0.15f, 50f, 2800f, "none"); break;                  // warm 2700–3000 K draws the crew together
+                    case "work":       D(z, 21.0f, 0.30f, 45f, 6500f, "none"); break;                  // cool 6000–6500 K, higher airflow, CO2 kept < 600 ppm
+                    case "exercise":   D(z, 19.0f, 0.35f, 45f, 5500f, "none"); break;                  // cooler, breezy; energising light on entry
+                    case "nature":     D(z, 22.0f, 0.20f, 55f, 4000f, "petrichor + green"); z.baseColor = new Color(0.92f, 0.55f, 1f); break;   // red/blue grow spectrum
+                    case "private":    D(z, 21.5f, 0.10f, 50f, 3000f, "none"); break;                  // occupant-controlled
+                    case "transition": D(z, 21.5f, 0.15f, 50f, 4500f, "none"); break;                  // gradient, set below
+                    default:           D(z, 21.5f, 0.15f, 50f, 4500f, "none"); break;
+                }
                 if (z.name == "Communal_Wardroom") { z.center = new Vector3(0.6f, z.center.y, z.center.z); z.radius = 4.4f; }
                 z.targetColor = Color.clear;
                 zones.Add(z);
             }
+            // design colour of every light: the zone's CCT (60 % over the modelled colour). Transition corridors get a GRADIENT:
+            // each light takes the colour (and the corridor the temperature) of the two zones it connects, by distance → 'arriving somewhere different'.
+            foreach (var z in zones)
+                foreach (var l in z.lights)
+                {
+                    if (!l) continue;
+                    Color dc = z.type == "nature" ? z.baseColor : Util.Cct(z.dK);
+                    if (z.type == "transition")
+                    {
+                        var ends = zones.Where(q => q.type != "transition" && Mathf.Abs(q.center.y - z.center.y) < 1.5f).OrderBy(q => (q.center - l.transform.position).sqrMagnitude).Take(2).ToList();
+                        if (ends.Count == 2)
+                        {
+                            float da = Vector3.Distance(ends[0].center, l.transform.position), db = Vector3.Distance(ends[1].center, l.transform.position);
+                            float k = da / Mathf.Max(0.01f, da + db);
+                            dc = Color.Lerp(Util.Cct(ends[0].dK), Util.Cct(ends[1].dK), k);
+                            z.dTemp = z.tempC = Mathf.Lerp(ends[0].dTemp, ends[1].dTemp, 0.5f);
+                        }
+                    }
+                    z.design[l] = Color.Lerp(z.orig[l], dc, 0.6f);
+                }
             for (int n = 1; n <= 4; n++)
             {
                 podMood[n] = Util.FindPrefix($"Q{n}_MoodLight_").Concat(Util.FindPrefix($"SQ{n}_MoodLight_")).Select(t => t.GetComponent<Renderer>()).Where(r => r).ToArray();
@@ -83,6 +118,10 @@ namespace Hunch3
             var a = Util.Find("H47_CMO_Tier3_Alert_Glow"); if (a) cmoAlert = a.GetComponent<Renderer>();
             BuildAudio();
         }
+
+        static void D(Zone z, float temp, float air, float hum, float k, string scent)
+        { z.dTemp = z.tempC = temp; z.dAir = z.airflow = air; z.dHum = z.humidity = hum; z.dK = k; z.dScent = z.scent = scent; }
+        public static readonly string[] ScentRotation = { "citrus", "pine forest", "fresh bread", "sea breeze", "cut grass", "vanilla" };
 
         public Zone ZoneAt(Vector3 p)
         {
@@ -140,7 +179,11 @@ namespace Hunch3
         void RestoreLever(string lever)
         {
             foreach (var z in zones.Where(q => q.activeLever == lever || lever == ""))
-            { z.targetColor = Color.clear; z.targetMul = 1; z.scent = "none"; z.audio = "habitat hum"; z.tempC = 21.5f; z.airflow = 0.15f; z.hueDrift = false; z.activeLever = ""; }
+            {
+                // gradual restoration: fade from the intervention back to the design over 30 sim-minutes, after a 10-min scent purge
+                if (z.targetColor != Color.clear) { z.restoreFrom = z.targetColor; z.restoreFromMul = z.targetMul; z.restoreStartH = SimClock.hours; }
+                if (z.scent != z.dScent) { z.purging = true; z.nextScentH = SimClock.hours + 1f / 6f; }
+                z.targetColor = Color.clear; z.targetMul = 1; z.scent = z.purging ? "air purge (flush)" : z.dScent; z.audio = "habitat hum"; z.tempC = z.dTemp; z.airflow = z.dAir; z.humidity = z.dHum; z.hueDrift = false; z.activeLever = ""; }
             if (lever == "autonomy") quietMode = false;
         }
 
@@ -167,16 +210,32 @@ namespace Hunch3
                         l.intensity = Mathf.Lerp(l.intensity, z.origI[l] * Mathf.Lerp(0.05f, 0.9f, dawn), Time.deltaTime * 0.6f);
                         continue;
                     }
-                    Color want = z.targetColor == Color.clear ? z.orig[l] : z.targetColor;
+                    Color want = z.targetColor == Color.clear ? (z.design.TryGetValue(l, out var dsg) ? dsg : z.orig[l]) : z.targetColor;
+                    float rk = z.restoreStartH >= 0 ? Mathf.Clamp01((SimClock.hours - z.restoreStartH) / 0.5f) : 1f;
+                    if (z.targetColor == Color.clear && rk < 1f) want = Color.Lerp(z.restoreFrom, want, rk);
+                    float occMul = 1f;
+                    if (z.type == "exercise" && z.targetColor == Color.clear) { occMul = z.occupied ? 1.35f : 0.75f; if (z.occupied) want = Color.Lerp(want, Util.Cct(6000), 0.4f); }   // energising light auto-activates on entry
                     if (z.hueDrift) want = Color.Lerp(want, Color.HSVToRGB((t * 0.02f + z.center.x * 0.01f) % 1f, 0.35f, 1f), 0.45f);
                     float nightMul = night && z.type != "work" ? 0.55f : 1f;     // evening: dimmer + warmer (blue-light suppression after 20:00)
                     if (night && z.type != "work") want = Color.Lerp(want, Util.Cct(2200), 0.6f);
                     l.color = Color.Lerp(l.color, want, Time.deltaTime * 0.8f);
-                    l.intensity = Mathf.Lerp(l.intensity, z.origI[l] * z.targetMul * nightMul, Time.deltaTime * 0.8f);
+                    float mulNow = z.targetColor == Color.clear && rk < 1f ? Mathf.Lerp(z.restoreFromMul, 1f, rk) : z.targetMul;
+                    l.intensity = Mathf.Lerp(l.intensity, z.origI[l] * mulNow * nightMul * occMul, Time.deltaTime * 0.8f);
                 }
                 // CO2: rises with occupancy, scrubbed harder when 'alert' lever active
                 int occ = CrewAgent.All.Count(a => ZoneAt(a.transform.position) == z) + (PlayerRig.I && ZoneAt(PlayerRig.I.FeetPosition) == z ? 1 : 0);
+                z.occupied = occ > 0;
                 float target = 470f + occ * 90f - (z.activeLever == "alert" ? 120f : 0f);
+                if (z.type == "work") target = Mathf.Min(target, 580f);          // structured CO2 management: work bays held below 600 ppm
+                // humidity drifts toward the 45–55 % comfort band (people add moisture; ECLSS pulls it back)
+                z.humidity = Mathf.Lerp(z.humidity, Mathf.Clamp(z.dHum + occ * 1.5f, 45f, 55f), Time.deltaTime * 0.05f);
+                // scent rotation: when the novelty lever is on, the scent changes every 15–45 min so the nose never habituates
+                if (z.purging && SimClock.hours >= z.nextScentH) { z.purging = false; z.scent = z.activeLever == "" ? z.dScent : z.scent; }
+                if (z.activeLever == "novelty" && SimClock.hours >= z.nextScentH)
+                {
+                    z.scent = ScentRotation[(Array.IndexOf(ScentRotation, z.scent) + 1) % ScentRotation.Length];
+                    z.nextScentH = SimClock.hours + UnityEngine.Random.Range(0.25f, 0.75f);
+                }
                 z.co2 = Mathf.Lerp(z.co2, target, Time.deltaTime * 0.05f * GameState.timeScale / 60f);
             }
             if (Sim.I != null)
@@ -282,8 +341,9 @@ namespace Hunch3
                     float n = (float)(rnd.NextDouble() * 2 - 1); b = Mathf.Clamp(b + n * 0.02f, -1f, 1f) * 0.998f;
                     float env = 0.55f + 0.45f * Mathf.Sin(2 * Mathf.PI * i / (sr * 8f));
                     float pad = 0.035f * (Mathf.Sin(2 * Mathf.PI * 110 * i / sr) + 0.6f * Mathf.Sin(2 * Mathf.PI * 165 * i / sr) + 0.4f * Mathf.Sin(2 * Mathf.PI * 220 * i / sr));
-                    return 0.22f * b + pad * env;
-                });
+                    float delta = 0.025f * Mathf.Sin(2 * Mathf.PI * (ch == 0 ? 100f : 102f) * i / sr);   // 2 Hz DELTA binaural beat (sleep)
+                    return 0.22f * b + pad * env + delta;
+                }, 2);
                 return sleepClip;
             }
         }
@@ -313,8 +373,27 @@ namespace Hunch3
             for (int i = 0; i < n; i++) for (int c = 0; c < channels; c++) data[i * channels + c] = f(i, c);
             var clip = AudioClip.Create(name, n, channels, sr, false); clip.SetData(data, 0); return clip;
         }
+        // temporal audio anchors (circadian zeitgebers): a bright rising chime at 07:00, a soft falling one at 21:00
+        AudioSource anchorSrc; AudioClip morningCue, eveningCue; int lastAnchor = -1;
+        void Anchors()
+        {
+            if (Hazards.I && Hazards.I.Active) return;
+            float h = SimClock.HourOfDay; int key = SimClock.Day * 10 + (h >= 21f ? 2 : h >= 7f ? 1 : 0);
+            if (lastAnchor < 0) { lastAnchor = key; return; }
+            if (key == lastAnchor) return; lastAnchor = key;
+            if (key % 10 == 0) return;
+            if (!anchorSrc) { anchorSrc = gameObject.AddComponent<AudioSource>(); anchorSrc.volume = 0.35f; }
+            int sr = 22050;
+            float[] up = { 523.3f, 659.3f, 784f, 1046.5f }, down = { 659.3f, 523.3f, 440f, 349.2f };
+            if (!morningCue) morningCue = Synth("morning", sr, 2f, (i, ch) => { int n = Mathf.Min(3, i / (sr / 2)); float t = (i % (sr / 2)) / (float)sr; return 0.18f * Mathf.Exp(-t * 4f) * Mathf.Sin(2 * Mathf.PI * up[n] * i / sr); });
+            if (!eveningCue) eveningCue = Synth("evening", sr, 3f, (i, ch) => { int n = Mathf.Min(3, i / (sr * 3 / 4)); float t = (i % (sr * 3 / 4)) / (float)sr; return 0.12f * Mathf.Exp(-t * 2.5f) * Mathf.Sin(2 * Mathf.PI * down[n] * i / sr); });
+            bool morning = key % 10 == 1;
+            anchorSrc.PlayOneShot(morning ? morningCue : eveningCue);
+            if (Sim.I != null) Sim.I.engine.Log(0, "anchor", morning ? "07:00 morning audio anchor — day lighting begins (bright, cooler)." : "21:00 evening audio anchor — blue light suppressed, lights warm and dim for sleep.");
+        }
         void UpdateAudio()
         {
+            Anchors();
             if (!scape || !PlayerRig.I) return;
             var z = ZoneAt(PlayerRig.I.FeetPosition);
             AudioClip want = null; float vol = 0.35f;
