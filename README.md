@@ -33,7 +33,7 @@ No VR headset needed — it runs on keyboard + mouse (press **H** in game for he
 | [`3D_Print_Kits/`](3D_Print_Kits/) | All STL files for projects 1, 2 and 3 (1:150 kits + the big 1:100 2 ft board), display extras, specs spreadsheet. GitHub shows every `.stl` as a 3D model you can spin. |
 | [`3D_Print_Kits/BUILD_GUIDE.md`](3D_Print_Kits/BUILD_GUIDE.md) | Step-by-step print and assembly guide |
 | [`Docs/ARES_Deliverables.md`](Docs/ARES_Deliverables.md) | D1–D4 deliverables exported from the running game (sensor matrix, zones, 9-stage flowcharts, ethics) |
-| [`Docs/Presentation_Agency_Review_Board.pdf`](Docs/Presentation_Agency_Review_Board.pdf) | **The 15-minute Agency Review Board presentation** (17 slides: D1–D4, Config A/B, flowcharts, ethics, live-demo plan, Q1–Q6 answers) |
+| [`Docs/Presentation_Agency_Review_Board.pdf`](Docs/Presentation_Agency_Review_Board.pdf) | **The 15-minute Agency Review Board presentation** (19 slides: game pictures, D1–D4, Config A/B, flowcharts, ethics, live-demo plan, Q1–Q6 answers) |
 
 ## Presentation
 
