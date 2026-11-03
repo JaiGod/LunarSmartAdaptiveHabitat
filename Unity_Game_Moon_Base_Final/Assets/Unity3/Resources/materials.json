@@ -1,0 +1,889 @@
+{
+ "items": [
+  {
+   "name": "Aluminum_Brushed",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.55,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Aluminum_DarkAnodized",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.5,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "BetaCloth_White",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "CableTray_Galv",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.5,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Copper_Accent",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.7,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Coverage_Cone_FACS",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 0.18000000715255737,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Coverage_Mic",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 0.15000000596046448,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Earth_Proc",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    0.25,
+    0.4000000059604645,
+    0.75
+   ],
+   "emitStrength": 0.6000000238418579,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Alert_Red",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    1.0,
+    0.11999999731779099,
+    0.07999999821186066
+   ],
+   "emitStrength": 6.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Grow_LED",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    0.8999999761581421,
+    0.25,
+    0.8500000238418579
+   ],
+   "emitStrength": 8.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_LED_Cool6500",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    0.8199999928474426,
+    0.8999999761581421,
+    1.0
+   ],
+   "emitStrength": 6.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_LED_Energize",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    1.0,
+    0.9200000166893005,
+    0.75
+   ],
+   "emitStrength": 8.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_LED_Warm",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    1.0,
+    0.7200000286102295,
+    0.44999998807907104
+   ],
+   "emitStrength": 5.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_LED_Warm2800",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    1.0,
+    0.6600000262260437,
+    0.3799999952316284
+   ],
+   "emitStrength": 5.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_LED_White",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    1.0,
+    0.949999988079071,
+    0.8799999952316284
+   ],
+   "emitStrength": 6.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Mood_Crew1",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    0.20000000298023224,
+    1.0,
+    0.5
+   ],
+   "emitStrength": 8.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Mood_Crew2",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    0.20000000298023224,
+    0.6000000238418579,
+    1.0
+   ],
+   "emitStrength": 8.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Mood_Crew3",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    1.0,
+    0.75,
+    0.20000000298023224
+   ],
+   "emitStrength": 8.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Mood_Crew4",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    0.8500000238418579,
+    0.3499999940395355,
+    1.0
+   ],
+   "emitStrength": 8.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Mood_Spare_Standby",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    0.699999988079071,
+    0.699999988079071,
+    0.699999988079071
+   ],
+   "emitStrength": 2.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Nav_Red",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    1.0,
+    0.07999999821186066,
+    0.029999999329447746
+   ],
+   "emitStrength": 10.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Emit_Screen_UI",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [
+    0.25,
+    0.75,
+    1.0
+   ],
+   "emitStrength": 3.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Fabric_CTB_Bag",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Fabric_Cushion_Teal",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Fabric_SleepBag_Navy",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Flightsuit_Blue",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Floor_Grating",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.35,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Floor_Vinyl_Slate",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Glass_Window",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 0.3499999940395355,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Hatch_Grey",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.3,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Hydroponic_White",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Inflatable_Restraint_Strap",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Interior_Cabinet_White",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Interior_Nomex_Panel",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "MLI_GoldFoil",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 1.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Plant_Leaf",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Radiator_White",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Regolith_Bags",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Regolith_Ground",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Regolith_Printed",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Rubber_Black",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Screen_Display",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.20000000298023224,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Skin_Neutral",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "SolarCell",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.4,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Suit_Hard_White",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Suit_OrthoFabric_White",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Suit_Stripe_Crew1",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Suit_Stripe_Crew2",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Suit_Stripe_Crew3",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Suit_Stripe_Crew4",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Suit_Stripe_Spare",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Titanium_Bronze",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.6,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "Visor_Gold",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 1.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": false,
+   "tileM": 2.0
+  },
+  {
+   "name": "Warning_Yellow",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 1.0,
+   "baked": true,
+   "tileM": 2.0
+  },
+  {
+   "name": "WaterWall_Poly",
+   "baseColor": [
+    0.800000011920929,
+    0.800000011920929,
+    0.800000011920929
+   ],
+   "metal": 0.0,
+   "rough": 0.5,
+   "emit": [],
+   "emitStrength": 0.0,
+   "alpha": 0.699999988079071,
+   "baked": false,
+   "tileM": 2.0
+  }
+ ]
+}

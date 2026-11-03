@@ -1,0 +1,82 @@
+[
+ {
+  "set": "display",
+  "file": "01_Rocket.stl",
+  "what": "Spaceport rocket (72 m tall real)",
+  "where": "spaceport (north-east)",
+  "count": 1,
+  "group": "Display",
+  "size": [
+   11.5,
+   12.1,
+   102.3
+  ],
+  "grams": 5.8,
+  "hours": 0.5,
+  "tris": 7680
+ },
+ {
+  "set": "display",
+  "file": "02_Landing_Pad.stl",
+  "what": "Spaceport landing pad",
+  "where": "under the rocket",
+  "count": 1,
+  "group": "Display",
+  "size": [
+   62.9,
+   62.9,
+   1.6
+  ],
+  "grams": 6.0,
+  "hours": 0.5,
+  "tris": 768
+ },
+ {
+  "set": "display",
+  "file": "03_Satellite_Tower_print_x7.stl",
+  "what": "Satellite 'keep' tower \u2014 7 identical",
+  "where": "ring around the kingdom",
+  "count": 7,
+  "group": "Display",
+  "size": [
+   26.6,
+   26.6,
+   45.6
+  ],
+  "grams": 5.5,
+  "hours": 0.5,
+  "tris": 8448
+ },
+ {
+  "set": "display",
+  "file": "04_Kingdom_Glass_Dome_COVER.stl",
+  "what": "Kingdom glass dome (138 m wide real) \u2014 print in CLEAR PETG/PLA, place over the mini base",
+  "where": "over the mini base",
+  "count": 1,
+  "group": "Display",
+  "size": [
+   197.0,
+   197.0,
+   122.2
+  ],
+  "grams": 117.8,
+  "hours": 10.7,
+  "tris": 16384
+ },
+ {
+  "set": "display",
+  "file": "05_Mini_Project1_Base_on_plate.stl",
+  "what": "The whole project-1 base as one small piece on a plate (sits under the glass dome)",
+  "where": "centre of the display",
+  "count": 1,
+  "group": "Display",
+  "size": [
+   148.6,
+   148.6,
+   43.3
+  ],
+  "grams": 87.8,
+  "hours": 8.0,
+  "tris": 107392
+ }
+]

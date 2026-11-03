@@ -1,0 +1,3 @@
+WALK TEST (10/18/2026 5:36:30 PM) — capsule local r 0.20 h 1.70 · rig scale (1.00, 1.00, 1.00) → world h 1.70 m
+
+links walked 98 · both directions OK 98 · failed 0

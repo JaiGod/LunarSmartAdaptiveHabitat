@@ -1,0 +1,1298 @@
+[
+ {
+  "set": "closed",
+  "file": "01_Core.stl",
+  "what": "Core habitat (rigid lower deck + inflatable upper deck)",
+  "where": "centre",
+  "count": 1,
+  "group": "Core & modules",
+  "size": [
+   72.7,
+   72.7,
+   51.5
+  ],
+  "grams": 49.9,
+  "hours": 4.5,
+  "tris": 8448
+ },
+ {
+  "set": "open",
+  "file": "01_Core_BASE.stl",
+  "what": "Core lower deck \u2014 hollow base with lip",
+  "where": "centre",
+  "count": 1,
+  "group": "Core & modules",
+  "size": [
+   68.0,
+   68.0,
+   19.4
+  ],
+  "grams": 18.9,
+  "hours": 1.7,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "01_Core_ROOF.stl",
+  "what": "Core inflatable upper deck \u2014 lift-off roof",
+  "where": "centre",
+  "count": 1,
+  "group": "Core & modules",
+  "size": [
+   72.7,
+   72.7,
+   34.5
+  ],
+  "grams": 24.3,
+  "hours": 2.2,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "02_Module_Airlock_EVA.stl",
+  "what": "Module Airlock EVA \u2014 stands on one end to print",
+  "where": "east of the core",
+  "count": 1,
+  "group": "Core & modules",
+  "size": [
+   27.7,
+   27.7,
+   46.7
+  ],
+  "grams": 12.0,
+  "hours": 1.1,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "02_Module_Airlock_EVA_HALF_print_x2.stl",
+  "what": "Module Airlock EVA \u2014 hollow half; print 2 (one is the lid)",
+  "where": "east of the core",
+  "count": 2,
+  "group": "Core & modules",
+  "size": [
+   46.7,
+   27.7,
+   13.9
+  ],
+  "grams": 4.7,
+  "hours": 0.4,
+  "tris": 524
+ },
+ {
+  "set": "closed",
+  "file": "02b_Tunnel_A.stl",
+  "what": "short tunnel core \u2194 airlock_eva",
+  "where": "between core and airlock_eva",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "02b_Tunnel_A.stl",
+  "what": "short tunnel core \u2194 airlock_eva",
+  "where": "between core and airlock_eva",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "03_Module_Lab.stl",
+  "what": "Module Lab \u2014 stands on one end to print",
+  "where": "north of the core",
+  "count": 1,
+  "group": "Core & modules",
+  "size": [
+   27.7,
+   27.7,
+   66.7
+  ],
+  "grams": 16.5,
+  "hours": 1.5,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "03_Module_Lab_HALF_print_x2.stl",
+  "what": "Module Lab \u2014 hollow half; print 2 (one is the lid)",
+  "where": "north of the core",
+  "count": 2,
+  "group": "Core & modules",
+  "size": [
+   66.7,
+   27.7,
+   13.9
+  ],
+  "grams": 6.4,
+  "hours": 0.6,
+  "tris": 524
+ },
+ {
+  "set": "closed",
+  "file": "03b_Tunnel_B.stl",
+  "what": "short tunnel core \u2194 lab",
+  "where": "between core and lab",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "03b_Tunnel_B.stl",
+  "what": "short tunnel core \u2194 lab",
+  "where": "between core and lab",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "04_Module_Greenhouse.stl",
+  "what": "Module Greenhouse \u2014 stands on one end to print",
+  "where": "west of the core",
+  "count": 1,
+  "group": "Core & modules",
+  "size": [
+   27.7,
+   27.7,
+   60.0
+  ],
+  "grams": 15.0,
+  "hours": 1.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "04_Module_Greenhouse_HALF_print_x2.stl",
+  "what": "Module Greenhouse \u2014 hollow half; print 2 (one is the lid)",
+  "where": "west of the core",
+  "count": 2,
+  "group": "Core & modules",
+  "size": [
+   60.0,
+   27.7,
+   13.9
+  ],
+  "grams": 5.8,
+  "hours": 0.5,
+  "tris": 524
+ },
+ {
+  "set": "closed",
+  "file": "04b_Tunnel_C.stl",
+  "what": "short tunnel core \u2194 greenhouse",
+  "where": "between core and greenhouse",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "04b_Tunnel_C.stl",
+  "what": "short tunnel core \u2194 greenhouse",
+  "where": "between core and greenhouse",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "05_Module_Wellness.stl",
+  "what": "Module Wellness \u2014 stands on one end to print",
+  "where": "south of the core",
+  "count": 1,
+  "group": "Core & modules",
+  "size": [
+   27.7,
+   27.7,
+   66.7
+  ],
+  "grams": 16.5,
+  "hours": 1.5,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "05_Module_Wellness_HALF_print_x2.stl",
+  "what": "Module Wellness \u2014 hollow half; print 2 (one is the lid)",
+  "where": "south of the core",
+  "count": 2,
+  "group": "Core & modules",
+  "size": [
+   66.7,
+   27.7,
+   13.9
+  ],
+  "grams": 6.4,
+  "hours": 0.6,
+  "tris": 524
+ },
+ {
+  "set": "closed",
+  "file": "05b_Tunnel_D.stl",
+  "what": "short tunnel core \u2194 wellness",
+  "where": "between core and wellness",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "05b_Tunnel_D.stl",
+  "what": "short tunnel core \u2194 wellness",
+  "where": "between core and wellness",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "06_Node_Command.stl",
+  "what": "Node Command",
+  "where": "circle N on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "grams": 17.0,
+  "hours": 1.5,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "06_Node_Command_BASE.stl",
+  "what": "Node Command \u2014 hollow base with lip",
+  "where": "circle N on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "grams": 11.2,
+  "hours": 1.0,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "06_Node_Command_ROOF.stl",
+  "what": "Node Command \u2014 lift-off roof",
+  "where": "on base N",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "grams": 4.1,
+  "hours": 0.4,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "07_Node_Maintenance.stl",
+  "what": "Node Maintenance",
+  "where": "circle E on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "grams": 17.0,
+  "hours": 1.5,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "07_Node_Maintenance_BASE.stl",
+  "what": "Node Maintenance \u2014 hollow base with lip",
+  "where": "circle E on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "grams": 11.2,
+  "hours": 1.0,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "07_Node_Maintenance_ROOF.stl",
+  "what": "Node Maintenance \u2014 lift-off roof",
+  "where": "on base E",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "grams": 4.1,
+  "hours": 0.4,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "08_Node_Medical_StormShelter.stl",
+  "what": "Node Medical StormShelter",
+  "where": "circle H on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "grams": 17.0,
+  "hours": 1.5,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "08_Node_Medical_StormShelter_BASE.stl",
+  "what": "Node Medical StormShelter \u2014 hollow base with lip",
+  "where": "circle H on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "grams": 11.2,
+  "hours": 1.0,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "08_Node_Medical_StormShelter_ROOF.stl",
+  "what": "Node Medical StormShelter \u2014 lift-off roof",
+  "where": "on base H",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "grams": 4.1,
+  "hours": 0.4,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "09_Node_Recreation_Commons.stl",
+  "what": "Node Recreation Commons",
+  "where": "circle R on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "grams": 17.0,
+  "hours": 1.5,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "09_Node_Recreation_Commons_BASE.stl",
+  "what": "Node Recreation Commons \u2014 hollow base with lip",
+  "where": "circle R on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "grams": 11.2,
+  "hours": 1.0,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "09_Node_Recreation_Commons_ROOF.stl",
+  "what": "Node Recreation Commons \u2014 lift-off roof",
+  "where": "on base R",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "grams": 4.1,
+  "hours": 0.4,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "10_Node_CrewSupport_Hygiene2.stl",
+  "what": "Node CrewSupport Hygiene2",
+  "where": "circle G on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "grams": 17.0,
+  "hours": 1.5,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "10_Node_CrewSupport_Hygiene2_BASE.stl",
+  "what": "Node CrewSupport Hygiene2 \u2014 hollow base with lip",
+  "where": "circle G on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "grams": 11.2,
+  "hours": 1.0,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "10_Node_CrewSupport_Hygiene2_ROOF.stl",
+  "what": "Node CrewSupport Hygiene2 \u2014 lift-off roof",
+  "where": "on base G",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "grams": 4.1,
+  "hours": 0.4,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "11_Node_Quarters_Vestibule.stl",
+  "what": "Node Quarters Vestibule",
+  "where": "circle K on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "grams": 25.2,
+  "hours": 2.3,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "11_Node_Quarters_Vestibule_BASE.stl",
+  "what": "Node Quarters Vestibule \u2014 hollow base with lip",
+  "where": "circle K on the guide",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "grams": 15.2,
+  "hours": 1.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "11_Node_Quarters_Vestibule_ROOF.stl",
+  "what": "Node Quarters Vestibule \u2014 lift-off roof",
+  "where": "on base K",
+  "count": 1,
+  "group": "Nodes",
+  "size": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "grams": 5.9,
+  "hours": 0.5,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "12_SleepDome_Quarters1.stl",
+  "what": "SleepDome Quarters1",
+  "where": "circle SQ1 on the guide",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "grams": 25.2,
+  "hours": 2.3,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "12_SleepDome_Quarters1_BASE.stl",
+  "what": "SleepDome Quarters1 \u2014 hollow base with lip",
+  "where": "circle SQ1 on the guide",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "grams": 15.2,
+  "hours": 1.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "12_SleepDome_Quarters1_ROOF.stl",
+  "what": "SleepDome Quarters1 \u2014 lift-off roof",
+  "where": "on base SQ1",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "grams": 5.9,
+  "hours": 0.5,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "13_SleepDome_Quarters2.stl",
+  "what": "SleepDome Quarters2",
+  "where": "circle SQ2 on the guide",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "grams": 25.2,
+  "hours": 2.3,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "13_SleepDome_Quarters2_BASE.stl",
+  "what": "SleepDome Quarters2 \u2014 hollow base with lip",
+  "where": "circle SQ2 on the guide",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "grams": 15.2,
+  "hours": 1.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "13_SleepDome_Quarters2_ROOF.stl",
+  "what": "SleepDome Quarters2 \u2014 lift-off roof",
+  "where": "on base SQ2",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "grams": 5.9,
+  "hours": 0.5,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "14_SleepDome_Quarters3.stl",
+  "what": "SleepDome Quarters3",
+  "where": "circle SQ3 on the guide",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "grams": 25.2,
+  "hours": 2.3,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "14_SleepDome_Quarters3_BASE.stl",
+  "what": "SleepDome Quarters3 \u2014 hollow base with lip",
+  "where": "circle SQ3 on the guide",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "grams": 15.2,
+  "hours": 1.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "14_SleepDome_Quarters3_ROOF.stl",
+  "what": "SleepDome Quarters3 \u2014 lift-off roof",
+  "where": "on base SQ3",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "grams": 5.9,
+  "hours": 0.5,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "15_SleepDome_Quarters4.stl",
+  "what": "SleepDome Quarters4",
+  "where": "circle SQ4 on the guide",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "grams": 25.2,
+  "hours": 2.3,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "15_SleepDome_Quarters4_BASE.stl",
+  "what": "SleepDome Quarters4 \u2014 hollow base with lip",
+  "where": "circle SQ4 on the guide",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "grams": 15.2,
+  "hours": 1.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "15_SleepDome_Quarters4_ROOF.stl",
+  "what": "SleepDome Quarters4 \u2014 lift-off roof",
+  "where": "on base SQ4",
+  "count": 1,
+  "group": "Sleep domes",
+  "size": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "grams": 5.9,
+  "hours": 0.5,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "16_Hallway_N01_B_to_N.stl",
+  "what": "hallway B \u2192 N (5.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway B \u2192 N",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "grams": 4.6,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "16_Hallway_N01_B_to_N.stl",
+  "what": "hallway B \u2192 N (5.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway B \u2192 N",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "grams": 4.6,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "17_Hallway_H01_D_to_H.stl",
+  "what": "hallway D \u2192 H (5.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway D \u2192 H",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "grams": 4.6,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "17_Hallway_H01_D_to_H.stl",
+  "what": "hallway D \u2192 H (5.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway D \u2192 H",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "grams": 4.6,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "18_Hallway_E01_C_to_E.stl",
+  "what": "hallway C \u2192 E (5.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway C \u2192 E",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "grams": 4.6,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "18_Hallway_E01_C_to_E.stl",
+  "what": "hallway C \u2192 E (5.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway C \u2192 E",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "grams": 4.6,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "19_Hallway_L1_N_to_R.stl",
+  "what": "hallway N \u2192 R (11.5 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway N \u2192 R",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   76.5
+  ],
+  "grams": 9.4,
+  "hours": 0.9,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "19_Hallway_L1_N_to_R.stl",
+  "what": "hallway N \u2192 R (11.5 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway N \u2192 R",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   76.5
+  ],
+  "grams": 9.4,
+  "hours": 0.9,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "20_Hallway_L2_R_to_E.stl",
+  "what": "hallway R \u2192 E (11.0 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway R \u2192 E",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   73.3
+  ],
+  "grams": 9.1,
+  "hours": 0.8,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "20_Hallway_L2_R_to_E.stl",
+  "what": "hallway R \u2192 E (11.0 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway R \u2192 E",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   73.3
+  ],
+  "grams": 9.1,
+  "hours": 0.8,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "21_Hallway_L3_E_to_G.stl",
+  "what": "hallway E \u2192 G (11.0 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway E \u2192 G",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   73.3
+  ],
+  "grams": 9.1,
+  "hours": 0.8,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "21_Hallway_L3_E_to_G.stl",
+  "what": "hallway E \u2192 G (11.0 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway E \u2192 G",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   73.3
+  ],
+  "grams": 9.1,
+  "hours": 0.8,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "22_Hallway_L4_G_to_H.stl",
+  "what": "hallway G \u2192 H (11.5 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway G \u2192 H",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   76.5
+  ],
+  "grams": 9.4,
+  "hours": 0.9,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "22_Hallway_L4_G_to_H.stl",
+  "what": "hallway G \u2192 H (11.5 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway G \u2192 H",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   76.5
+  ],
+  "grams": 9.4,
+  "hours": 0.9,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "23_Hallway_K_H_to_K.stl",
+  "what": "hallway H \u2192 K (4.8 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway H \u2192 K",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   32.2
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "23_Hallway_K_H_to_K.stl",
+  "what": "hallway H \u2192 K (4.8 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway H \u2192 K",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   32.2
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "24_Hallway_SQ1_K_to_SQ1.stl",
+  "what": "hallway K \u2192 SQ1 (4.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway K \u2192 SQ1",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "grams": 4.0,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "24_Hallway_SQ1_K_to_SQ1.stl",
+  "what": "hallway K \u2192 SQ1 (4.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway K \u2192 SQ1",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "grams": 4.0,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "25_Hallway_SQ2_K_to_SQ2.stl",
+  "what": "hallway K \u2192 SQ2 (4.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway K \u2192 SQ2",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "grams": 4.0,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "25_Hallway_SQ2_K_to_SQ2.stl",
+  "what": "hallway K \u2192 SQ2 (4.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway K \u2192 SQ2",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "grams": 4.0,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "26_Hallway_SQ3_K_to_SQ3.stl",
+  "what": "hallway K \u2192 SQ3 (4.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway K \u2192 SQ3",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "grams": 4.0,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "26_Hallway_SQ3_K_to_SQ3.stl",
+  "what": "hallway K \u2192 SQ3 (4.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway K \u2192 SQ3",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "grams": 4.0,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "27_Hallway_SQ4_K_to_SQ4.stl",
+  "what": "hallway K \u2192 SQ4 (4.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway K \u2192 SQ4",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "grams": 4.0,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "27_Hallway_SQ4_K_to_SQ4.stl",
+  "what": "hallway K \u2192 SQ4 (4.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "hallway K \u2192 SQ4",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "grams": 4.0,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "28_Landing_Pad.stl",
+  "what": "Cargo landing pad (30 m wide, sintered regolith)",
+  "where": "300 m away in real life \u2014 put it at the board edge",
+  "count": 1,
+  "group": "Exterior extras",
+  "size": [
+   200.0,
+   200.0,
+   2.0
+  ],
+  "grams": 74.9,
+  "hours": 6.8,
+  "tris": 768
+ },
+ {
+  "set": "open",
+  "file": "28_Landing_Pad.stl",
+  "what": "Cargo landing pad (30 m wide, sintered regolith)",
+  "where": "300 m away in real life \u2014 put it at the board edge",
+  "count": 1,
+  "group": "Exterior extras",
+  "size": [
+   200.0,
+   200.0,
+   2.0
+  ],
+  "grams": 74.9,
+  "hours": 6.8,
+  "tris": 768
+ },
+ {
+  "set": "closed",
+  "file": "29_Cargo_Lander.stl",
+  "what": "Cargo lander (body on 4 legs)",
+  "where": "on the landing pad",
+  "count": 1,
+  "group": "Exterior extras",
+  "size": [
+   28.0,
+   28.0,
+   42.7
+  ],
+  "grams": 10.5,
+  "hours": 1.0,
+  "tris": 10496
+ },
+ {
+  "set": "open",
+  "file": "29_Cargo_Lander.stl",
+  "what": "Cargo lander (body on 4 legs)",
+  "where": "on the landing pad",
+  "count": 1,
+  "group": "Exterior extras",
+  "size": [
+   28.0,
+   28.0,
+   42.7
+  ],
+  "grams": 10.5,
+  "hours": 1.0,
+  "tris": 10496
+ },
+ {
+  "set": "closed",
+  "file": "30_Solar_Tower_print_x3.stl",
+  "what": "Solar-tower mast on a foot (glue a 10 \u00d7 4 mm card 'panel' on top)",
+  "where": "around the base",
+  "count": 3,
+  "group": "Exterior extras",
+  "size": [
+   21.3,
+   21.3,
+   93.3
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1024
+ },
+ {
+  "set": "open",
+  "file": "30_Solar_Tower_print_x3.stl",
+  "what": "Solar-tower mast on a foot (glue a 10 \u00d7 4 mm card 'panel' on top)",
+  "where": "around the base",
+  "count": 3,
+  "group": "Exterior extras",
+  "size": [
+   21.3,
+   21.3,
+   93.3
+  ],
+  "grams": 2.7,
+  "hours": 0.2,
+  "tris": 1024
+ },
+ {
+  "set": "closed",
+  "file": "31_Comms_Antenna.stl",
+  "what": "Comms mast with dish",
+  "where": "next to the command node",
+  "count": 1,
+  "group": "Exterior extras",
+  "size": [
+   29.3,
+   29.3,
+   136.7
+  ],
+  "grams": 4.1,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "31_Comms_Antenna.stl",
+  "what": "Comms mast with dish",
+  "where": "next to the command node",
+  "count": 1,
+  "group": "Exterior extras",
+  "size": [
+   29.3,
+   29.3,
+   136.7
+  ],
+  "grams": 4.1,
+  "hours": 0.4,
+  "tris": 1536
+ }
+]

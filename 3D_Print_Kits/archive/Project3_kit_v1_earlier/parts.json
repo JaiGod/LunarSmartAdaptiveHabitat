@@ -1,0 +1,951 @@
+[
+ {
+  "set": "closed",
+  "file": "01_Core.stl",
+  "triangles": 8448,
+  "size_mm": [
+   72.7,
+   72.7,
+   51.5
+  ],
+  "volume_cm3": 159.51,
+  "note": "core habitat (rigid lower deck + inflatable upper deck)",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "01_Core_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   68.0,
+   68.0,
+   19.4
+  ],
+  "volume_cm3": 15.21,
+  "note": "core lower deck, hollow, with locating lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "01_Core_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   72.7,
+   72.7,
+   34.5
+  ],
+  "volume_cm3": 22.22,
+  "note": "core inflatable upper deck, lift-off roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "02_Module_Airlock_EVA.stl",
+  "triangles": 512,
+  "size_mm": [
+   27.7,
+   27.7,
+   46.7
+  ],
+  "volume_cm3": 28.18,
+  "note": "Module Airlock EVA \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "02_Module_Airlock_EVA_HALF_print_x2.stl",
+  "triangles": 524,
+  "size_mm": [
+   46.7,
+   27.7,
+   13.9
+  ],
+  "volume_cm3": 3.82,
+  "note": "Module Airlock EVA \u2014 hollow half; print TWO (one is the lid)",
+  "print": 2
+ },
+ {
+  "set": "closed",
+  "file": "02b_Tunnel_A.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "volume_cm3": 4.18,
+  "note": "tunnel core \u2194 module A (solid)",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "02b_Tunnel_A.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "volume_cm3": 4.18,
+  "note": "tunnel core \u2194 module A (solid)",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "03_Module_Lab.stl",
+  "triangles": 512,
+  "size_mm": [
+   27.7,
+   27.7,
+   66.7
+  ],
+  "volume_cm3": 40.26,
+  "note": "Module Lab \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "03_Module_Lab_HALF_print_x2.stl",
+  "triangles": 524,
+  "size_mm": [
+   66.7,
+   27.7,
+   13.9
+  ],
+  "volume_cm3": 5.13,
+  "note": "Module Lab \u2014 hollow half; print TWO (one is the lid)",
+  "print": 2
+ },
+ {
+  "set": "closed",
+  "file": "03b_Tunnel_B.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "volume_cm3": 4.18,
+  "note": "tunnel core \u2194 module B (solid)",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "03b_Tunnel_B.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "volume_cm3": 4.18,
+  "note": "tunnel core \u2194 module B (solid)",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "04_Module_Greenhouse.stl",
+  "triangles": 512,
+  "size_mm": [
+   27.7,
+   27.7,
+   60.0
+  ],
+  "volume_cm3": 36.23,
+  "note": "Module Greenhouse \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "04_Module_Greenhouse_HALF_print_x2.stl",
+  "triangles": 524,
+  "size_mm": [
+   60.0,
+   27.7,
+   13.9
+  ],
+  "volume_cm3": 4.7,
+  "note": "Module Greenhouse \u2014 hollow half; print TWO (one is the lid)",
+  "print": 2
+ },
+ {
+  "set": "closed",
+  "file": "04b_Tunnel_C.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "volume_cm3": 4.18,
+  "note": "tunnel core \u2194 module C (solid)",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "04b_Tunnel_C.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "volume_cm3": 4.18,
+  "note": "tunnel core \u2194 module C (solid)",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "05_Module_Wellness.stl",
+  "triangles": 512,
+  "size_mm": [
+   27.7,
+   27.7,
+   66.7
+  ],
+  "volume_cm3": 40.26,
+  "note": "Module Wellness \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "05_Module_Wellness_HALF_print_x2.stl",
+  "triangles": 524,
+  "size_mm": [
+   66.7,
+   27.7,
+   13.9
+  ],
+  "volume_cm3": 5.13,
+  "note": "Module Wellness \u2014 hollow half; print TWO (one is the lid)",
+  "print": 2
+ },
+ {
+  "set": "closed",
+  "file": "05b_Tunnel_D.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "volume_cm3": 4.18,
+  "note": "tunnel core \u2194 module D (solid)",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "05b_Tunnel_D.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   17.5
+  ],
+  "volume_cm3": 4.18,
+  "note": "tunnel core \u2194 module D (solid)",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "06_Node_Command.stl",
+  "triangles": 8192,
+  "size_mm": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "volume_cm3": 44.42,
+  "note": "Node Command",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "06_Node_Command_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "volume_cm3": 9.01,
+  "note": "Node Command \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "06_Node_Command_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "volume_cm3": 3.3,
+  "note": "Node Command \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "07_Node_Maintenance.stl",
+  "triangles": 8192,
+  "size_mm": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "volume_cm3": 44.42,
+  "note": "Node Maintenance",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "07_Node_Maintenance_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "volume_cm3": 9.01,
+  "note": "Node Maintenance \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "07_Node_Maintenance_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "volume_cm3": 3.3,
+  "note": "Node Maintenance \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "08_Node_Medical_StormShelter.stl",
+  "triangles": 8192,
+  "size_mm": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "volume_cm3": 44.42,
+  "note": "Node Medical StormShelter",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "08_Node_Medical_StormShelter_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "volume_cm3": 9.01,
+  "note": "Node Medical StormShelter \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "08_Node_Medical_StormShelter_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "volume_cm3": 3.3,
+  "note": "Node Medical StormShelter \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "09_Node_Recreation_Commons.stl",
+  "triangles": 8192,
+  "size_mm": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "volume_cm3": 44.42,
+  "note": "Node Recreation Commons",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "09_Node_Recreation_Commons_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "volume_cm3": 9.01,
+  "note": "Node Recreation Commons \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "09_Node_Recreation_Commons_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "volume_cm3": 3.3,
+  "note": "Node Recreation Commons \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "10_Node_CrewSupport_Hygiene2.stl",
+  "triangles": 8192,
+  "size_mm": [
+   48.0,
+   48.0,
+   27.3
+  ],
+  "volume_cm3": 44.42,
+  "note": "Node CrewSupport Hygiene2",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "10_Node_CrewSupport_Hygiene2_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   48.0,
+   48.0,
+   18.4
+  ],
+  "volume_cm3": 9.01,
+  "note": "Node CrewSupport Hygiene2 \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "10_Node_CrewSupport_Hygiene2_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   48.0,
+   48.0,
+   11.3
+  ],
+  "volume_cm3": 3.3,
+  "note": "Node CrewSupport Hygiene2 \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "11_Node_Quarters_Vestibule.stl",
+  "triangles": 8192,
+  "size_mm": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "volume_cm3": 69.52,
+  "note": "Node Quarters Vestibule",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "11_Node_Quarters_Vestibule_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "volume_cm3": 12.27,
+  "note": "Node Quarters Vestibule \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "11_Node_Quarters_Vestibule_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "volume_cm3": 4.75,
+  "note": "Node Quarters Vestibule \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "12_SleepDome_Quarters1.stl",
+  "triangles": 8192,
+  "size_mm": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "volume_cm3": 69.52,
+  "note": "SleepDome Quarters1",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "12_SleepDome_Quarters1_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "volume_cm3": 12.27,
+  "note": "SleepDome Quarters1 \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "12_SleepDome_Quarters1_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "volume_cm3": 4.75,
+  "note": "SleepDome Quarters1 \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "13_SleepDome_Quarters2.stl",
+  "triangles": 8192,
+  "size_mm": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "volume_cm3": 69.52,
+  "note": "SleepDome Quarters2",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "13_SleepDome_Quarters2_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "volume_cm3": 12.27,
+  "note": "SleepDome Quarters2 \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "13_SleepDome_Quarters2_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "volume_cm3": 4.75,
+  "note": "SleepDome Quarters2 \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "14_SleepDome_Quarters3.stl",
+  "triangles": 8192,
+  "size_mm": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "volume_cm3": 69.52,
+  "note": "SleepDome Quarters3",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "14_SleepDome_Quarters3_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "volume_cm3": 12.27,
+  "note": "SleepDome Quarters3 \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "14_SleepDome_Quarters3_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "volume_cm3": 4.75,
+  "note": "SleepDome Quarters3 \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "15_SleepDome_Quarters4.stl",
+  "triangles": 8192,
+  "size_mm": [
+   60.0,
+   60.0,
+   27.4
+  ],
+  "volume_cm3": 69.52,
+  "note": "SleepDome Quarters4",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "15_SleepDome_Quarters4_BASE.stl",
+  "triangles": 1536,
+  "size_mm": [
+   60.0,
+   60.0,
+   18.4
+  ],
+  "volume_cm3": 12.27,
+  "note": "SleepDome Quarters4 \u2014 hollow base with lip",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "15_SleepDome_Quarters4_ROOF.stl",
+  "triangles": 16384,
+  "size_mm": [
+   60.0,
+   60.0,
+   11.4
+  ],
+  "volume_cm3": 4.75,
+  "note": "SleepDome Quarters4 \u2014 lift-off dome roof",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "16_Hallway_N01_B_to_N.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "volume_cm3": 8.16,
+  "note": "hallway B \u2192 N (5.1 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "16_Hallway_N01_B_to_N.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "volume_cm3": 8.16,
+  "note": "hallway B \u2192 N (5.1 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "17_Hallway_H01_D_to_H.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "volume_cm3": 8.16,
+  "note": "hallway D \u2192 H (5.1 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "17_Hallway_H01_D_to_H.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "volume_cm3": 8.16,
+  "note": "hallway D \u2192 H (5.1 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "18_Hallway_E01_C_to_E.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "volume_cm3": 8.16,
+  "note": "hallway C \u2192 E (5.1 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "18_Hallway_E01_C_to_E.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   34.1
+  ],
+  "volume_cm3": 8.16,
+  "note": "hallway C \u2192 E (5.1 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "19_Hallway_L1_N_to_R.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   76.5
+  ],
+  "volume_cm3": 18.32,
+  "note": "hallway N \u2192 R (11.5 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "19_Hallway_L1_N_to_R.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   76.5
+  ],
+  "volume_cm3": 18.32,
+  "note": "hallway N \u2192 R (11.5 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "20_Hallway_L2_R_to_E.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   73.3
+  ],
+  "volume_cm3": 17.56,
+  "note": "hallway R \u2192 E (11.0 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "20_Hallway_L2_R_to_E.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   73.3
+  ],
+  "volume_cm3": 17.56,
+  "note": "hallway R \u2192 E (11.0 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "21_Hallway_L3_E_to_G.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   73.3
+  ],
+  "volume_cm3": 17.56,
+  "note": "hallway E \u2192 G (11.0 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "21_Hallway_L3_E_to_G.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   73.3
+  ],
+  "volume_cm3": 17.56,
+  "note": "hallway E \u2192 G (11.0 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "22_Hallway_L4_G_to_H.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   76.5
+  ],
+  "volume_cm3": 18.32,
+  "note": "hallway G \u2192 H (11.5 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "22_Hallway_L4_G_to_H.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   76.5
+  ],
+  "volume_cm3": 18.32,
+  "note": "hallway G \u2192 H (11.5 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "23_Hallway_K_H_to_K.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   32.2
+  ],
+  "volume_cm3": 7.7,
+  "note": "hallway H \u2192 K (4.8 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "23_Hallway_K_H_to_K.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   32.2
+  ],
+  "volume_cm3": 7.7,
+  "note": "hallway H \u2192 K (4.8 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "24_Hallway_SQ1_K_to_SQ1.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "volume_cm3": 6.82,
+  "note": "hallway K \u2192 SQ1 (4.3 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "24_Hallway_SQ1_K_to_SQ1.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "volume_cm3": 6.82,
+  "note": "hallway K \u2192 SQ1 (4.3 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "25_Hallway_SQ2_K_to_SQ2.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "volume_cm3": 6.82,
+  "note": "hallway K \u2192 SQ2 (4.3 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "25_Hallway_SQ2_K_to_SQ2.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "volume_cm3": 6.82,
+  "note": "hallway K \u2192 SQ2 (4.3 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "26_Hallway_SQ3_K_to_SQ3.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "volume_cm3": 6.82,
+  "note": "hallway K \u2192 SQ3 (4.3 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "26_Hallway_SQ3_K_to_SQ3.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "volume_cm3": 6.82,
+  "note": "hallway K \u2192 SQ3 (4.3 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "closed",
+  "file": "27_Hallway_SQ4_K_to_SQ4.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "volume_cm3": 6.82,
+  "note": "hallway K \u2192 SQ4 (4.3 m real) \u2014 print standing on one end",
+  "print": 1
+ },
+ {
+  "set": "open",
+  "file": "27_Hallway_SQ4_K_to_SQ4.stl",
+  "triangles": 512,
+  "size_mm": [
+   17.5,
+   17.5,
+   28.5
+  ],
+  "volume_cm3": 6.82,
+  "note": "hallway K \u2192 SQ4 (4.3 m real) \u2014 print standing on one end",
+  "print": 1
+ }
+]

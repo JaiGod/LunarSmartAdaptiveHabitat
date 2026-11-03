@@ -1,0 +1,20 @@
+HAB ROOT pos (0.00, 0.00, 0.00) rot (0.00, 0.00, 0.00) scale (1.00, 1.00, 1.00)
+WP_C_Mid: pos (-11.00, 0.90, 0.00) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+WP_A_Suit: pos (8.20, 0.90, 0.00) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+WP_B_Lab: pos (0.00, 0.90, -10.00) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+WP_Up_Table: pos (-2.50, 3.50, 1.20) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+ZONE_Nature_Greenhouse: pos (-11.00, 0.90, 0.00) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+ZONE_Airlock_EVA: pos (9.60, 0.90, 0.00) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+SPAWN_Player: pos (-1.00, 3.50, -1.00) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+SPAWN_EVA_Outside: pos (11.90, 0.05, -6.20) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+CREW4_IVA_Root: pos (-9.37, 0.93, 0.00) rot (270.00, 270.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+CREW1_EVA_Suit_Root: pos (7.70, 0.42, 2.59) rot (270.00, 180.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+POD_Crew1_Root: pos (1.10, 3.50, -3.05) rot (270.00, 180.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat
+C10_PressureHull: pos (-6.60, 1.90, 0.00) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat bounds (-11.10, 1.90, 0.00)
+A10_PressureHull: pos (6.60, 1.90, 0.00) rot (270.00, 180.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat bounds (10.10, 1.90, 0.00)
+B10_PressureHull: pos (0.00, 1.90, -6.60) rot (270.00, 270.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat bounds (0.00, 1.90, -11.60)
+W01_MeetingTable_Top: pos (-2.50, 4.26, 0.00) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat bounds (-2.50, 4.26, 0.00)
+LH65_UWMS_Toilet_Body_Titanium: pos (3.75, 1.12, -2.60) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat bounds (3.75, 1.12, -2.60)
+Q1_Bed_Mattress: pos (1.10, 4.02, -3.55) rot (270.00, 180.00, 0.00) scale (100.00, 100.00, 100.00) parent POD_Crew1_Root bounds (1.10, 4.02, -3.55)
+E30_3DPrinter_Polymer_SpareParts: pos (-25.40, 1.60, -2.60) rot (270.02, 0.00, 0.00) scale (100.00, 100.00, 100.00) parent LunarHabitat_Unity3_Habitat bounds (-25.40, 1.60, -2.60)
+PLAYER feet (-1.00, 3.50, -1.00) cam (-1.00, 5.15, -1.00)

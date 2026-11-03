@@ -1,0 +1,37 @@
+RUBRIC TASKS — Lunar Smart Adaptive Habitat — 7/22 done — written 10/18/2026 8:16:51 PM
+
+D1 · Sensor architecture (35 pts) — 0/3
+  [ ] Open the AI Dashboard and read the sensor health matrix
+  [ ] Break a sensor and watch graceful degradation
+  [ ] Exercise in the Exercise bay (no false alarm)
+
+D2 · Habitat spatial design (35 pts) — 2/3
+  [x] Visit all 6 ARES zones   — done Day 1 08:55 (real 20:06)
+  [x] Walk the quarters hallway into your own sleep dome   — done Day 1 09:10 (real 19:47)
+  [ ] Switch the base to Configuration B (conflict layout)
+
+D3 · AI response protocols (50 pts) — 3/6
+  [x] See a Tier 1 silent adjustment   — done Day 1 19:06 (real 20:16)
+  [ ] Answer a Tier 2 offer (Y = yes · N = no)
+  [ ] Run a team meeting at the wardroom table
+  [ ] Handle a Tier 3 escalation in the CMO console
+  [x] Lead a safety drill to the muster point   — done Day 1 11:01 (real 19:48)
+  [x] Sleep in your bed (AI night-light + sleep sounds)   — done Day 1 10:16 (real 19:47)
+
+D4 · Ethics & hard limits (40 pts) — 1/6
+  [ ] Say NO to an AI offer — it must stop and log it
+  [ ] Opt out of a sensor (privacy control)
+  [ ] Override the AI
+  [ ] Export everything the AI recorded about you
+  [x] Stop a misbehaving AI — disallow AI control   — done Day 1 08:26 (real 19:46)
+  [ ] Sign off the weekly human review of the AI
+
+D5 · Presentation (25 pts) — 0/2
+  [ ] Run an Agency Review Board question live (Q1–Q6)
+  [ ] Show the habitat map
+
+Bonus A · Tabletop simulation (10 pts) — 0/1
+  [ ] Run the 72-hour tabletop simulation
+
+Bonus B · Crew interface (10 pts) — 1/1
+  [x] Open the Crew Interface — your data and your controls   — done Day 1 11:14 (real 19:48)

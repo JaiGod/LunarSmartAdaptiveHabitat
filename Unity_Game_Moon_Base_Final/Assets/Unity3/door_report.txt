@@ -1,0 +1,59 @@
+DOOR / PASSAGE REPORT  (10/18/2026 8:04:36 PM)
+Player capsule (world): radius 0.2 m, height 1.7 m, step 0.45 m · rig scale (1.00, 1.00, 1.00)
+FIXED WP_A_Door|WP_A_Lock: A80_OuterHatch_Door_Open → non-solid; A10_PressureHull → passable inside this doorway; A11_MMOD_WhiteShield → passable inside this doorway; A22_Interior_Liner → passable inside this doorway
+FIXED WP_A_Dust|WP_A_Suit: A40_Partition_SuitRoom_DustLock → passable inside this doorway
+FIXED WP_A_Dust|WP_A_Lock: A41_Partition_DustLock_Airlock → passable inside this doorway
+FIXED WP_A_Suit|WP_A_Tun: A01_TransitionTunnel_Hull → passable inside this doorway; A12_Bulkhead_Inner_HatchSide → passable inside this doorway
+FIXED WP_A_Tun|WP_CoreL_W: A01_TransitionTunnel_Hull → passable inside this doorway; CORE_C30_HatchFrame_W_Airlock → non-solid; CORE_C01_LowerDeck_RigidHull_Aluminum → passable inside this doorway
+FIXED WP_B_End|WP_N_Hall: N01_Hallway_Hull → passable inside this doorway; B13_Bulkhead_Outer_Hatch → passable inside this doorway
+FIXED WP_B_Lab|WP_B_Tun: B01_TransitionTunnel_Hull → passable inside this doorway; B12_Bulkhead_Inner_HatchSide → passable inside this doorway
+FIXED WP_B_Tun|WP_CoreL_N: CORE_C30_HatchFrame_N_Lab → non-solid; CORE_C01_LowerDeck_RigidHull_Aluminum → passable inside this doorway; B01_TransitionTunnel_Hull → passable inside this doorway
+FIXED WP_C_End|WP_E_Hall: C13_Bulkhead_Outer_Hatch → passable inside this doorway; E01_Hallway_Hull → passable inside this doorway
+FIXED WP_C_Mid|WP_C_Tun: C01_TransitionTunnel_Hull → passable inside this doorway; C12_Bulkhead_Inner_HatchSide → passable inside this doorway
+FIXED WP_C_Tun|WP_CoreL_E: C01_TransitionTunnel_Hull → passable inside this doorway; CORE_C30_HatchFrame_E_Greenhouse → non-solid; CORE_C01_LowerDeck_RigidHull_Aluminum → passable inside this doorway
+FIXED WP_CoreL_C|WP_CoreL_N: W22_Ladder_Rail_L → non-solid
+FIXED WP_CoreL_S|WP_D_Tun: CORE_C01_LowerDeck_RigidHull_Aluminum → passable inside this doorway; CORE_C30_HatchFrame_S_Wellness → non-solid; D01_TransitionTunnel_Hull → passable inside this doorway
+FIXED WP_D_End|WP_H_Hall: D13_Bulkhead_Outer_Hatch → passable inside this doorway; H01_Hallway_Hull → passable inside this doorway
+FIXED WP_D_Ex|WP_D_Tun: D12_Bulkhead_Inner_HatchSide → passable inside this doorway; D01_TransitionTunnel_Hull → passable inside this doorway
+FIXED WP_E_C|WP_E_Hall: E10_Node_RigidHull → passable inside this doorway; E01_Hallway_Hull → passable inside this doorway
+FIXED WP_E_NW|WP_L2_Mid: L2_R_to_E01_Hallway_Hull → passable inside this doorway; E10_Node_RigidHull → passable inside this doorway
+FIXED WP_E_SW|WP_L3_Mid: E10_Node_RigidHull → passable inside this doorway; L3_E_to_G01_Hallway_Hull → passable inside this doorway
+FIXED WP_EclA_Door|WP_EclA_In: LNE_ECLSS_Air_Wall_X_header → non-solid; LNE_ECLSS_Air_DoorFrame_Light → non-solid
+FIXED WP_EclW_Door|WP_EclW_In: LSE_ECLSS_Water_DoorFrame_Light → non-solid; LSE_ECLSS_Water_Wall_Y_header → non-solid
+FIXED WP_G_In|WP_L3_Mid: G10_Node_RigidHull → passable inside this doorway; L3_E_to_G01_Hallway_Hull → passable inside this doorway
+FIXED WP_G_Out|WP_L4_Mid: G10_Node_RigidHull → passable inside this doorway; L4_G_to_H01_Hallway_Hull → passable inside this doorway
+FIXED WP_H_C|WP_H_NE: H31_StormShelter_WaterRoof → passable inside this doorway; H30_StormShelter_WaterWall_Ring → passable inside this doorway
+FIXED WP_H_C|WP_H_Door: H30_StormShelter_WaterWall_Ring → passable inside this doorway; H31_StormShelter_WaterRoof → passable inside this doorway
+FIXED WP_H_C|WP_H_W: H31_StormShelter_WaterRoof → passable inside this doorway
+FIXED WP_H_Door|WP_H_Hall: H10_Node_RigidHull → passable inside this doorway; H01_Hallway_Hull → passable inside this doorway
+FIXED WP_H_Door|WP_H_NE: H31_StormShelter_WaterRoof → passable inside this doorway
+FIXED WP_H_NE|WP_L4_Mid: H10_Node_RigidHull → passable inside this doorway; L4_G_to_H01_Hallway_Hull → passable inside this doorway
+FIXED WP_H_W|WP_K_Hall: H10_Node_RigidHull → passable inside this doorway; K_H01_Hallway_Hull → passable inside this doorway
+FIXED WP_Hyg_Door|WP_Hyg_In: LNW_Hygiene_DoorFrame_Light → non-solid; LH11_Hygiene_Ventilation_Grille → non-solid; LNW_Hygiene_Wall_Y_header → non-solid
+FIXED WP_K_C|WP_K_Hall: K10_Node_RigidHull → passable inside this doorway; K_H01_Hallway_Hull → passable inside this doorway
+FIXED WP_K_C|WP_SQ1_Hall: K10_Node_RigidHull → passable inside this doorway; SQ1_H01_Hallway_Hull → passable inside this doorway
+FIXED WP_K_C|WP_SQ2_Hall: K10_Node_RigidHull → passable inside this doorway; SQ2_H01_Hallway_Hull → passable inside this doorway
+FIXED WP_K_C|WP_SQ3_Hall: K10_Node_RigidHull → passable inside this doorway; SQ3_H01_Hallway_Hull → passable inside this doorway
+FIXED WP_K_C|WP_SQ4_Hall: K10_Node_RigidHull → passable inside this doorway; SQ4_H01_Hallway_Hull → passable inside this doorway
+FIXED WP_L1_Mid|WP_N_Out: L1_N_to_R01_Hallway_Hull → passable inside this doorway; N10_Node_RigidHull → passable inside this doorway
+FIXED WP_L1_Mid|WP_R_In: L1_N_to_R01_Hallway_Hull → passable inside this doorway; R10_Node_RigidHull → passable inside this doorway
+FIXED WP_L2_Mid|WP_R_Out: L2_R_to_E01_Hallway_Hull → passable inside this doorway; R10_Node_RigidHull → passable inside this doorway
+FIXED WP_Ladder_Top|WP_Up_E: W01_MeetingTable_Top → passable inside this doorway; W06_Chair_2_Back → non-solid; W20_LadderWell_GuardRail → removed from the walking route
+FIXED WP_Ladder_Top|WP_Up_W: W21_LadderWell_Post_1 → non-solid; W22_Ladder_Rail_R → non-solid
+FIXED WP_N_C|WP_N_Hall: N01_Hallway_Hull → passable inside this doorway; N10_Node_RigidHull → passable inside this doorway
+FIXED WP_Pod1_Bed|WP_Pod1_Door: Q1_Wall_Front_Header → non-solid
+FIXED WP_Pod2_Bed|WP_Pod2_Door: Q2_Wall_Front_Header → non-solid
+FIXED WP_Pod2_Door|WP_Up_E: W01_MeetingTable_Top → passable inside this doorway
+FIXED WP_Pod3_Bed|WP_Pod3_Door: Q3_Wall_Front_Header → non-solid
+FIXED WP_Pod4_Bed|WP_Pod4_Door: Q4_Wall_Front_Header → non-solid
+FIXED WP_Pod4_Door|WP_Up_E: W06_Chair_3_Back → non-solid; W01_MeetingTable_Top → passable inside this doorway
+FIXED WP_SQ1_Hall|WP_SQ1_In: SQ1_H01_Hallway_Hull → passable inside this doorway; SQ1_10_Node_RigidHull → passable inside this doorway
+FIXED WP_SQ2_Hall|WP_SQ2_In: SQ2_H01_Hallway_Hull → passable inside this doorway; SQ2_10_Node_RigidHull → passable inside this doorway
+FIXED WP_SQ3_Hall|WP_SQ3_In: SQ3_H01_Hallway_Hull → passable inside this doorway; SQ3_10_Node_RigidHull → passable inside this doorway
+FIXED WP_SQ4_Hall|WP_SQ4_In: SQ4_H01_Hallway_Hull → passable inside this doorway; SQ4_10_Node_RigidHull → passable inside this doorway
+FIXED WP_Sto_Door|WP_Sto_In: LSW_Storage_Wall_X_header → non-solid; LSW_Storage_DoorFrame_Light → non-solid
+FIXED WP_Up_E|WP_Up_Table: W02_MeetingTable_Inlay_Display → passable inside this doorway; W01_MeetingTable_Top → passable inside this doorway; W06_Chair_4_Back → non-solid
+FIXED WP_Up_E|WP_Up_Galley: W01_MeetingTable_Top → passable inside this doorway; W06_Chair_0_Back → non-solid; W02_MeetingTable_Inlay_Display → passable inside this doorway; W11_Galley_Worktop → passable inside this doorway
+walkway planks (seam bridges) built: 170
+
+links tested 98 · blocked before fix 54 · still blocked 0 · hardware colliders made non-solid 26 · doorway corridors 83

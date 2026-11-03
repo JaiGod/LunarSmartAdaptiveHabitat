@@ -1,0 +1,786 @@
+[
+ {
+  "set": "closed",
+  "file": "01_Hub_Tower.stl",
+  "what": "Central hub + 5-floor tower (one solid piece)",
+  "where": "centre of the board",
+  "count": 1,
+  "group": "Hub",
+  "size": [
+   198.8,
+   198.8,
+   194.9
+  ],
+  "grams": 960.2,
+  "hours": 87.3,
+  "tris": 8448
+ },
+ {
+  "set": "open",
+  "file": "01a_Hub_BASE_ground_floor.stl",
+  "what": "Hub ground floor with regolith berm \u2014 the tower floors stack on its lip",
+  "where": "centre of the board",
+  "count": 1,
+  "group": "Hub",
+  "size": [
+   198.8,
+   198.8,
+   31.1
+  ],
+  "grams": 149.4,
+  "hours": 13.6,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "01b_Hub_TOWER_FLOOR_print_x4.stl",
+  "what": "Tower floor (mezzanine / command / emergency medical / ICU) \u2014 4 IDENTICAL rings: stack them in any order",
+  "where": "on top of the hub base",
+  "count": 4,
+  "group": "Hub",
+  "size": [
+   168.3,
+   168.3,
+   33.3
+  ],
+  "grams": 35.2,
+  "hours": 3.2,
+  "tris": 2048
+ },
+ {
+  "set": "open",
+  "file": "01c_Hub_ROOF.stl",
+  "what": "Tower dome roof \u2014 sits on the top floor",
+  "where": "top of the tower",
+  "count": 1,
+  "group": "Hub",
+  "size": [
+   168.3,
+   168.3,
+   42.6
+  ],
+  "grams": 52.4,
+  "hours": 4.8,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "02_Crew_Core.stl",
+  "what": "Crew habitat core (pill shape, two decks)",
+  "where": "west of the hub",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   123.1,
+   89.8,
+   53.2
+  ],
+  "grams": 101.5,
+  "hours": 9.2,
+  "tris": 8320
+ },
+ {
+  "set": "open",
+  "file": "02a_Crew_Core_BASE.stl",
+  "what": "Crew core \u2014 hollow base with lip",
+  "where": "west of the hub",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   123.1,
+   89.8,
+   36.7
+  ],
+  "grams": 64.3,
+  "hours": 5.8,
+  "tris": 1664
+ },
+ {
+  "set": "open",
+  "file": "02b_Crew_Core_ROOF.stl",
+  "what": "Crew core \u2014 lift-off roof",
+  "where": "west of the hub",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   101.3,
+   68.0,
+   18.8
+  ],
+  "grams": 13.8,
+  "hours": 1.3,
+  "tris": 16512
+ },
+ {
+  "set": "closed",
+  "file": "03_Agriculture_Dome.stl",
+  "what": "Agriculture dome with regolith berm",
+  "where": "north-west",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   142.2,
+   142.2,
+   65.4
+  ],
+  "grams": 159.8,
+  "hours": 14.5,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "03_Agriculture_Dome_BASE.stl",
+  "what": "Agriculture dome \u2014 hollow base with lip",
+  "where": "north-west",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   142.2,
+   142.2,
+   18.7
+  ],
+  "grams": 68.3,
+  "hours": 6.2,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "03_Agriculture_Dome_ROOF.stl",
+  "what": "Agriculture dome \u2014 lift-off roof",
+  "where": "north-west",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   114.1,
+   114.1,
+   49.2
+  ],
+  "grams": 31.5,
+  "hours": 2.9,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "04_Utility_Dome.stl",
+  "what": "Utility dome with regolith berm",
+  "where": "north-east",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   140.6,
+   140.6,
+   49.9
+  ],
+  "grams": 135.9,
+  "hours": 12.4,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "04_Utility_Dome_BASE.stl",
+  "what": "Utility dome \u2014 hollow base with lip",
+  "where": "north-east",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   140.6,
+   140.6,
+   24.1
+  ],
+  "grams": 75.3,
+  "hours": 6.8,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "04_Utility_Dome_ROOF.stl",
+  "what": "Utility dome \u2014 lift-off roof",
+  "where": "north-east",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   109.3,
+   109.3,
+   28.2
+  ],
+  "grams": 22.2,
+  "hours": 2.0,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "05_Medical_Dome.stl",
+  "what": "Medical dome with regolith berm",
+  "where": "south-west",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   140.6,
+   140.6,
+   56.5
+  ],
+  "grams": 134.6,
+  "hours": 12.2,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "05_Medical_Dome_BASE.stl",
+  "what": "Medical dome \u2014 hollow base with lip",
+  "where": "south-west",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   140.6,
+   140.6,
+   24.1
+  ],
+  "grams": 75.7,
+  "hours": 6.9,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "05_Medical_Dome_ROOF.stl",
+  "what": "Medical dome \u2014 lift-off roof",
+  "where": "south-west",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   100.7,
+   100.7,
+   34.8
+  ],
+  "grams": 21.7,
+  "hours": 2.0,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "06_Science_Dome.stl",
+  "what": "Science dome with regolith berm",
+  "where": "south-east",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   140.6,
+   140.6,
+   56.5
+  ],
+  "grams": 134.6,
+  "hours": 12.2,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "06_Science_Dome_BASE.stl",
+  "what": "Science dome \u2014 hollow base with lip",
+  "where": "south-east",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   140.6,
+   140.6,
+   24.1
+  ],
+  "grams": 75.7,
+  "hours": 6.9,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "06_Science_Dome_ROOF.stl",
+  "what": "Science dome \u2014 lift-off roof",
+  "where": "south-east",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   100.7,
+   100.7,
+   34.8
+  ],
+  "grams": 21.7,
+  "hours": 2.0,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "07_Logistics_Dome.stl",
+  "what": "Logistics dome with regolith berm",
+  "where": "east of the hub",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   157.4,
+   157.4,
+   58.6
+  ],
+  "grams": 179.9,
+  "hours": 16.4,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "07_Logistics_Dome_BASE.stl",
+  "what": "Logistics dome \u2014 hollow base with lip",
+  "where": "east of the hub",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   157.4,
+   157.4,
+   29.4
+  ],
+  "grams": 101.8,
+  "hours": 9.3,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "07_Logistics_Dome_ROOF.stl",
+  "what": "Logistics dome \u2014 lift-off roof",
+  "where": "east of the hub",
+  "count": 1,
+  "group": "Buildings",
+  "size": [
+   114.0,
+   114.0,
+   31.6
+  ],
+  "grams": 25.0,
+  "hours": 2.3,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "08_Junction_Node_print_x6.stl",
+  "what": "Junction node \u2014 6 identical, any one fits any spot",
+  "where": "the 6 small circles around the hub",
+  "count": 6,
+  "group": "Nodes",
+  "size": [
+   39.5,
+   39.5,
+   31.2
+  ],
+  "grams": 13.7,
+  "hours": 1.2,
+  "tris": 8192
+ },
+ {
+  "set": "open",
+  "file": "08_Junction_Node_BASE_print_x6.stl",
+  "what": "Junction node \u2014 hollow base",
+  "where": "the 6 small circles around the hub",
+  "count": 6,
+  "group": "Nodes",
+  "size": [
+   39.5,
+   39.5,
+   23.1
+  ],
+  "grams": 10.4,
+  "hours": 0.9,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "08_Junction_Node_ROOF_print_x6.stl",
+  "what": "Junction node \u2014 roof",
+  "where": "on each node base",
+  "count": 6,
+  "group": "Nodes",
+  "size": [
+   39.5,
+   39.5,
+   10.6
+  ],
+  "grams": 2.9,
+  "hours": 0.3,
+  "tris": 16384
+ },
+ {
+  "set": "closed",
+  "file": "09_Tunnel_Hub_to_N1.stl",
+  "what": "tunnel hub \u2192 node N1 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N1",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "09_Tunnel_Hub_to_N1.stl",
+  "what": "tunnel hub \u2192 node N1 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N1",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "10_Tunnel_Hub_to_N2.stl",
+  "what": "tunnel hub \u2192 node N2 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N2",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "10_Tunnel_Hub_to_N2.stl",
+  "what": "tunnel hub \u2192 node N2 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N2",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "11_Tunnel_Hub_to_N3.stl",
+  "what": "tunnel hub \u2192 node N3 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N3",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "11_Tunnel_Hub_to_N3.stl",
+  "what": "tunnel hub \u2192 node N3 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N3",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "12_Tunnel_Hub_to_N4.stl",
+  "what": "tunnel hub \u2192 node N4 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N4",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "12_Tunnel_Hub_to_N4.stl",
+  "what": "tunnel hub \u2192 node N4 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N4",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "13_Tunnel_Hub_to_N5.stl",
+  "what": "tunnel hub \u2192 node N5 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N5",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "13_Tunnel_Hub_to_N5.stl",
+  "what": "tunnel hub \u2192 node N5 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N5",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "14_Tunnel_Hub_to_N6.stl",
+  "what": "tunnel hub \u2192 node N6 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N6",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "14_Tunnel_Hub_to_N6.stl",
+  "what": "tunnel hub \u2192 node N6 (2.7 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel hub \u2192 node N6",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   17.8
+  ],
+  "grams": 4.4,
+  "hours": 0.4,
+  "tris": 1536
+ },
+ {
+  "set": "closed",
+  "file": "15_Tunnel_N3_to_Agriculture.stl",
+  "what": "tunnel node N3 \u2192 Agriculture (-1.2 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N3 \u2192 Agriculture",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   8.1
+  ],
+  "grams": 2.6,
+  "hours": 0.2,
+  "tris": 512
+ },
+ {
+  "set": "open",
+  "file": "15_Tunnel_N3_to_Agriculture.stl",
+  "what": "tunnel node N3 \u2192 Agriculture (-1.2 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N3 \u2192 Agriculture",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   8.1
+  ],
+  "grams": 2.6,
+  "hours": 0.2,
+  "tris": 512
+ },
+ {
+  "set": "closed",
+  "file": "16_Tunnel_N2_to_Utility.stl",
+  "what": "tunnel node N2 \u2192 Utility (-1.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N2 \u2192 Utility",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   7.3
+  ],
+  "grams": 2.4,
+  "hours": 0.2,
+  "tris": 512
+ },
+ {
+  "set": "open",
+  "file": "16_Tunnel_N2_to_Utility.stl",
+  "what": "tunnel node N2 \u2192 Utility (-1.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N2 \u2192 Utility",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   7.3
+  ],
+  "grams": 2.4,
+  "hours": 0.2,
+  "tris": 512
+ },
+ {
+  "set": "closed",
+  "file": "17_Tunnel_N5_to_Medical.stl",
+  "what": "tunnel node N5 \u2192 Medical (-1.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N5 \u2192 Medical",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   7.3
+  ],
+  "grams": 2.4,
+  "hours": 0.2,
+  "tris": 512
+ },
+ {
+  "set": "open",
+  "file": "17_Tunnel_N5_to_Medical.stl",
+  "what": "tunnel node N5 \u2192 Medical (-1.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N5 \u2192 Medical",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   7.3
+  ],
+  "grams": 2.4,
+  "hours": 0.2,
+  "tris": 512
+ },
+ {
+  "set": "closed",
+  "file": "18_Tunnel_N6_to_Science.stl",
+  "what": "tunnel node N6 \u2192 Science (-1.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N6 \u2192 Science",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   7.3
+  ],
+  "grams": 2.4,
+  "hours": 0.2,
+  "tris": 512
+ },
+ {
+  "set": "open",
+  "file": "18_Tunnel_N6_to_Science.stl",
+  "what": "tunnel node N6 \u2192 Science (-1.1 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N6 \u2192 Science",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   7.3
+  ],
+  "grams": 2.4,
+  "hours": 0.2,
+  "tris": 512
+ },
+ {
+  "set": "closed",
+  "file": "19_Tunnel_N1_to_Logistics.stl",
+  "what": "tunnel node N1 \u2192 Logistics (-2.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N1 \u2192 Logistics",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   15.4
+  ],
+  "grams": 3.8,
+  "hours": 0.3,
+  "tris": 512
+ },
+ {
+  "set": "open",
+  "file": "19_Tunnel_N1_to_Logistics.stl",
+  "what": "tunnel node N1 \u2192 Logistics (-2.3 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N1 \u2192 Logistics",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   15.4
+  ],
+  "grams": 3.8,
+  "hours": 0.3,
+  "tris": 512
+ },
+ {
+  "set": "closed",
+  "file": "20_Tunnel_N4_to_CrewCore.stl",
+  "what": "tunnel node N4 \u2192 crew core (1.8 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N4 \u2192 crew core",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   11.7
+  ],
+  "grams": 3.3,
+  "hours": 0.3,
+  "tris": 1536
+ },
+ {
+  "set": "open",
+  "file": "20_Tunnel_N4_to_CrewCore.stl",
+  "what": "tunnel node N4 \u2192 crew core (1.8 m real) \u2014 print standing on one end; magnet pocket in each end",
+  "where": "tunnel node N4 \u2192 crew core",
+  "count": 1,
+  "group": "Hallways & tunnels",
+  "size": [
+   23.7,
+   23.7,
+   11.7
+  ],
+  "grams": 3.3,
+  "hours": 0.3,
+  "tris": 1536
+ }
+]
