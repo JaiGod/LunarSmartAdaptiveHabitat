@@ -3,7 +3,7 @@
 <p align="center">
 <a href="../../releases/latest"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20NOW-download%20for%20Windows-2ea44f?style=for-the-badge&logo=windows" height="48" alt="PLAY NOW"></a>
 &nbsp;&nbsp;
-<a href="UNITY_PLAY_LINK"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20IN%20BROWSER-Unity%20Play-1f8fff?style=for-the-badge" height="48" alt="Play in browser"></a>
+<a href="https://supercooljai.github.io/NASA-HUNCH-3D-Print-Kits/play/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20IN%20BROWSER-no%20download-1f8fff?style=for-the-badge" height="48" alt="Play in browser"></a>
 </p>
 <p align="center"><b>Windows:</b> download → Extract All → double-click <code>PLAY NOW.bat</code> &nbsp;·&nbsp; <b>Browser:</b> just click, no download</p>
 
@@ -12,7 +12,7 @@
 
 ![Project 3 finished print model](3D_Print_Kits/images/project3_finished_model.png)
 
-## ▶ Play in your browser (Unity Play)
+## ▶ Play in your browser
 
 No download: opens in Chrome or Edge on any PC, including school computers. Keyboard + mouse (press **H** in game for help).
 
@@ -39,7 +39,7 @@ No VR headset needed — it runs on keyboard + mouse (press **H** in game for he
 
 [![Presentation](Docs/presentation_cover.png)](Docs/Presentation_Agency_Review_Board.pdf)
 
-**[Review slide by slide](Docs/SLIDES.md)** (all 17 slides shown inline) · **[Open the PDF](Docs/Presentation_Agency_Review_Board.pdf)**
+**[Review slide by slide](Docs/SLIDES.md)** (all 19 slides shown inline) · **[Open the PDF](Docs/Presentation_Agency_Review_Board.pdf)**
 
 ## Project ARES rubric → where it is in the game
 
