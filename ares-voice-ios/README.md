@@ -19,6 +19,13 @@ Credits: **Jaineil R.** · with Angel C. and Farhan K.
 - Hands-free listening **pauses inside private quarters** unless that crew member turns it on.
 - Tap ? in the app for the full command list.
 
+## Board demo (for presenting)
+Tap **▶ Board demo** in the top bar. ARES plays a 19-step tour: it switches between crew members and zones, types each command for you and answers out loud. A caption explains which rubric item each step shows. It covers zone control, gentle ramps, undo, every hard limit, private replies, a Tier-2 offer and "not now", crew messages, pausing the AI, habitat status, an emergency and its cancel, and the good-night routine.
+The demo doesn't use the microphone, so it still works if the room is noisy or the mic or network fails. Tap **Stop demo** at any time, and **Reset** to start fresh.
+
+## More things to say
+Good night / good morning routines · "repeat that" · "speak slower / faster" · "how much time is left" / "cancel the timer" · "read my messages" · "how do I get to the grow bay" · "what's it like outside".
+
 ## How it maps to the ARES rubric
 | Rubric item | What the voice feature adds |
 |---|---|

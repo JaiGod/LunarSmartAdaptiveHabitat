@@ -37,6 +37,14 @@ final class AresBrain: ObservableObject {
     @Published var timers: [VoiceTimer] = []
     @Published var emergency: EmergencyAlert?
     @Published private(set) var log: [LogEntry] = []
+    @Published var inbox: [InboxMessage] = []
+    @Published private(set) var demoCaption: String?
+    @Published private(set) var demoRunning = false
+
+    private var lastSpoken = ""
+    private var demoTask: Task<Void, Never>?
+
+    var myUnread: [InboxMessage] { inbox.filter { $0.to == speakerID && !$0.read } }
 
     static let kelvinStep = 500, brightnessStep = 15, celsiusStep = 1
     static let kelvinRange = 2200...6500, brightnessRange = 5...100, celsiusRange = 18...26
@@ -47,10 +55,7 @@ final class AresBrain: ObservableObject {
     private var ticker: Task<Void, Never>?
 
     init() {
-        for z in ZoneKind.allCases where z != .quarters { zones[z.rawValue] = ZoneState(zone: z) }
-        for c in CrewMember.all { zones[Self.quartersKey(c.id)] = ZoneState(zone: .quarters) }
-        chat.append(ChatLine(fromUser: false,
-                             text: "ARES voice is ready. Tap the orb or turn on “Hey ARES”. Speech is processed on this device with no internet, and audio is never saved."))
+        resetHabitat()
         speech.onCommand = { [weak self] text in self?.submit(text) }
         ticker = Task { [weak self] in
             while !Task.isCancelled {
@@ -58,6 +63,19 @@ final class AresBrain: ObservableObject {
                 self?.tick()
             }
         }
+    }
+
+    /// Puts everything back to the start (used by the Reset button and before the board demo).
+    func resetHabitat() {
+        zones = [:]
+        for z in ZoneKind.allCases where z != .quarters { zones[z.rawValue] = ZoneState(zone: z) }
+        for c in CrewMember.all { zones[Self.quartersKey(c.id)] = ZoneState(zone: .quarters) }
+        aiPausedUntil = [:]; quartersAccess = [:]; declinedAt = [:]
+        pendingOffer = nil; timers = []; emergency = nil; inbox = []
+        undoStack = []; log = []; lastSpoken = ""
+        speakerID = "reyes"; speakerZone = .communal
+        chat = [ChatLine(fromUser: false,
+                         text: "ARES voice is ready. Tap the orb or turn on “Hey ARES”. Speech is processed on this device with no internet, and audio is never saved.")]
     }
 
     // MARK: who and where
@@ -86,6 +104,7 @@ final class AresBrain: ObservableObject {
         let command = CommandParser(crew: crew, speakerID: speakerID).parse(text)
         let reply = execute(command)
         chat.append(ChatLine(fromUser: false, text: reply.display, tone: reply.tone))
+        if command != .repeatLast, let s = reply.spoken { lastSpoken = s }
         if voiceReplies, let spoken = reply.spoken { speech.speak(spoken) } else { speech.finishedWithoutSpeaking() }
     }
 
@@ -180,10 +199,11 @@ final class AresBrain: ObservableObject {
             }
             if let id = to, let c = crew.first(where: { $0.id == id }) {
                 record("Message to \(c.first): \(text)", why: "You asked.", tier: 0)
-                record("Message from \(speaker.first): \(text)", why: "Crew message.", tier: 0, crewID: c.id)
+                inbox.append(InboxMessage(to: c.id, from: speaker.first, text: text))
                 return Reply("Sent to \(c.first): “\(text)”.")
             }
             record("Crew message from \(speaker.first): \(text)", why: "Crew message.", tier: 0, forAll: true)
+            for c in crew where c.id != speakerID { inbox.append(InboxMessage(to: c.id, from: speaker.first, text: text)) }
             return Reply("Sent to the whole crew: “\(text)”.")
 
         case .timer(let seconds, let label):
@@ -214,6 +234,48 @@ final class AresBrain: ObservableObject {
 
         case .status(let topic):
             return Reply(statusText(topic))
+
+        case .surface:
+            return Reply("Outside it's lunar daytime: the ground is around 100 °C in direct sun and far below freezing in shadow. Radiation is normal and there's no solar flare warning. (Simulated readings.)")
+
+        case .routine(let r):
+            return routine(r)
+
+        case .repeatLast:
+            guard !lastSpoken.isEmpty else { return Reply("I haven't said anything yet.") }
+            return Reply(display: "(Repeating) " + lastSpoken, spoken: lastSpoken)
+
+        case .speechRate(let faster):
+            speech.rate = min(0.62, max(0.36, speech.rate + (faster ? 0.06 : -0.06)))
+            return Reply(faster ? "OK, I'll talk a little faster." : "OK, I'll talk a little slower.")
+
+        case .cancelTimer:
+            guard !timers.isEmpty else { return Reply("You don't have any timers running.") }
+            let n = timers.count
+            timers.removeAll()
+            return Reply(n == 1 ? "Timer cancelled." : "All \(n) timers cancelled.")
+
+        case .timerLeft:
+            guard let t = timers.min(by: { $0.end < $1.end }) else { return Reply("You don't have any timers running.") }
+            let left = max(0, Int(t.end.timeIntervalSinceNow))
+            return Reply("Your \(t.label) timer has \(left / 60) min \(left % 60) s left.")
+
+        case .readMessages:
+            let mine = myUnread
+            guard !mine.isEmpty else { return personal("You have no new messages.") }
+            for i in inbox.indices where inbox[i].to == speakerID { inbox[i].read = true }
+            let text = mine.map { "From \($0.from): \($0.text)" }.joined(separator: "\n")
+            return personal("You have \(mine.count) new message\(mine.count == 1 ? "" : "s").\n" + text)
+
+        case .directions(let zone):
+            let whereText: String
+            switch zone {
+            case .communal: whereText = "The Wardroom and the meeting table are upstairs in the central core."
+            case .quarters: whereText = "Your quarters are in the quarters wing, through the quiet vestibule next to Medical."
+            case .transition: whereText = "The corridors link every module to the core. Their lighting warms as you near the social areas."
+            default: whereText = "The \(zone.title) is a module off the central core. Follow the corridor from the core."
+            }
+            return Reply(whereText + " The habitat map shows the route too.")
 
         case .help:
             return Reply(display: "Try: “make the wardroom warmer”, “lab lights to 4000 K”, “calm mode”, “undo”, “what did you do for me”, “how am I doing”, “tell Tanaka dinner is ready”, “timer 10 minutes”, “habitat status”, “pause AI”, “keep out of my quarters”. Tap ? for the full list and the things I'll never do.",
@@ -357,6 +419,19 @@ final class AresBrain: ObservableObject {
         return Reply(msg)
     }
 
+    /// Takes one gentle step toward a light setting now and ramps the rest.
+    @discardableResult
+    private func applyTarget(_ zone: ZoneKind, kelvin k: Int, brightness b: Int, label: String, why: String, tier: Int) -> Bool {
+        let before = state(of: zone)
+        var z = before
+        z.on = true
+        z.kelvin = Self.step(z.kelvin, toward: k, by: Self.kelvinStep)
+        z.brightness = Self.step(z.brightness, toward: b, by: Self.brightnessStep)
+        z.targetKelvin = z.kelvin == k ? nil : k
+        z.targetBrightness = z.brightness == b ? nil : b
+        return commit(zone, before: before, after: z, label: label, why: why, tier: tier)
+    }
+
     @discardableResult
     private func applyScene(_ scene: SceneKind, zone: ZoneKind, why: String, tier: Int) -> Reply {
         let (k, b, sound): (Int, Int, String) = {
@@ -367,16 +442,88 @@ final class AresBrain: ObservableObject {
             case .nature: return (4000, 60, "forest and rain sounds")
             }
         }()
-        let before = state(of: zone)
-        var z = before
-        z.on = true
-        z.kelvin = Self.step(z.kelvin, toward: k, by: Self.kelvinStep)
-        z.brightness = Self.step(z.brightness, toward: b, by: Self.brightnessStep)
-        z.targetKelvin = z.kelvin == k ? nil : k
-        z.targetBrightness = z.brightness == b ? nil : b
         let msg = "\(scene.rawValue.capitalized) scene in \(zone.title): heading to \(k) K at \(b)% with \(sound)."
-        _ = commit(zone, before: before, after: z, label: msg, why: why, tier: tier)
-        return Reply(msg + (z.isRamping ? " I'll ease into it over the next minute or two." : ""))
+        applyTarget(zone, kelvin: k, brightness: b, label: msg, why: why, tier: tier)
+        return Reply(msg + (state(of: zone).isRamping ? " I'll ease into it over the next minute or two." : ""))
+    }
+
+    private func routine(_ r: Routine) -> Reply {
+        switch r {
+        case .goodNight:
+            applyTarget(.quarters, kelvin: 2200, brightness: 10, label: "Good-night routine: quarters to 2200 K, 10%", why: "You said good night.", tier: 0)
+            handsFreeInQuarters = false
+            return Reply("Good night, \(speaker.first). Your quarters are easing to a warm, dim light over the next few minutes, and I've stopped hands-free listening in there. Say “good morning” when you're up.")
+        case .goodMorning:
+            applyTarget(.quarters, kelvin: 5000, brightness: 75, label: "Good-morning routine: quarters to 5000 K, 75%", why: "You said good morning.", tier: 0)
+            let unread = myUnread.count
+            let mail = unread == 0 ? "" : " You have \(unread) new message\(unread == 1 ? "" : "s")."
+            return Reply("Good morning, \(speaker.first). I'm bringing your lights up gently. \(nextScheduleItem())\(mail)")
+        }
+    }
+
+    // MARK: board demo: a scripted tour that runs even if the microphone or network fails
+
+    static let demoSteps: [DemoStep] = [
+        DemoStep(who: "reyes", zone: .communal, say: "Hey ARES, make the wardroom lights warmer", caption: "Voice control of an ARES zone (D2). One small step: 500 K."),
+        DemoStep(who: "reyes", zone: .communal, say: "Set the lab lights to 3000 K", caption: "A big change ramps gently instead of jumping."),
+        DemoStep(who: "reyes", zone: .communal, say: "Undo", caption: "Any change can be undone by voice (hard limit 5)."),
+        DemoStep(who: "reyes", zone: .communal, say: "How is Tanaka feeling?", caption: "Hard limit 1: no one's data goes to a crewmate."),
+        DemoStep(who: "reyes", zone: .communal, say: "Open the airlock", caption: "Hard limit 3: no control of life support or the airlock."),
+        DemoStep(who: "reyes", zone: .communal, say: "Can I have some melatonin?", caption: "Hard limit 3: medication is the CMO's decision."),
+        DemoStep(who: "reyes", zone: .communal, say: "Tell Mission Control that Tanaka is stressed", caption: "Hard limit 4: the person always hears first."),
+        DemoStep(who: "reyes", zone: .communal, say: "How am I doing?", caption: "Privacy: in a shared zone, personal data goes to the screen only."),
+        DemoStep(who: "reyes", zone: .quarters, say: "How am I doing?", caption: "In private quarters, ARES can say it out loud."),
+        DemoStep(who: "reyes", zone: .quarters, say: nil, caption: "Tier 2: ARES offers support and asks first."),
+        DemoStep(who: "reyes", zone: .quarters, say: "Not now", caption: "“Not now” is respected for 6 hours (hard limit 2)."),
+        DemoStep(who: "reyes", zone: .communal, say: "Tell Tanaka dinner is ready", caption: "Crew messages."),
+        DemoStep(who: "tanaka", zone: .quarters, say: "Read my messages", caption: "Tanaka hears her message privately in her quarters."),
+        DemoStep(who: "tanaka", zone: .quarters, say: "Pause AI", caption: "Crew override: one sentence, no reason needed."),
+        DemoStep(who: "tanaka", zone: .quarters, say: "Resume AI", caption: "And back on just as easily."),
+        DemoStep(who: "reyes", zone: .communal, say: "Habitat status", caption: "Reading life support is allowed; changing it is not."),
+        DemoStep(who: "novak", zone: .nature, say: "Emergency! I need help", caption: "Tier 3: the crew and the CMO are alerted first, and every light goes to full."),
+        DemoStep(who: "novak", zone: .nature, say: "Cancel emergency", caption: "A false alarm is cancelled by voice."),
+        DemoStep(who: "reyes", zone: .quarters, say: "Good night", caption: "A Siri-style routine: the quarters ease warm and dim.")
+    ]
+
+    func runDemo() {
+        stopDemo()
+        speech.setHandsFree(false)
+        resetHabitat()
+        demoRunning = true
+        demoTask = Task {
+            let steps = Self.demoSteps
+            for (i, step) in steps.enumerated() {
+                if Task.isCancelled { break }
+                speakerID = step.who
+                speakerZone = step.zone
+                demoCaption = "Demo \(i + 1)/\(steps.count): \(step.caption)"
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                if Task.isCancelled { break }
+                if let say = step.say { submit(say) } else { simulateOffer() }
+                await waitForQuiet()
+                try? await Task.sleep(nanoseconds: 1_200_000_000)
+            }
+            if !Task.isCancelled {
+                demoCaption = "Demo finished. Tap Reset to start fresh."
+                demoRunning = false
+            }
+        }
+    }
+
+    func stopDemo() {
+        demoTask?.cancel()
+        demoTask = nil
+        if demoRunning { speech.stopAll() }
+        demoRunning = false
+        demoCaption = nil
+    }
+
+    private func waitForQuiet() async {
+        for _ in 0..<300 {                       // up to 60 seconds
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            if Task.isCancelled { return }
+            if speech.state != .speaking && speech.state != .thinking { return }
+        }
     }
 
     private func statusText(_ topic: StatusTopic) -> String {

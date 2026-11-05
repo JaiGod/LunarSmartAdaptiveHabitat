@@ -20,6 +20,8 @@ final class SpeechEngine: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
     @Published private(set) var permissionsOK = false
     @Published private(set) var onDeviceOK = true
     @Published var notice: String?
+    /// Speaking speed; the crew can say "speak slower" or "speak faster".
+    @Published var rate: Float = AVSpeechUtteranceDefaultSpeechRate
 
     /// Called with the words of a finished command.
     var onCommand: ((String) -> Void)?
@@ -124,9 +126,17 @@ final class SpeechEngine: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         try? session.setActive(true)
         let u = AVSpeechUtterance(string: text)
         u.voice = AVSpeechSynthesisVoice(language: "en-US")
-        u.rate = AVSpeechUtteranceDefaultSpeechRate
+        u.rate = rate
         state = .speaking
         synth.speak(u)
+    }
+
+    /// Stops talking and listening (used when the board demo is stopped).
+    func stopAll() {
+        listenAfterSpeaking = false
+        state = .idle
+        synth.stopSpeaking(at: .immediate)
+        stopAudio()
     }
 
     /// When a reply is shown but not spoken.

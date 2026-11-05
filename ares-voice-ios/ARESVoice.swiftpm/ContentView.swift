@@ -49,6 +49,14 @@ struct TopBar: View {
             }
             Badge(text: "OFFLINE · ON-DEVICE", icon: "lock.shield", color: .green)
             Spacer()
+            Button {
+                brain.demoRunning ? brain.stopDemo() : brain.runDemo()
+            } label: {
+                Label(brain.demoRunning ? "Stop demo" : "Board demo", systemImage: brain.demoRunning ? "stop.fill" : "play.fill")
+            }
+            .buttonStyle(.borderedProminent).tint(brain.demoRunning ? .red : .purple)
+            Button { brain.stopDemo(); brain.resetHabitat() } label: { Label("Reset", systemImage: "arrow.counterclockwise") }
+                .buttonStyle(.bordered)
             Badge(text: brain.speaker.first + " · " + brain.speakerZone.title, icon: "person.wave.2", color: .orange)
             Button { showHelp = true } label: {
                 Image(systemName: "questionmark.circle.fill").font(.title2)
@@ -112,6 +120,14 @@ struct VoicePanel: View {
                 }
             }
             .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 22))
+
+            if let caption = brain.demoCaption {
+                Label(caption, systemImage: "play.rectangle.fill")
+                    .font(.headline)
+                    .padding(.horizontal, 16).padding(.vertical, 10)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.purple.opacity(0.35), in: RoundedRectangle(cornerRadius: 14))
+            }
 
             if !speech.partial.isEmpty, speech.state == .listening {
                 Text("“\(speech.partial)”").font(.title3.italic()).foregroundStyle(.cyan).lineLimit(2)
@@ -273,6 +289,15 @@ struct SidePanel: View {
                     .font(.caption2).foregroundStyle(.secondary)
             }
 
+            if !brain.myUnread.isEmpty {
+                Card(title: "Messages (\(brain.myUnread.count) new)", icon: "envelope.badge") {
+                    ForEach(brain.myUnread) { m in
+                        Text("From \(m.from): \(m.text)").font(.callout)
+                    }
+                    Button("Read them to me") { brain.submit("read my messages") }.buttonStyle(.bordered)
+                }
+            }
+
             if !brain.timers.isEmpty {
                 Card(title: "Timers", icon: "timer") {
                     TimelineView(.periodic(from: .now, by: 1)) { context in
@@ -369,11 +394,13 @@ struct Card<Content: View>: View {
 struct HelpSheet: View {
     @Environment(\.dismiss) private var dismiss
     let groups: [(String, [String])] = [
-        ("Lights and comfort", ["Make the wardroom warmer", "Lab lights to 4000 K", "Brightness 30 percent", "Lights off in my quarters", "Calm mode", "Focus mode in the lab", "I'm cold", "Set temperature to 23"]),
+        ("Lights and comfort", ["Make the wardroom lights warmer", "Make the wardroom warmer (temperature)", "Lab lights to 4000 K", "Brightness 30 percent", "Lights off in my quarters", "Calm mode", "Focus mode in the lab", "I'm cold", "Set temperature to 23"]),
+        ("Routines", ["Good night", "Good morning"]),
         ("You're in control", ["Undo / stop / change it back", "Pause AI", "Resume AI", "Keep out of my quarters", "Stop listening"]),
-        ("About me (private)", ["How am I doing?", "What did you do for me?", "What's next on my schedule?"]),
+        ("About me (private)", ["How am I doing?", "What did you do for me?", "Read my messages", "What's next on my schedule?"]),
         ("Crew and comms", ["Tell Tanaka dinner is ready", "Call everyone to the wardroom", "Message Mission Control we finished the EVA prep"]),
-        ("Habitat", ["Habitat status", "What's the CO2 level?", "What time is it?", "Set a timer for 10 minutes"]),
+        ("Habitat", ["Habitat status", "What's the CO2 level?", "What's it like outside?", "How do I get to the grow bay?", "What time is it?"]),
+        ("Timers and voice", ["Set a timer for 10 minutes", "How much time is left?", "Cancel the timer", "Repeat that", "Speak slower / faster"]),
         ("Emergency", ["Emergency / I need help", "Cancel emergency"])
     ]
     let limits = [

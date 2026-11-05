@@ -131,6 +131,22 @@ struct VoiceTimer: Identifiable {
     let end: Date
 }
 
+struct InboxMessage: Identifiable {
+    let id = UUID()
+    let to: String
+    let from: String
+    let text: String
+    let date = Date()
+    var read = false
+}
+
+struct DemoStep {
+    let who: String
+    let zone: ZoneKind
+    let say: String?        // nil = ARES makes a Tier-2 offer instead
+    let caption: String
+}
+
 struct EmergencyAlert {
     let crewID: String
     let zone: ZoneKind

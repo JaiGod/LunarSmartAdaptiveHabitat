@@ -7,6 +7,7 @@ import Foundation
 enum LightChange: Equatable { case warmer, cooler, brighter, dimmer, kelvin(Int), percent(Int), on, off, reset }
 enum TempChange: Equatable { case warmer, cooler, set(Int) }
 enum SceneKind: String { case calm, focus, energize, nature }
+enum Routine: Equatable { case goodNight, goodMorning }
 enum StatusTopic { case all, co2, oxygen, pressure, temperature, power }
 
 enum HardLimit: Equatable {
@@ -34,6 +35,13 @@ enum Command: Equatable {
     case clarifyLights(ZoneKind?)
     case thermal(ZoneKind?, TempChange)
     case status(StatusTopic)
+    case routine(Routine)
+    case repeatLast
+    case speechRate(faster: Bool)
+    case cancelTimer, timerLeft
+    case readMessages
+    case directions(ZoneKind)
+    case surface
     case help, greeting, thanks
     case unknown(String)
 }
@@ -96,10 +104,18 @@ struct CommandParser {
         // 4. Answers to an offer.
         if ["yes", "yes please", "sure", "ok", "okay", "accept", "do it", "sounds good", "yeah", "yep", "please do"].contains(t) { return .accept }
         if ["no", "not now", "no thanks", "no thank you", "decline", "later", "maybe later", "nope"].contains(t) { return .decline }
+        if has(["repeat that", "say that again", "what did you say", "repeat", "come again"]) { return .repeatLast }
+        if has(["speak slower", "talk slower", "slower please", "slow down", "speak more slowly"]) { return .speechRate(faster: false) }
+        if has(["speak faster", "talk faster", "faster please", "speed up"]) { return .speechRate(faster: true) }
 
         // 5. Personal information (only ever about the speaker).
         if has(["what did you do", "what have you done", "what did the ai do", "my log", "show log", "show my log", "activity log", "what changed", "why did you", "what did you change"]) { return .whatDidYouDo }
         if has(["how am i", "my wellness", "my health", "my data", "my sleep", "my heart", "my stress", "my vitals", "how did i sleep", "my hrv"]) { return .myWellness }
+        if has(["read my messages", "my messages", "any messages", "new messages", "check messages", "check my messages"]) { return .readMessages }
+
+        // Routines, like Siri shortcuts.
+        if has(["good night", "goodnight", "bedtime", "going to sleep", "going to bed", "im going to bed", "time for bed"]) { return .routine(.goodNight) }
+        if has(["good morning", "im up", "im awake", "morning routine"]) { return .routine(.goodMorning) }
 
         // 6. Messages and timers.
         if isMessage {
@@ -110,6 +126,8 @@ struct CommandParser {
                 return .message(to: nil, text: Self.messageBody(tokens, dropping: ["everyone", "everybody", "crew", "all", "the"], verb: first))
             }
         }
+        if has(["cancel timer", "cancel the timer", "cancel my timer", "stop timer", "stop the timer", "delete timer", "cancel timers"]) { return .cancelTimer }
+        if has(["time left", "how long left", "how much time", "timer status", "how long until"]) { return .timerLeft }
         if has(["timer", "countdown"]) || (first == "remind" && has(["in"])) {
             if let n = numbers.first {
                 if has(["hour", "hours"]) { return .timer(seconds: n * 3600, label: "\(n) h") }
@@ -132,6 +150,9 @@ struct CommandParser {
         var zoneText = t
         for m in ["work mode", "nature mode", "nature scene", "focus mode", "calm mode"] { zoneText = zoneText.replacingOccurrences(of: m, with: " ") }
         let zone = Self.zone(in: zoneText)
+        if let zone, has(["how do i get to", "where is the", "wheres the", "directions to", "take me to", "way to the", "guide me to", "show me the way"]) {
+            return .directions(zone)
+        }
         if let scene { return .scene(zone, scene) }
 
         let lightWords = ["light", "lights", "lighting", "lamp", "lamps", "brighter", "brighten", "dimmer", "dim", "darker",
@@ -162,6 +183,7 @@ struct CommandParser {
         }
 
         // 8. Reading habitat status is always allowed (changing life support is not).
+        if has(["outside", "surface", "radiation", "solar flare", "weather", "moonquake", "dust storm"]) { return .surface }
         if has(["co2", "carbon dioxide"]) { return .status(.co2) }
         if has(["oxygen", "o2"]) { return .status(.oxygen) }
         if has(["pressure"]) { return .status(.pressure) }
