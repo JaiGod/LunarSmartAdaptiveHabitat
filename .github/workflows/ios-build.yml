@@ -1,0 +1,19 @@
+# Optional: compiles the app on a GitHub macOS runner, so you can check it builds without owning a Mac.
+# Not yet tested: if this fails, open the .swiftpm in Swift Playgrounds on the iPad instead (see README).
+name: iOS build check
+on:
+  push:
+    paths: ["ares-voice-ios/**"]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: ares-voice-ios/ARESVoice.swiftpm
+    steps:
+      - uses: actions/checkout@v4
+      - name: List schemes
+        run: xcodebuild -list
+      - name: Build for iOS Simulator (unsigned)
+        run: xcodebuild -scheme "ARES Voice" -destination "generic/platform=iOS Simulator" CODE_SIGNING_ALLOWED=NO build
