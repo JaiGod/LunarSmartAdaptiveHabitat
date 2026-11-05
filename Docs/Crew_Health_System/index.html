@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NASA HUNCH Crew Health System</title>
+<style>
+:root{
+  --bg:#050816; --panel:rgba(16,22,52,.72); --line:rgba(120,150,255,.18);
+  --text:#eaf0ff; --mute:#93a0c8;
+  --cyan:#22e6ff; --violet:#8b5cff; --green:#3dffa8; --amber:#ffc247; --red:#ff4d6d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  color:var(--text); font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(900px 600px at 85% -10%,rgba(139,92,255,.28),transparent 60%),
+    radial-gradient(800px 600px at -10% 30%,rgba(34,230,255,.16),transparent 60%),
+    radial-gradient(700px 500px at 60% 110%,rgba(255,77,109,.10),transparent 60%),
+    linear-gradient(160deg,#050816,#0a0f2e 55%,#070b20);
+  background-attachment:fixed; overflow-x:hidden;
+}
+
+/* ---------- space backdrop ---------- */
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.orbit{position:fixed;border:1px solid rgba(120,150,255,.14);border-radius:50%;z-index:0;pointer-events:none;animation:spin linear infinite}
+.orbit::after{content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+.orbit.o1{width:900px;height:900px;right:-380px;top:-420px;animation-duration:80s}
+.orbit.o2{width:1300px;height:1300px;right:-600px;top:-640px;animation-duration:140s;animation-direction:reverse}
+.orbit.o2::after{background:var(--violet);box-shadow:0 0 14px var(--violet)}
+.orbit.o3{width:700px;height:700px;left:-380px;bottom:-380px;animation-duration:110s}
+.orbit.o3::after{background:var(--green);box-shadow:0 0 14px var(--green)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- header / branding ---------- */
+header,main,footer{position:relative;z-index:1}
+header{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;padding:18px 26px;
+  border-bottom:1px solid var(--line);background:rgba(6,10,28,.6);backdrop-filter:blur(10px);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:16px}
+.emblem{position:relative;width:58px;height:58px;flex:none}
+.planet{position:absolute;inset:14px;border-radius:50%;
+  background:radial-gradient(circle at 32% 30%,#9fd8ff,#3a6cff 45%,#1a1f6b 80%);
+  box-shadow:0 0 18px rgba(58,108,255,.8);animation:bob 5s ease-in-out infinite}
+.ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(34,230,255,.55);animation:spin 6s linear infinite}
+.ring::after{content:"";position:absolute;top:-4px;left:50%;margin-left:-4px;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.ring.r2{inset:6px;border-color:rgba(139,92,255,.5);animation-duration:9s;animation-direction:reverse;transform:rotate(60deg)}
+.ring.r2::after{background:var(--violet);box-shadow:0 0 12px var(--violet);width:6px;height:6px;margin-left:-3px;top:-3px}
+.brand h1{margin:0;font-size:24px;letter-spacing:4px;font-weight:800;
+  background:linear-gradient(90deg,#fff,var(--cyan),var(--violet),#fff);background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 8s linear infinite;
+  filter:drop-shadow(0 0 10px rgba(34,230,255,.35))}
+.brand small{display:block;color:var(--mute);letter-spacing:1.5px;font-size:11.5px;text-transform:uppercase}
+@keyframes sheen{to{background-position:300% 0}}
+@keyframes bob{50%{transform:translateY(-2px) scale(1.04)}}
+.hud{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:12.5px;font-weight:600;
+  font-variant-numeric:tabular-nums;transition:all .4s}
+.chip.ok{color:var(--green);border-color:rgba(61,255,168,.45)}
+.chip.warn{color:var(--amber);border-color:rgba(255,194,71,.5)}
+.chip.bad{color:var(--red);border-color:rgba(255,77,109,.6);box-shadow:0 0 14px rgba(255,77,109,.4)}
+.chip.dim{opacity:.45}
+button,select,input{font:inherit;color:var(--text)}
+button{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:10px;padding:6px 11px;cursor:pointer;font-size:12.5px;
+  transition:transform .15s,border-color .2s,box-shadow .2s,background .2s}
+button:hover{transform:translateY(-1px);border-color:var(--cyan);box-shadow:0 0 12px rgba(34,230,255,.3)}
+button:active{transform:translateY(0) scale(.97)}
+.acard button.on,#sound.on{background:rgba(255,77,109,.18);border-color:var(--red);color:#ffd0d8}
+button.go{border-color:rgba(61,255,168,.5);color:var(--green)}
+button.x{color:var(--mute)}
+select,input[type=text]{background:rgba(5,8,22,.7);border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:12.5px}
+input[type=text]:focus,select:focus,button:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+
+/* ---------- alert banner ---------- */
+#banner{margin:18px 26px 0;padding:12px 18px;border-radius:16px;border:1px solid var(--red);
+  background:linear-gradient(90deg,rgba(255,77,109,.22),rgba(255,77,109,.06));color:#ffdbe1;font-weight:600;
+  display:none;animation:alarm 1.2s ease-in-out infinite}
+#banner.show{display:block}
+
+/* ---------- cards ---------- */
+main{padding:22px 26px;max-width:1500px;margin:auto}
+.grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+.acard{position:relative;border-radius:24px;padding:18px;background:var(--panel);border:1px solid rgba(34,230,255,.28);
+  backdrop-filter:blur(8px);box-shadow:0 0 26px rgba(34,230,255,.10),inset 0 0 30px rgba(34,230,255,.04);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .5s,border-color .5s,background .6s}
+.acard.enter{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.acard:hover{transform:translateY(-5px);box-shadow:0 10px 40px rgba(34,230,255,.22),inset 0 0 30px rgba(34,230,255,.06)}
+.acard.warn{border-color:rgba(255,194,71,.7);box-shadow:0 0 28px rgba(255,194,71,.20),inset 0 0 30px rgba(255,194,71,.05)}
+.acard.danger{border-color:var(--red);background:linear-gradient(160deg,rgba(90,12,30,.82),rgba(40,10,30,.78));
+  animation:shake 2.6s ease-in-out infinite,alarm 1.2s ease-in-out infinite}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes alarm{0%,100%{box-shadow:0 0 18px rgba(255,77,109,.35),inset 0 0 26px rgba(255,77,109,.10)}
+  50%{box-shadow:0 0 46px rgba(255,77,109,.85),inset 0 0 40px rgba(255,77,109,.22)}}
+@keyframes shake{0%,16%,100%{transform:translateX(0)}2%{transform:translateX(-4px) rotate(-.35deg)}4%{transform:translateX(4px) rotate(.35deg)}
+  6%{transform:translateX(-3px)}8%{transform:translateX(3px)}10%{transform:translateX(-2px)}12%{transform:translateX(2px)}14%{transform:translateX(-1px)}}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.who{display:flex;gap:12px;align-items:center;min-width:0}
+.avatar{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:800;letter-spacing:.5px;flex:none;
+  background:linear-gradient(135deg,rgba(34,230,255,.3),rgba(139,92,255,.4));border:1px solid rgba(255,255,255,.18)}
+.who h3{margin:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.role{color:var(--mute);font-size:12.5px}
+.status{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap;
+  border:1px solid rgba(61,255,168,.5);color:var(--green);transition:all .5s}
+.status i{display:inline-block;width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor;animation:blink 1.8s ease-in-out infinite;font-style:normal}
+.status.sleep{color:#9db4ff;border-color:rgba(157,180,255,.5)}
+.status.sleep i{background:none;box-shadow:none;width:auto;height:auto;animation:zzz 2.4s ease-in-out infinite}
+.status.sleep i::before{content:"z";font-weight:800}
+.status.exercise{color:var(--cyan);border-color:rgba(34,230,255,.55)}
+.status.exercise i{animation-duration:.6s}
+.status.unresp{color:var(--red);border-color:var(--red);background:rgba(255,77,109,.15)}
+.status.unresp i{animation:blink .5s steps(2) infinite}
+@keyframes blink{50%{opacity:.25;transform:scale(.7)}}
+@keyframes zzz{0%{transform:translate(0,3px);opacity:.2}60%{opacity:1}100%{transform:translate(4px,-6px);opacity:0}}
+
+canvas.wave{width:100%;height:92px;display:block;margin:14px 0 10px;border-radius:14px;
+  background:linear-gradient(180deg,rgba(3,6,20,.85),rgba(8,12,34,.85));border:1px solid rgba(120,150,255,.12)}
+
+.m{margin:9px 0}
+.mh{display:flex;align-items:center;gap:9px}
+.ico{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:10px;font-weight:800;
+  color:var(--cyan);background:rgba(34,230,255,.10);border:1px solid rgba(34,230,255,.3);transition:color .4s,border-color .4s,background .4s}
+.ico svg{width:15px;height:15px;fill:currentColor}
+.ico.float{animation:float 3.2s ease-in-out infinite}
+.ico.swirl span{display:inline-block;animation:spin 2.2s linear infinite}
+@keyframes float{50%{transform:translateY(-3px)}}
+.ml{color:var(--mute);font-size:12.5px;flex:1}
+.mv{font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--mute)}
+.mv b{font-size:18px;color:var(--text);transition:color .4s}
+.track{height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:6px}
+.fill{height:100%;width:100%;border-radius:99px;transform-origin:left;transform:scaleX(.5);
+  background:linear-gradient(90deg,var(--violet),var(--cyan));box-shadow:0 0 10px rgba(34,230,255,.6);transition:background .5s}
+.m[data-k=flow] .fill{background-image:repeating-linear-gradient(110deg,rgba(255,255,255,.0) 0 10px,rgba(255,255,255,.45) 10px 14px),linear-gradient(90deg,var(--violet),var(--cyan))}
+.m.l1 .ico{color:var(--amber);border-color:rgba(255,194,71,.5);background:rgba(255,194,71,.1)}
+.m.l1 .mv b{color:var(--amber)}
+.m.l1 .fill{background:linear-gradient(90deg,#ff9a3d,var(--amber));box-shadow:0 0 10px rgba(255,194,71,.6)}
+.m.l2 .ico{color:var(--red);border-color:var(--red);background:rgba(255,77,109,.14)}
+.m.l2 .mv b{color:var(--red)}
+.m.l2 .fill{background:linear-gradient(90deg,#b3123a,var(--red));box-shadow:0 0 12px rgba(255,77,109,.8)}
+.m.l1[data-k=flow] .fill,.m.l2[data-k=flow] .fill{background-image:repeating-linear-gradient(110deg,rgba(255,255,255,0) 0 10px,rgba(255,255,255,.45) 10px 14px),linear-gradient(90deg,#b3123a,var(--red))}
+
+.alerts{list-style:none;margin:12px 0 0;padding:0;min-height:30px;display:flex;flex-wrap:wrap;gap:6px}
+.alerts li{padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;animation:rise .4s both}
+.alerts .l0{color:var(--green);background:rgba(61,255,168,.08);border:1px solid rgba(61,255,168,.3)}
+.alerts .l1{color:var(--amber);background:rgba(255,194,71,.1);border:1px solid rgba(255,194,71,.45)}
+.alerts .l2{color:#ffe1e6;background:rgba(255,77,109,.28);border:1px solid var(--red)}
+.ctl{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+
+/* ---------- lower panels ---------- */
+.panel{margin-top:22px;border-radius:24px;padding:18px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(8px)}
+.panel h2{margin:0 0 10px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mute{color:var(--mute);font-size:12.5px}
+#feed{max-height:220px;overflow:auto;font-size:13px}
+#feed div{padding:6px 0;border-bottom:1px solid rgba(120,150,255,.1);animation:rise .4s both}
+#feed time{color:var(--mute);margin-right:8px;font-variant-numeric:tabular-nums}
+#feed .l2{color:var(--red);font-weight:700}#feed .l0{color:var(--green)}
+table{border-collapse:collapse;font-size:12.5px;width:100%}
+td,th{text-align:left;padding:5px 8px;border-bottom:1px solid rgba(120,150,255,.1)}
+th{color:var(--mute);font-weight:600}
+footer{padding:18px 26px 30px;text-align:center;color:var(--mute);font-size:12px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- tabs and shared panels (crew health system) ---------- */
+:root{--ok:var(--green);--warn:var(--amber);--bad:var(--red);--info:#5aa9ff}
+nav{position:relative;z-index:1;display:flex;gap:8px;padding:12px 26px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:rgba(6,10,28,.35)}
+nav button{font-size:13.5px;padding:8px 14px;border-radius:12px}
+button.on{background:linear-gradient(135deg,rgba(34,230,255,.25),rgba(139,92,255,.3));border-color:var(--cyan);box-shadow:0 0 14px rgba(34,230,255,.35);font-weight:700}
+button.no{border-color:rgba(255,77,109,.6);color:#ff9fb0}
+button.go{font-weight:700}
+.tab{display:none}.tab.show{display:block;animation:fade .45s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.card{border-radius:24px;padding:18px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(8px);transition:border-color .3s,box-shadow .3s}
+.card:hover{border-color:rgba(34,230,255,.4);box-shadow:0 0 22px rgba(34,230,255,.12)}
+h2{margin:0 0 10px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+h3{font-size:16px;margin:0}
+.sp{justify-content:space-between}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid var(--line);color:var(--mute)}
+.pill.ok{color:var(--ok);border-color:rgba(61,255,168,.5)}.pill.warn{color:var(--warn);border-color:rgba(255,194,71,.55)}
+.pill.bad{color:var(--bad);border-color:var(--bad);box-shadow:0 0 10px rgba(255,77,109,.35)}.pill.info{color:var(--info);border-color:var(--info)}
+.vit{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.vit div{background:rgba(3,6,20,.6);border:1px solid rgba(120,150,255,.1);border-radius:12px;padding:6px;text-align:center}
+.vit b{display:block;font-size:17px;font-variant-numeric:tabular-nums}.vit span{font-size:11px;color:var(--mute)}
+.bar{display:grid;grid-template-columns:128px 1fr 34px;gap:8px;align-items:center;font-size:12px;margin:3px 0}
+.bar i{display:block;height:7px;border-radius:9px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar i u{display:block;height:100%;border-radius:9px;transition:width .8s}
+.alert{border-left:5px solid var(--amber);margin-bottom:12px}
+.alert.cmo{border-left-color:var(--red);animation:alarm 1.2s ease-in-out infinite}
+.gauge b{font-size:26px;font-variant-numeric:tabular-nums}
+.log{max-height:420px;overflow:auto;font-size:13px}
+.log div{padding:6px 0;border-bottom:1px solid rgba(120,150,255,.1)}
+.log time{color:var(--mute);margin-right:8px;font-variant-numeric:tabular-nums}
+.swatch{height:8px;border-radius:9px;margin:8px 0}
+textarea{width:100%;min-height:90px;resize:vertical;font:inherit;color:var(--text);background:rgba(5,8,22,.7);border:1px solid var(--line);border-radius:10px;padding:8px}
+ul{margin:6px 0;padding-left:18px}
+#monGrid canvas,#circ{width:100%;height:150px;display:block;margin:8px 0;border-radius:14px;background:rgba(3,6,20,.85);border:1px solid rgba(120,150,255,.12)}
+#speed button{padding:4px 9px}
+@media print{header,nav,button,#stars,.orbit{display:none!important}body{background:#fff;color:#000}.card,.panel{border-color:#999;background:#fff}.tab{display:block}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div>
+
+<header>
+  <div class="brand">
+    <div class="emblem"><div class="ring"></div><div class="ring r2"></div><div class="planet"></div></div>
+    <div><h1>NASA HUNCH</h1><small>Crew Health System · Lunar Smart Adaptive Habitat</small></div>
+  </div>
+  <div class="hud">
+    <span class="chip" id="clock"></span>
+    <span id="speed" class="row"><button data-sp="0">❚❚</button><button data-sp="1" class="on">1×</button><button data-sp="10">10×</button><button data-sp="60">60×</button></span>
+    <span class="chip" id="met">MET 00:00:00</span>
+    <span class="chip ok" id="nOk">0 nominal</span>
+    <span class="chip warn" id="nWarn">0 caution</span>
+    <span class="chip bad" id="nBad">0 critical</span>
+    <span class="chip ok">Offline · onboard</span>
+    <button id="sound" class="on">Alarm sound: on</button>
+    <button id="testSnd">Test alarm</button>
+  </div>
+</header>
+<nav id="nav">
+  <button data-tab="dash" class="on">Vitals Dashboard</button>
+  <button data-tab="crew">Psych Monitoring</button>
+  <button data-tab="mon">Wave Monitor</button>
+  <button data-tab="hab">Habitat Systems</button>
+  <button data-tab="env">Adaptive Environment</button>
+  <button data-tab="check">Crew Check-in</button>
+  <button data-tab="rep">Reports &amp; Log</button>
+</nav>
+<div id="banner" role="alert"></div>
+<main>
+<section class="tab show" id="tab-dash">
+  <div class="grid" id="grid"></div>
+
+  <div class="panel">
+    <h2>Crew roster</h2>
+    <div class="row">
+      <input type="text" id="addName" placeholder="Astronaut name" maxlength="36">
+      <input type="text" id="addRole" placeholder="Role" maxlength="36">
+      <button class="go" id="addBtn">Add astronaut</button>
+      <button class="x" id="resetAll">Reset all to nominal</button>
+    </div>
+    <p class="mute">Use the buttons on each card to simulate an emergency and watch the card react. The roster is saved on this device.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Alert feed</h2>
+    <div id="feed"><div class="mute">No alerts yet.</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Thresholds used</h2>
+    <table>
+      <tr><th>Vital</th><th>Caution</th><th>Danger</th><th>Alert shown</th></tr>
+      <tr><td>Heart rate</td><td>&gt; 110 or &lt; 48 bpm</td><td>&gt; 130 or &lt; 38 bpm</td><td>Critical heart rate spike / drop</td></tr>
+      <tr><td>Blood oxygen (SpO₂)</td><td>&lt; 94 %</td><td>&lt; 90 %</td><td>Critical oxygen drop</td></tr>
+      <tr><td>O₂ flow rate</td><td>&lt; 0.65 L/min</td><td>&lt; 0.40 L/min</td><td>O₂ flow failure</td></tr>
+      <tr><td>CO₂ level</td><td>&gt; 4 mmHg</td><td>&gt; 6 mmHg</td><td>High CO₂ spike</td></tr>
+      <tr><td>Respiration</td><td>&gt; 22 or &lt; 9 /min</td><td>&gt; 28 or &lt; 6 /min</td><td>Respiratory distress</td></tr>
+      <tr><td>Body temperature</td><td>&gt; 37.8 °C</td><td>&gt; 38.5 °C</td><td>High fever</td></tr>
+    </table>
+    <p class="mute">Heart rate and breathing limits relax automatically while a crew member is sleeping or exercising.</p>
+  </div>
+</section>
+<section class="tab" id="tab-crew">
+  <div id="alerts"></div>
+  <div class="grid" id="crewGrid"></div>
+  <div class="card" style="margin-top:14px">
+    <h2>Scenario simulator (biomedical simulation)</h2>
+    <div class="row">
+      <select id="simCrew"></select>
+      <select id="simCond"></select>
+      <button data-sim="0.5">Inject mild</button>
+      <button data-sim="0.72">Inject moderate</button>
+      <button data-sim="1">Inject severe</button>
+      <button data-sim="0" class="no">Clear this crew member</button>
+    </div>
+    <p class="mute">Injects a condition into the simulated wearable stream so you can demo how the AI detects, triages and responds. Mild = silent adjustment · Moderate = options offered to the crew member · Severe = escalation to the Chief Medical Officer.</p>
+  </div>
+</section>
+<section class="tab" id="tab-mon">
+  <div class="card"><div class="row sp"><h2>Circadian rhythm (crew-wide)</h2><span class="mute" id="circTxt"></span></div>
+    <canvas id="circ" style="height:110px"></canvas>
+    <p class="mute">Simplified alertness model: A(t) = cos(2π(t − 15) / 24), t in hours. Peak mid-afternoon, lowest around 03:00. The dot is the current habitat time.</p></div>
+  <div class="grid" id="monGrid" style="margin-top:14px;grid-template-columns:repeat(auto-fill,minmax(340px,1fr))"></div>
+  <div class="card" style="margin-top:14px"><h2>How the waves are built</h2>
+    <ul><li><b style="color:#2ec4a0">Pulse</b>: y = sin(2πft) + 0.35·sin(4πft + 0.9), with f = heart rate ÷ 60 Hz. The trace turns red when heart rate is well above that person's baseline.</li>
+    <li><b style="color:#5aa9ff">Respiration</b>: y = cos(2πft), with f = breaths per minute ÷ 60 Hz. Breathing rate rises with the stress signal.</li>
+    <li>Inject a condition on the Crew Health tab and watch the waves tighten as the frequency climbs.</li></ul></div>
+</section>
+<section class="tab" id="tab-hab"><div id="habBody"></div>
+  <div class="card" style="margin-top:14px"><h2>Fault simulator</h2>
+    <div class="row" id="faults">
+      <button data-fault="scrub">CO₂ scrubber fault</button>
+      <button data-fault="night">Lunar night (no solar)</button>
+      <button data-fault="leak">Micro-leak</button>
+    </div>
+    <p class="mute">High CO₂ feeds into the crew model: air quality is a sensor for cognitive fatigue and irritability.</p>
+  </div>
+</section>
+<section class="tab" id="tab-env"><div class="grid" id="envGrid"></div>
+  <div class="card" style="margin-top:14px"><h2>Hard limits (what the AI never does)</h2>
+    <ul>
+      <li>No cameras or microphones inside a private pod. In pod privacy mode psychological monitoring pauses. Only life-safety vitals (heart, oxygen, CO₂) stay on.</li>
+      <li>If a crew member declines an intervention, the AI stops and logs it. It does not retry or work around the refusal.</li>
+      <li>Never administers medication or changes a care plan. Severe cases go to a human (CMO, or Commander + ground if the CMO is the one affected).</li>
+      <li>In shared zones, adjustments are shown without naming who triggered them.</li>
+      <li>Any crew member can override the scene in any zone. Manual choice beats the AI.</li>
+    </ul>
+  </div>
+</section>
+<section class="tab" id="tab-check">
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+    <div class="card">
+      <h2>Daily check-in</h2>
+      <div class="row"><label>Crew member <select id="ciCrew"></select></label></div>
+      <p><label>How are you feeling? <b id="ciVal">3</b>/5<br><input type="range" id="ciMood" min="1" max="5" value="3" style="width:100%"></label></p>
+      <textarea id="ciText" placeholder="Journal entry (optional). Analysed on this device only."></textarea>
+      <p><label><input type="checkbox" id="ciShare"> Share this entry's text with the CMO</label></p>
+      <button class="go" id="ciSend">Submit check-in</button>
+      <p class="mute">The text is scored by an onboard word-level sentiment model. Only the score feeds the AI. The text stays private unless you tick the box.</p>
+    </div>
+    <div class="card"><h2>Recent entries</h2><div id="ciList" class="log"></div></div>
+  </div>
+</section>
+<section class="tab" id="tab-rep">
+  <div id="repBody"></div>
+  <div class="card" style="margin-top:14px">
+    <div class="row sp"><h2>Event log</h2>
+      <div class="row"><button id="exp">Export JSON</button><button onclick="print()">Print report</button><button class="no" id="clr">Clear log</button></div></div>
+    <div class="log" id="logList"></div>
+  </div>
+</section>
+</main>
+<footer>Student prototype for the NASA HUNCH program · All data is simulated · Rule-based onboard engine, not a medical device · Runs with no network connection</footer>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const rnd=a=>(Math.random()-.5)*2*a;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+const DASH={add(){},remove(){},alarm(){}}; /* hooks filled in by the vitals dashboard below */
+
+/* ---------- model ---------- */
+const CONDS={
+ anx:{name:'Anxiety',color:'#ef5b5b',auto:'Lights to 2400K amber, alpha soundscape, 23°C, lavender',offer:['Guided breathing session','Quiet time in private pod','Call home / Earth view']},
+ dep:{name:'Depression',color:'#8b6be0',auto:'Bright 5000K morning light, nature scenes on virtual window',offer:['Greenhouse plant-care session','Scheduled call with family','Shared meal with a crewmate']},
+ con:{name:'Interpersonal conflict',color:'#e08a1e',auto:'Acoustic separation raised, meal windows staggered',offer:['Stagger schedule for 24 h','Facilitated debrief with Commander','Solo exercise block']},
+ fat:{name:'Cognitive fatigue',color:'#2ec4a0',auto:'Airflow increased, task pacing slowed, cooler light',offer:['20-minute rest break now','Hand off high-stakes task','Earlier sleep period tonight']},
+ aut:{name:'Autonomy deprivation',color:'#4a90e2',auto:'Schedule choices unlocked for next block',offer:['Choose your next 2 h of tasks','Free personal block','Reorder tomorrow\'s schedule']},
+ mon:{name:'Sensory monotony',color:'#b05cf0',auto:'New soundscape, citrus scent, changed window scenes',offer:['VR nature walk','Greenhouse hobby time','Rearrange galley layout']}
+};
+const DELTA={
+ anx:{hr:30,hrv:-28,stress:.6,voice:.5,sent:-.35,sleep:-1},
+ dep:{sent:-.75,social:-.55,activity:-.5,sleep:-2.5,stress:.3},
+ con:{avoid:.8,voice:.6,social:-.3,sent:-.3,stress:.3},
+ fat:{task:-.55,sleep:-2.5,hrv:-18,stress:.25},
+ aut:{control:-.7,sent:-.3,stress:.2},
+ mon:{novelty:-.7,sent:-.25,activity:-.25}
+};
+const BASE={hr:66,hrv:65,sleep:7.5,stress:.22,sent:.25,social:.7,activity:.65,task:.85,voice:.15,control:.7,novelty:.65,avoid:.05};
+const ZONES={pods:'Crew Quarters',galley:'Galley / Wardroom',lab:'Laboratory',hyg:'Hygiene',green:'Greenhouse',air:'Airlock / EVA Prep'};
+const SCENES={auto:null,calm:{k:2400,lux:80,sound:'Alpha soundscape',scent:'Lavender'},focus:{k:6500,lux:500,sound:'Quiet',scent:'None'},energy:{k:5500,lux:600,sound:'Upbeat audio',scent:'Citrus'},nature:{k:4000,lux:300,sound:'Forest & rain',scent:'Petrichor'}};
+
+function mkCrew(id,name,role,hr,hrv){
+  const base={...BASE,hr,hrv},cond={};
+  for(const k in CONDS)cond[k]={int:0,state:'none',check:null};
+  return{id,name,role,base,sig:{...base},cond,priv:false,journal:0,journalT:0,hist:[],hrHist:[],stats:{acc:0,dec:0,esc:0,auto:0},score:{},risk:.3,cls:'Neutral',ph:0,ph2:0,w1:[],w2:[]};
+}
+const ROSTER0=[['reyes','Cmdr. A. Reyes','Commander',64,68],['okafor','Dr. S. Okafor','Chief Medical Officer',68,62],['tanaka','M. Tanaka','Systems Engineer',62,72],['novak','L. Novak','Science Lead',70,60]];
+const crew=store.get('lsah_roster',ROSTER0).map(r=>mkCrew(...r));
+const saveRoster=()=>store.set('lsah_roster',crew.map(c=>[c.id,c.name,c.role,c.base.hr,c.base.hrv]));
+const hab={o2:20.9,co2:600,press:101.3,temp:22,hum:45,water:93,solar:8,batt:85,load:6,nuke:false,scrub:false,night:false,leak:false,leakT:0,green:92};
+const zoneScene={};for(const z in ZONES)zoneScene[z]='auto';
+let t=8*60,speed=1,alerts=[],alertId=1;
+let logArr=store.get('lsah_log',[]),journals=store.get('lsah_journal',[]);
+
+const timeStr=()=>{const d=Math.floor(t/1440)+1,h=Math.floor(t%1440/60),m=t%60;return`Sol ${d} · ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`};
+const hour=()=>Math.floor(t%1440/60);
+function log(level,who,msg){logArr.unshift({t:timeStr(),level,who,msg});if(logArr.length>300)logArr.length=300;store.set('lsah_log',logArr)}
+const cmoFor=c=>{const m=crew.find(x=>/medical/i.test(x.role));return!m||m===c?'Commander + ground flight surgeon':'CMO '+m.name};
+
+function zoneOf(c,i){
+  if(c.priv)return'pods';
+  const h=hour();
+  if(h>=22||h<6)return'pods';
+  if(h===6||h===21)return'hyg';
+  if(h===7||h===12||h===18||h===19)return'galley';
+  if(h===17)return i%2?'green':'galley';
+  if(h===20)return'pods';
+  return i===3?'green':(i===2&&h>=14?'air':'lab');
+}
+
+/* ---------- simulation ---------- */
+function stepCrew(c){
+  const tg={...c.base};
+  for(const k in CONDS){const i=c.cond[k].int;if(i>0)for(const s in DELTA[k])tg[s]+=DELTA[k][s]*i}
+  tg.task-=clamp((hab.co2-1000)/3000)*.5;
+  if(c.journalT>0){tg.sent=tg.sent*.6+c.journal*.4;c.journalT--}
+  const noise={hr:1.5,hrv:1.5,sleep:.03};
+  for(const s in tg)c.sig[s]+=(tg[s]-c.sig[s])*.25+rnd(noise[s]||.012);
+  const g=c.sig,b=c.base;
+  g.sleep=clamp(g.sleep,2,9);g.sent=clamp(g.sent,-1,1);
+  for(const s of['stress','social','activity','task','voice','control','novelty','avoid'])g[s]=clamp(g[s]);
+  const d={hr:clamp((g.hr-b.hr)/30),hrv:clamp((b.hrv-g.hrv)/28),sleep:clamp((7.5-g.sleep)/2.5),sent:clamp((.25-g.sent)/.75),soc:clamp((.7-g.social)/.55),act:clamp((.65-g.activity)/.5),task:clamp((.85-g.task)/.55),voice:clamp((g.voice-.15)/.6),ctl:clamp((.7-g.control)/.7),nov:clamp((.65-g.novelty)/.7),stress:clamp((g.stress-.22)/.6),avoid:clamp((g.avoid-.05)/.8)};
+  c.score={
+    anx:.35*d.hr+.3*d.hrv+.2*d.stress+.15*d.voice,
+    dep:.35*d.sent+.25*d.soc+.2*d.act+.2*d.sleep,
+    con:.6*d.avoid+.25*d.voice+.15*d.soc,
+    fat:.55*d.task+.2*d.sleep+.15*d.hrv+.1*d.stress,
+    aut:.8*d.ctl+.2*d.sent,
+    mon:.75*d.nov+.15*d.act+.1*d.sent};
+  // overall class: sentiment and stress carry most weight (project model feature importance)
+  c.risk=clamp(.6*(1-g.sent)/2+.4*g.stress);
+  const top=Math.max(...Object.values(c.score));
+  c.cls=(c.risk>=.58||top>=.75)?'Suspected Illness':(c.risk>=.42||top>=.55)?'Underlying Issue':'Neutral';
+  c.hist.push(c.risk);c.hrHist.push(g.hr);if(c.hist.length>120){c.hist.shift();c.hrHist.shift()}
+  // natural slow decay + assessment
+  for(const k in CONDS){
+    const st=c.cond[k],s=c.score[k];
+    if(['auto','active','cmo'].includes(st.state))st.int*=.94;else st.int*=.9985;
+    if(st.int<.02)st.int=0;
+    if(c.priv)continue;
+    const tier=s>=.75?3:s>=.55?2:s>=.35?1:0;
+    if(st.state!=='none'&&st.int<.12&&s<.3){log('ok',c.name,`${CONDS[k].name}: resolved, environment restored gradually`);st.state='none';st.check=null;dropAlert(c,k);continue}
+    if(tier===3&&!['escalated','cmo'].includes(st.state))escalate(c,k,'severe signal pattern');
+    else if(tier===2&&['none','auto'].includes(st.state)){st.state='offered';alerts.push({id:alertId++,crew:c.id,cond:k,type:'offer'});log('warn',c.name,`${CONDS[k].name}: moderate. Options offered to crew member`)}
+    else if(tier===1&&st.state==='none'){st.state='auto';c.stats.auto++;log('info',c.name,`${CONDS[k].name}: early signs. Silent adjustment: ${CONDS[k].auto}`)}
+    if(st.check&&t>=st.check.t){
+      if(s<st.check.s0-.08){log('ok',c.name,`${CONDS[k].name}: improving after 20 min monitor window`);st.check=null}
+      else if(st.state==='active'){st.check=null;escalate(c,k,'no improvement after 20 min')}
+      else st.check=null;
+    }
+  }
+}
+function dropAlert(c,k){alerts=alerts.filter(a=>!(a.crew===c.id&&a.cond===k))}
+function escalate(c,k,why){
+  dropAlert(c,k);c.cond[k].state='escalated';c.stats.esc++;
+  alerts.push({id:alertId++,crew:c.id,cond:k,type:'cmo'});DASH.alarm();
+  log('bad',c.name,`${CONDS[k].name}: escalated to ${cmoFor(c)} (${why})`);
+}
+function stepHab(){
+  const h=hab;
+  h.co2+=h.scrub?25:(600-h.co2)*.05;h.co2=clamp(h.co2+rnd(4),400,5000);
+  if(h.co2>2500&&!h._co2){h._co2=true;log('bad','Habitat','CO₂ above 2500 ppm. Backup scrubber bed commanded on, crew alerted')}
+  if(h.co2<1200)h._co2=false;
+  const sun=h.night?0:8+rnd(.2);h.solar+=(sun-h.solar)*.2;
+  if(h.night&&!h.nuke){h.nuke=true;h.load=4.2;log('warn','Habitat','Solar lost. Fission backup online, non-critical loads shed')}
+  if(!h.night&&h.nuke&&h.solar>6){h.nuke=false;h.load=6;log('ok','Habitat','Solar restored. Fission unit back to standby')}
+  h.batt=clamp(h.batt+(h.solar+(h.nuke?10:0)-h.load)*.05,0,100);
+  if(h.leak){h.press-=.06;h.leakT++;if(h.leakT===12){h.leak=false;h.leakT=0;log('ok','Habitat','Leak located and isolated: airlock compartment sealed');syncFaults()}}
+  else h.press+=(101.3-h.press)*.08;
+  h.o2+=(20.9-(h.co2-600)/4000-h.o2)*.1;
+  h.temp+=(22-h.temp)*.1+rnd(.03);h.hum+=(45-h.hum)*.1+rnd(.2);h.water+=(93-h.water)*.1+rnd(.1);
+}
+function tick(){t++;stepHab();crew.forEach(stepCrew)}
+
+/* ---------- rendering ---------- */
+function spark(a,min,max,col){
+  if(a.length<2)return'';
+  const w=120,h=28,pts=a.map((v,i)=>`${(i/(a.length-1)*w).toFixed(1)},${(h-clamp((v-min)/(max-min))*h).toFixed(1)}`).join(' ');
+  return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="${col}" stroke-width="1.6" points="${pts}"/></svg>`;
+}
+const clsPill=c=>`<span class="pill ${c.cls==='Neutral'?'ok':c.cls==='Underlying Issue'?'warn':'bad'}">${c.cls}</span>`;
+const STATE={none:'',auto:'silent adjust',offered:'awaiting choice',active:'intervention on',declined:'declined',escalated:'with CMO',cmo:'care plan'};
+function renderCrew(){
+  $('#alerts').innerHTML=alerts.map(a=>{
+    const c=crew.find(x=>x.id===a.crew),cd=CONDS[a.cond];
+    return a.type==='offer'
+     ?`<div class="card alert"><div class="row sp"><h3>${esc(c.name)}: the habitat noticed signs of ${cd.name.toLowerCase()}</h3><span class="pill warn">Moderate</span></div>
+        <p class="mute">You choose. Options: ${cd.offer.map(esc).join(' · ')}</p>
+        <div class="row"><button class="go" data-act="accept" data-id="${a.id}">Accept support</button><button class="no" data-act="decline" data-id="${a.id}">Decline (AI will stop and log)</button></div></div>`
+     :`<div class="card alert cmo"><div class="row sp"><h3>Escalation to ${esc(cmoFor(c))}: ${esc(c.name)} · ${cd.name}</h3><span class="pill bad">Severe</span></div>
+        <p class="mute">Human decision required. The AI will not change the care plan on its own.</p>
+        <button class="go" data-act="ack" data-id="${a.id}">Acknowledge and start human-led care plan</button></div>`}).join('');
+  $('#crewGrid').innerHTML=crew.map((c,i)=>{
+    const g=c.sig,p=c.priv;
+    const bars=Object.keys(CONDS).map(k=>{const s=c.score[k]||0,st=c.cond[k].state;
+      return`<div class="bar"><span>${CONDS[k].name}${st!=='none'?` <span class="mute">· ${STATE[st]}</span>`:''}</span><i><u style="width:${(s*100).toFixed(0)}%;background:${CONDS[k].color}"></u></i><span>${(s*100).toFixed(0)}</span></div>`}).join('');
+    return`<div class="card"><div class="row sp"><div><h3>${esc(c.name)}</h3><span class="mute">${esc(c.role)} · ${ZONES[zoneOf(c,i)]}</span></div>${p?'<span class="pill info">Private</span>':clsPill(c)}</div>
+    ${p?`<p class="mute" style="margin:18px 0">In private pod. Psychological monitoring is paused. Only life-safety vitals stay on.</p>`
+      :`<div class="vit"><div><b>${g.hr.toFixed(0)}</b><span>HR bpm</span></div><div><b>${g.hrv.toFixed(0)}</b><span>HRV ms</span></div><div><b>${g.sleep.toFixed(1)}</b><span>Sleep h</span></div><div><b>${(g.stress*100).toFixed(0)}</b><span>Stress</span></div></div>
+       <div class="row sp mute"><span>Risk index ${(c.risk*100).toFixed(0)} · mood ${g.sent>=0?'+':''}${g.sent.toFixed(2)}</span>${spark(c.hist,0,1,'#f5a623')}</div>${bars}`}
+    <div class="row" style="margin-top:10px"><button data-priv="${c.id}" class="${p?'on':''}">${p?'Leave private pod':'Enter private pod'}</button><button class="no" data-rm="${c.id}">${c.armT>Date.now()?'Confirm remove':'Remove'}</button></div></div>`}).join('');
+}
+function renderHab(){
+  const h=hab,G=(label,val,unit,st,note)=>`<div class="card gauge"><div class="row sp"><span class="mute">${label}</span><span class="pill ${st}">${st==='ok'?'Nominal':st==='warn'?'Caution':'Alarm'}</span></div><b>${val}</b> <span class="mute">${unit}</span><div class="mute">${note||''}</div></div>`;
+  const s=(v,w,b,inv)=>inv?(v<b?'bad':v<w?'warn':'ok'):(v>b?'bad':v>w?'warn':'ok');
+  $('#habBody').innerHTML=`<h2>ECLSS: life support</h2><div class="grid">
+   ${G('Oxygen',h.o2.toFixed(1),'%',s(h.o2,20,19.5,1),`Greenhouse supplement ${h.green}% healthy`)}
+   ${G('CO₂',h.co2.toFixed(0),'ppm',s(h.co2,1000,2500),h.scrub?'Scrubber fault active':'Scrubber running')}
+   ${G('Cabin pressure',h.press.toFixed(1),'kPa',s(h.press,100.5,99.5,1),h.leak?'Leak search in progress':'Hull sealed')}
+   ${G('Temperature',h.temp.toFixed(1),'°C','ok','Humidity '+h.hum.toFixed(0)+'%')}
+   ${G('Water recovery',h.water.toFixed(0),'%',s(h.water,88,80,1),'Closed loop')}
+  </div><h2 style="margin-top:18px">Power</h2><div class="grid">
+   ${G('Solar array',h.solar.toFixed(1),'kW',h.night?'warn':'ok',h.night?'Lunar night':'Sunlit')}
+   ${G('Battery',h.batt.toFixed(0),'%',s(h.batt,40,20,1),'Load '+h.load.toFixed(1)+' kW')}
+   ${G('Fission backup',h.nuke?'10.0':'0.0','kW','ok',h.nuke?'Online':'Standby')}
+  </div>`;
+}
+function zoneEnv(z){
+  const h=hour();let e=h>=22||h<6?{k:1800,lux:5,sound:'Silent',scent:'None'}:h>=19?{k:2700,lux:120,sound:'Soft ambient',scent:'None'}:{k:z==='lab'||z==='air'?6500:z==='galley'?3500:4500,lux:z==='lab'?500:300,sound:z==='green'?'Water & leaves':'Ambient',scent:z==='green'?'Petrichor':'None'};
+  let why='Circadian schedule';
+  const sc=SCENES[zoneScene[z]];
+  if(sc){e={...sc};why='Crew manual scene';return{...e,why,notes:[]}}
+  const notes=[];
+  crew.forEach((c,i)=>{if(zoneOf(c,i)!==z||c.priv)return;for(const k in CONDS)if(['auto','active'].includes(c.cond[k].state)){
+    notes.push(z==='pods'?`${c.name}: ${CONDS[k].auto}`:`Adaptive adjustment active: ${CONDS[k].auto}`);
+    if(k==='anx')e={k:2400,lux:80,sound:'Alpha soundscape',scent:'Lavender'};
+    if(k==='dep')e={...e,k:5000,lux:600};
+    if(k==='mon')e={...e,sound:'New soundscape',scent:'Citrus'};
+    why='AI adaptive response'}});
+  return{...e,why,notes};
+}
+const kColor=k=>k<2200?'#ff8a3d':k<3000?'#ffb866':k<4200?'#ffe2b0':k<5600?'#f4f6ff':'#bfd8ff';
+function renderEnv(){
+  $('#envGrid').innerHTML=Object.keys(ZONES).map(z=>{
+    const e=zoneEnv(z),who=crew.filter((c,i)=>zoneOf(c,i)===z).map(c=>c.name.split(' ').pop());
+    return`<div class="card"><div class="row sp"><h3>${ZONES[z]}</h3><span class="pill ${e.why[0]==='A'?'warn':e.why[0]==='C'&&e.why[1]==='r'?'info':''}">${e.why}</span></div>
+    <div class="swatch" style="background:${kColor(e.k)};opacity:${clamp(e.lux/300,.25,1)}"></div>
+    <div class="mute">Light ${e.k}K · ${e.lux} lux<br>Sound: ${e.sound} · Scent: ${e.scent}<br>Present: ${who.length?who.join(', '):'nobody'}</div>
+    ${e.notes.length?`<ul class="mute">${[...new Set(e.notes)].map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}
+    <div class="row" style="margin-top:8px"><label class="mute">Scene <select data-zone="${z}">${Object.keys(SCENES).map(s=>`<option value="${s}"${zoneScene[z]===s?' selected':''}>${s==='auto'?'Auto (AI + circadian)':s[0].toUpperCase()+s.slice(1)}</option>`).join('')}</select></label></div></div>`}).join('');
+}
+function renderRep(){
+  const n=crew.length,avg=crew.reduce((a,c)=>a+c.risk,0)/(n||1),cnt=k=>crew.filter(c=>c.cls===k).length;
+  $('#repBody').innerHTML=`<div class="grid">
+   <div class="card gauge"><span class="mute">Crew average risk index</span><br><b>${(avg*100).toFixed(0)}</b> <span class="mute">/ 100</span></div>
+   <div class="card gauge"><span class="mute">Classification</span><br><span class="pill ok">${cnt('Neutral')} Neutral</span> <span class="pill warn">${cnt('Underlying Issue')} Underlying</span> <span class="pill bad">${cnt('Suspected Illness')} Suspected</span></div>
+   <div class="card gauge"><span class="mute">Open alerts</span><br><b>${alerts.length}</b></div></div>
+   <div class="card" style="margin-top:14px"><h2>Individual reports</h2><table><tr><th>Crew</th><th>Class</th><th>Risk now</th><th>Peak</th><th>Trend (2 h)</th><th>Silent</th><th>Accepted</th><th>Declined</th><th>Escalated</th></tr>
+   ${crew.map(c=>`<tr><td>${esc(c.name)}</td><td>${c.priv?'<span class="pill info">Private</span>':clsPill(c)}</td><td>${(c.risk*100).toFixed(0)}</td><td>${(Math.max(...c.hist,0)*100).toFixed(0)}</td><td>${spark(c.hist,0,1,'#f5a623')}</td><td>${c.stats.auto}</td><td>${c.stats.acc}</td><td>${c.stats.dec}</td><td>${c.stats.esc}</td></tr>`).join('')}</table></div>`;
+  const cl={ok:'ok',info:'info',warn:'warn',bad:'bad'};
+  $('#logList').innerHTML=logArr.slice(0,120).map(l=>`<div><time>${l.t}</time><span class="pill ${cl[l.level]}">${esc(l.who)}</span> ${esc(l.msg)}</div>`).join('')||'<div class="mute">No events yet.</div>';
+}
+function renderCheck(){
+  $('#ciList').innerHTML=journals.slice(0,40).map(j=>`<div><time>${j.t}</time><b>${esc(j.name)}</b> · mood ${j.mood}/5 · score ${j.score>=0?'+':''}${j.score.toFixed(2)} ${j.share?'<span class="pill info">shared with CMO</span>':'<span class="pill">private</span>'}${j.text?`<br><span class="mute">${esc(j.text)}</span>`:''}</div>`).join('')||'<div class="mute">No check-ins yet.</div>';
+}
+let tab='dash',ptr=0;
+/* hold re-renders while a button is being pressed, so clicks are never lost */
+addEventListener('pointerdown',()=>{ptr=1},true);addEventListener('pointerup',()=>setTimeout(()=>{ptr=0;render()},0),true);addEventListener('pointercancel',()=>{ptr=0},true);
+function render(){
+  $('#clock').textContent=timeStr();
+  if(ptr)return;
+  if(tab==='crew')renderCrew();else if(tab==='hab')renderHab();else if(tab==='env'){if(document.activeElement.tagName!=='SELECT')renderEnv()}else if(tab==='rep')renderRep();
+}
+function syncFaults(){document.querySelectorAll('[data-fault]').forEach(b=>b.classList.toggle('on',!!hab[b.dataset.fault]))}
+
+/* ---------- onboard sentiment ---------- */
+const POS='good great calm happy fine relaxed rested proud excited hopeful glad better enjoy enjoyed fun laugh laughed love grateful okay ok focused productive strong confident peaceful well energized connected'.split(' ');
+const NEG='bad sad tired exhausted anxious worried stressed lonely alone angry upset afraid scared homesick bored trapped hopeless irritated frustrated numb empty overwhelmed tense miss crying cried sleepless worse nervous isolated argument fight'.split(' ');
+const NOT=['not','no','never',"don't","can't","didn't","isn't","wasn't",'hardly'];
+function sentiment(txt){
+  const w=txt.toLowerCase().match(/[a-z']+/g)||[];let p=0,n=0;
+  w.forEach((x,i)=>{const neg=NOT.includes(w[i-1])||NOT.includes(w[i-2]);if(POS.includes(x))neg?n++:p++;else if(NEG.includes(x))neg?p++:n++});
+  return p+n?(p-n)/(p+n):null;
+}
+
+/* ---------- events ---------- */
+$('#nav').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('show',x.id==='tab-'+tab));
+  if(tab==='check')renderCheck();if(tab==='env')renderEnv();render()};
+$('#speed').onclick=e=>{const b=e.target.closest('[data-sp]');if(!b)return;speed=+b.dataset.sp;document.querySelectorAll('#speed button').forEach(x=>x.classList.toggle('on',x===b))};
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]'),p=e.target.closest('[data-priv]'),s=e.target.closest('[data-sim]'),f=e.target.closest('[data-fault]');
+  if(a){const al=alerts.find(x=>x.id==+a.dataset.id);if(!al)return;const c=crew.find(x=>x.id===al.crew),st=c.cond[al.cond],nm=CONDS[al.cond].name;
+    alerts=alerts.filter(x=>x!==al);
+    if(a.dataset.act==='accept'){st.state='active';st.check={t:t+20,s0:c.score[al.cond]};c.stats.acc++;log('info',c.name,`${nm}: crew member accepted support. Monitoring for 20 min`)}
+    if(a.dataset.act==='decline'){st.state='declined';c.stats.dec++;log('warn',c.name,`${nm}: crew member declined. AI stopped all intervention for this condition`)}
+    if(a.dataset.act==='ack'){st.state='cmo';log('info',c.name,`${nm}: ${cmoFor(c)} acknowledged. Human-led care plan started`)}
+    render()}
+  if(p){const c=crew.find(x=>x.id===p.dataset.priv);c.priv=!c.priv;log('info',c.name,c.priv?'Entered private pod. Monitoring paused':'Left private pod. Monitoring resumed');render()}
+  if(s){const c=crew.find(x=>x.id===$('#simCrew').value),v=+s.dataset.sim;if(!c)return;
+    if(v===0){for(const k in CONDS){c.cond[k].int=0}log('info',c.name,'Simulator: all injected conditions cleared')}
+    else{const k=$('#simCond').value;c.cond[k].int=v;if(c.cond[k].state==='declined')c.cond[k].state='declined';log('info',c.name,`Simulator: injected ${CONDS[k].name.toLowerCase()} at ${Math.round(v*100)}%`)}}
+  if(f){const k=f.dataset.fault;hab[k]=!hab[k];if(k==='leak')hab.leakT=0;log(hab[k]?'warn':'ok','Habitat',`Simulator: ${f.textContent.trim()} ${hab[k]?'started':'cleared'}`);syncFaults()}
+});
+document.addEventListener('change',e=>{const z=e.target.dataset&&e.target.dataset.zone;if(z){zoneScene[z]=e.target.value;log('info','Environment',`${ZONES[z]}: scene set to ${e.target.value} by crew`);e.target.blur();renderEnv()}});
+$('#ciMood').oninput=e=>$('#ciVal').textContent=e.target.value;
+$('#ciSend').onclick=()=>{
+  const c=crew.find(x=>x.id===$('#ciCrew').value),mood=+$('#ciMood').value,text=$('#ciText').value.trim(),share=$('#ciShare').checked;
+  if(!c)return;
+  const ts=sentiment(text),ms=(mood-3)/2,score=ts===null?ms:.6*ts+.4*ms;
+  c.journal=score;c.journalT=180;
+  journals.unshift({t:timeStr(),name:c.name,mood,score,share,text});if(journals.length>100)journals.length=100;store.set('lsah_journal',journals);
+  log(score<-.5?'warn':'info',c.name,`Check-in submitted (score ${score>=0?'+':''}${score.toFixed(2)})${share?', text shared with CMO':''}`);
+  $('#ciText').value='';$('#ciShare').checked=false;renderCheck();
+};
+$('#exp').onclick=()=>{
+  const data={exported:timeStr(),crew:crew.map(c=>({name:c.name,role:c.role,class:c.cls,risk:+c.risk.toFixed(3),scores:c.score,stats:c.stats})),habitat:hab,log:logArr,checkins:journals.map(j=>j.share?j:{...j,text:undefined})};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='lsah-health-report.json';a.click();
+};
+$('#clr').onclick=e=>{const b=e.currentTarget;if(b.dataset.arm){delete b.dataset.arm;b.textContent='Clear log';logArr=[];store.set('lsah_log',logArr);renderRep()}
+  else{b.dataset.arm=1;b.textContent='Confirm clear';setTimeout(()=>{delete b.dataset.arm;b.textContent='Clear log'},4000)}};
+
+/* ---------- start ---------- */
+function refreshSel(){const o=crew.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');$('#simCrew').innerHTML=o;$('#ciCrew').innerHTML=o}
+refreshSel();
+$('#simCond').innerHTML=Object.keys(CONDS).map(k=>`<option value="${k}">${CONDS[k].name}</option>`).join('');
+
+/* ---------- roster ---------- */
+$('#addBtn').onclick=()=>{
+  const n=$('#addName').value.trim(),r=$('#addRole').value.trim()||'Crew member';if(!n)return;
+  const c=mkCrew('c'+Date.now(),n,r,60+Math.round(Math.random()*12),58+Math.round(Math.random()*16));
+  crew.push(c);stepCrew(c);log('info',c.name,`Added to crew roster as ${r}. Monitoring started`);
+  saveRoster();refreshSel();buildMon();DASH.add(c);$('#addName').value='';$('#addRole').value='';render()};
+function removeCrew(c){crew.splice(crew.indexOf(c),1);alerts=alerts.filter(a=>a.crew!==c.id);
+  log('info',c.name,'Removed from crew roster. Monitoring ended');saveRoster();refreshSel();buildMon();DASH.remove(c);render()}
+/* two-step remove: first click arms the button for 4 s, second click removes (no browser pop-up needed) */
+function askRemove(c){if(c.armT>Date.now())removeCrew(c);else{c.armT=Date.now()+4000;render()}}
+document.addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(!r||!r.dataset.rm)return;
+  const c=crew.find(x=>x.id===r.dataset.rm);if(c)askRemove(c)});
+
+/* ---------- vitals monitor (sine / cosine) ---------- */
+const NS=360,TAU=2*Math.PI;
+function buildMon(){$('#monGrid').innerHTML=crew.map(c=>`<div class="card"><div class="row sp"><div><h3>${esc(c.name)}</h3><span class="mute">${esc(c.role)}</span></div><span class="pill" id="ms-${c.id}"></span></div><canvas id="cv-${c.id}"></canvas><div class="mute" id="mt-${c.id}"></div></div>`).join('')||'<div class="mute">No crew on the roster.</div>'}
+function fit(cv){const d=window.devicePixelRatio||1,w=Math.round(cv.clientWidth*d),h=Math.round(cv.clientHeight*d);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}return cv.getContext('2d')}
+function mid(x,W,y){x.strokeStyle='#17305e';x.lineWidth=1;x.beginPath();x.moveTo(0,y);x.lineTo(W,y);x.stroke()}
+function trace(x,a,W,y0,amp,col){x.beginPath();x.strokeStyle=col;x.lineWidth=2*(window.devicePixelRatio||1);x.lineJoin='round';
+  a.forEach((v,i)=>{const px=(i+NS-a.length)/(NS-1)*W,py=y0-v*amp;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()}
+function drawCirc(){const cv=$('#circ'),x=fit(cv),W=cv.width,H=cv.height,d=window.devicePixelRatio||1;x.clearRect(0,0,W,H);mid(x,W,H/2);
+  x.beginPath();x.strokeStyle='#f5a623';x.lineWidth=2*d;
+  for(let i=0;i<=96;i++){const px=i/96*W,py=H/2-Math.cos(TAU*(i/4-15)/24)*H*.38;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke();
+  const h=(t%1440)/60,a=Math.cos(TAU*(h-15)/24);x.fillStyle='#e8eefc';x.beginPath();x.arc(h/24*W,H/2-a*H*.38,5*d,0,TAU);x.fill();
+  $('#circTxt').textContent=`${timeStr()} · modelled alertness ${Math.round((a+1)*50)}%`}
+let lastF=0,accF=0;
+function frame(ts){requestAnimationFrame(frame);
+  const dt=Math.min((ts-lastF)/1000,.25);lastF=ts;accF+=dt*60;const n=Math.floor(accF);accF-=n;
+  for(const c of crew){
+    if(!c.v)continue;const hr=c.v.hr,rr=c.v.resp; /* live values and wave buffers come from the vitals dashboard */
+    if(tab!=='mon')continue;
+    const cv=document.getElementById('cv-'+c.id);if(!cv)continue;
+    const x=fit(cv),W=cv.width,H=cv.height,hi=hr>c.base.hr+18,fast=rr>20;
+    x.clearRect(0,0,W,H);mid(x,W,H*.28);mid(x,W,H*.75);
+    trace(x,c.w1,W,H*.28,H*.2,hi?'#ef5b5b':'#2ec4a0');trace(x,c.w2,W,H*.75,H*.17,'#5aa9ff');
+    const p=document.getElementById('ms-'+c.id),tx=document.getElementById('mt-'+c.id);
+    if(c.priv){p.className='pill info';p.textContent='Private';tx.textContent='In private pod. Life-safety vitals only.'}
+    else{p.className='pill '+(hi?'bad':fast?'warn':'ok');p.textContent=hi?'Elevated heart rate':fast?'Fast breathing':'Nominal';
+      tx.textContent=`Pulse sin: ${hr.toFixed(0)} bpm, f = ${(hr/60).toFixed(2)} Hz · Respiration cos: ${rr.toFixed(0)}/min, f = ${(rr/60).toFixed(2)} Hz`}
+  }
+  if(tab==='mon')drawCirc();
+}
+buildMon();requestAnimationFrame(frame);
+crew.forEach(stepCrew);render();
+setInterval(()=>{if(!speed)return;for(let i=0;i<speed;i++)tick();render()},1000);
+
+/* =====================================================================
+   VITALS DASHBOARD (animated astronaut cards, danger states, alarm)
+   ===================================================================== */
+{
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* ================= vitals model ================= */
+const HEART = '<svg viewBox="0 0 24 24"><path d="M12 21s-7.6-4.7-9.7-9.4C.8 8.2 2.9 4.4 6.6 4.4c2.2 0 3.9 1.2 5.4 3.2 1.5-2 3.2-3.2 5.4-3.2 3.7 0 5.8 3.8 4.3 7.2C19.6 16.3 12 21 12 21z"/></svg>';
+const METRICS = {
+  hr:   {label:'Heart rate',   unit:'bpm',   min:30, max:180, dec:0, noise:1.8, tau:1.6, ico:HEART,            cls:'beat'},
+  spo2: {label:'Blood oxygen', unit:'%',     min:80, max:100, dec:0, noise:.35, tau:3.0, ico:'O₂',             cls:'float'},
+  flow: {label:'O₂ flow rate', unit:'L/min', min:0,  max:1.5, dec:2, noise:.035,tau:1.8, ico:'<span>✺</span>', cls:'swirl'},
+  co2:  {label:'CO₂ level',    unit:'mmHg',  min:0,  max:10,  dec:1, noise:.12, tau:2.2, ico:'CO₂',            cls:'float'},
+  resp: {label:'Respiration',  unit:'/min',  min:0,  max:40,  dec:0, noise:.6,  tau:1.8, ico:'≈',              cls:'breath'},
+  temp: {label:'Body temp',    unit:'°C',    min:35, max:40,  dec:1, noise:.05, tau:6.0, ico:'°C',             cls:'float'}
+};
+const BASE  = {spo2:98, flow:1.0, co2:2.2, resp:14, temp:36.8};
+const MODES = {
+  awake:    {label:'Awake',      set:c => ({})},
+  sleep:    {label:'Sleeping',   set:c => ({hr:c.hr0-16, resp:11, temp:36.4, co2:2.6, spo2:97})},
+  exercise: {label:'Exercising', set:c => ({hr:c.hr0+62, resp:26, temp:37.5, co2:3.2, flow:1.3})}
+};
+const FAULTS = {
+  o2:     {label:'O₂ drop',      set:{flow:.22, spo2:85, hr:122, resp:25}},
+  co2:    {label:'CO₂ spike',    set:{co2:7.6, resp:26, hr:108, spo2:93}},
+  card:   {label:'Cardiac',      set:{hr:156, resp:24}},
+  unresp: {label:'Unresponsive', set:{hr:45, resp:7, spo2:92}}
+};
+
+/* level: 0 nominal, 1 caution, 2 danger */
+function level(c, k, v) {
+  const ex = c.mode === 'exercise', sl = c.mode === 'sleep';
+  switch (k) {
+    case 'hr':   return v > (ex?175:130) || v < 38 ? 2 : v > (ex?160:110) || v < (sl?40:48) ? 1 : 0;
+    case 'spo2': return v < 90 ? 2 : v < 94 ? 1 : 0;
+    case 'flow': return v < .40 ? 2 : v < .65 ? 1 : 0;
+    case 'co2':  return v > 6 ? 2 : v > 4 ? 1 : 0;
+    case 'resp': return v > (ex?38:28) || v < 6 ? 2 : v > (ex?32:22) || v < 9 ? 1 : 0;
+    case 'temp': return v > 38.5 ? 2 : v > 37.8 ? 1 : 0;
+  }
+}
+function message(k, v, l) {
+  const d = l === 2;
+  switch (k) {
+    case 'hr':   return v > 90 ? (d ? 'Critical heart rate spike' : 'Heart rate elevated') : (d ? 'Critical heart rate drop' : 'Heart rate low');
+    case 'spo2': return d ? 'Critical oxygen drop' : 'Blood oxygen falling';
+    case 'flow': return d ? 'O₂ flow failure' : 'O₂ flow reduced';
+    case 'co2':  return d ? 'High CO₂ spike' : 'CO₂ rising';
+    case 'resp': return v > 15 ? (d ? 'Respiratory distress' : 'Fast breathing') : (d ? 'Breathing critically slow' : 'Slow breathing');
+    case 'temp': return d ? 'High fever' : 'Temperature elevated';
+  }
+}
+function targets(c) {
+  /* linked to the rest of the system: heart rate and breathing follow the psych model,
+     and each person's CO2 follows the cabin CO2 from Habitat Systems (ppm -> mmHg) */
+  const linked = {hr:c.sig.hr, resp:11 + c.sig.stress * 14, co2:2.2 + Math.max(0, hab.co2 - 600) * 760 / 1e6};
+  return Object.assign({}, BASE, linked, MODES[c.mode].set(c), c.fault ? FAULTS[c.fault].set : {});
+}
+
+/* ================= crew ================= */
+/* adds the dashboard's fields to a crew member from the shared roster */
+function dashInit(c) {
+  Object.assign(c, {hr0:c.base.hr, mode:'awake', fault:'', v:Object.assign({hr:c.base.hr}, BASE),
+    seed:Math.random()*100, ph:0, ph2:0, w1:[], w2:[], off:0, lvl:0, key:'', danger:new Set(), el:null, r:{}});
+}
+const initials = n => n.replace(/^(cmdr|dr|capt|lt|mr|ms|mrs)\.?\s+/i, '').split(/\s+/).map(w => w[0]).join('').replace(/[^A-Za-z]/g,'').slice(0,2).toUpperCase() || '?';
+
+const grid = $('#grid');
+function addCard(c, i) {
+  const el = document.createElement('article');
+  el.className = 'acard enter'; el.dataset.id = c.id; el.style.animationDelay = (i * 90) + 'ms';
+  el.innerHTML = `
+    <div class="top">
+      <div class="who"><div class="avatar">${esc(initials(c.name))}</div>
+        <div style="min-width:0"><h3>${esc(c.name)}</h3><span class="role">${esc(c.role)}</span></div></div>
+      <span class="status"><i></i><b>Awake</b></span>
+    </div>
+    <canvas class="wave"></canvas>
+    ${Object.keys(METRICS).map(k => { const m = METRICS[k]; return `
+    <div class="m" data-k="${k}">
+      <div class="mh"><span class="ico ${m.cls}">${m.ico}</span><span class="ml">${m.label}</span>
+        <span class="mv"><b>--</b> ${m.unit}</span></div>
+      <div class="track"><div class="fill"></div></div>
+    </div>`; }).join('')}
+    <ul class="alerts"></ul>
+    <div class="ctl">
+      <select data-mode aria-label="Activity">${Object.keys(MODES).map(k => `<option value="${k}">${MODES[k].label}</option>`).join('')}</select>
+      ${Object.keys(FAULTS).map(k => `<button data-f="${k}">${FAULTS[k].label}</button>`).join('')}
+      <button data-f="" class="go">Reset</button>
+      <button data-rm class="x">Remove</button>
+    </div>`;
+  el.addEventListener('animationend', e => { if (e.animationName === 'rise' && e.target === el) el.classList.remove('enter'); });
+  grid.appendChild(el);
+  c.el = el;
+  c.r = {status: el.querySelector('.status'), stxt: el.querySelector('.status b'), cv: el.querySelector('canvas'),
+         alerts: el.querySelector('.alerts'), m: {}};
+  for (const k in METRICS) {
+    const row = el.querySelector(`.m[data-k=${k}]`);
+    c.r.m[k] = {row, val: row.querySelector('.mv b'), fill: row.querySelector('.fill'), ico: row.querySelector('.ico'), txt:'', lvl:-1};
+  }
+}
+crew.forEach((c, i) => { dashInit(c); addCard(c, i); });
+
+/* ================= alert feed ================= */
+const t0 = performance.now();
+const met = () => { const s = Math.floor((performance.now() - t0) / 1000);
+  return [s/3600, s/60%60, s%60].map(n => String(Math.floor(n)).padStart(2,'0')).join(':'); };
+const feed = [];
+function logFeed(l, name, msg) {
+  log(l === 2 ? 'bad' : 'ok', name, 'Vitals: ' + msg);
+  feed.unshift({t: met(), l, name, msg}); if (feed.length > 40) feed.length = 40;
+  $('#feed').innerHTML = feed.map(f => `<div><time>${f.t}</time><span class="l${f.l}">${esc(f.name)}: ${esc(f.msg)}</span></div>`).join('');
+}
+
+/* ================= controls ================= */
+grid.addEventListener('click', e => {
+  const card = e.target.closest('.acard'); if (!card) return;
+  const c = crew.find(x => x.id === card.dataset.id); if (!c) return;
+  const f = e.target.closest('[data-f]');
+  if (f) { c.fault = c.fault === f.dataset.f ? '' : f.dataset.f;
+    card.querySelectorAll('[data-f]').forEach(b => b.classList.toggle('on', !!b.dataset.f && b.dataset.f === c.fault)); }
+  const rm = e.target.closest('[data-rm]');
+  if (rm) {
+    askRemove(c);                                  /* first click arms, second click removes */
+    if (c.el && c.el.isConnected) { rm.textContent = 'Confirm remove'; rm.classList.add('on');
+      setTimeout(() => { rm.textContent = 'Remove'; rm.classList.remove('on'); }, 4000); }
+  }
+});
+grid.addEventListener('change', e => {
+  if (!e.target.matches('[data-mode]')) return;
+  const c = crew.find(x => x.id === e.target.closest('.acard').dataset.id); if (c) c.mode = e.target.value;
+});
+$('#resetAll').onclick = () => crew.forEach(c => { c.fault = ''; c.el.querySelectorAll('[data-f]').forEach(b => b.classList.remove('on')); });
+
+/* emergency siren: generated with the Web Audio API, so there is no audio file to load or block */
+let actx = null, master = null, soundOn = true, alarmDue = false, lastAlarm = 0;
+const VOLUME = 1.0;                                 /* master loudness, 0 to 1 */
+function unlockAudio() {                            /* browsers only start audio after a click or key press */
+  try {
+    if (!actx) {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      const limiter = actx.createDynamicsCompressor();   /* keeps the loud siren from distorting */
+      master = actx.createGain(); master.gain.value = soundOn ? VOLUME : 0;
+      master.connect(limiter); limiter.connect(actx.destination);
+    }
+    if (actx.state !== 'running') actx.resume();
+  } catch (e) {}
+}
+['pointerdown', 'keydown', 'touchstart'].forEach(ev => addEventListener(ev, unlockAudio, true));
+function playAlarm() {
+  if (!soundOn || !actx) return;
+  if (actx.state !== 'running') actx.resume();
+  const t = actx.currentTime + .03;
+  for (let i = 0; i < 8; i++) {                     /* two-tone klaxon: 8 alternating blasts, about 2 seconds */
+    const f = i % 2 ? 740 : 988, s = t + i * .25;
+    for (const [type, detune] of [['square', 0], ['sawtooth', 9], ['sawtooth', -1200]]) {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = f; o.detune.value = detune;
+      g.gain.setValueAtTime(0, s); g.gain.linearRampToValueAtTime(.5, s + .012);
+      g.gain.setValueAtTime(.5, s + .2); g.gain.linearRampToValueAtTime(0, s + .235);
+      o.connect(g); g.connect(master); o.start(s); o.stop(s + .25);
+    }
+  }
+}
+$('#sound').onclick = () => {
+  soundOn = !soundOn; $('#sound').textContent = 'Alarm sound: ' + (soundOn ? 'on' : 'off'); $('#sound').classList.toggle('on', soundOn);
+  unlockAudio(); if (master) master.gain.value = soundOn ? VOLUME : 0;
+};
+$('#testSnd').onclick = () => { unlockAudio(); playAlarm(); };
+
+/* ================= starfield ================= */
+const sc = $('#stars'), sx = sc.getContext('2d'); let stars = [];
+function sizeStars() {
+  sc.width = innerWidth; sc.height = innerHeight;
+  stars = Array.from({length: Math.round(innerWidth * innerHeight / 9000)}, () =>
+    ({x: Math.random() * sc.width, y: Math.random() * sc.height, r: Math.random() * 1.3 + .3, p: Math.random() * TAU, s: .4 + Math.random() * 1.4}));
+}
+addEventListener('resize', sizeStars); sizeStars();
+function drawStars(t) {
+  sx.clearRect(0, 0, sc.width, sc.height);
+  for (const s of stars) { sx.globalAlpha = .35 + .45 * Math.sin(t * s.s + s.p) ** 2; sx.fillStyle = '#cfe0ff';
+    sx.beginPath(); sx.arc(s.x, s.y, s.r, 0, TAU); sx.fill(); }
+  sx.globalAlpha = 1;
+}
+
+/* ================= waveform ================= */
+const NS = 360, COLORS = ['#3dffa8', '#ffc247', '#ff4d6d'];
+function fit(cv) { const d = devicePixelRatio || 1, w = Math.round(cv.clientWidth * d), h = Math.round(cv.clientHeight * d);
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } return cv.getContext('2d'); }
+function trace(x, a, W, y0, amp, col, lw) {
+  x.beginPath(); x.strokeStyle = col; x.lineWidth = lw; x.lineJoin = 'round'; x.shadowColor = col; x.shadowBlur = lw * 5;
+  a.forEach((v, i) => { const px = (i + NS - a.length) / (NS - 1) * W, py = y0 - v * amp; i ? x.lineTo(px, py) : x.moveTo(px, py); });
+  x.stroke(); x.shadowBlur = 0;
+}
+
+/* ================= main loop ================= */
+let last = performance.now(), acc = 0, hudKey = '';
+function frame(ts) {
+  requestAnimationFrame(frame);
+  const dt = Math.min((ts - last) / 1000, .1), t = ts / 1000; last = ts;
+  acc += dt * 60; const n = Math.floor(acc); acc -= n;
+  drawStars(t);
+
+  let nOk = 0, nWarn = 0, nBad = 0; const crit = [];
+  for (const c of crew) {
+    const tg = targets(c), msgs = []; let lvl = 0;
+
+    /* continuous values: ease toward target, plus smooth sine drift (no random jumps) */
+    for (const k in METRICS) {
+      const m = METRICS[k], r = c.r.m[k];
+      const drift = m.noise * (Math.sin(t * .9 + c.seed + k.length * 3) + .5 * Math.sin(t * 2.3 + c.seed * 2 + k.charCodeAt(0)));
+      c.v[k] += (tg[k] + drift - c.v[k]) * (1 - Math.exp(-dt / m.tau));
+      if (k === 'spo2') c.v[k] = Math.min(c.v[k], 100);
+      const v = c.v[k], l = level(c, k, v);
+      if (l) msgs.push([l, message(k, v, l)]);
+      lvl = Math.max(lvl, l);
+      const txt = v.toFixed(m.dec);
+      if (txt !== r.txt) { r.val.textContent = txt; r.txt = txt; }
+      if (l !== r.lvl) { r.row.className = 'm' + (l ? ' l' + l : ''); r.lvl = l; }
+      r.fill.style.transform = `scaleX(${clamp((v - m.min) / (m.max - m.min), .02, 1).toFixed(4)})`;
+    }
+    if (c.fault === 'unresp') { lvl = 2; msgs.unshift([2, 'Crew member unresponsive']); }
+
+    /* animated icons driven by the live values */
+    c.ph  += TAU * c.v.hr / 60 * dt;  c.ph2 += TAU * c.v.resp / 60 * dt;
+    c.r.m.hr.ico.style.transform   = `scale(${(1 + .28 * Math.max(0, Math.sin(c.ph)) ** 6).toFixed(3)})`;
+    c.r.m.resp.ico.style.transform = `scale(${(1 + .12 * Math.cos(c.ph2)).toFixed(3)})`;
+    c.off += c.v.flow * dt * 70;
+    c.r.m.flow.fill.style.backgroundPosition = `${c.off.toFixed(1)}px 0, 0 0`;
+
+    /* waveform samples: pulse = sine with a harmonic, breathing = cosine */
+    for (let i = 0; i < n; i++) {
+      const p = c.ph - (n - 1 - i) * TAU * c.v.hr / 3600, q = c.ph2 - (n - 1 - i) * TAU * c.v.resp / 3600;
+      c.w1.push((Math.sin(p) + .35 * Math.sin(2 * p + .9)) / 1.25); c.w2.push(Math.cos(q));
+    }
+    if (c.w1.length > NS) { c.w1.splice(0, c.w1.length - NS); c.w2.splice(0, c.w2.length - NS); }
+    const x = fit(c.r.cv), W = c.r.cv.width, H = c.r.cv.height, d = devicePixelRatio || 1;
+    x.clearRect(0, 0, W, H);
+    trace(x, c.w2, W, H * .72, H * .16, 'rgba(139,92,255,.75)', 1.5 * d);
+    trace(x, c.w1, W, H * .36, H * .24, COLORS[lvl], 2 * d);
+
+    /* status + card state */
+    const st = c.fault === 'unresp' ? 'unresp' : c.mode;
+    const key = st + '|' + lvl + '|' + msgs.map(m => m.join('')).join('|');
+    if (key !== c.key) {
+      c.key = key;
+      c.r.status.className = 'status ' + st;
+      c.r.stxt.textContent = st === 'unresp' ? 'Unresponsive' : MODES[c.mode].label;
+      c.el.classList.toggle('warn', lvl === 1); c.el.classList.toggle('danger', lvl === 2);
+      c.r.alerts.innerHTML = msgs.length ? msgs.sort((a, b) => b[0] - a[0]).map(m => `<li class="l${m[0]}">${m[1]}</li>`).join('')
+                                         : '<li class="l0">All vitals nominal</li>';
+      const now = new Set(msgs.filter(m => m[0] === 2).map(m => m[1]));
+      now.forEach(m => { if (!c.danger.has(m)) { logFeed(2, c.name, m); alarmDue = true; } });
+      if (c.lvl > 0 && lvl === 0) logFeed(0, c.name, 'Vitals back to nominal');
+      c.danger = now; c.lvl = lvl;
+    }
+    if (lvl === 2) { nBad++; crit.push(c.name + ': ' + msgs.filter(m => m[0] === 2).map(m => m[1]).join(', ')); }
+    else if (lvl === 1) nWarn++; else nOk++;
+  }
+
+  /* header summary + banner */
+  $('#met').textContent = 'MET ' + met();
+  const hk = nOk + '|' + nWarn + '|' + crit.join(';');
+  if (hk !== hudKey) {
+    hudKey = hk;
+    $('#nOk').textContent = nOk + ' nominal';
+    $('#nWarn').textContent = nWarn + ' caution'; $('#nWarn').classList.toggle('dim', !nWarn);
+    $('#nBad').textContent = nBad + ' critical';  $('#nBad').classList.toggle('dim', !nBad);
+    $('#banner').classList.toggle('show', nBad > 0);
+    $('#banner').textContent = nBad ? '⚠ CRITICAL · ' + crit.join('  ·  ') : '';
+  }
+  /* sound on every new emergency, then repeat every 5 s while anyone is still critical */
+  if (alarmDue || (nBad && ts - lastAlarm > 5000)) { alarmDue = false; lastAlarm = ts; playAlarm(); }
+}
+requestAnimationFrame(frame);
+
+/* hooks used by the roster and the psych-monitoring escalation */
+DASH.add = c => { dashInit(c); addCard(c, 0); };
+DASH.remove = c => { if (c.el) c.el.remove(); };
+DASH.alarm = () => { alarmDue = true; };
+}
+
+</script>
+</body>
+</html>

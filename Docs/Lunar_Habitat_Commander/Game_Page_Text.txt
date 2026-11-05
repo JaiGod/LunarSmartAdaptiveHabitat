@@ -1,0 +1,106 @@
+LUNAR HABITAT COMMANDER - text for the game page
+(copy each part into the matching box on the upload page)
+
+TITLE
+Lunar Habitat Commander
+
+SHORT LINE (tagline)
+Keep a Moon crew healthy and happy for 30 days.
+
+KIND OF PROJECT
+Downloadable game for Windows. Classification: Games. Genre: Simulation / Educational.
+
+DESCRIPTION
+You are the commander of a smart habitat on the Moon. Four astronauts live and work inside, and the
+habitat's AI, ARIA, watches their stress, sleep and mood.
+
+Walk through the habitat - airlock, hygiene, crew quarters, galley, workstations and AI hub, storage,
+life support, medical bay, greenhouse and a quiet sanctuary - and answer alerts before they turn into
+emergencies: a solar storm, a broken CO2 scrubber, a pressure leak.
+
+Between alerts, look after the crew. Share a meal, grow plants, call home, look at the Earth.
+A happy crew makes fewer mistakes.
+
+Features
+- Three ways to play: Survival mission, Creative mode, and Autopilot (the AI plays; press Space or A to take over).
+- Thirteen extra maps: Solar farm, Moon mining pit, Alien zap range, Play park, Beat Asteroid (a rhythm game),
+  Tower defense, Factory Land (mine, smelt, build and garden), Star Patrol (fly a star fighter), Story Studio
+  (paint, a story game, alien stories, light swords), Star Clicker (an idle clicker about a star's life),
+  Science Academy (force diagrams from Physics 1, 2 and C, biology in space, a Hall of Science), Clinic and
+  Pet House (care for patients and raise Lumi the moon pup) and a Boss Arena. Nobody is ever hurt.
+  Up to four players take turns and keep their own scores, levels, costumes and pet.
+- Your astronaut levels up: a green-screen level card, a present to open, star coins, a shop and costumes,
+  with seasonal decorations and limited costumes that follow the real calendar.
+- A crew radio: talk into your microphone and the crew answers. Only loudness is measured; nothing is recorded.
+- A Crew Health System for the four crew (vitals, pulse waves, AI response), security cameras, team meetings
+  with a vote, a Battery Bank to fill, astronaut food and tablets to pick up and read, including a
+  Physics and Calculus reference sheet with live numbers from the game.
+- Music choices: space ambient, happy EDM, lo-fi, chiptune, or your own music folder.
+- A story introduction, a simple screen that shows only what matters, and "YOU DID IT!" accomplishments.
+- Repair mini-games: join the wires, lock the vent on the green bar, press every health-monitor button,
+  flip the light switches, repeat the computer's colour code.
+- Health and hunger in Survival: eat food packs, dodge alien bumps, call the food, medic or repair rover.
+- First-person and third-person view, and an astronaut dance.
+- A relay satellite linked to Earth, orbital cannons that shoot down meteorites, dust storms and solar flares.
+- A Dyson swarm: a few collector panels round the Sun that beam power to a dish on the Moon.
+- Ten of my own 3D models: spaceships and a jet circling the base, two UFOs, a satellite, a rocket on its pad,
+  a Moon outpost, a telescope and Mars rovers you can ride.
+- Play with a keyboard and mouse, or in VR with a PC VR headset (tested with Meta Quest + Link).
+- ARIA gives advice, forecasts problems and answers questions. Type to her, or use your voice.
+- Green arrows, a minimap, a full map and a compass show the way to the next job.
+- Sliding doors, a supply rocket you can launch, lunar day and night, particle effects.
+- Moon Frontier: a mining field outside with water ice, ilmenite ore and helium-3. Mine it, carry it in your
+  backpack and turn it into water, oxygen and power.
+- Friendly-looking aliens beamed down by a UFO. Zap them and they are beamed home. Zapper, freeze ray,
+  plasma launcher, mining drill and a block builder for Minecraft-style building.
+- Make friends with aliens, ride the rovers, throw moon rocks, press the light and fan buttons in every zone.
+- Upgrades (including a guard turret), a glowing power-cable network, ventilation fans, shooting stars.
+- Kid mode: more time on every alert, gentler rules, nobody gets hurt.
+
+This is a student project made for NASA HUNCH: "Lunar Smart Adaptive Habitat Design with AI
+Psychological Monitoring". It is not an official NASA product.
+
+HOW TO PLAY
+1. Download the zip and unzip it.
+2. Open the folder "Lunar Habitat Commander" and run Lunar_Habitat_Commander.exe.
+3. If Windows shows "Windows protected your PC", choose More info, then Run anyway.
+   (This appears for any new game that is not signed by a big company.)
+
+CONTROLS
+Keyboard and mouse: W A S D walk, mouse look, E act, T talk, N map, L launch rocket, Esc menu, H help.
+                    R change tool, click use tool, I backpack, O lights, J go to the aliens, Shift run,
+                    Space jump, F fly, X eat, V first / third person, B dance, U simple / full screen.
+VR (one job per button): left stick walk (click = run), right stick turn, right grip teleport
+    (hold to aim, let go), right trigger select / use, A jump, B next tool, X go to the next job, Y menu.
+    Point the laser at an orb, a menu button or a panel and pull the trigger.
+
+TWO WAYS TO PLAY
+NASA HUNCH mode ENABLED (how the game opens): only the Moon base, the crew and the project. A regolith radiation
+cover over the crew habitat, greenhouses outside in sunlight, an aquaponics fish tank inside, sealed food on
+pantry racks, a space toilet and wash station, the AI crew-health system with consent, and a checklist that ticks
+itself for every item the project sheet asks for. No aliens, portals or mini-games.
+NASA HUNCH mode DISABLED: everything, including 13 extra maps reached through a plaza of animated portals.
+Physics view (F8): force arrows, a gravity vector field, a live graph and the base's sensor network, with a
+reading sheet from mechanics to linear algebra.
+
+WHAT YOU NEED
+Windows 10 or 11 (64-bit). A graphics card is recommended. About 1 GB of free space.
+VR is optional: a PC VR headset through OpenXR (Meta Quest with Link, or SteamVR).
+It does not run on a Quest by itself, on a Mac or on a phone.
+Voices use the voices installed in Windows. Speech-to-text needs Windows online speech recognition.
+
+CREDITS
+Design, habitat model and game: Jaineil Rana, with teammates Angel and Farhan.
+Built in Unity 6 with the Universal Render Pipeline and the XR Interaction Toolkit.
+Effects: Magic Effects FREE by Hovl Studio (Unity Asset Store).
+Effects: TELEPORTER by M31, Hyper Casual FX by Lana Studio, Procedural fire by Hovl Studio (Unity Asset Store).
+Models: High-Detail Alien Blaster Weapon by OlegVerenko, Motion Sensor Gun by Duanes Mind (Unity Asset Store).
+Models: Unity Factory by Unity Technologies Japan, Stone portal by Ordoss (Unity Asset Store).
+Music: "Out There" by yd, opengameart.org, CC0.
+Made with help from Claude (AI assistant) for scripting.
+
+TAGS
+space, moon, simulation, educational, vr, nasa-hunch, kids, 3d, singleplayer
+
+SCREENSHOTS
+Use the pictures in the Screenshots folder. 01_main_menu.png works well as the cover picture.

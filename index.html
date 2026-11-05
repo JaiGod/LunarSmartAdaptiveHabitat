@@ -1,0 +1,69 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lunar Smart Adaptive Habitat · NASA HUNCH</title>
+<style>
+:root{--bg:#05060f;--card:#0f1426;--line:#26304f;--txt:#e7ecff;--mut:#9aa6cf;--gold:#ffc83d;--cyan:#5ee7ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,#1b2450 0,transparent 60%),var(--bg);color:var(--txt);font:16px/1.55 system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:28px 16px 60px}
+.k{letter-spacing:.2em;font-size:12px;color:var(--cyan);text-transform:uppercase}
+h1{font-size:clamp(30px,5vw,52px);margin:.2em 0;background:linear-gradient(90deg,#fff2b0,var(--gold),#ff8a1f);-webkit-background-clip:text;color:transparent}
+p.lead{color:var(--mut);max-width:760px}
+.hero{border-radius:18px;overflow:hidden;border:1px solid var(--line);margin:22px 0}.hero img{width:100%;display:block}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin:26px 0}
+.g{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.g img{width:100%;aspect-ratio:16/9;object-fit:cover}.g .b{padding:16px 18px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.g h2{margin:0;font-size:22px}.g p{margin:0;color:var(--mut);font-size:15px}
+.btn{display:inline-block;text-align:center;padding:12px 18px;border-radius:12px;font-weight:700;text-decoration:none;color:#111;background:linear-gradient(90deg,var(--gold),#ff8a1f)}
+.btn.s{background:#1a2142;color:var(--txt);border:1px solid var(--line);font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}
+h3{margin:34px 0 12px}
+.list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.list a{display:block;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;color:var(--txt);text-decoration:none}
+.list a small{display:block;color:var(--mut)}
+.gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.gal img{width:100%;border-radius:10px;border:1px solid var(--line)}
+footer{margin-top:40px;color:var(--mut);font-size:14px}
+</style></head><body><div class="wrap">
+<div class="k">NASA HUNCH · Project ARES · JaiGod</div>
+<h1>Lunar Smart Adaptive Habitat</h1>
+<p class="lead">A 4-person lunar habitat with <b>AI psychological monitoring for positive crew mental health</b>. Two Unity games, every 3D model, 3D-print kits, the Agency Review Board presentation, research, proposal and rubric deliverables: all in one place.</p>
+<div class="hero"><img src="Models/Lunar_Habitat_v1/renders/01_exterior_hero.png" alt="Lunar habitat exterior render"></div>
+
+<div class="games">
+ <div class="g"><img src="Docs/slides/slide-01.png" onerror="this.src='Models/Lunar_Habitat_v1/renders/02_cutaway_lower_deck.png'" alt="">
+  <div class="b"><div class="k">Game 1 · Unity 6 · VR + desktop</div><h2>Lunar Smart Adaptive Habitat</h2>
+  <p>Walk the full base in 1/6 g. An AI reads 9 sensors, scores 6 crew conditions and responds in 3 tiers. Run the Board's Q1–Q6, the 72-hour tabletop, and the D1–D4 deliverables in-game (F11).</p>
+  <div class="row"><a class="btn" href="play/">▶ Play in browser</a><a class="btn s" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Unity_Game_Moon_Base_Final">Unity project</a></div></div></div>
+ <div class="g"><img src="Docs/Lunar_Habitat_Commander/hero.png" alt="">
+  <div class="b"><div class="k">Game 2 · Unity 6 · VR adventure</div><h2>Lunar Habitat Commander</h2>
+  <p>Command the base: talk to ARIA, mine minerals, zap aliens, build, wire power, survive solar storms and lunar night. Live on the Meta Horizon Store.</p>
+  <div class="row"><a class="btn" href="play2/">▶ Play in browser</a><a class="btn s" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Docs/Lunar_Habitat_Commander">Game info</a></div></div></div>
+</div>
+
+<h3>📄 Presentation, research &amp; rubric</h3>
+<div class="list">
+ <a href="Docs/Presentation_Agency_Review_Board.pdf">🎤 Agency Review Board presentation<small>19-slide final presentation (PDF)</small></a>
+ <a href="Docs/Project_ARES_Lunar_Habitat_FINAL_slides.pdf">📊 Project ARES slideshow<small>Final slides (PDF)</small></a>
+ <a href="Docs/Research_and_Proposal/Proposal_Lunar_Smart_Adaptive_Habitat.pdf">📝 Design proposal<small>AI psychological monitoring for crew mental health</small></a>
+ <a href="Docs/Research_and_Proposal/Research_Lunar_Habitat_AI_Psychological_Monitoring.pdf">🔬 Research paper<small>Background research (PDF)</small></a>
+ <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/blob/main/Docs/ARES_Deliverables.md">✅ D1–D4 deliverables<small>Sensors, spatial design, AI protocols, ethics</small></a>
+ <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Docs/Rubric">📋 Rubric checklists<small>Blender + Unity rubric, tabletop report</small></a>
+ <a href="Docs/Crew_Health_System/">💚 Crew Health System<small>Interactive web dashboard</small></a>
+ <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Docs/Data">📈 Model data spreadsheets<small>Habitat model specs</small></a>
+</div>
+
+<h3>🧊 3D models &amp; 3D printing</h3>
+<div class="list">
+ <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Models/Blender_Rich_Baked">✨ All habitat models (texture-baked)<small>11 Blender files</small></a>
+ <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Models/Lunar_Habitat_v1">🏗️ Lunar Habitat v1<small>.blend, .obj and 1:50 STL parts</small></a>
+ <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/3D_Print_Kits">🖨️ 3D-print kits<small>1:150 kits + 2 ft 1:100 board, build guide</small></a>
+ <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Models/Originals">📦 Original models<small>Base1.fbx, Crew Wellness Dome</small></a>
+</div>
+
+<h3>📸 Gallery</h3>
+<div class="gal">
+ <img src="Models/Lunar_Habitat_v1/renders/02_cutaway_lower_deck.png" alt=""><img src="Models/Lunar_Habitat_v1/renders/03_cutaway_upper_deck.png" alt="">
+ <img src="Models/Lunar_Habitat_v1/renders/04_site_overview.png" alt=""><img src="3D_Print_Kits/images/project3_finished_model.png" alt="">
+ <img src="Docs/Lunar_Habitat_Commander/screenshots/02_greenhouse.png" alt=""><img src="Docs/Lunar_Habitat_Commander/screenshots/10_zap_alien.png" alt="">
+ <img src="Docs/Lunar_Habitat_Commander/screenshots/13_mining_field.png" alt=""><img src="Docs/Lunar_Habitat_Commander/screenshots/07_lunar_night.png" alt="">
+</div>
+<footer>Made for NASA HUNCH, Project ARES · © 2026 Jaineil R. · with thanks to Angel C. and Farhan K. · <a style="color:var(--cyan)" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat">Source on GitHub</a></footer>
+</div></body></html>

@@ -1,39 +1,44 @@
 # NASA HUNCH: Lunar Smart Adaptive Habitat
 
 <p align="center">
-<a href="../../releases/latest"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20NOW-download%20for%20Windows-2ea44f?style=for-the-badge&logo=windows" height="48" alt="PLAY NOW"></a>
+<a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/play/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%201-Lunar%20Smart%20Adaptive%20Habitat-1f8fff?style=for-the-badge" height="48" alt="Play Game 1"></a>
 &nbsp;&nbsp;
-<a href="https://supercooljai.github.io/NASA-HUNCH-3D-Print-Kits/play/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20IN%20BROWSER-no%20download-1f8fff?style=for-the-badge" height="48" alt="Play in browser"></a>
+<a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/play2/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%202-Lunar%20Habitat%20Commander-2ea44f?style=for-the-badge" height="48" alt="Play Game 2"></a>
 </p>
-<p align="center"><b>Windows:</b> download → Extract All → double-click <code>PLAY NOW.bat</code> &nbsp;·&nbsp; <b>Browser:</b> just click, no download</p>
+<p align="center"><b>Both games run in the browser:</b> no download, works in Chrome or Edge on any PC, including school computers · <a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/"><b>Project home page</b></a></p>
 
 
-**AI Psychological Monitoring for Positive Crew Mental Health** · Project ARES · 4-person lunar habitat · VR + desktop simulator + 3D-printable model kits
+**AI Psychological Monitoring for Positive Crew Mental Health** · Project ARES · 4-person lunar habitat · 2 Unity games (VR + desktop) · every 3D model · 3D-printable model kits · presentation, research, proposal and rubric deliverables
 
 ![Project 3 finished print model](3D_Print_Kits/images/project3_finished_model.png)
 
-## ▶ Play in your browser
+## 🎮 The two games
 
-No download: opens in Chrome or Edge on any PC, including school computers. Keyboard + mouse (press **H** in game for help).
-
-## ▶ Play the game on any Windows PC (no install)
-
-1. Click **PLAY NOW** at the top → download **`LunarHabitat_Windows.zip`** (under *Assets*).
-2. Right-click the zip → **Extract All**.
-3. Open the folder and double-click **`PLAY NOW.bat`** (or `LunarHabitat.exe`).
-
-Works on a school PC without admin rights: nothing is installed. If Windows shows "protected your PC", click **More info → Run anyway** (the game isn't code-signed).
-No VR headset needed — it runs on keyboard + mouse (press **H** in game for help, **F11** for the Project ARES deliverables).
+| | Game 1: Lunar Smart Adaptive Habitat | Game 2: Lunar Habitat Commander |
+|---|---|---|
+| **Play** | [▶ Play in browser](https://jaigod.github.io/LunarSmartAdaptiveHabitat/play/) | [▶ Play in browser](https://jaigod.github.io/LunarSmartAdaptiveHabitat/play2/) |
+| **What it is** | The Project ARES simulator: walk the whole base in 1/6 g while an AI reads 9 sensors, scores 6 crew conditions and responds in 3 tiers | The VR adventure: command the base, talk to ARIA, mine minerals, zap aliens, build, wire power, survive solar storms and lunar night |
+| **Controls** | WASD + mouse · **H** help · **F11** Project ARES deliverables | WASD + mouse · on Meta Quest with controllers |
+| **Unity source** | [`Unity_Game_Moon_Base_Final/`](Unity_Game_Moon_Base_Final/) (Unity 6000.3.21f1) | Built in Unity 6 · [game info + screenshots](Docs/Lunar_Habitat_Commander/) |
 
 ## What's in this repo
 
 | Folder | What's inside |
 |---|---|
-| [`Unity_Game_Moon_Base_Final/`](Unity_Game_Moon_Base_Final/) | **Lunar Smart Adaptive Habitat** — the Unity 6 source (VR + desktop). Open with Unity Hub (6000.3.21f1). |
+| [`play/`](play/) · [`play2/`](play2/) | The two browser (WebGL) builds |
+| [`Unity_Game_Moon_Base_Final/`](Unity_Game_Moon_Base_Final/) | **Lunar Smart Adaptive Habitat**: the Unity 6 source (VR + desktop). Open with Unity Hub (6000.3.21f1). |
+| [`Models/`](Models/) | **Every 3D model**: all texture-baked habitat models (`Blender_Rich_Baked`), the Crew Wellness Dome, Base1 FBX, and Lunar Habitat v1 (.blend, .obj, 1:50 STL parts, renders) |
 | [`3D_Print_Kits/`](3D_Print_Kits/) | All STL files for projects 1, 2 and 3 (1:150 kits + the big 1:100 2 ft board), display extras, specs spreadsheet. GitHub shows every `.stl` as a 3D model you can spin. |
 | [`3D_Print_Kits/BUILD_GUIDE.md`](3D_Print_Kits/BUILD_GUIDE.md) | Step-by-step print and assembly guide |
-| [`Docs/ARES_Deliverables.md`](Docs/ARES_Deliverables.md) | D1–D4 deliverables exported from the running game (sensor matrix, zones, 9-stage flowcharts, ethics) |
 | [`Docs/Presentation_Agency_Review_Board.pdf`](Docs/Presentation_Agency_Review_Board.pdf) | **The 15-minute Agency Review Board presentation** (19 slides: game pictures, D1–D4, Config A/B, flowcharts, ethics, live-demo plan, Q1–Q6 answers) |
+| [`Docs/Project_ARES_Lunar_Habitat_FINAL_slides.pdf`](Docs/Project_ARES_Lunar_Habitat_FINAL_slides.pdf) | Project ARES final slideshow |
+| [`Docs/ARES_Deliverables.md`](Docs/ARES_Deliverables.md) | D1–D4 deliverables exported from the running game (sensor matrix, zones, 9-stage flowcharts, ethics) |
+| [`Docs/Research_and_Proposal/`](Docs/Research_and_Proposal/) | The design proposal and the research paper (PDF) |
+| [`Docs/Rubric/`](Docs/Rubric/) | Blender + Unity rubric checklists, rubric task list, 72-hour tabletop simulation report |
+| [`Docs/Crew_Health_System/`](Docs/Crew_Health_System/) | The Crew Health System web dashboard ([open it](https://jaigod.github.io/LunarSmartAdaptiveHabitat/Docs/Crew_Health_System/)) |
+| [`Docs/Data/`](Docs/Data/) | Habitat model data spreadsheets |
+| [`Docs/Lunar_Habitat_Model_Comparison.pptx`](Docs/Lunar_Habitat_Model_Comparison.pptx) | Model comparison deck |
+| [`Docs/Lunar_Habitat_Commander/`](Docs/Lunar_Habitat_Commander/) | Game 2 README, store page text and screenshots |
 
 ## Presentation
 
@@ -62,6 +67,14 @@ No VR headset needed — it runs on keyboard + mouse (press **H** in game for he
 | With regolith shields | Real design (Blender render) |
 |---|---|
 | ![shielded](3D_Print_Kits/images/project3_finished_model_shielded.png) | ![real](3D_Print_Kits/images/project3_real_design_render.jpg) |
+
+| Habitat exterior | Lower deck cutaway |
+|---|---|
+| ![exterior](Models/Lunar_Habitat_v1/renders/01_exterior_hero.png) | ![lower](Models/Lunar_Habitat_v1/renders/02_cutaway_lower_deck.png) |
+
+| Game 2: greenhouse | Game 2: mining field |
+|---|---|
+| ![greenhouse](Docs/Lunar_Habitat_Commander/screenshots/02_greenhouse.png) | ![mining](Docs/Lunar_Habitat_Commander/screenshots/13_mining_field.png) |
 
 ---
 Made for NASA HUNCH, Project ARES · **© 2026 Jaineil R.** · with thanks to Angel C. and Farhan K.
