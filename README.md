@@ -1,6 +1,8 @@
 # NASA HUNCH: Lunar Smart Adaptive Habitat
 
 > 📂 **The 6 final files are in [`00_FINAL_FILES`](00_FINAL_FILES)**: the 4 documents with our design typed in, plus a player manual for each game.
+>
+> 🏆 **[Rubric & what we did well](https://jaigod.github.io/LunarSmartAdaptiveHabitat/rubric.html)**: our 200/200 + 20/20 bonus self-assessment, with the evidence for each line.
 
 
 <p align="center">
