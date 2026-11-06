@@ -48,16 +48,16 @@
 
 **[Review slide by slide](Docs/SLIDES.md)** (all 19 slides shown inline) · **[Open the PDF](Docs/Presentation_Agency_Review_Board.pdf)**
 
-## Rubric evidence — annotated copies (self-graded)
+## Our documents with notes (and our self-grade)
 
-Copies of our own project documents. Under every page: what we did well, which rubric line it meets (+35, +50 …), how we did it, and screenshots from **both** games.
+We went back through our own project docs and wrote notes under every page about what we did for it and how, with screenshots from both games.
 
-| Document | Annotated copy |
+| Document | With our notes |
 |---|---|
-| Project ARES Student Brief (rubric + **self-grade 189/220**, page 17) | [PDF](Docs/Rubric/Annotated_Copies/Project_ARES_Student_Brief_annotated.pdf) |
-| Project ARES FINAL slides (240-pt scale: 209/240) | [PDF](Docs/Rubric/Annotated_Copies/Project_ARES_FINAL_slides_annotated.pdf) |
-| NASA HUNCH Lunar Smart Habitat requirements | [PDF](Docs/Rubric/Annotated_Copies/NASA_HUNCH_Lunar_Smart_Habitat_annotated.pdf) |
-| Research for the Lunar Habitat design | [PDF](Docs/Rubric/Annotated_Copies/Research_for_Lunar_Habitat_annotated.pdf) |
+| Project ARES Student Brief (we graded ourselves 189/220, see page 17) | [PDF](Docs/Rubric/Annotated_Copies/Project_ARES_Student_Brief_annotated.pdf) |
+| Our final slides (209/240 on the deck's scale) | [PDF](Docs/Rubric/Annotated_Copies/Project_ARES_FINAL_slides_annotated.pdf) |
+| NASA HUNCH project page | [PDF](Docs/Rubric/Annotated_Copies/NASA_HUNCH_Lunar_Smart_Habitat_annotated.pdf) |
+| Our research doc | [PDF](Docs/Rubric/Annotated_Copies/Research_for_Lunar_Habitat_annotated.pdf) |
 
 ## Project ARES rubric → where it is in the game
 
