@@ -1,5 +1,8 @@
 # NASA HUNCH: Lunar Smart Adaptive Habitat
 
+> 📂 **The 6 final files are in [`00_FINAL_FILES`](00_FINAL_FILES)**: the 4 documents with our design typed in, plus a player manual for each game.
+
+
 <p align="center">
 <a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/play/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%201-Lunar%20Smart%20Adaptive%20Habitat-1f8fff?style=for-the-badge" height="48" alt="Play Game 1"></a>
 &nbsp;&nbsp;
@@ -54,15 +57,15 @@ Copies of our own project documents. Under each instruction we typed what we bui
 
 | Document | With our design |
 |---|---|
-| Project ARES Student Brief (self-grade on the rubric page: **200/200 + 20/20 bonus**) | [PDF](Docs/Rubric/With_Our_Design/Project_ARES_Student_Brief_with_our_design.pdf) |
-| Our final slides (240/240 on the deck's scale) | [PDF](Docs/Rubric/With_Our_Design/Project_ARES_FINAL_slides_with_our_design.pdf) |
-| NASA HUNCH project page | [PDF](Docs/Rubric/With_Our_Design/NASA_HUNCH_Lunar_Smart_Habitat_with_our_design.pdf) |
-| Our research doc | [PDF](Docs/Rubric/With_Our_Design/Research_for_Lunar_Habitat_with_our_design.pdf) |
+| Project ARES Student Brief (self-grade on the rubric page: **200/200 + 20/20 bonus**) | [PDF](00_FINAL_FILES/1_Project_ARES_Student_Brief_with_our_design.pdf) |
+| Our final slides (240/240 on the deck's scale) | [PDF](00_FINAL_FILES/2_Project_ARES_FINAL_slides_with_our_design.pdf) |
+| NASA HUNCH project page | [PDF](00_FINAL_FILES/3_NASA_HUNCH_Lunar_Smart_Habitat_with_our_design.pdf) |
+| Our research doc | [PDF](00_FINAL_FILES/4_Research_for_Lunar_Habitat_with_our_design.pdf) |
 
 ## Player manuals
 
-- [Realistic game (Moon_Base_Final) — player manual](Docs/Manuals/Realistic_Game_Player_Manual.pdf)
-- [Sci-fi game (Lunar Habitat Commander) — player manual](Docs/Manuals/SciFi_Game_Player_Manual.pdf)
+- [Realistic game (Moon_Base_Final) — player manual](00_FINAL_FILES/5_Realistic_Game_Player_Manual.pdf)
+- [Sci-fi game (Lunar Habitat Commander) — player manual](00_FINAL_FILES/6_SciFi_Game_Player_Manual.pdf)
 
 ## New design pieces (in both games, F11)
 
