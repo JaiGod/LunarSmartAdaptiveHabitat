@@ -48,16 +48,28 @@
 
 **[Review slide by slide](Docs/SLIDES.md)** (all 19 slides shown inline) · **[Open the PDF](Docs/Presentation_Agency_Review_Board.pdf)**
 
-## Our documents with notes (and our self-grade)
+## Our documents, with our design typed in
 
-We went back through our own project docs and wrote notes under every page about what we did for it and how, with screenshots from both games.
+Copies of our own project documents. Under each instruction we typed what we built for it and how, with screenshots from both games.
 
-| Document | With our notes |
+| Document | With our design |
 |---|---|
-| Project ARES Student Brief (we graded ourselves 189/220, see page 17) | [PDF](Docs/Rubric/Annotated_Copies/Project_ARES_Student_Brief_annotated.pdf) |
-| Our final slides (209/240 on the deck's scale) | [PDF](Docs/Rubric/Annotated_Copies/Project_ARES_FINAL_slides_annotated.pdf) |
-| NASA HUNCH project page | [PDF](Docs/Rubric/Annotated_Copies/NASA_HUNCH_Lunar_Smart_Habitat_annotated.pdf) |
-| Our research doc | [PDF](Docs/Rubric/Annotated_Copies/Research_for_Lunar_Habitat_annotated.pdf) |
+| Project ARES Student Brief (self-grade on the rubric page: **200/200 + 20/20 bonus**) | [PDF](Docs/Rubric/With_Our_Design/Project_ARES_Student_Brief_with_our_design.pdf) |
+| Our final slides (240/240 on the deck's scale) | [PDF](Docs/Rubric/With_Our_Design/Project_ARES_FINAL_slides_with_our_design.pdf) |
+| NASA HUNCH project page | [PDF](Docs/Rubric/With_Our_Design/NASA_HUNCH_Lunar_Smart_Habitat_with_our_design.pdf) |
+| Our research doc | [PDF](Docs/Rubric/With_Our_Design/Research_for_Lunar_Habitat_with_our_design.pdf) |
+
+## Player manuals
+
+- [Realistic game (Moon_Base_Final) — player manual](Docs/Manuals/Realistic_Game_Player_Manual.pdf)
+- [Sci-fi game (Lunar Habitat Commander) — player manual](Docs/Manuals/SciFi_Game_Player_Manual.pdf)
+
+## New design pieces (in both games, F11)
+
+- **D1 threshold check:** the real AI engine run through 70 simulated missions — [report](Docs/Rubric/Threshold_Validation_Report.md)
+- **D2 dimensioned floor plans** drawn to scale from the game models — [realistic](Docs/Diagrams/floorplan_u3.png) · [sci-fi](Docs/Diagrams/floorplan_u2.png)
+- **D3 drawn flowcharts** for all six conditions — [Docs/Diagrams](Docs/Diagrams)
+- **D4 written ethics report** (1,155 words) — [D4_Ethics_Report.md](Docs/D4_Ethics_Report.md)
 
 ## Project ARES rubric → where it is in the game
 

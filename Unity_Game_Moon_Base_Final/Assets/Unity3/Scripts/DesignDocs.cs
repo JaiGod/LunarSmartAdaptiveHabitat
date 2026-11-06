@@ -10,7 +10,7 @@ namespace Hunch3
     /// can see that the design is the code, not just a document. "Export" writes everything to Reports/ARES_Deliverables.md.
     public static class DesignDocs
     {
-        public class Page { public string section, title; public System.Func<string> body; }
+        public class Page { public string section, title, img; public System.Func<string> body; }
         public static readonly string[] Sections = { "D1 Sensors", "D2 Zones", "D3 AI protocols", "D4 Ethics", "D5–D6 Present" };
         public static int page;
         public const int MissionDays = 180;
@@ -21,6 +21,8 @@ namespace Hunch3
 
         static MoodEngine E => Sim.I != null ? Sim.I.engine : null;
         static void Add(string sec, string title, System.Func<string> body) => pages.Add(new Page { section = sec, title = title, body = body });
+        /// a page that shows a drawn diagram (Resources/ARES/<img>.png) with a short caption under the title
+        static void AddImg(string sec, string title, string img, string caption) => pages.Add(new Page { section = sec, title = title, img = img, body = () => caption });
 
         static void Build()
         {
@@ -29,6 +31,7 @@ namespace Hunch3
             BuildD2();
             BuildD3();
             BuildD4();
+            BuildD4Report();
             BuildD56();
         }
 
@@ -160,6 +163,17 @@ namespace Hunch3
                 if (e != null) foreach (var c in e.crew) sb.AppendLine($"  {c.name,-18} confidence {c.confidence:P0}   failed: {string.Join(", ", Enumerable.Range(0, 9).Where(s => c.sensors[s] == SensorHealth.Failed).Select(s => SensorSpec.Name[s]).DefaultIfEmpty("none"))}");
                 return sb.ToString();
             });
+            Add("D1 Sensors", "D1 · Where the thresholds come from + how we checked them", () =>
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("<b>1 · Each trigger level comes from published research, then is made PERSONAL:</b>");
+                sb.AppendLine("<size=17>  HRV −25 % vs your baseline · GSR > 3 peaks/min · sleep efficiency < 80 % or REM < 15 % for 2 nights · voice pitch variance −30 % / +40 % · face AU4/AU15 2σ above baseline · time together −50 % in 24 h · morning cortisol > 2σ for 3 days · CO2 > 600 ppm · task errors +20 %</size>");
+                sb.AppendLine("<b>2 · 14-day baseline:</b> the first two weeks only LEARN each person's normal. <b>3 · Persistence + more than one sensor:</b> a signal must last (3 min … 48 h) and no single sensor can reach a tier alone.");
+                sb.AppendLine("<b>4 · We tested it:</b> 'Run the threshold check' runs the real engine through 70 missions (10 normal + 10 per condition) with exercise, an EVA and a noisy mic in every run.\n");
+                if (ValidationSim.done) sb.Append(ValidationSim.GameSummary());
+                else sb.AppendLine("<color=#FFD166>Not run yet — press 'Run the threshold check' (takes a few seconds).</color>");
+                return sb.ToString();
+            });
         }
 
         // =====================================================================================================  D2..D4 (filled in by the next steps)
@@ -245,6 +259,26 @@ namespace Hunch3
                 sb.AppendLine($"\nCounted in this habitat: {FloorPlan.KindCount.Where(kv => kv.Key.StartsWith("X_") || kv.Key == "Motion").Sum(kv => kv.Value)} sensors, {FloorPlan.KindCount.Where(kv => !kv.Key.StartsWith("X_") && kv.Key != "Motion").Sum(kv => kv.Value)} control nodes.");
                 return sb.ToString();
             });
+            AddImg("D2 Zones", "D2 · Dimensioned floor plan (to scale)", "floorplan_u3",
+                "Drawn from the real game model (every floor plate measured in metres). Overall 57 × 72 m ground level + upper deck. Scale bar 0–10 m, north arrow, room sizes in yellow.");
+            Add("D2 Zones", "D2 · Room sizes, volume per crew, and scaling to 6 crew", () =>
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("<b>Room sizes (inside floor plate, clear height)</b>");
+                sb.AppendLine("  Core hub: ⌀ 9.9 m, two decks (lower: hygiene core + ladders · upper: wardroom / galley + 4 sleep pods 2.1 × 2.1 m)");
+                sb.AppendLine("  Nodes (commons, maintenance, hygiene 2, medical / storm shelter, command): 7.0 × 7.0 m, 2.4 m high");
+                sb.AppendLine("  Crew quarters ×4 + quarters hub: 8.8 × 8.8 m, 2.4 m high · tube modules (lab, greenhouse, exercise + VR, airlock): 2.9 m wide, 7–10 m long, 2.3 m high");
+                sb.AppendLine("  Ring corridors L1–L4: 6.3 × 10.5 m · overall footprint 57 × 72 m");
+                sb.AppendLine("\n<b>Totals</b> ≈ 1 250 m² of floor, ≈ 2 960 m³ pressurised volume (incl. upper deck)");
+                sb.AppendLine("  per crew member (4): ≈ 740 m³  ·  private quarters ≈ 185 m³ each + a 2.1 m sleep pod");
+                sb.AppendLine("  NASA HUNCH guide: 20–120 m³ per crew minimum → we are well above it. Lots of volume matters for an 18-month mission: room to be alone is a mental-health lever.");
+                sb.AppendLine("\n<b>Scaling to the brief's 6 crew</b> (we fly 4 because the NASA HUNCH page asks for 2–4):");
+                sb.AppendLine("  • Quarters hub has 2 free sides → add Quarters 5 + 6 (8.8 × 8.8 m) on the existing tunnels; upper deck takes 2 more pods (6 × 2.1 m pods fit on the ⌀ 9.9 m ring)");
+                sb.AppendLine("  • Wardroom table seats 6; galley and hygiene sized for 6 (2 hygiene modules)");
+                sb.AppendLine("  • Sensors: +2 wearable sets (0.07 kg, 0.15 W each) — room sensors don't change. Total stays ≈ 13.3 kg / 110 W");
+                sb.AppendLine("  • Volume per crew at 6 (with the 2 new quarters): ≈ 555 m³ — still far above the guide. The AI engine already loops over any crew size.");
+                return sb.ToString();
+            });
             Add("D2 Zones", "D2 · Configuration A (nominal) vs B (conflict protocol)", () =>
             {
                 var sb = new StringBuilder();
@@ -286,6 +320,7 @@ namespace Hunch3
             "Over 4 h: task error rate and completion time back within 10 % of baseline; zone CO2 < 600 ppm; next night's sleep efficiency.",
             "Over 48 h: more self-chosen activities in free time, fewer declined/late tasks, voice engagement in meetings.",
             "Over 72 h: more variety of zones visited and activities chosen, steadier task performance, fewer 'bored' self-reports." };
+        static readonly string[] FlowKey = { "anxiety", "depression", "conflict", "fatigue", "autonomy", "monotony" };
         static readonly string[] Evidence = {
             "Slow breathing near 6 breaths/min raises HRV and calms arousal; warm dim light, nature sound and lavender scent have modest calming evidence; a short acute window (20 min) matches how anxiety spikes behave.",
             "Behavioural activation and exercise are evidence-based treatments for depression; bright-light therapy (≈10 000 lux, morning) helps mood and circadian rhythm; depression is slow, so the window is 48–72 h and the response must be ACTIVE, not just calming.",
@@ -343,6 +378,8 @@ namespace Hunch3
                     sb.AppendLine($"<color=#9FB3C8><b>Evidence:</b> {Evidence[k]}</color>");
                     return sb.ToString();
                 });
+                AddImg("D3 AI protocols", $"D3 · Flowchart {k + 1}/6 — {nm} (drawn diagram)", "flow_" + FlowKey[k],
+                    "All nine stages as a diagram. Diamonds are decisions; numbers are the real values the AI uses in this game.");
             }
             Add("D3 AI protocols", "D3 · Environmental levers — which, how strong, in what order", () =>
             {
@@ -460,6 +497,17 @@ namespace Hunch3
             });
         }
 
+
+        static void BuildD4Report()
+        {
+            string[] nm = { "1/3 — privacy, autonomy", "2/3 — transparency, individual vs crew, hard limits", "3/3 — override, night watch, how ethics shaped the design" };
+            for (int i = 0; i < 3; i++)
+            {
+                int ii = i;
+                Add("D4 Ethics", "D4 · Written ethics report " + nm[i], () => (ii == 0 ? "<b>" + EthicsReport.Title + "</b>   <size=16>(" + EthicsReport.Words + " words · the brief asks for 800–1,200 · saved to Reports/D4_Ethics_Report.md by Export)</size>\n\n" : "") + EthicsReport.Part(ii));
+            }
+        }
+
         static void BuildD56()
         {
             Add("D5–D6 Present", "D5 · 15-minute review-board run-of-show (live in the simulator)", () =>
@@ -493,6 +541,7 @@ namespace Hunch3
                 string body = System.Text.RegularExpressions.Regex.Replace(p.body(), "<.*?>", "");
                 sb.AppendLine(body); sb.AppendLine();
             }
+            EthicsReport.Save(GameState.ReportsDir);
             string path = System.IO.Path.Combine(GameState.ReportsDir, "ARES_Deliverables.md");
             System.IO.File.WriteAllText(path, sb.ToString());
             return path;

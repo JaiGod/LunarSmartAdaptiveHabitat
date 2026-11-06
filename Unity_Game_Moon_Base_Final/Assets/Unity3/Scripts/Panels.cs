@@ -50,6 +50,23 @@ namespace Hunch3
             b.GetComponent<RectTransform>().pivot = TR; dyn.Add(b.gameObject);
         }
         void Rebuild() { foreach (var g in dyn) Destroy(g); dyn.Clear(); Buttons(); }
+        RawImage docImg; string docImgName;
+        /// diagram pages (drawn flowcharts, the dimensioned floor plan) show a picture under the title
+        void ShowDocImage(string name)
+        {
+            if (name == docImgName) return; docImgName = name;
+            if (string.IsNullOrEmpty(name)) { if (docImg) docImg.gameObject.SetActive(false); return; }
+            var tex = Resources.Load<Texture2D>("ARES/" + name);
+            if (!docImg)
+            {
+                var go = new GameObject("DocImage", typeof(RectTransform), typeof(RawImage)); go.transform.SetParent(root, false);
+                docImg = go.GetComponent<RawImage>(); var rt = (RectTransform)go.transform; rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0, 1);
+            }
+            docImg.gameObject.SetActive(tex != null); if (!tex) return;
+            docImg.texture = tex;
+            float maxW = 960f, maxH = 800f, k = Mathf.Min(maxW / tex.width, maxH / tex.height);
+            var r2 = (RectTransform)docImg.transform; r2.sizeDelta = new Vector2(tex.width * k, tex.height * k); r2.anchoredPosition = new Vector2(24 + (maxW - tex.width * k) / 2f, -132);
+        }
         void Update() { if (Time.time > next) { next = Time.time + 0.5f; Refresh(); } }
 
         float rowStep = 62f;
@@ -144,6 +161,8 @@ namespace Hunch3
                     foreach (var sec in DesignDocs.Sections) { string ss = sec; bool here = DesignDocs.Current.section == ss; Btn((here ? "▶ " : "") + ss, 0, r++, () => DesignDocs.Jump(ss), here ? new Color(0.15f, 0.5f, 0.7f) : null); }
                     r++;
                     Btn("Export all to Reports folder", 0, r++, () => HUD.I?.Toast("Saved: " + DesignDocs.ExportAll()), new Color(0.15f, 0.45f, 0.25f));
+                    if (DesignDocs.Current.title.StartsWith("D1 · Where the thresholds"))
+                        Btn(ValidationSim.done ? "↻ Run the threshold check again" : "▶ Run the threshold check (70 missions)", 0, r++, () => { ValidationSim.Run(); HUD.I?.Toast("Threshold check done — results on this page + Reports/Threshold_Validation_Report.md"); }, new Color(0.55f, 0.4f, 0.1f));
                     break;
                 case "tabletop":
                     Btn("▶ Run 72-hour simulation", 0, r++, () => { TabletopSim.Run(); }, new Color(0.15f, 0.45f, 0.25f));
@@ -317,7 +336,8 @@ namespace Hunch3
                     {
                         var pg = DesignDocs.Current;
                         sb.AppendLine($"<b><color=#{UIKit.Hex(UIKit.Gold)}>{pg.title}</color></b>   <size=16>(page {DesignDocs.page + 1}/{DesignDocs.Pages.Count})</size>");
-                        sb.Append(pg.body());
+                        sb.Append(pg.img != null ? "<size=17>" + pg.body() + "</size>" : pg.body());
+                        ShowDocImage(pg.img);
                     }
                     break;
                 case "orders":
