@@ -110,7 +110,7 @@ namespace Hunch3
         Canvas canvas; Text stats, toast, prompt, procedure, zoneCard, help, autoBanner, navText; Image offerBox, fade, bigMapBg; Text offerText; RawImage mini, bigMap;
         Camera mapCam; RenderTexture rt; Transform arrow; readonly List<GameObject> crumbs = new List<GameObject>();
         Text compass; Transform youMarker;
-        Offer currentOffer; float toastUntil; public bool showZoneCards = true; string navGoal = "", navLabel = "";
+        Offer currentOffer; float toastUntil; public bool showZoneCards = false; string navGoal = "", navLabel = "";
         bool world;
 
         void Awake() { I = this; }
@@ -137,6 +137,7 @@ namespace Hunch3
             UIKit.Label(root, "+", 30, new Color(1, 1, 1, 0.6f), C, Vector2.zero, new Vector2(40, 40), TextAnchor.MiddleCenter);
             var zc = UIKit.Panel(root, "ZoneCard", TR, new Vector2(-16, -16), new Vector2(460, 230), null, TR);
             zoneCard = UIKit.Label(zc.transform, "", 19, Color.white, TL, new Vector2(12, -8), new Vector2(440, 220), TextAnchor.UpperLeft, TL);
+            zc.gameObject.SetActive(showZoneCards);      // simple screen: room info only on Z
             offerBox = UIKit.Panel(root, "Offer", BC, new Vector2(0, 82), new Vector2(980, 110), new Color(0.12f, 0.1f, 0.04f, 0.93f), BC);
             offerText = UIKit.Label(offerBox.transform, "", 22, Color.white, TL, new Vector2(12, -8), new Vector2(700, 96), TextAnchor.UpperLeft, TL);
             UIKit.Btn(offerBox.transform, "Yes (Y / A)", new Vector2(1, 0.5f), new Vector2(-190, 0), new Vector2(150, 70), () => AnswerOffer(true), new Color(0.15f, 0.5f, 0.25f), 20);
@@ -151,12 +152,13 @@ namespace Hunch3
             bigMapBg.gameObject.SetActive(false);
             // always-visible shortcut bar (desktop) / controller cheat-sheet (VR) — K hides it
             keysBg = UIKit.Panel(root, "KeysBar", BC, new Vector2(0, 4), new Vector2(1880, world ? 96 : 86), new Color(0.05f, 0.05f, 0.12f, 0.82f), BC);
-            keys = UIKit.Label(keysBg.transform, world ? KeysVR : KeysDesktop, 17, Color.white, C, Vector2.zero, new Vector2(1860, 84), TextAnchor.MiddleCenter);
+            keys = UIKit.Label(keysBg.transform, world ? KeysVR : KeysSimple, world ? 17 : 22, Color.white, C, Vector2.zero, new Vector2(1860, 84), TextAnchor.MiddleCenter);
+            if (!world) { var kr = keysBg.rectTransform; kr.sizeDelta = new Vector2(1180, 48); keys.rectTransform.sizeDelta = new Vector2(1160, 46); }
             fade = UIKit.Panel(root, "Fade", C, Vector2.zero, new Vector2(4000, 4000), new Color(0, 0, 0, 0)); fade.raycastTarget = false;
             BuildMapCam(); BuildArrow(); BuildHologram();
             Sim.OfferRaised += o => { currentOffer = o; };
             Sim.Toast += s => Toast(s);
-            if (GameState.mode == GameMode.Sandbox) Toast("Welcome, Commander. H = help · M = map · N = navigate · P = autopilot · Tab = your Crew Interface");
+            if (GameState.mode == GameMode.Sandbox) Toast("Welcome, Commander. Just press ENTER — the task at the top of the screen gets done with you.");
         }
 
         Image keysBg; Text keys;
@@ -165,16 +167,30 @@ namespace Hunch3
             K("W A S D", "move", "4FC3F7") + "   " + K("Mouse", "look (L lock)", "4FC3F7") + "   " + K("E", "use / grab ladder / sleep", "81C784") + "   " + K("Space / X", "stand up · jump", "81C784") + "   " +
             K("Q", "menu", "FFB74D") + "   " + K("Tab", "crew UI", "FFB74D") + "   " + K("H", "help", "FFB74D") + "   " + K("M", "map", "FFB74D") + "   " + K("N", "go to room", "FFB74D") + "   " + K("P", "AI autopilot", "BA68C8") + "   " +
             K("G", "wave", "F06292") + "   " + K("T", "time speed", "F06292") + "\n" +
-            K("F1", "AI dashboard", "4DD0E1") + "   " + K("F2", "CMO", "4DD0E1") + "   " + K("F3", "meeting", "4DD0E1") + "   " + K("F4", "tabletop", "4DD0E1") + "   " + K("F5", "board Qs", "4DD0E1") + "   " +
+            K("F1", "AI dashboard", "4DD0E1") + "   " + K("F2", "CMO", "4DD0E1") + "   " + K("F3", "meeting", "4DD0E1") + "   " + K("F4", "tabletop", "4DD0E1") + "   " + K("F5", "board Qs", "4DD0E1") + "   " + K("I", "CHECK ON CREW", "F48FB1") + "   " +
             K("F6", "safety drill", "E57373") + "   " + K("F7", "quick travel", "AED581") + "   " + K("F8", "ladder test", "AED581") + "   " + K("F10", "outside cameras", "AED581") + "   " + K("U", "unstuck", "FFD54F") + "   " + K("K", "hide this bar", "B0BEC5") + "\n" +
             K("J", "rubric tasks", "FFD54F") + "   " + K("V", "crew health", "4DD0E1") + "   " + K("B", "find my bed", "FFB74D") + "   " + K("F", "3rd-person view", "BA68C8") + "   " + K("E / click", "pick up · throw boxes & tools", "81C784") + "   " + K("O", "AI OFF SWITCH", "FF5252");
         public static readonly string KeysVR =
             K("Left stick", "move", "4FC3F7") + "   " + K("Right stick", "turn", "4FC3F7") + "   " + K("Grip", "teleport", "81C784") + "   " + K("Trigger", "use · ladder · sleep · wake", "81C784") + "   " +
             K("L-stick click", "menu", "FFB74D") + "   " + K("Y", "crew UI", "FFB74D") + "   " + K("X", "map", "FFB74D") + "   " + K("B", "autopilot", "BA68C8") + "   " + K("A", "accept offer", "F06292") + "   " + K("Hand up + shake", "wave", "F06292") + "\n" +
             K("Menu", "rubric tasks · crew health · find my bed · AI OFF SWITCH", "FFD54F");
-        public void ToggleKeys() { if (keysBg) keysBg.gameObject.SetActive(!keysBg.gameObject.activeSelf); }
+        /// SIMPLE screen by default: only the 5 keys you need. K switches to every shortcut and back.
+        public static readonly string KeysSimple =
+            K("ENTER", "do my next task", "7CFC9A") + "     " + K("I", "check on crew", "F48FB1") + "     " + K("O", "AI off", "FF5252") + "     " + K("Q", "menu", "FFB74D") + "     " + K("H", "help", "FFB74D") + "     " + K("K", "all keys", "B0BEC5");
+        bool keysFull;
+        public void ToggleKeys()
+        {
+            if (!keysBg) return; var pr = PlayerRig.I; if (pr && pr.isXR) { keysBg.gameObject.SetActive(!keysBg.gameObject.activeSelf); return; }
+            keysFull = !keysFull; keys.text = keysFull ? KeysDesktop : KeysSimple; keys.fontSize = keysFull ? 17 : 22;
+            keysBg.rectTransform.sizeDelta = keysFull ? new Vector2(1880, 86) : new Vector2(1180, 48); keys.rectTransform.sizeDelta = keysFull ? new Vector2(1860, 84) : new Vector2(1160, 46);
+        }
         public const string HelpText =
-@"<b><color=#40D9FF>CONTROLS</color></b>
+@"<b><color=#FFD54F>THE EASY WAY TO PLAY</color></b>
+  <b>ENTER</b> (VR: menu → Do my next step) — does the task at the top of the screen WITH you, one step per press.
+  <b>I</b> next to a crewmate — health check-in: they say yes, you read their sensors and the 6 mental-health levels.  <b>I</b> anywhere — crew wellness screen.
+  <b>O</b> — the AI OFF switch. Humans always outrank the AI (it also has bedtime rules and a 30-second hardware interlock).
+  <b>J</b> — rubric checklist.   7 missions about the crew's mental health run in order; the banner always shows the ONE next step.
+<b><color=#40D9FF>CONTROLS</color></b>
 <b>Desktop</b>  WASD / arrows move · Shift run · Space jump (1/6 g!) · Right-mouse or L (lock) look · E / click interact
 <b>VR (Quest)</b>  Left stick move · Right stick turn · Grip teleport · Trigger interact / press buttons · Y crew UI · X map · B autopilot · A accept
 <b>Shortcuts</b>  (VR button in brackets)

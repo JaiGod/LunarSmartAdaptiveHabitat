@@ -12,7 +12,7 @@ namespace Hunch3
         public static readonly string[] Short = { "Workout false positive", "Depression + conflict at once", "Silent change discovered", "Cortisol patch fails Day 45", "No permanent opt-out?", "CMO on EVA during Tier 3" };
         public static void Run(int q)
         {
-            var e = Sim.I.engine; var sb = new StringBuilder();
+            var e = Sim.I.engine; var sb = new StringBuilder(); float keepClock = SimClock.hours;      // a scenario may jump the clock (Q4: Day 45) — the game clock is put back afterwards
             switch (q)
             {
                 case 1:
@@ -68,6 +68,7 @@ namespace Hunch3
                       cmo.onEVA = false; }
                     break;
             }
+            if (q == 4) SimClock.hours = keepClock;
             lastExplain = sb.ToString(); e.Log(0, "scenario", "Board scenario Q" + q + " run.");
         }
     }

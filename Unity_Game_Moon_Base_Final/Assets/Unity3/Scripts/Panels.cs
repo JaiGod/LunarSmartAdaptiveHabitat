@@ -37,12 +37,13 @@ namespace Hunch3
 
         public void Build()
         {
-            string title = id switch { "crew" => "CREW INTERFACE — Cmdr. J. Rana (only you see this)", "dashboard" => "AI PSYCHOLOGICAL MONITORING DASHBOARD — Command", "cmo" => "CHIEF MEDICAL OFFICER CONSOLE — Tier 3 queue", "meeting" => "DAILY PLANNING CONFERENCE — Team meeting", "tabletop" => "TABLETOP SIMULATION — 72-hour mission window", "scenarios" => "AGENCY REVIEW BOARD — live scenarios Q1–Q6", "nav" => "NAVIGATE — choose a destination", "menu" => "MAIN MENU (VR wrist menu · Q on desktop)", "eclss" => "ECLSS — life support status", "drive" => "PRESSURISED / OPEN ROVER — EVA destinations", "docs" => "PROJECT ARES DELIVERABLES D1–D4 (live from the AI engine) · F11", _ => id };
+            string title = id switch { "crew" => "CREW INTERFACE — Cmdr. J. Rana (only you see this)", "dashboard" => "AI PSYCHOLOGICAL MONITORING DASHBOARD — Command", "cmo" => "CHIEF MEDICAL OFFICER CONSOLE — Tier 3 queue", "meeting" => "DAILY PLANNING CONFERENCE — Team meeting", "tabletop" => "TABLETOP SIMULATION — 72-hour mission window", "scenarios" => "AGENCY REVIEW BOARD — live scenarios Q1–Q6", "nav" => "NAVIGATE — choose a destination", "menu" => "MAIN MENU (VR wrist menu · Q on desktop)", "eclss" => "ECLSS — life support status", "drive" => "PRESSURISED / OPEN ROVER — EVA destinations", "docs" => "PROJECT ARES DELIVERABLES D1–D4 (live from the AI engine) · F11", "orders" => "CREW WELLNESS — check on your crew, then help them · I", _ => id };
             UIKit.Label(root, $"<b>{title}</b>", 32, UIKit.Accent, TL, new Vector2(24, -14), new Vector2(1300, 46), TextAnchor.UpperLeft, TL);
             UIKit.Btn(root, "Close ✕", TR, new Vector2(-20, -14), new Vector2(150, 50), () => Panels.Close(id), new Color(0.45f, 0.15f, 0.15f), 22).GetComponent<RectTransform>().pivot = TR;
-            body = UIKit.Label(root, "", 21, Color.white, TL, new Vector2(24, -70), new Vector2(940, 860), TextAnchor.UpperLeft, TL);
+            body = UIKit.Label(root, "", 21, Color.white, TL, new Vector2(24, -70), id == "orders" ? new Vector2(1240, 172) : new Vector2(940, 860), TextAnchor.UpperLeft, TL);
             Buttons(); Refresh();
         }
+        static bool ordersAll, menuAll;
         void Btn(string label, int col, int row, Action a, Color? c = null)
         {
             var b = UIKit.Btn(root, label, TR, new Vector2(-20 - col * 500, -80 - row * rowStep), new Vector2(480, rowStep - 8), () => { a(); Refresh(); Rebuild(); }, c, 20);
@@ -55,7 +56,7 @@ namespace Hunch3
         void Buttons()
         {
             var me = E.C(1); int r = 0;
-            rowStep = id == "crew" && (Panels.crewTab == "privacy" || Panels.crewTab == "overrides") ? 56f : 62f;
+            rowStep = id == "orders" || (id == "crew" && (Panels.crewTab == "privacy" || Panels.crewTab == "overrides")) ? 56f : 62f;
             switch (id)
             {
                 case "crew":
@@ -96,6 +97,25 @@ namespace Hunch3
                         Btn("My quarters: cooler −0.5 °C", 0, r++, () => MyRoom(me, -0.5f));
                         Btn("Scent: lavender / citrus / none", 0, r++, () => E.Log(1, "pref", "Scent preference cycled."));
                         Btn("Music: pre-mission playlist", 0, r++, () => E.Log(1, "pref", "Favourite playlist queued for free time."));
+                    }
+                    break;
+                case "orders":
+                    {
+                        int[] who = { 4, 3, 2 };      // right to left: Rivera, Tanaka, Okafor
+                        for (int col = 0; col < 3; col++)
+                        {
+                            int id = who[col]; var c = E.C(id); int row = 4;
+                            Btn($"<b>{c.name}</b>  ·  {CrewOrders.Energy(id)}", col, row++, () => { }, Color.Lerp(new Color(0.1f, 0.13f, 0.2f), CrewOrders.Col[id], 0.35f));
+                            // TWO big buttons per person: check on them, then help them. (All tasks: "Show all tasks".)
+                            Btn((HealthCheck.scanned.Contains(id) ? "✓ " : "") + "1 · Check their health", col, row++, () => HealthCheck.Scan(id), new Color(0.55f, 0.22f, 0.45f));
+                            var sj = CrewOrders.Suggest(id);
+                            if (CrewOrders.active.ContainsKey(id)) Btn("Doing it… (tap to cancel)", col, row++, () => CrewOrders.Cancel(id), new Color(0.35f, 0.3f, 0.15f));
+                            else Btn($"2 · ♥ Help: {sj.name}  <size=15>{sj.help}</size>", col, row++, () => CrewOrders.LetThemPick(id), new Color(0.15f, 0.5f, 0.27f));
+                            if (ordersAll) foreach (var j in CrewOrders.JobsFor(id)) { var jj = j; Btn((j.role == id ? "★ " : "") + j.name + "  <size=15>" + j.help + "</size>", col, row++, () => CrewOrders.Ask(id, jj), j.role == id ? new Color(0.12f, 0.42f, 0.55f) : new Color(0.24f, 0.28f, 0.34f)); }
+                        }
+                        Btn(ordersAll ? "Hide extra tasks" : "Show all tasks (optional)", 0, 3, () => ordersAll = !ordersAll, new Color(0.2f, 0.22f, 0.3f));
+                        {
+                        }
                     }
                     break;
                 case "dashboard":
@@ -139,7 +159,7 @@ namespace Hunch3
                             ("Crew health card (live) · V", () => { Panels.CloseAll(); CrewHealthCard.I?.Toggle(); }),
                             ("Find my bed · B", () => { Panels.CloseAll(); BedFinder.I?.Toggle(); }),
                             ("Third-person view · F", () => { Panels.CloseAll(); ThirdPersonView.I?.Toggle(); }),
-                            ("Crew Interface (my data & overrides)", () => Panels.Open("crew")), ("Navigate to a room", () => Panels.Open("nav")),
+                            ("Do my next step for me · ENTER", () => { Panels.CloseAll(); RubricTasks.I?.DoNext(); }), ("Skip this mission", () => { Panels.CloseAll(); RubricTasks.I?.SkipMission(); }), ("Test: AI breaks a bedtime rule tonight", () => { Panels.CloseAll(); RubricTasks.I?.ArmNightTest(); }), ("Crew wellness: check on & help your crew · I", () => Panels.Open("orders")), ("Crew Interface (my data & overrides)", () => Panels.Open("crew")), ("Navigate to a room", () => Panels.Open("nav")),
                             ("ARES deliverables D1–D4 · F11", () => Panels.Open("docs")), ("AI Dashboard (sensors, matrix, limits)", () => Panels.Open("dashboard")), ("CMO console (Tier 3)", () => Panels.Open("cmo")),
                             ("Team meeting", () => Panels.Open("meeting")), ("Tabletop simulation (72 h)", () => Panels.Open("tabletop")),
                             ("Board scenarios Q1–Q6", () => Panels.Open("scenarios")), ("Big map on / off", () => { Panels.CloseAll(); HUD.I?.ToggleBigMap(); }),
@@ -155,7 +175,23 @@ namespace Hunch3
                             ("Show / hide shortcut bar", () => HUD.I?.ToggleKeys()),
                             ("Help / controls", () => { Panels.CloseAll(); HUD.I?.ToggleHelp(); }),
                             ("Exit to main menu", () => UnityEngine.SceneManagement.SceneManager.LoadScene(0)) };
-                        for (int i = 0; i < items.Length; i++) { var it = items[i]; Btn(it.Item1, i / 12, i % 12, it.Item2); }
+                        if (!menuAll)
+                        {   // SIMPLE MENU — the few things a crew member actually needs
+                            var simple = new (string, Action, Color)[] {
+                                ("▶  Do my next task  (ENTER)", () => { Panels.CloseAll(); RubricTasks.I?.DoNext(); }, new Color(0.13f, 0.5f, 0.26f)),
+                                ("♥  Check on my crew  (I)", () => Panels.Open("orders"), new Color(0.55f, 0.22f, 0.45f)),
+                                ("☀  Today's wellness list", () => { Panels.CloseAll(); RubricTasks.I?.ShowToday(); }, new Color(0.2f, 0.42f, 0.62f)),
+                                ("☾  Go to bed", () => { Panels.CloseAll(); BedFinder.I?.Show(true); }, new Color(0.25f, 0.25f, 0.5f)),
+                                (AIAuthority.Blocked ? "✓  AI is OFF — tap to allow it again  (O)" : "⛔  Switch the AI OFF  (O)", () => { Panels.CloseAll(); AIAuthority.Toggle(); }, new Color(0.55f, 0.15f, 0.15f)),
+                                ("?  Help", () => { Panels.CloseAll(); HUD.I?.ToggleHelp(); }, new Color(0.25f, 0.28f, 0.34f)),
+                                ("More options ▸  (judges & advanced)", () => { menuAll = true; }, new Color(0.18f, 0.2f, 0.26f)) };
+                            for (int i = 0; i < simple.Length; i++) { var it = simple[i]; Btn(it.Item1, 0, i, it.Item2, it.Item3); }
+                        }
+                        else
+                        {
+                            Btn("◂ Back to the simple menu", 0, 0, () => { menuAll = false; }, new Color(0.13f, 0.5f, 0.26f));
+                            for (int i = 0; i < items.Length; i++) { var it = items[i]; Btn(it.Item1, (i + 1) / 12, (i + 1) % 12, it.Item2); }
+                        }
                     }
                     break;
                 case "nav":
@@ -283,6 +319,11 @@ namespace Hunch3
                         sb.AppendLine($"<b><color=#{UIKit.Hex(UIKit.Gold)}>{pg.title}</color></b>   <size=16>(page {DesignDocs.page + 1}/{DesignDocs.Pages.Count})</size>");
                         sb.Append(pg.body());
                     }
+                    break;
+                case "orders":
+                    if (HealthCheck.lastId > 0 && HealthCheck.last.TryGetValue(HealthCheck.lastId, out var rep)) sb.AppendLine(rep);
+                    else sb.AppendLine("<size=26><b>Two steps for each crewmate:</b></size>\n<size=24><b>1 · Check their health</b> — you walk over and read their sensors.\n<b>2 · Help</b> — they do the task that helps their mental health most.</size>");
+                    sb.AppendLine("<size=17>" + string.Join("   ·   ", new[] { 2, 3, 4 }.Select(id => $"<b><color=#{CrewOrders.Hex(id)}>{E.C(id).name.Split(' ').Last()}</color></b>: {CrewOrders.Status(id)}")) + $"   ·   tasks done {CrewOrders.done}</size>");
                     break;
                 case "tabletop": sb.Append(TabletopSim.lastReport ?? "Runs the real AI engine headless over 72 sim-hours with two simultaneous events (depression + conflict), a cortisol-sensor failure and the CMO on EVA during a Tier 3. Produces a timeline, successes/failures and redesign notes, saved to Reports/."); break;
                 case "scenarios": sb.Append(Scenarios.lastExplain ?? "Pick a board question. The scenario is set up LIVE in the habitat and the AI's response is explained here and in the dashboard/CMO console."); break;

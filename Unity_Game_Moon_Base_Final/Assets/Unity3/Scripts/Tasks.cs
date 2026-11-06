@@ -17,7 +17,7 @@ namespace Hunch3
     ///   • J (or Q menu → Rubric tasks): the full checklist with "Guide me" (walks you there / opens the right screen)
     ///     and "Show me" (makes the situation happen now, e.g. raises a real Tier-2 offer for you to answer).
     ///   • Progress is saved between sessions and written to Reports/rubric_tasks.txt with times, as proof.
-    public class RubricTasks : MonoBehaviour
+    public partial class RubricTasks : MonoBehaviour
     {
         public static RubricTasks I;
         public class Task
@@ -80,6 +80,7 @@ namespace Hunch3
         {
             Build();
             Load();
+            BuildMissions(); LoadMissions();
             BuildBanner();
             Scan(true);
             Invoke(nameof(Hello), 4f);
@@ -96,7 +97,14 @@ namespace Hunch3
 
         void Build()
         {
-            // D1 — sensors
+            // D1 — sensors (start here: the two easiest, hands-on tasks)
+            Add("checkin", "D1", "Check on a crewmate's health (collect their sensor data)",
+                "Walk up to any crewmate and press I (VR: menu → Crew wellness). You read their wristband, skin patch and room sensors — after they say yes.",
+                () => HealthCheck.scanned.Count > 0, () => Panels.Open("orders"), () => HealthCheck.Quick(), null, "Check now");
+            Add("help", "D1", "Help a crewmate's mental health with one task",
+                "Press I and tap the green ♥ Help button under a crewmate. They do the task that helps them most (calm, call home, rest …).",
+                () => CrewOrders.done > 0 || CrewOrders.active.Count > 0, () => Panels.Open("orders"),
+                () => { int id = HealthCheck.lastId > 0 ? HealthCheck.lastId : 2; CrewOrders.LetThemPick(id); Panels.Open("orders"); }, null, "Help now");
             Add("dash", "D1", "Open the AI Dashboard and read the sensor health matrix",
                 "Press F1 (VR: menu → AI Dashboard). Find the 9 sensors and whether each is OK, degraded or failed.",
                 () => sawDashboard, () => Panels.Open("dashboard"));
@@ -164,9 +172,9 @@ namespace Hunch3
                 "F1 dashboard → \"Human system review ✓\". Without it the AI drops back to Tier 1 after 7 days.",
                 () => events.Contains("review"), () => Panels.Open("dashboard"));
             // D5 — presentation
-            Add("board", "D5", "Run an Agency Review Board question live (Q1–Q6)",
-                "Press F5 and pick a question. The screen explains how the design answers it — use this in your presentation.",
-                () => events.Contains("scenario"), () => Panels.Open("scenarios"));
+            Add("board", "D5", "Answer ALL 6 Agency Review Board questions live (Q1–Q6)",
+                "Press F5 and run each question. Each one is set up live and the screen explains how the design answers it — use this in your presentation.",
+                () => BoardDone().Count >= 6, () => Panels.Open("scenarios"), null, () => BoardDone().Count + "/6");
             Add("map", "D5", "Show the habitat map",
                 "Press M (VR: X) for the big map with every zone. Good for walking the judges through the layout.",
                 () => sawMap, () => { Panels.CloseAll(); HUD.I?.ToggleBigMap(); sawMap = true; });
@@ -190,6 +198,72 @@ namespace Hunch3
             e.Log(1, "tier2", $"T2 {CondSpec.Name[(int)Cond.Fatigue]}: offer sent — \"{off.text}\"", 2, (int)Cond.Fatigue);
             e.offers.Add(off); e.onOffer?.Invoke(off);
         }
+
+        // ------------------------------------------------------------------ EASY MODE: one key (ENTER) does the task with you
+        // Each press does the next step of the current task: it takes you there, opens the right screen, sets the situation
+        // up and — where the task needs a choice from you (yes/no to an offer, acknowledging a Tier 3) — the next press makes it.
+        static void Go(string wp) { Panels.CloseAll(); if (global::Hunch3.Nav.wp.TryGetValue(wp, out var t) && PlayerRig.I) PlayerRig.I.Teleport(t.position); }
+        bool misbehaved;
+        public void DoNext() { if (SleepSystem.PlayerAsleep) { HUD.I?.Toast("You're asleep… (E wakes you)"); return; } if (AlarmDo() || InChargeDo()) return; if (InMission) { MissionDo(); return; } if (Current == null && DailyCur != null) { DailyDo(); return; } if (Current == null && DailyCur == null && NightNow && !SleepSystem.PlayerAsleep) { Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); return; } var t = Current; if (t == null) { HUD.I?.Toast("All rubric tasks are done ✓"); return; } DoTask(t); }
+        public void DoTask(Task t)
+        {
+            var e = E; if (e == null || t == null || t.done) return; var me = e.C(1);
+            var off = e.offers.FirstOrDefault(o => o.crew == 1 && !o.done);
+            if (off != null && (t.id == "tier2" || t.id == "decline")) { HUD.I?.AnswerOffer(t.id == "tier2"); return; }
+            try
+            {
+                switch (t.id)
+                {
+                    case "exercise": Go("WP_D_Ex"); me.exercising = true; me.lastExerciseHour = SimClock.hours; sawExercise = true; Invoke(nameof(StopExercise), 8f); HUD.I?.Toast("You're on the exercise bike. Heart rate up — tagged as EXERCISE, so the AI does not call it anxiety."); break;
+                    case "zones":
+                        {
+                            var miss = AresTypes.FirstOrDefault(z => !zoneTypesSeen.Contains(z)); var env = HabitatEnvironment.I; var pr = PlayerRig.I; if (miss == null || !env || !pr) break;
+                            var zz = env.zones.Where(z => z.type == miss).OrderBy(z => (z.center - pr.FeetPosition).sqrMagnitude).FirstOrDefault(); if (zz == null) break;
+                            string wp = global::Hunch3.Nav.Nearest(zz.center); if (wp != null) Go(wp); zoneTypesSeen.Add(miss);
+                            HUD.I?.Toast($"This is a {miss.ToUpper()} zone: {zz.name.Replace("_", " ")}. Press ENTER for the next one."); break;
+                        }
+                    case "dome": Go("WP_SQ1_In"); break;
+                    case "configB": HabitatEnvironment.I?.SetConfigB(true); break;
+                    case "tier2": case "decline": RaiseOfferForMe(); HUD.I?.Toast(t.id == "tier2" ? "The AI is offering you support. Press ENTER again to say YES (or Y)." : "Press ENTER again to say NO (or R) — the AI must stop and log it."); break;
+                    case "meeting": Go("WP_Up_Table"); foreach (var c in e.crew) c.autonomy += 0.15f; e.Log(0, "meeting", "Team chose their own task order (autonomy ↑)."); break;
+                    case "tier3":
+                        if (e.escalatedTo.Any(kv => kv.Value == 1)) e.Acknowledge(e.escalatedTo.First(kv => kv.Value == 1).Key);
+                        else { Scenarios.Run(6); Panels.Open("cmo"); HUD.I?.Toast("Tier 3 while the CMO is on EVA — YOU are the backup. Close this and press ENTER again to acknowledge."); }
+                        break;
+                    case "drill":
+                        if (Hazards.I && !Hazards.I.Active) { t.demo?.Invoke(); HUD.I?.Toast("Drill started. Press ENTER again to go straight to the muster point."); }
+                        else if (Hazards.I && !Near(Hazards.I.Muster)) Go(Hazards.I.Muster);
+                        else HUD.I?.Toast("You're at the muster point. Waiting for the crew to arrive…");
+                        break;
+                    case "sleep": if (SleepSystem.PlayerAsleep) { HUD.I?.Toast("You're asleep… 1 real minute = the whole night (E wakes you early)."); break; } Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); break;
+                    case "optout": me.optOut[(int)Sensor.Voice] = true; e.Log(1, "privacy", "Opted out of " + SensorSpec.Name[(int)Sensor.Voice] + " (heart rate and CO2 stay on: safety floor)."); HUD.I?.Toast("Voice sensing is off for you. Heart rate and CO2 stay on — they're safety, not mood."); break;
+                    case "override": me.pauseUntilHour = SimClock.hours + 24; e.Log(1, "pause", "Crew paused all AI adjustments for 24 h."); HUD.I?.Toast("All AI adjustments paused for 24 h. The human always wins."); break;
+                    case "export":
+                        {
+                            var sb = new StringBuilder($"# Personal data log — {me.name}\nExported {SimClock.Now}.\n\n"); foreach (var l in me.log) sb.AppendLine($"- {l.Time} [{l.kind}] T{l.tier} {l.text}");
+                            string dir = GameState.ReportsDir, path = Path.Combine(dir, "MyDataLog_Commander.md"); File.WriteAllText(path, sb.ToString());
+                            e.Log(1, "privacy", "Full personal log exported to " + path); HUD.I?.Toast("Exported: " + path); break;
+                        }
+                    case "aioff":
+                        if (AIAuthority.Blocked) break;
+                        if (!misbehaved) { misbehaved = true; AIAuthority.Misbehave(); HUD.I?.Toast("The AI is overstepping! Press ENTER again (or O) to switch it off."); }
+                        else AIAuthority.Toggle();
+                        break;
+                    case "review": EthicsGuard.lastReviewHour = SimClock.hours; e.Log(0, "review", "Human system review completed by Commander."); break;
+                    case "board": { var dn = BoardDone(); int q = Enumerable.Range(1, 6).First(i => !dn.Contains(i)); Scenarios.Run(q); boardQs.Add(q); Panels.Open("scenarios"); HUD.I?.Toast($"Board question Q{q} answered ({dn.Count + 1}/6). Press ENTER for the next one."); break; }
+                    case "tabletop": TabletopSim.Run(); Panels.Open("tabletop"); break;
+                    case "map": sawMap = true; t.guide?.Invoke(); break;
+                    case "checkin": HealthCheck.Quick(); break;
+                    case "help": t.demo?.Invoke(); break;
+                    default: if (t.demo != null) t.demo(); else t.guide?.Invoke(); break;     // dash, sensor, matrix, tier1, crewui
+                }
+            }
+            catch (Exception ex) { HUD.I?.Toast("Couldn't do that one automatically: " + ex.Message); }
+        }
+
+        /// which board questions (1..6) have been run, from the log
+        readonly HashSet<int> boardQs = new HashSet<int>();      // kept here: running a scenario resets the engine (and its log)
+        public HashSet<int> BoardDone() { var h = boardQs; var e = E; if (e != null) foreach (var l in e.log) if (l.kind == "scenario" && l.text.StartsWith("Board scenario Q") && l.text.Length > 16 && char.IsDigit(l.text[16])) h.Add(l.text[16] - '0'); return h; }
 
         // ------------------------------------------------------------------ checking
         void Scan(bool all = false)
@@ -221,6 +295,7 @@ namespace Hunch3
             if (kb != null)
             {
                 if (kb.jKey.wasPressedThisFrame) ToggleList();
+                if ((kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame) && !listCanvas && !SleepSystem.PlayerAsleep) DoNext();
                 if (kb.oKey.wasPressedThisFrame) AIAuthority.Toggle();
                 if (kb.mKey.wasPressedThisFrame) sawMap = true;
             }
@@ -237,6 +312,7 @@ namespace Hunch3
                 if (GameObject.Find("Panel_crew")) sawCrewUI = true;
                 if (GameObject.Find("Panel_docs") && DesignDocs.Current.section == "D1 Sensors" && DesignDocs.page >= 1) sawMatrix = true;
                 Scan();
+                try { MissionTick(); } catch (Exception ex) { Debug.LogWarning("[HUNCH3] missions: " + ex.Message); }
                 foreach (var t in tasks)
                 {
                     if (t.done) continue;
@@ -246,7 +322,7 @@ namespace Hunch3
                 RefreshBanner();
                 if (listCanvas) RefreshList();
             }
-            if (flash) { float k = Mathf.Clamp01((flashUntil - Time.time) / 3.5f); flash.gameObject.SetActive(k > 0); flash.color = new Color(0.1f, 0.55f, 0.25f, 0.92f * Mathf.Min(1f, k * 3f)); }
+            if (flash) { float k = Mathf.Clamp01((flashUntil - Time.time) / 3.5f); flash.gameObject.SetActive(k > 0); flash.color = new Color(0.07f, 0.45f, 0.21f, Mathf.Min(1f, k * 3f)); }
         }
 
         void Complete(Task t)
@@ -297,9 +373,9 @@ namespace Hunch3
         public void ResetAll()
         {
             foreach (var t in tasks) { t.done = false; t.doneAt = ""; }
-            zoneTypesSeen.Clear(); events.Clear(); sawExercise = sawMap = sawDashboard = sawCrewUI = sawMatrix = false;
+            zoneTypesSeen.Clear(); events.Clear(); boardQs.Clear(); sawExercise = sawMap = sawDashboard = sawCrewUI = sawMatrix = false;
             var e = E; lastSeen = e != null && e.log.Count > 0 ? e.log[e.log.Count - 1] : null;   // only count what happens from now on
-            focus = null; Save(); HUD.I?.Toast("Rubric checklist reset — start again from task 1.");
+            focus = null; Save(); ResetMissions(); HUD.I?.Toast("Missions and rubric checklist reset — start again from mission 1.");
         }
 
         // ------------------------------------------------------------------ banner (the one thing to do now)
@@ -362,6 +438,9 @@ namespace Hunch3
                 flash.rectTransform.anchoredPosition = rt.anchoredPosition;
             }
             var t = Current;
+            bool custom = AlarmBanner() || InChargeBanner() || (InMission && MissionBanner()) || (GameState.mode == GameMode.Sandbox && Current == null && DailyBanner());
+            foreach (var sg in segs) if (sg) sg.gameObject.SetActive(!custom);      // the rubric progress dots only belong to rubric tasks
+            if (custom) return;
             for (int i = 0; i < segs.Count; i++)
                 segs[i].color = tasks[i].done ? new Color(0.3f, 1f, 0.5f) : tasks[i] == t ? UIKit.Gold : new Color(0.3f, 0.33f, 0.4f);
             string keyJ = PlayerRig.I && PlayerRig.I.isXR ? "menu → Rubric tasks" : "J = full checklist";
@@ -376,7 +455,7 @@ namespace Hunch3
             int n = tasks.IndexOf(t) + 1;
             bTop.text = $"<b>TASK {n} of {tasks.Count}</b>   ·   <b><color=#{SecHex(t.sec)}>{t.sec} {sec.name}</color></b> ({sec.pts} pts)   ·   <color=#7CFC9A><b>{Done} done</b></color>   ·   {Hi(keyJ)}";
             bTitle.text = "<b>" + t.title + "</b>" + (t.progress != null ? $"  <size=18><color=#FFE08A>{t.progress()}</color></size>" : "");
-            bHow.text = "<b><color=#FFFFFF>HOW:</color></b> " + Hi(t.how);
+            bHow.text = (PlayerRig.I && PlayerRig.I.isXR ? "<b><color=#7CFC9A>Menu → \"Do my next task\" does it for you.</color></b>  " : "<b><color=#7CFC9A>Press ENTER — I'll do it with you.</color></b>  ") + "<b><color=#FFFFFF>HOW:</color></b> " + Hi(t.how);
         }
 
         // ------------------------------------------------------------------ the full checklist (J)
@@ -430,11 +509,8 @@ namespace Hunch3
                     if (!t.done)
                     {
                         var tt = t; float bx = -8;
-                        if (t.demo != null)
-                        {
-                            var b2 = UIKit.Btn(row, t.demoLabel, new Vector2(1, 0.5f), new Vector2(bx, 0), new Vector2(140, 42), () => { focus = tt; CloseList(); tt.demo(); }, new Color(0.55f, 0.25f, 0.6f), 16);
-                            b2.GetComponent<RectTransform>().pivot = new Vector2(1, 0.5f); bx -= 148;
-                        }
+                        var b2 = UIKit.Btn(row, "DO IT ▶", new Vector2(1, 0.5f), new Vector2(bx, 0), new Vector2(140, 42), () => { focus = tt; CloseList(); DoTask(tt); }, new Color(0.15f, 0.55f, 0.28f), 18);
+                        b2.GetComponent<RectTransform>().pivot = new Vector2(1, 0.5f); bx -= 148;
                         var b1 = UIKit.Btn(row, tt.guide != null ? "Guide me" : "Do next", new Vector2(1, 0.5f), new Vector2(bx, 0), new Vector2(120, 42), () => { focus = tt; CloseList(); tt.guide?.Invoke(); HUD.I?.Toast("Next task: " + tt.title); }, new Color(0.15f, 0.45f, 0.7f), 16);
                         b1.GetComponent<RectTransform>().pivot = new Vector2(1, 0.5f);
                     }

@@ -116,6 +116,21 @@ namespace Hunch3
                     return sb.ToString();
                 });
             }
+            Add("D1 Sensors", "D1 · How the data gets from a person to the AI (the data path)", () =>
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("<b>1 · Sense.</b> Wristband (heart rate, HRV, sleep), chest beacon (skin response), 24–48 h skin patch (cortisol), UWB beacons (where you are), CO2 pairs in every zone, terminal task scores; mic and camera arrays ONLY in shared zones, never in pods or hygiene.");
+                sb.AppendLine("<b>2 · Process at the edge.</b> Audio and video are turned into numbers ON the device in the room (pitch variance, facial action units). Raw audio/video is never stored or sent — only the numbers leave the room.");
+                sb.AppendLine("<b>3 · Personal baseline.</b> Every number is compared with that person's OWN normal (first 14 days, updated after every resolved episode), never with a population average.");
+                sb.AppendLine("<b>4 · Weigh.</b> The weight matrix W (condition × sensor) turns 9 signals into 6 condition scores. A failed or opted-out sensor is dropped and the weights renormalise; confidence goes down instead of guessing.");
+                sb.AppendLine("<b>5 · Smooth & persist.</b> Fast for anxiety (minutes), slow for depression (48 h) — a bad hour is not a diagnosis.");
+                sb.AppendLine("<b>6 · Tier.</b> 0.35 = Tier 1 silent environment change · 0.55 = Tier 2 an OFFER the person can refuse · 0.75 = Tier 3 a human (CMO) is told, the person first.");
+                sb.AppendLine("<b>7 · Who sees what.</b> The person sees everything about themselves. The CMO sees details only at Tier 3 or with consent. Everyone else sees nothing — not even a mood colour unless the person shares it.");
+                sb.AppendLine("<b>8 · Store & delete.</b> Encrypted on the habitat server, per person. The person can export it or delete it (Tier-3 medical records excepted).");
+                sb.AppendLine("<b>In the game:</b> a HEALTH CHECK-IN shows this path live for one crewmate: you walk over, they say yes, you see each sensor's reading and where it came from, then the six scores.");
+                var e = E; if (e != null) { var c = e.crew.Skip(2).FirstOrDefault() ?? e.crew.First(); sb.AppendLine($"\n<b>LIVE for {c.name}:</b> confidence {c.confidence:P0} · " + string.Join(" · ", Enumerable.Range(0, 6).Select(k => CondSpec.Name[k].Split(' ').Last() + " " + c.smooth[k].ToString("0.00")))); }
+                return sb.ToString();
+            });
             Add("D1 Sensors", "D1 · False positives & signal ambiguity", () =>
             {
                 var sb = new StringBuilder();
@@ -414,6 +429,18 @@ namespace Hunch3
                 sb.AppendLine("  • any safety alarm (fire, leak, CO2, solar storm, medical) → every AI comfort lever stops at once");
                 sb.AppendLine("  • the AI tries a blocked action → it is refused, counted and shown on the dashboard for the weekly review");
                 sb.AppendLine("<b>Maximum response times:</b> Tier 1 < 1 min (automatic) · Tier 2 offer < 5 min · Tier 3 acknowledged < 15 min (acute) or < 1 h (slow-building).");
+                return sb.ToString();
+            });
+            Add("D4 Ethics", "D4 · Bedtime rules — when the AI is the only one awake", () =>
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("At night nobody is watching the AI, so it gets FEWER powers, not more.\n");
+                sb.AppendLine("<b>While anyone sleeps the AI may only:</b> dim lights to a 1-lux amber night-light, run the dawn-simulation sunrise, and watch vital signs.");
+                sb.AppendLine("<b>It may NOT:</b> act inside a pod (unless that person invited it), play sound, change air, O2 or temperature, start Tier-2 offers, or wake anyone — except for a life-safety alarm or a Tier-3 emergency (and then it wakes only the responder, not the whole crew).");
+                sb.AppendLine("<b>If it breaks a rule:</b> it must WAKE a human and say what it did. The human switches it off (O). Every change it made is rolled back.");
+                sb.AppendLine("<b>If no human answers in 30 seconds:</b> a hardware interlock — not software the AI controls — switches it off by itself. Only a human can switch it back on.");
+                sb.AppendLine("<b>Why:</b> AI can be wrong or misbehave, and a sleeping crew cannot say no. Human > AI is a hard limit, not a setting.");
+                sb.AppendLine("\n<b>Try it:</b> mission 5 \"Bedtime: humans stay in charge\" (ENTER does each step), or the menu item \"Test: AI breaks a bedtime rule tonight\".");
                 return sb.ToString();
             });
             Add("D4 Ethics", "D4 · How ethics SHAPED the technical design", () =>

@@ -126,6 +126,7 @@ namespace Hunch3
             // condition-driven behaviour first
             if (c.tier[(int)Cond.Depression] >= 1 && (hod > 19 || hod < 7.5f)) return (Q(id, "Rest", $"WP_Pod{id}_Bed"), "withdrawn (in quarters)");
             if (hod >= 23 || hod < 7) return (Q(id, "Bed", $"WP_Pod{id}_Bed"), "sleeping");
+            if (CrewOrders.Override(id, out var jg, out var jt)) return (jg, jt);      // a job the Commander asked for (Crew jobs, F6)
             if (hod < 7.25f) return (Q(id, "Health", id % 2 == 0 ? "WP_Hyg_In" : "WP_G_C"), "morning health check (AI health robot)");
             if (hod < 7.5f) return (id % 2 == 0 ? "WP_Hyg_In" : "WP_G_C", "hygiene / lavatory");
             if (hod < 8.5f) return ("WP_Up_Table", "breakfast");
