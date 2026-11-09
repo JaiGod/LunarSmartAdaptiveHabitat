@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D Model Viewer · Lunar Smart Adaptive Habitat</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050816;--cyan:#38BDF8;--white:#E6F1FF;--mut:#93A4C8;--line:rgba(56,189,248,.3)}
+*{box-sizing:border-box;margin:0}html,body{height:100%;background:var(--void);color:var(--white);font:15px/1.5 Inter,system-ui,sans-serif;overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+.bar{position:fixed;left:16px;right:16px;top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;pointer-events:none}
+.bar>*{pointer-events:auto}
+.t{font:900 15px Orbitron,sans-serif;letter-spacing:.12em;text-transform:uppercase;background:rgba(5,8,22,.6);border:1px solid var(--line);padding:9px 14px;border-radius:10px;backdrop-filter:blur(8px)}
+.t small{display:block;font:600 9px Orbitron,sans-serif;letter-spacing:.3em;color:var(--cyan)}
+.sp{flex:1}
+a,button{font:700 11px Orbitron,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--white);background:rgba(11,61,145,.55);border:1px solid var(--cyan);padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none}
+button.off{background:rgba(5,8,22,.6);border-color:var(--line)}
+#st{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font:700 13px Orbitron,sans-serif;letter-spacing:.2em}
+#st .b{width:260px;height:6px;border-radius:6px;background:rgba(56,189,248,.15);margin:14px auto 0;overflow:hidden}
+#st .b i{display:block;height:100%;width:0;background:linear-gradient(90deg,#0B3D91,var(--cyan))}
+.help{position:fixed;left:16px;bottom:14px;font-size:12px;color:var(--mut);background:rgba(5,8,22,.6);border:1px solid var(--line);padding:8px 12px;border-radius:10px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="bar"><div class="t"><small>3D model viewer</small><span id="name">Lunar Smart Adaptive Habitat</span></div><span class="sp"></span>
+<button id="m1">Realistic base</button><button id="m2" class="off">Sci-fi base</button><button id="rot">Auto-rotate</button><a id="dl" href="Downloads/Lunar_Habitat_Complete_Designs.zip" download>⬇ Download</a><a href="./">← Site</a></div>
+<div id="st">LOADING MODEL<div class="b"><i id="pb"></i></div><div id="pct" style="margin-top:8px;color:var(--mut);font-size:11px">0 %</div></div>
+<div class="help">Drag to orbit · scroll / pinch to zoom · right-drag to pan</div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {FBXLoader} from 'three/addons/loaders/FBXLoader.js';
+const MODELS={
+  real:{name:'Lunar Smart Adaptive Habitat (realistic)',files:['Unity_Game_Moon_Base_Final/Assets/Unity3/Models/LunarHabitat_Unity3_Habitat.fbx','Unity_Game_Moon_Base_Final/Assets/Unity3/Models/LunarHabitat_Unity3_Terrain.fbx']},
+  scifi:{name:'Lunar Habitat Commander (sci-fi)',files:['Downloads/models/HUNCH_Lunar_Base.fbx']}};
+const cv=document.getElementById('c');const R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+R.outputColorSpace=THREE.SRGBColorSpace;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.15;
+const S=new THREE.Scene();S.background=new THREE.Color(0x050816);
+const C=new THREE.PerspectiveCamera(45,1,0.1,20000);const ctl=new OrbitControls(C,cv);ctl.enableDamping=true;ctl.autoRotate=true;ctl.autoRotateSpeed=.6;
+S.add(new THREE.HemisphereLight(0xdfe9ff,0x30261e,1.1));const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(300,400,200);S.add(sun);
+const fill=new THREE.DirectionalLight(0x9fc9ff,.6);fill.position.set(-300,150,-200);S.add(fill);
+// stars
+{const g=new THREE.BufferGeometry(),p=[];for(let i=0;i<3000;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(8000);p.push(v.x,v.y,v.z);}g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));S.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:2,sizeAttenuation:false})));}
+function size(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix();}addEventListener('resize',size);size();
+const loader=new FBXLoader();let group=null;const st=document.getElementById('st'),pb=document.getElementById('pb'),pct=document.getElementById('pct');
+async function load(key){const M=MODELS[key];document.getElementById('name').textContent=M.name;st.style.display='block';
+  if(group){S.remove(group);group.traverse(o=>{o.geometry&&o.geometry.dispose();});}
+  group=new THREE.Group();S.add(group);
+  for(let i=0;i<M.files.length;i++){const obj=await new Promise((res,rej)=>loader.load(M.files[i],res,e=>{if(e.total){const p=((i+e.loaded/e.total)/M.files.length)*100;pb.style.width=p+'%';pct.textContent=p.toFixed(0)+' %';}},rej));
+    obj.traverse(o=>{if(o.isMesh){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m){m.side=THREE.DoubleSide;if(m.shininess!==undefined)m.shininess=Math.min(m.shininess,30);}});}});group.add(obj);}
+  const box=new THREE.Box3().setFromObject(group),c=box.getCenter(new THREE.Vector3()),sz=box.getSize(new THREE.Vector3()).length();
+  ctl.target.copy(c);C.position.copy(c).add(new THREE.Vector3(sz*.45,sz*.35,sz*.55));C.near=sz/2000;C.far=sz*20;C.updateProjectionMatrix();ctl.update();st.style.display='none';}
+document.getElementById('m1').onclick=()=>{m1.classList.remove('off');m2.classList.add('off');load('real').catch(e=>{st.textContent='Could not load model: '+e.message});};
+document.getElementById('m2').onclick=()=>{m2.classList.remove('off');m1.classList.add('off');load('scifi').catch(e=>{st.textContent='Could not load model: '+e.message});};
+document.getElementById('rot').onclick=e=>{ctl.autoRotate=!ctl.autoRotate;e.target.classList.toggle('off',!ctl.autoRotate);};
+const q=new URLSearchParams(location.search).get('m');if(q==='scifi'){m2.classList.remove('off');m1.classList.add('off');}
+load(q==='scifi'?'scifi':'real').catch(e=>{st.textContent='Could not load model: '+e.message});
+(function loop(){requestAnimationFrame(loop);ctl.update();R.render(S,C);})();
+</script></body></html>
