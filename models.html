@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D Model Library · Project ARES</title>
+<meta name="description" content="Every 3D model in the Lunar Smart Adaptive Habitat project, viewable in the browser, with what each one does to keep the crew safe and healthy.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================================
+   PROJECT ARES · NASA HUNCH 2025–26 · 3D model library
+   One live 3D viewer + a card for every model: what it is, how it fits the project,
+   and what it does to keep the crew safe and healthy.
+   © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.
+   ===================================================================================== */
+:root{--void:#050816;--panel:rgba(12,22,52,.82);--panel2:rgba(16,30,70,.9);--line:rgba(56,189,248,.24);--cyan:#38BDF8;--white:#E6F1FF;--mut:#93A4C8;
+  --ok:#34D399;--red:#FC3D21;--amber:#FFB547;--hd:'Orbitron',system-ui,sans-serif;--bd:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:clip}
+body{background:var(--void);color:var(--white);font:16px/1.6 var(--bd);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(60% 40% at 80% 0%,rgba(109,40,217,.18),transparent 70%),radial-gradient(50% 40% at 0% 30%,rgba(11,61,145,.28),transparent 70%)}
+a{color:var(--cyan)}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;padding:12px max(16px,4vw);background:rgba(5,8,22,.92);border-bottom:1px solid var(--line)}
+header .brand{font:900 14px var(--hd);letter-spacing:.18em;text-transform:uppercase;color:var(--white);text-decoration:none}
+header .brand small{display:block;font:600 9px var(--hd);letter-spacing:.3em;color:var(--cyan)}
+header nav{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap}
+header nav a{font:700 11px var(--hd);letter-spacing:.16em;text-transform:uppercase;color:var(--mut);text-decoration:none}
+header nav a:hover{color:var(--white)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,3vw)}
+.kicker{font:600 11px var(--hd);letter-spacing:.32em;text-transform:uppercase;color:var(--cyan)}
+h1{font:900 clamp(30px,5vw,54px)/1.05 var(--hd);letter-spacing:.02em;text-transform:uppercase;margin:10px 0 12px}
+h2{font:900 clamp(22px,3vw,32px)/1.1 var(--hd);text-transform:uppercase;letter-spacing:.03em;margin:8px 0 10px}
+.lead{color:var(--mut);max-width:820px;font-size:17px}
+.hero{padding:42px 0 18px}
+/* viewer */
+.stage{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;margin-top:22px}
+.view{position:relative;height:min(68vh,620px);min-height:360px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:radial-gradient(80% 70% at 50% 40%,#0d1838,#04060f)}
+.view canvas{display:block;width:100%;height:100%}
+.view .vtag{position:absolute;left:14px;top:12px;font:700 11px var(--hd);letter-spacing:.18em;text-transform:uppercase;background:rgba(5,8,22,.75);border:1px solid var(--line);padding:7px 11px;border-radius:8px}
+.view .hint{position:absolute;left:14px;bottom:12px;font:500 12px var(--bd);color:var(--mut);background:rgba(5,8,22,.7);padding:6px 10px;border-radius:8px}
+.view .tools{position:absolute;right:12px;top:12px;display:flex;gap:8px}
+.view .tools button{font:700 10px var(--hd);letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:rgba(5,8,22,.75);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+.view .tools button.on{border-color:var(--cyan);color:var(--cyan)}
+#load{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:700 12px var(--hd);letter-spacing:.24em;color:var(--mut);pointer-events:none}
+#load .bar{width:220px;height:5px;border-radius:5px;background:rgba(56,189,248,.15);margin:12px auto 0;overflow:hidden}
+#load .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#0B3D91,var(--cyan));transition:width .2s}
+.info{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:22px 22px 18px;max-height:min(68vh,620px);overflow:auto}
+.info h3{font:900 20px/1.2 var(--hd);text-transform:uppercase;letter-spacing:.04em;margin:6px 0 10px}
+.info p{color:var(--mut);margin-bottom:12px}
+.info h4{font:700 11px var(--hd);letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);margin:16px 0 8px}
+.info ul{list-style:none;display:grid;gap:8px}
+.info li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:14.5px}
+.info li b{color:var(--white)}
+.info li i{font-style:normal;color:var(--ok)}
+.spec{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.spec span{font:600 12px var(--mono);color:var(--white);background:rgba(56,189,248,.08);border:1px solid var(--line);border-radius:8px;padding:5px 9px}
+.dl{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.dl a{font:700 10px var(--hd);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--white);border:1px solid var(--cyan);background:rgba(11,61,145,.5);padding:9px 12px;border-radius:9px}
+/* sections + cards */
+section{padding:46px 0 10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:20px}
+.card{display:flex;flex-direction:column;text-align:left;border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,var(--panel2),var(--panel));padding:18px;color:inherit;font:inherit;cursor:pointer;transition:border-color .2s,transform .2s}
+.card:hover,.card.on{border-color:var(--cyan);transform:translateY(-2px)}
+.card.on{box-shadow:0 0 0 1px var(--cyan),0 10px 40px rgba(56,189,248,.15)}
+.card .ic{font-size:26px}
+.card .t{font:900 15px/1.25 var(--hd);text-transform:uppercase;letter-spacing:.05em;margin:8px 0 6px}
+.card .d{color:var(--mut);font-size:14px;flex:1}
+.card .go{margin-top:12px;font:700 10px var(--hd);letter-spacing:.18em;text-transform:uppercase;color:var(--cyan)}
+.tag{display:inline-block;font:700 9px var(--hd);letter-spacing:.2em;text-transform:uppercase;padding:4px 8px;border-radius:6px;border:1px solid var(--line);color:var(--cyan);margin-right:6px}
+.tag.h{color:var(--ok);border-color:rgba(52,211,153,.4)}
+.tag.n{color:var(--amber);border-color:rgba(255,181,71,.4)}
+/* safety layers */
+.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:20px}
+.layer{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--panel)}
+.layer b{display:block;font:700 12px var(--hd);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.layer p{color:var(--mut);font-size:14px}
+.layer .n{font:900 26px var(--hd);color:var(--cyan);opacity:.6;float:right;line-height:1}
+/* flow */
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px}
+.flow div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel);font-size:14px;flex:1 1 160px}
+.flow div b{display:block;font:700 11px var(--hd);letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:4px}
+.flow .ar{flex:0 0 auto;border:0;background:none;padding:0;color:var(--cyan);font-size:20px}
+footer{margin-top:50px;border-top:1px solid var(--line);padding:26px 0 40px;color:var(--mut);font-size:14px}
+@media(max-width:900px){.stage{grid-template-columns:1fr}.info{max-height:none}.view{height:56vh}header nav{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<header><a class="brand" href="./"><small>Project ARES · NASA HUNCH</small>3D Model Library</a>
+  <nav><a href="#habitat">Habitat</a><a href="#health">Health monitoring</a><a href="#around">Around the base</a><a href="#files">Files</a><a href="./">← Main site</a></nav></header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="kicker">Every model · view it live in your browser</div>
+    <h1>The habitat, the sensors, the crew</h1>
+    <p class="lead">A lunar habitat has one job before anything else: keep the Moon outside and keep four people alive and well inside. Pick any model below to spin it in 3D, then read what it does for the crew and where it fits in our project.</p>
+  </div>
+
+  <div class="stage" id="viewer">
+    <div class="view"><canvas id="cv" aria-label="3D model viewer"></canvas>
+      <div class="vtag" id="vtag">Loading…</div>
+      <div class="tools"><button id="spin" class="on" type="button">Auto-spin</button><button id="reset" type="button">Reset view</button></div>
+      <div id="load"><div>LOADING MODEL<div class="bar"><i id="lbar"></i></div><div id="lpct" style="margin-top:8px;font-size:10px">0 %</div></div></div>
+      <div class="hint">Drag to orbit · scroll or pinch to zoom · right-drag to pan</div>
+    </div>
+    <aside class="info" id="info" aria-live="polite"></aside>
+  </div>
+
+  <section id="habitat">
+    <div class="kicker">01 · The habitat</div>
+    <h2>Built to keep the Moon out</h2>
+    <p class="lead">The Moon has no air, deadly radiation, ±150 °C swings, micrometeoroids and razor-sharp dust. The realistic habitat stops each of these with its own layer, from the outside in:</p>
+    <div class="layers">
+      <div class="layer"><span class="n">1</span><b>Regolith shield domes</b><p>3D-printed from Moon soil and piled over every module. Blocks most galactic radiation and stops micrometeoroids before they reach the hull.</p></div>
+      <div class="layer"><span class="n">2</span><b>Multi-layer insulation</b><p>Gold MLI blankets around each hull keep the inside at about 21 °C through the 14-day lunar night.</p></div>
+      <div class="layer"><span class="n">3</span><b>Pressure hull</b><p>Rigid aluminium lower deck plus an inflatable upper deck hold 70.3 kPa of breathable air.</p></div>
+      <div class="layer"><span class="n">4</span><b>Hatches between modules</b><p>Every tunnel ends in bulkhead hatches, so a leak in one module can be sealed off while the crew moves to safety.</p></div>
+      <div class="layer"><span class="n">5</span><b>Dust lock + suitports</b><p>Crew climb into suits docked to the wall, so lunar dust never comes inside. Air knives clean anything that does.</p></div>
+      <div class="layer"><span class="n">6</span><b>Storm shelter</b><p>The medical node doubles as a shielded shelter for solar storms, with jump seats for all four crew.</p></div>
+    </div>
+    <div class="cards" id="cards-habitat"></div>
+  </section>
+
+  <section id="health">
+    <div class="kicker">02 · Health monitoring · designed in Blender</div>
+    <h2>The hardware that watches over the crew</h2>
+    <p class="lead">Our AI looks after crew mental and physical health using nine sensors (deliverable D1). These are the devices that carry them. Every one is small, light, low-power, and keeps the raw data on the device: only a few numbers leave it.</p>
+    <div class="flow" aria-label="How a reading becomes help">
+      <div><b>1 · Sense</b>Beacon, wristband, patch and zone pods take readings.</div><div class="ar">→</div>
+      <div><b>2 · Score</b>Readings are compared with each person's own 14-day baseline.</div><div class="ar">→</div>
+      <div><b>3 · Decide</b>Six condition scores, three tiers. No single sensor can trigger an action.</div><div class="ar">→</div>
+      <div><b>4 · Help</b>Light, sound and schedule nudges first. A human doctor makes Tier-3 decisions.</div>
+    </div>
+    <div class="cards" id="cards-health"></div>
+  </section>
+
+  <section id="around">
+    <div class="kicker">03 · Around the base</div>
+    <h2>Outside the walls</h2>
+    <div class="cards" id="cards-around"></div>
+  </section>
+
+  <section id="files">
+    <div class="kicker">04 · Files</div>
+    <h2>Download the source models</h2>
+    <p class="lead">Everything above, in formats you can open, edit or 3D-print.</p>
+    <div class="dl" style="margin-top:18px">
+      <a href="Downloads/Lunar_Habitat_Complete_Designs.zip" download>⬇ Both habitats (.fbx + floor plans)</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/3D_Print_Kits/Realistic_Bases_Only">🖨 STL: realistic bases only</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/3D_Print_Kits">🖨 All 3D-print kits</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Models/Blender_Rich_Baked">Blender files (texture-baked)</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/models/health">Health-monitoring models (.glb)</a>
+    </div>
+  </section>
+
+  <footer><b style="font-family:var(--hd);letter-spacing:.14em">PROJECT ARES · NASA HUNCH 2025–26</b><br>© 2026 Jaineil R. · with thanks to Angel C. and Farhan K. · Astronaut and LRO models: NASA (public domain).<br>Student project for NASA HUNCH. Not an official NASA website.</footer>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// ---------------------------------------------------------------- the models
+const M = {
+  habitat: { group: 'habitat', ic: '🏠', tag: ['Realistic game', ''], title: 'Lunar Smart Adaptive Habitat', file: 'models/habitat.glb',
+    short: 'The full realistic base: core, four tunnels, a ring of five nodes, four sleeping pods and the airlock.',
+    what: 'Our main design, at true scale (about 60 m across) for a crew of four at Shackleton crater. The same model runs inside Game 1, and you fly down to it in the descent on the main site.',
+    role: ['<b>Keeps the Moon out:</b> regolith shields, MLI blankets, a pressure hull and hatches on every tunnel', '<b>Keeps the crew sane:</b> private sleep pods, a greenhouse, a recreation commons and a family-call booth', '<b>Gives the AI eyes:</b> 17 air-quality pods, 28 UWB anchors and shared-zone sensors are placed in it', '<b>Survives emergencies:</b> a shielded storm shelter and two exits from every node'],
+    spec: ['≈ 60 × 63 m', '4 crew', '70.3 kPa cabin', '40 kW fission + solar'] },
+  scifi: { group: 'habitat', ic: '🛸', tag: ['Sci-fi game', ''], title: 'Lunar Habitat Commander base', file: 'Downloads/models/HUNCH_Lunar_Base.fbx', fbx: true, big: '41 MB',
+    short: 'The base from Game 2, the VR adventure where you command the crew, mine and survive storms.',
+    what: 'A more imaginative take on the same ideas: the same health systems and crew of four, built for play. In the game, the crew lives in it while ARIA, the AI, watches their wellbeing.',
+    role: ['<b>Same core rule:</b> sealed modules joined by hatches', '<b>Power + life support:</b> solar, batteries and ECLSS you have to wire up in the game', '<b>Teaches the design:</b> players learn why shielding and hatches matter by surviving without them'],
+    spec: ['VR (Meta Quest) + desktop', 'Unity 6'] },
+
+  beacon: { group: 'health', ic: '❤️', tag: ['Health', 'h'], title: 'Crew beacon (chest)', file: 'models/health/crew_beacon.glb', isNew: true,
+    short: 'Worn on the chest all day. Measures heart rate and heart-rate variability, and doubles as the comms radio.',
+    what: 'D1 sensors 1 + 2 + 6. A 2-lead ECG reads every heartbeat (250 Hz). Heart-rate variability (RMSSD) is the most useful single number for stress, fatigue and mood, so this one device feeds 5 of the 6 conditions the AI watches.',
+    role: ['<b>Heart rate + HRV:</b> 2 ECG electrodes, compared with the wearer\'s own 14-day baseline', '<b>Skin response:</b> a sweat-gland contact counts stress peaks per minute', '<b>Where am I:</b> a UWB tag tells the AI which room you are in, never what you say', '<b>Safety floor:</b> a dangerous heart rate goes straight to the doctor, not to the AI'],
+    spec: ['30 g', '0.05 W', 'Qty 4 (one per crew)', 'Feeds 5 of 6 conditions'] },
+  wrist: { group: 'health', ic: '⌚', tag: ['Health', 'h'], title: 'Night wristband', file: 'models/health/sleep_wristband.glb', isNew: true,
+    short: 'Worn at night to track sleep: how long, how deep, and how often you wake up.',
+    what: 'D1 sensor 3. A PPG light sensor plus an accelerometer splits the night into 30-second epochs and estimates light, deep and REM sleep. Poor sleep is the earliest warning sign for fatigue and depression.',
+    role: ['<b>Sleep stages:</b> light, deep and REM, plus efficiency and number of awakenings', '<b>Overnight heart rate:</b> a second HRV reading while the beacon charges', '<b>Feeds the pods:</b> the sleep pod dims its lights and shifts colour temperature from these readings'],
+    spec: ['30 g', '0.05 W', 'Qty 4', 'Feeds 3 conditions'] },
+  patch: { group: 'health', ic: '🩹', tag: ['Health', 'h'], title: 'Cortisol patch', file: 'models/health/cortisol_patch.glb', isNew: true,
+    short: 'A tiny microneedle sweat patch that measures cortisol, the body\'s stress hormone.',
+    what: 'D1 sensor 7. Microneedles sample sweat 4 times a day for 24 to 48 hours. It is the only objective chronic-stress marker in the system, so the AI uses it to confirm long-term stress rather than one bad day.',
+    role: ['<b>Chronic stress:</b> the morning cortisol peak compared with the wearer\'s own baseline', '<b>Painless:</b> needles shorter than a hair is thick', '<b>Colour indicator:</b> the crew can see their own reading, and nobody else can'],
+    spec: ['10 g', '≈ 0 W', 'Qty 4', '4.8 kg of spares for 180 days'] },
+  pod: { group: 'health', ic: '📡', tag: ['Health · air', 'h'], title: 'Zone sensor pod', file: 'models/health/zone_sensor_pod.glb', isNew: true,
+    short: 'Mounted on the ceiling of every zone: watches the air, and in shared rooms only, voices and faces.',
+    what: 'D1 sensors 4, 5, 6 and 8. Two CO₂ sensors cross-check each other (they must agree within 50 ppm). In shared zones a mic array and camera read tone of voice and facial expressions on the device. No audio or images are ever stored.',
+    role: ['<b>Air you can trust:</b> paired NDIR CO₂, humidity and particle sensors every 10 s', '<b>Voice + face, privately:</b> only 4 numbers a minute leave the pod; none in sleep pods or the bathroom', '<b>Room tracking:</b> a UWB anchor for the crew beacons', '<b>Fails safe:</b> if the two CO₂ readings disagree, it flags itself and the life-support reading is used'],
+    spec: ['0.12–0.35 kg per sensor', 'Qty 17 air · 8 mic · 7 camera', 'Shared with safety systems'] },
+  station: { group: 'health', ic: '🩺', tag: ['Health · medical', 'h'], title: 'Crew Health Station', file: 'models/health/health_station.glb', isNew: true,
+    short: 'The medical bay kiosk for a daily 2-minute check-in: ECG, blood pressure, SpO₂ and temperature.',
+    what: 'Lives in the medical node. Each morning a crew member sits, clips on the pulse oximeter and slips on the cuff. The screen shows a live ECG, the vitals and how the person is doing compared with their own baseline. A private mood check-in finishes it.',
+    role: ['<b>Live ECG:</b> a full heartbeat trace for the doctor (the CMO) to review', '<b>Vitals:</b> blood pressure, oxygen saturation and temperature', '<b>Human in charge:</b> Tier-3 alerts go to the CMO and Mission Control, never straight to an action', '<b>Your data, your view:</b> the crew see everything the AI sees about them'],
+    spec: ['Medical node', 'Daily check-in', 'Links to Mission Control'] },
+  bunk: { group: 'health', ic: '🛏️', tag: ['Health · sleep', 'h'], title: 'Smart sleep bunk', file: 'models/health/sleep_bunk.glb', isNew: true,
+    short: 'The bed in each private sleep pod: a sensor strip under the mattress and a circadian mood light.',
+    what: 'Sleep is the base of crew health. The bunk\'s sensor strip backs up the wristband, and the mood light runs a fake sunrise and sunset because the Moon\'s day lasts a month. Crew can switch everything off: it is their private space.',
+    role: ['<b>Sleep sensing:</b> breathing and movement through the mattress, no camera', '<b>Circadian light:</b> 1800 to 6500 K, blue breathing light to help fall asleep', '<b>Privacy:</b> a curtain, no microphones or cameras, and an off switch'],
+    spec: ['2.0 × 0.9 m', 'One per crew pod'] },
+
+  astro: { group: 'around', ic: '🧑‍🚀', tag: ['NASA model', 'n'], title: 'Astronaut (EVA suit)', file: 'models/astronaut.glb',
+    short: 'NASA\'s free 3D astronaut. Shown floating on a tether in the spacewalk scene on the main site.',
+    what: 'Moonwalks are the riskiest thing the crew does. Our suitports let them step into a suit straight from inside, so the dust stays out, and the beacon keeps reading their heart rate the whole time.',
+    role: ['<b>Dust stays out:</b> suits dock to the outside wall of the dust lock', '<b>Monitored outside:</b> heart rate and location keep streaming during the EVA', '<b>Buddy system:</b> the AI never schedules a solo EVA'],
+    spec: ['NASA · public domain'] },
+  lro: { group: 'around', ic: '🛰️', tag: ['NASA model', 'n'], title: 'Lunar Reconnaissance Orbiter', file: 'models/lro.glb',
+    short: 'NASA\'s orbiter that mapped the Shackleton crater rim where our base sits.',
+    what: 'LRO\'s maps told us where the rim stays lit almost all the time (for solar power) and where ice sits in shadow nearby. That is why the habitat is on the Shackleton rim.',
+    role: ['<b>Site choice:</b> near-constant sunlight on the rim', '<b>Water:</b> ice in permanently shadowed craters close by', '<b>Comms:</b> a relay orbiter keeps the crew in touch with family and Mission Control'],
+    spec: ['NASA · public domain'] }
+};
+
+// ---------------------------------------------------------------- cards + info panel
+const esc = s => s;
+for (const [k, m] of Object.entries(M)) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'card'; b.dataset.k = k;
+  b.innerHTML = `<div class="ic" aria-hidden="true">${m.ic}</div><div class="t">${m.title}</div><div><span class="tag ${m.tag[1]}">${m.tag[0]}</span>${m.isNew ? '<span class="tag h">New</span>' : ''}</div><div class="d" style="margin-top:8px">${m.short}</div><div class="go">View in 3D →</div>`;
+  b.onclick = () => { show(k); document.getElementById('viewer').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
+  document.getElementById('cards-' + m.group).appendChild(b);
+}
+const info = document.getElementById('info');
+function panel(k) {
+  const m = M[k];
+  info.innerHTML = `<div><span class="tag ${m.tag[1]}">${m.tag[0]}</span>${m.isNew ? '<span class="tag h">Designed in Blender</span>' : ''}</div>
+  <h3>${m.title}</h3><p>${m.what}</p>
+  <h4>What it does for the crew</h4><ul>${m.role.map(r => `<li><i>✓</i><span>${r}</span></li>`).join('')}</ul>
+  <h4>Specs</h4><div class="spec">${m.spec.map(s => `<span>${s}</span>`).join('')}</div>
+  <div class="dl"><a href="${m.file}" download>⬇ Download model${m.big ? ' (' + m.big + ')' : ''}</a></div>`;
+  document.querySelectorAll('.card').forEach(c => c.classList.toggle('on', c.dataset.k === k));
+}
+
+// ---------------------------------------------------------------- viewer
+const cv = document.getElementById('cv'), view = cv.parentElement;
+const R = new THREE.WebGLRenderer({ canvas: cv, antialias: true }); R.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.1;
+const S = new THREE.Scene(); S.environment = new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(), .04).texture;
+const C = new THREE.PerspectiveCamera(40, 1, .001, 5000);
+const ctl = new OrbitControls(C, cv); ctl.enableDamping = true; ctl.autoRotate = !matchMedia('(prefers-reduced-motion: reduce)').matches; ctl.autoRotateSpeed = .8;
+S.add(new THREE.HemisphereLight(0xdfe9ff, 0x1a1410, .6)); const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 5, 2); S.add(sun);
+const grid = new THREE.GridHelper(1, 20, 0x38bdf8, 0x1c3a66); grid.material.transparent = true; grid.material.opacity = .25; S.add(grid);
+function size() { const w = view.clientWidth, h = view.clientHeight; R.setSize(w, h, false); C.aspect = w / h; C.updateProjectionMatrix(); dirty = true; }
+let dirty = true; new ResizeObserver(size).observe(view);
+const gltf = new GLTFLoader(); { const d = new DRACOLoader(); d.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/'); gltf.setDRACOLoader(d); }
+let fbx = null, cur = null, token = 0, home = null;
+const load = document.getElementById('load'), lbar = document.getElementById('lbar'), lpct = document.getElementById('lpct'), vtag = document.getElementById('vtag');
+const prog = e => { if (e.total) { const p = e.loaded / e.total * 100; lbar.style.width = p + '%'; lpct.textContent = p.toFixed(0) + ' %'; } };
+async function show(k) {
+  const m = M[k], my = ++token; panel(k); vtag.textContent = m.title; load.style.display = 'grid'; lbar.style.width = '0'; lpct.textContent = '0 %';
+  history.replaceState(null, '', '?m=' + k + location.hash);
+  let obj;
+  try {
+    if (m.fbx) { if (!fbx) { const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js'); fbx = new FBXLoader(); } obj = await fbx.loadAsync(m.file, prog);
+      obj.traverse(o => { if (o.isMesh) [].concat(o.material).forEach(x => { if (x) { x.side = THREE.DoubleSide; if (x.shininess !== undefined) x.shininess = Math.min(x.shininess, 30); } }); }); }
+    else obj = (await gltf.loadAsync(m.file, prog)).scene;
+  } catch (e) { if (my === token) { load.style.display = 'grid'; load.firstElementChild.textContent = 'Could not load this model. Try again or download it below.'; } return; }
+  if (my !== token) return;
+  if (cur) { S.remove(cur); cur.traverse(o => { o.geometry && o.geometry.dispose(); }); }
+  cur = obj; S.add(obj);
+  const box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3()), r = sz.length() / 2;
+  obj.position.sub(c); obj.position.y += sz.y / 2;                        // sit on the grid
+  grid.scale.setScalar(Math.max(sz.x, sz.z) * 1.6); grid.position.y = 0;
+  ctl.target.set(0, sz.y / 2, 0); C.near = r / 200; C.far = r * 60; C.position.set(r * 1.25, sz.y / 2 + r * 1.1, r * 1.45); C.updateProjectionMatrix(); ctl.update();
+  home = C.position.clone(); load.style.display = 'none'; dirty = true;
+}
+document.getElementById('spin').onclick = e => { ctl.autoRotate = !ctl.autoRotate; e.currentTarget.classList.toggle('on', ctl.autoRotate); };
+document.getElementById('reset').onclick = () => { if (home) { C.position.copy(home); ctl.update(); dirty = true; } };
+ctl.addEventListener('change', () => dirty = true);
+let vis = true; new IntersectionObserver(e => vis = e[0].isIntersecting).observe(view);
+(function loop() { requestAnimationFrame(loop); if (!vis || document.hidden) return; ctl.update(); if (dirty || ctl.autoRotate) { R.render(S, C); dirty = false; } })();
+const q = new URLSearchParams(location.search).get('m'); show(M[q] ? q : 'habitat');
+</script>
+</body></html>

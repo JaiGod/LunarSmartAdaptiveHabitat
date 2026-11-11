@@ -8,6 +8,8 @@
 >
 > 🌐 **[Project website](https://jaigod.github.io/LunarSmartAdaptiveHabitat/)**: 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://jaigod.github.io/LunarSmartAdaptiveHabitat/#floorplan).
 >
+> 🛰️ **[3D model library](https://jaigod.github.io/LunarSmartAdaptiveHabitat/models.html)**: spin every model in the browser, with what each one does to keep the crew safe, including the new health-monitoring hardware (heart-rate chest beacon, sleep wristband, cortisol patch, sensor pods, Crew Health Station, smart sleep bunk) designed in Blender ([source](Models/Health_Monitoring/)).
+>
 > 🖨️ **[STL to 3D print: realistic habitat, bases only](3D_Print_Kits/Realistic_Bases_Only/)**: core, four tunnels, five ring nodes and the airlock, 1:320 (about 20 × 14 cm). No sleeping pods, shields, tower or vehicles.
 >
 > 🏆 **[Rubric & what we did well](https://jaigod.github.io/LunarSmartAdaptiveHabitat/rubric.html)**: our 200/200 + 20/20 bonus self-assessment, with the evidence for each line.
@@ -44,6 +46,7 @@
 | [`play/`](play/) · [`play2/`](play2/) | The two browser (WebGL) builds |
 | [`Unity_Game_Moon_Base_Final/`](Unity_Game_Moon_Base_Final/) | **Lunar Smart Adaptive Habitat**: the Unity 6 source (VR + desktop). Open with Unity Hub (6000.3.21f1). |
 | [`Models/`](Models/) | **Every 3D model**: all texture-baked habitat models (`Blender_Rich_Baked`), the Crew Wellness Dome, Base1 FBX, and Lunar Habitat v1 (.blend, .obj, 1:50 STL parts, renders) |
+| [`Models/Health_Monitoring/`](Models/Health_Monitoring/) · [`models/health/`](models/health/) | **Health-monitoring hardware**: the Blender script and the six exported models (chest beacon, wristband, cortisol patch, zone sensor pod, Crew Health Station, sleep bunk) |
 | [`3D_Print_Kits/`](3D_Print_Kits/) | All STL files for projects 1, 2 and 3 (1:150 kits + the big 1:100 2 ft board), display extras, specs spreadsheet. GitHub shows every `.stl` as a 3D model you can spin. |
 | [`3D_Print_Kits/Realistic_Bases_Only/`](3D_Print_Kits/Realistic_Bases_Only/) | **One-piece STL of the realistic habitat, bases only** (no sleeping pods), ready to slice |
 | [`3D_Print_Kits/BUILD_GUIDE.md`](3D_Print_Kits/BUILD_GUIDE.md) | Step-by-step print and assembly guide |
