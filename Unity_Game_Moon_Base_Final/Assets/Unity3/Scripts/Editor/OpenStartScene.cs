@@ -1,3 +1,13 @@
+// ================================================================================================
+//  PROJECT ARES · NASA HUNCH 2025–26 · Lunar Smart Adaptive Habitat (realistic)
+//  File    : Unity3/Scripts/Editor/OpenStartScene.cs
+//  Section : Editor
+//  Folder  : Editor tools (not in the built game): scene/material builder, Blender import, the
+//            HunchBridge automation, probes, USB/VR/web build helpers.
+//  Purpose : Opens the start scene automatically when the project is opened in the Editor.
+//  Contains: OpenStartScene
+//  © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.
+// ================================================================================================
 using UnityEditor;
 using UnityEditor.SceneManagement;
 

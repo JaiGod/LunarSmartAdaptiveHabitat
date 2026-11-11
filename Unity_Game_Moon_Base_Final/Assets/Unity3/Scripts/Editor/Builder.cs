@@ -1,3 +1,14 @@
+// ================================================================================================
+//  PROJECT ARES · NASA HUNCH 2025–26 · Lunar Smart Adaptive Habitat (realistic)
+//  File    : Unity3/Scripts/Editor/Builder.cs
+//  Section : Editor
+//  Folder  : Editor tools (not in the built game): scene/material builder, Blender import, the
+//            HunchBridge automation, probes, USB/VR/web build helpers.
+//  Purpose : Contact shadows + ambient occlusion so objects read as touching the floor/walls they
+//            sit on.
+//  Contains: MatItem, MatList, Builder
+//  © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.
+// ================================================================================================
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,6 +40,20 @@ namespace Hunch3.EditorTools
         [MenuItem("HUNCH 3/2. Build Windows .exe")] public static void BuildExeMenu() { Run(BuildWindows); }
         [MenuItem("HUNCH 3/3. Build Quest .apk")] public static void BuildApkMenu() { Run(BuildAndroid); }
         [MenuItem("HUNCH 3/4. Build WebGL (Unity Play) + zip")] public static void BuildWebMenu() { Run(BuildWebGL); }
+        [MenuItem("HUNCH 3/5. Copy WebGL into GitHub repo (play/)")] public static void CopyWebMenu() { Run(CopyWebToRepo); }
+        static void CopyWebToRepo()
+        {
+            string src = "C:/Users/jaine/Downloads/Nasa/official projects for nasa/unity 3/Builds/WebGL", dst = "C:/Users/jaine/Downloads/Nasa/NASA-HUNCH-Lunar-Habitat/play";
+            if (!Directory.Exists(src)) throw new Exception("no WebGL build at " + src);
+            if (Directory.Exists(dst)) Directory.Delete(dst, true);
+            int n = 0;
+            foreach (var f in Directory.GetFiles(src, "*", SearchOption.AllDirectories))
+            {
+                string to = Path.Combine(dst, f.Substring(src.Length + 1)); Directory.CreateDirectory(Path.GetDirectoryName(to)); File.Copy(f, to, true); n++;
+            }
+            File.WriteAllText("C:/Users/jaine/Downloads/Nasa/NASA-HUNCH-Lunar-Habitat/.nojekyll", "");
+            R($"copied {n} WebGL files to {dst}");
+        }
         public static void BuildAll() { Run(() => { Materials(); Scenes(); BuildWindows(); }, true); }
         public static void BuildScenesOnly() { Run(() => { Materials(); Scenes(); }, true); }
 

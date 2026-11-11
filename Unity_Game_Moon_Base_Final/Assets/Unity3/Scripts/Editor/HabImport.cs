@@ -1,3 +1,14 @@
+// ================================================================================================
+//  PROJECT ARES · NASA HUNCH 2025–26 · Lunar Smart Adaptive Habitat (realistic)
+//  File    : Unity3/Scripts/Editor/HabImport.cs
+//  Section : Editor
+//  Folder  : Editor tools (not in the built game): scene/material builder, Blender import, the
+//            HunchBridge automation, probes, USB/VR/web build helpers.
+//  Purpose : Copies Blender custom properties (interact, collider, zone, links …) onto a HabTag
+//            component at import time.
+//  Contains: HabImport
+//  © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.
+// ================================================================================================
 using UnityEditor;
 using UnityEngine;
 

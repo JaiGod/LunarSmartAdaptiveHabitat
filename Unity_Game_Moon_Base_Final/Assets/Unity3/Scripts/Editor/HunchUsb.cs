@@ -1,3 +1,15 @@
+// ================================================================================================
+//  PROJECT ARES · NASA HUNCH 2025–26 · Lunar Smart Adaptive Habitat (realistic)
+//  File    : Unity3/Scripts/Editor/HunchUsb.cs
+//  Section : Editor
+//  Folder  : Editor tools (not in the built game): scene/material builder, Blender import, the
+//            HunchBridge automation, probes, USB/VR/web build helpers.
+//  Purpose : VR check + USB copy helpers, driven through the HunchBridge (invoke HunchUsb.Method).
+//            Settings come from HunchBridge/usb_args.txt (key=value lines). Results go to
+//            HunchBridge/usb_out.txt.
+//  Contains: HunchUsb
+//  © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.
+// ================================================================================================
 #if UNITY_EDITOR
 using System;
 using System.IO;
@@ -143,6 +155,72 @@ public static class HunchUsb
         var scenes = a.TryGetValue("scenes", out var sc) && sc.Length > 0 ? sc.Split('|') : EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
         var r = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = scenes, locationPathName = Path.Combine(outDir, exe), target = BuildTarget.StandaloneWindows64, targetGroup = BuildTargetGroup.Standalone, options = BuildOptions.None });
         Out("build " + r.summary.result + " · " + r.summary.totalErrors + " errors · " + (r.summary.totalSize / 1e6).ToString("0") + " MB · " + r.summary.totalTime + "\n" + string.Join("\n", r.steps.SelectMany(s => s.messages).Where(mm => mm.type == LogType.Error).Take(20).Select(mm => mm.content)));
+    }
+    /// Browser (WebGL) build for the GitHub Pages "Play" buttons. args: webout=<folder>, optional scenes=a|b
+    public static void BuildWeb()
+    {
+        var a = Args(); string outDir = a.TryGetValue("webout", out var o) ? o : Path.Combine(Root, "WebBuild");
+        if (Directory.Exists(outDir)) Directory.Delete(outDir, true);
+        PlayerSettings.WebGL.decompressionFallback = true;
+        var scenes = a.TryGetValue("scenes", out var sc) && sc.Length > 0 ? sc.Split('|') : EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+        var r = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = scenes, locationPathName = outDir, target = BuildTarget.WebGL, targetGroup = BuildTargetGroup.WebGL, options = BuildOptions.None });
+        Out("webbuild " + r.summary.result + " · " + r.summary.totalErrors + " errors · " + (r.summary.totalSize / 1e6).ToString("0") + " MB · " + r.summary.totalTime + " · scenes " + string.Join(" | ", scenes) + "\n" + outDir + "\n" + string.Join("\n", r.steps.SelectMany(s => s.messages).Where(mm => mm.type == LogType.Error).Take(20).Select(mm => mm.content)));
+    }
+    /// split a big file into parts (args: splitsrc=<file>, partmb=60) -> <file>.part0, .part1 ...
+    public static void Split()
+    {
+        var a = Args(); string src = a["splitsrc"]; int mb = a.TryGetValue("partmb", out var m) ? int.Parse(m) : 60;
+        var buf = new byte[mb * 1000000]; int i = 0; var sb = new StringBuilder();
+        using (var f = File.OpenRead(src))
+        {
+            int n;
+            while ((n = f.Read(buf, 0, buf.Length)) > 0)
+            {
+                int got = n; while (got < buf.Length) { int k = f.Read(buf, got, buf.Length - got); if (k <= 0) break; got += k; }
+                File.WriteAllBytes(src + ".part" + i, got == buf.Length ? buf : buf.Take(got).ToArray()); sb.AppendLine(src + ".part" + i + " " + got); i++;
+            }
+        }
+        Out("split into " + i + " parts\n" + sb);
+    }
+    /// zip a WebGL build for Unity Play (args: zipsrc=<build folder>, zipdst=<file.zip>); skips *.partN split files
+    public static void ZipBuild()
+    {
+        var a = Args(); string src = a["zipsrc"], dst = a["zipdst"];
+        if (File.Exists(dst)) File.Delete(dst);
+        int n = 0;
+        using (var z = System.IO.Compression.ZipFile.Open(dst, System.IO.Compression.ZipArchiveMode.Create))
+            foreach (var f in Directory.GetFiles(src, "*", SearchOption.AllDirectories))
+            {
+                if (System.Text.RegularExpressions.Regex.IsMatch(f, @"\.part\d+$")) continue;
+                string rel = f.Substring(src.TrimEnd('\\').Length + 1).Replace('\\', '/');
+                System.IO.Compression.ZipFileExtensions.CreateEntryFromFile(z, f, rel, System.IO.Compression.CompressionLevel.Fastest); n++;
+            }
+        Out("zipped " + n + " files -> " + dst + " (" + (new FileInfo(dst).Length / 1e6).ToString("0") + " MB)");
+    }
+    /// zip a whole Unity project for sharing (args: projzip=<file.zip>); skips Library/Temp/Logs/obj/UserSettings/.vs/HunchBridge/WebBuild
+    public static void ZipProject()
+    {
+        var a = Args(); string dst = a["projzip"]; string root = Root;
+        Directory.CreateDirectory(Path.GetDirectoryName(dst));
+        if (File.Exists(dst)) File.Delete(dst);
+        var skip = new HashSet<string>(Skip, StringComparer.OrdinalIgnoreCase) { "WebBuild", "Builds", "Build" };
+        int n = 0; long raw = 0; var errsb = new StringBuilder();
+        string top = Path.GetFileName(root.TrimEnd('\\'));
+        using (var z = System.IO.Compression.ZipFile.Open(dst, System.IO.Compression.ZipArchiveMode.Create))
+        {
+            void Add(string dir)
+            {
+                foreach (var f in Directory.GetFiles(dir))
+                {
+                    try { string rel = top + "/" + f.Substring(root.TrimEnd('\\').Length + 1).Replace('\\', '/');
+                          System.IO.Compression.ZipFileExtensions.CreateEntryFromFile(z, f, rel, System.IO.Compression.CompressionLevel.Optimal); n++; raw += new FileInfo(f).Length; }
+                    catch (Exception e) { if (errsb.Length < 2000) errsb.AppendLine(f + ": " + e.Message); }
+                }
+                foreach (var d in Directory.GetDirectories(dir)) { if (skip.Contains(Path.GetFileName(d))) continue; Add(d); }
+            }
+            Add(root);
+        }
+        Out("project zipped: " + n + " files, " + (raw / 1e6).ToString("0") + " MB raw -> " + (new FileInfo(dst).Length / 1e6).ToString("0") + " MB zip\n" + dst + "\n" + errsb);
     }
 }
 #endif

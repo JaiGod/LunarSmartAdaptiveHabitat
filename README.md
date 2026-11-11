@@ -49,6 +49,32 @@
 | [`Docs/Data/`](Docs/Data/) | Habitat model data spreadsheets |
 | [`Docs/Lunar_Habitat_Model_Comparison.pptx`](Docs/Lunar_Habitat_Model_Comparison.pptx) | Model comparison deck |
 | [`Docs/Lunar_Habitat_Commander/`](Docs/Lunar_Habitat_Commander/) | Game 2 README, store page text and screenshots |
+| [`Docs/Lunar_Habitat_Commander/Unity_Scripts/`](Docs/Lunar_Habitat_Commander/Unity_Scripts/) | **Game 2 source code**: all 84 C# scripts, organised by job, each with a header comment ([script map](Docs/Lunar_Habitat_Commander/Unity_Scripts/README.md)) |
+| [`Docs/Screenshots/`](Docs/Screenshots/) | **115 screenshots from both games** (57 realistic, 58 sci-fi) in one gallery |
+| [`Docs/Chat_Log/`](Docs/Chat_Log/) | Summary of every request made while building, and where each one ended up in the games |
+
+## 🗂️ How the code is organised
+
+Both games use the same layout. The scripts are grouped into numbered folders by what they do, and each `.cs` file starts with a comment header covering what it does, why it exists (the request or rubric line it answers) and the credits.
+
+| Realistic — [`Assets/Unity3/Scripts`](Unity_Game_Moon_Base_Final/Assets/Unity3/Scripts/README.md) | Sci-fi — [`Assets/HUNCH/Scripts`](Docs/Lunar_Habitat_Commander/Unity_Scripts/README.md) |
+|---|---|
+| `01_Core` start-up, menu, self-test | `01_Core` game rules, habitat sim, start-up |
+| `02_AI_Wellness` sensors → 6 conditions → 3 tiers, human OFF switch | `02_ARES_AI` ARIA, the mood/sensor engine, D1–D6 |
+| `03_Crew` 4 crew, sleep pods with mood lights, health bot | `03_Player_Controls` VR, keyboard, touch, guide arrows |
+| `04_Habitat` zones, dome lights, doors, ladders, 1/6 g props | `04_UI_Menus_Audio` menus, store, music, voice |
+| `05_Player_UI` VR + desktop rig, HUD, panels | `05_World_FX` Sun, storms, rockets, kid-friendly extras |
+| `06_Missions` story missions + task list | `06_Frontier` A adventure · B maps & mini-games · C base & crew · D ARES layer |
+| `07_Deliverables` design pages, D4 ethics, floor plan | `Editor` build and automation tools |
+
+## 📸 Screenshots
+
+<p>
+<img src="Docs/Screenshots/Realistic_Moon_Base_Final/dash.jpg" width="32%"> <img src="Docs/Screenshots/Realistic_Moon_Base_Final/dome.jpg" width="32%"> <img src="Docs/Screenshots/Realistic_Moon_Base_Final/map.jpg" width="32%">
+<img src="Docs/Screenshots/SciFi_Lunar_Habitat_Commander/dash.jpg" width="32%"> <img src="Docs/Screenshots/SciFi_Lunar_Habitat_Commander/zone_greenhouse.jpg" width="32%"> <img src="Docs/Screenshots/SciFi_Lunar_Habitat_Commander/board.jpg" width="32%">
+</p>
+
+**[See all 115 screenshots →](Docs/Screenshots/README.md)**
 
 ## Presentation
 
