@@ -230,6 +230,24 @@ h2.sec{font:900 clamp(26px,4vw,44px)/1.1 var(--hd);letter-spacing:.06em;text-tra
 .gal button{display:block;width:100%;margin:0 0 12px;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:none;cursor:zoom-in;break-inside:avoid;position:relative}
 .gal img{width:100%;transition:transform .6s,filter .6s;filter:saturate(.9)}
 .gal button:hover img{transform:scale(1.05);filter:saturate(1.15)}
+html,body{overflow-x:clip}
+.plan{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;margin-top:30px;align-items:start}
+.plan .hero-img{padding:0;overflow:hidden;cursor:zoom-in;border:1px solid var(--line);border-radius:18px;background:#05070d;display:block;width:100%}
+.plan .hero-img img{width:100%;display:block}
+.zones{display:grid;gap:8px;margin:0;padding:18px 20px}
+.zones div{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:baseline;font-size:14px;border-bottom:1px dashed var(--line);padding-bottom:7px}
+.zones div:last-child{border:0}
+.zones i{width:12px;height:12px;border-radius:3px;display:inline-block;transform:translateY(1px)}
+.zones b{font:700 12px var(--hd);letter-spacing:.08em}
+.zones span{color:var(--mut);font:500 12px var(--mono)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:22px}
+.step{margin:0;padding:0;overflow:hidden;cursor:zoom-in;text-align:left;color:inherit;font:inherit;border:1px solid var(--line);border-radius:14px;background:linear-gradient(160deg,var(--glass2),var(--glass))}
+.step img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .6s}
+.step:hover img{transform:scale(1.05)}
+.step figcaption{padding:12px 14px 14px;font-size:13px;color:var(--mut)}
+.step figcaption b{display:block;color:var(--white);font:700 11px var(--hd);letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px}
+.final3d{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;margin-top:16px;align-items:start}
+@media(max-width:820px){.plan,.final3d{grid-template-columns:1fr}}
 #lb{position:fixed;inset:0;z-index:90;background:rgba(2,4,12,.92);display:none;place-items:center;padding:20px;cursor:zoom-out}
 #lb.on{display:grid}
 #lb img{max-height:88vh;border-radius:12px;border:1px solid var(--line);box-shadow:0 0 60px rgba(56,189,248,.25)}
@@ -273,6 +291,51 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
   .reveal{opacity:1;transform:none}
   html{scroll-behavior:auto}
 }
+
+/* ---------- real 3D (three.js) ---------- */
+.orbitwrap canvas.gl{position:absolute;inset:-8%;width:116%;height:116%;z-index:2;cursor:grab;opacity:0;transition:opacity 1.2s}
+.orbitwrap.gl-on canvas.gl{opacity:1}.orbitwrap canvas.gl:active{cursor:grabbing}
+.orbitwrap.gl-on>.moon,.orbitwrap.gl-on>.earth,.orbitwrap.gl-on>.orb,.orbitwrap.gl-on>.orb2,.orbitwrap.gl-on>.ship{opacity:0;transition:opacity .8s;pointer-events:none}
+.orbitwrap .hud{z-index:3}
+.drag-hint{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);font:600 10px var(--mono);letter-spacing:.12em;color:var(--mut);opacity:0;transition:opacity 1s;z-index:3;white-space:nowrap}
+.orbitwrap.gl-on .drag-hint{opacity:.8}
+.descent{position:relative;height:460vh;margin:40px 0 0}
+.descent .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#000 url(Docs/Screenshots/Realistic_Moon_Base_Final/dome.jpg) center/cover}
+.descent .stage::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,transparent 40%,rgba(0,0,0,.55)),linear-gradient(180deg,rgba(5,8,22,.75),transparent 22%,transparent 70%,rgba(5,8,22,.9));pointer-events:none}
+.descent canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1.2s}
+.descent.gl-on canvas{opacity:1}
+.descent .dhead{position:absolute;top:84px;left:0;right:0;z-index:2;text-align:center;padding:0 16px}
+.descent .dhead h2{margin:.2em 0 0}
+.descent .caps{position:absolute;left:0;right:0;bottom:9vh;z-index:2;display:flex;justify-content:center;padding:0 16px}
+.descent .cap{position:absolute;max-width:560px;width:calc(100% - 32px);opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s;pointer-events:none}
+.descent .cap.on{opacity:1;transform:none}
+.descent .cap .lab{font:600 11px var(--mono);letter-spacing:.16em;color:var(--cyan);text-transform:uppercase}
+.descent .cap h3{margin:.3em 0 .25em;font:800 clamp(18px,3vw,24px)/1.2 Orbitron,sans-serif;letter-spacing:.03em}
+.descent .cap p{margin:0;color:#cfdcf2;font-size:15px}
+.descent .cap .glass{padding:16px 18px}
+.descent .dprog{position:absolute;left:16px;right:16px;bottom:3.5vh;height:3px;border-radius:3px;background:rgba(56,189,248,.18);z-index:2;max-width:560px;margin:auto}
+.descent .dprog i{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,var(--cyan),#FC3D21)}
+.descent .legend{position:absolute;right:16px;top:40%;z-index:2;display:grid;gap:8px;font:600 10px var(--mono);letter-spacing:.08em;color:#cfdcf2}
+.descent .legend span{display:flex;align-items:center;gap:8px;background:rgba(5,8,22,.55);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+.descent .legend b{width:10px;height:10px;border-radius:50%}
+@media (max-width:720px){.descent .legend{display:none}.descent .dhead{top:70px}}
+@media (prefers-reduced-motion:reduce){html:not(.fm) .descent{height:auto}html:not(.fm) .descent .stage{position:relative}html:not(.fm) .descent .cap{position:relative;opacity:1;transform:none;margin:8px 0}html:not(.fm) .descent .caps{position:relative;bottom:auto;flex-direction:column;align-items:center;padding:110px 16px 40px}}
+
+#neb{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity 2.5s;image-rendering:auto}
+#neb.on{opacity:.6}
+.eva{position:relative;margin:0}
+.eva .stage{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden;background:radial-gradient(ellipse at 50% 120%,#123c7a,#02040c 60%)}
+.eva canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.eva canvas.gl3{opacity:0;transition:opacity 1.4s}.eva.gl-on canvas.gl3{opacity:1}
+.eva canvas.flare{pointer-events:none;mix-blend-mode:screen}
+.eva .stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(5,8,22,.85),transparent 18%,transparent 75%,rgba(5,8,22,.95))}
+.eva .evatext{position:absolute;z-index:2;left:max(16px,6vw);bottom:12vh;max-width:460px;padding:20px 22px}
+.eva .evatext h2{margin:.25em 0 .35em}
+.eva .evatext p{margin:0 0 12px;color:#cfdcf2}
+.eva .chips{display:flex;flex-wrap:wrap;gap:8px}
+.eva .chips span{font:600 10px var(--mono);letter-spacing:.1em;color:var(--cyan);border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:rgba(5,8,22,.5)}
+.eva .credit{position:absolute;right:16px;bottom:10px;z-index:2;font:500 10px var(--mono);color:var(--mut);opacity:.7}
+@media (max-width:720px){.eva .evatext{left:16px;right:16px;bottom:8vh;max-width:none}}
 </style>
 </head>
 <body>
@@ -294,6 +357,7 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
   <button class="skip" id="skip">SKIP ▸</button>
 </div>
 
+<canvas id="neb" aria-hidden="true"></canvas>
 <canvas id="space" aria-hidden="true"></canvas>
 <div class="nebula" aria-hidden="true"></div>
 <div class="aurora" aria-hidden="true"></div>
@@ -311,8 +375,8 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
   </a>
   <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">≡</button>
   <nav id="nav">
-    <a href="#mission">Mission</a><a href="#telemetry">Telemetry</a><a href="#games">Simulators</a>
-    <a href="#papers">Papers</a><a href="#models">3D Designs</a><a href="#gallery">Gallery</a>
+    <a href="#mission">Mission</a><a href="#descent">Descent</a><a href="#eva">Spacewalk</a><a href="#telemetry">Telemetry</a><a href="#games">Simulators</a>
+    <a href="#papers">Papers</a><a href="#models">3D Designs</a><a href="#floorplan">Floor Plan</a><a href="#gallery">Gallery</a>
   </nav>
 </header>
 
@@ -347,7 +411,41 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
       <div class="hud a">LAT <b>89.9°S</b> · SHACKLETON RIM</div>
       <div class="hud b">HAB P <b>70.3 kPa</b> · CO₂ <b>538 ppm</b></div>
       <div class="hud c">GRAVITY <b>1.62 m/s²</b></div>
+      <div class="drag-hint">DRAG TO SPIN THE MOON · RED = OUR SITE</div>
     </div>
+  </div>
+</section>
+
+
+<!-- ================= DESCENT (scroll-driven 3D) ================= -->
+<section class="descent" id="descent" aria-label="Scroll to descend from lunar orbit to the habitat">
+  <div class="stage">
+    <canvas aria-hidden="true"></canvas>
+    <div class="dhead"><div class="kicker">Section 00 · Descent</div><h2 class="sec">From orbit to Shackleton</h2></div>
+    <div class="legend" aria-hidden="true"><span><b style="background:#4f8cff;box-shadow:0 0 8px #4f8cff"></b>ASLEEP · BLUE BREATHING</span><span><b style="background:#ffb547;box-shadow:0 0 8px #ffb547"></b>RESTING · AMBER PULSE</span><span><b style="background:#ffe2b0;box-shadow:0 0 8px #ffe2b0"></b>HUB · AWAKE</span></div>
+    <div class="caps">
+      <div class="cap"><div class="glass"><div class="lab">01 · Lunar orbit</div><h3>Destination: the south pole</h3><p>Our habitat sits on the rim of Shackleton crater, 89.9° south. Keep scrolling to land.</p></div></div>
+      <div class="cap"><div class="glass"><div class="lab">02 · Why here</div><h3>Light on the rim, ice in the dark</h3><p>The crater rim gets sunlight most of the year, and the permanently shadowed floor below holds water ice: air, water and fuel.</p></div></div>
+      <div class="cap"><div class="glass"><div class="lab">03 · Low sun</div><h3>The Sun never climbs high</h3><p>At the pole the Sun skims the horizon, so shadows stretch far, the solar panels stand upright on towers, and Earth hangs low in the sky.</p></div></div>
+      <div class="cap"><div class="glass"><div class="lab">04 · The habitat</div><h3>One hub, four private domes</h3><p>A shared hub for work, meals and exercise, and four private sleep domes, one per crew member, joined by short hallways and shielded with regolith.</p></div></div>
+      <div class="cap"><div class="glass"><div class="lab">05 · AI wellness</div><h3>The lights tell a story</h3><p>Each dome's lights follow its crew member's rest cycle. If anything goes wrong at night, the AI stops itself and a human takes over.</p></div></div>
+    </div>
+    <div class="dprog" aria-hidden="true"><i></i></div>
+  </div>
+</section>
+
+
+<!-- ================= SPACEWALK (3D) ================= -->
+<section class="eva" id="eva" aria-label="Spacewalk scene">
+  <div class="stage">
+    <canvas class="gl3" aria-hidden="true"></canvas><canvas class="flare" aria-hidden="true"></canvas>
+    <div class="evatext glass reveal">
+      <div class="kicker">Outside the habitat · EVA</div>
+      <h2 class="sec">Every spacewalk is watched over</h2>
+      <p>Suits are worn only outside the base. Each one carries a strapped-on comm and biometric unit (the blinking blue light), so the AI keeps reading heart rate and stress during the walk and the crew can always hear each other.</p>
+      <div class="chips"><span>UP TO 5 EVA SUITS</span><span>SUITPORT ENTRY</span><span>LIVE VITALS</span><span>TETHERED</span></div>
+    </div>
+    <div class="credit">Astronaut model: NASA 3D Resources · Earth maps: NASA Blue Marble via three.js</div>
   </div>
 </section>
 
@@ -478,10 +576,43 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
   </div>
 </section>
 
+<!-- ================= FLOOR PLAN ================= -->
+<section id="floorplan">
+  <div class="wrap">
+    <div class="reveal"><div class="kicker">Section 05 · Floor plan</div>
+    <h2 class="sec">From first idea to a buildable deck</h2>
+    <p class="sub">We laid the realistic habitat out at true metre scale in the TimberTech Deck Designer: a central core with four spokes, and four private crew quarters around it. Every module has a crew-health job.</p></div>
+    <div class="plan">
+      <button type="button" class="hero-img reveal zoom"><img loading="lazy" src="Docs/Deck_Design/01_initial_concept_plan.png" alt="Initial concept floor plan with health zones and dimensions"></button>
+      <div class="glass zones reveal">
+        <div><i style="background:#ffb547"></i><p style="margin:0"><b>CORE</b> · wardroom, exercise, hygiene, galley</p><span>⌀10.2 m</span></div>
+        <div><i style="background:#f2c6ff"></i><p style="margin:0"><b>4 × CREW QUARTERS</b> · private sleep, mood lighting</p><span>⌀9.0 m</span></div>
+        <div><i style="background:#5fd0ff"></i><p style="margin:0"><b>COMMAND</b> · work, life-support monitoring</p><span>⌀7.2 m</span></div>
+        <div><i style="background:#7be38f"></i><p style="margin:0"><b>GREENHOUSE</b> · fresh food, planted space</p><span>⌀7.2 m</span></div>
+        <div><i style="background:#ff6b6b"></i><p style="margin:0"><b>MEDICAL</b> · med bay + radiation storm shelter</p><span>⌀7.2 m</span></div>
+        <div><i style="background:#b99cff"></i><p style="margin:0"><b>AIRLOCK / EVA</b> · suits, dust control</p><span>⌀7.2 m</span></div>
+        <div><i style="background:#1b2335;border:1px solid #e8ecf4"></i><p style="margin:0"><b>TUNNELS</b> · N/S 4.2 m wide · E/W 3.0 m wide</p><span>7–10 m</span></div>
+        <div><i style="background:none;border:1px dashed #8b95a8"></i><p style="margin:0"><b>TOTAL</b> · crew of 4 · ≈ 164 m² per person</p><span>≈ 655 m²</span></div>
+      </div>
+    </div>
+    <div class="subhead reveal">How the idea took shape</div>
+    <div class="steps">
+      <figure class="step reveal zoom"><img loading="lazy" src="Docs/Deck_Design/02_sketch_core_first.jpg" alt="Drawing the first octagon, the central core"><figcaption><b>01 · Core first</b>The 10.2 m central core: the shared heart of the base.</figcaption></figure>
+      <figure class="step reveal zoom"><img loading="lazy" src="Docs/Deck_Design/03_sketch_modules_placed.jpg" alt="All ten modules placed as separate decks"><figcaption><b>02 · Ten modules</b>Four crew quarters plus the command, greenhouse, medical and airlock nodes.</figcaption></figure>
+      <figure class="step reveal zoom"><img loading="lazy" src="Docs/Deck_Design/05_sketch_full_concept_outline.jpg" alt="Full concept outline including diagonal tunnels"><figcaption><b>03 · Full concept</b>Every tunnel sketched, including diagonal hatches to the crew quarters.</figcaption></figure>
+      <figure class="step reveal zoom"><img loading="lazy" src="Docs/Deck_Design/04_sketch_spokes_added.jpg" alt="Final plan with four tunnels joining the core"><figcaption><b>04 · Final plan</b>Four pressurised tunnels join the core. The quarters stand apart for quiet and privacy.</figcaption></figure>
+    </div>
+    <div class="final3d">
+      <figure class="step reveal zoom"><img loading="lazy" src="Docs/Deck_Design/06_final_3d_overhead.jpg" alt="Finished design in 3D, overhead view" style="aspect-ratio:auto"><figcaption><b>Built in 3D</b>The finished layout rendered by the deck designer, with railings on every module.</figcaption></figure>
+      <figure class="step reveal zoom"><img loading="lazy" src="Docs/Deck_Design/07_final_3d_closeup.jpg" alt="Close-up of the core and tunnels in 3D" style="aspect-ratio:auto"><figcaption><b>Close-up</b>The core, the tunnels and the crew quarters at true scale.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
 <!-- ================= GALLERY ================= -->
 <section id="gallery">
   <div class="wrap">
-    <div class="reveal"><div class="kicker">Section 05 · Imagery</div>
+    <div class="reveal"><div class="kicker">Section 06 · Imagery</div>
     <h2 class="sec">Mission imagery</h2></div>
     <div class="gal" id="gal">
       <button type="button"><img loading="lazy" src="Models/Lunar_Habitat_v1/renders/01_exterior_hero.png" alt="Habitat exterior render"></button>
@@ -590,7 +721,7 @@ $$('.game').forEach(card=>{const v=card.querySelector('video');let loaded=false;
   card.querySelector('.trail').addEventListener('click',e=>{e.preventDefault();if(card.classList.contains('playing'))stop();else{if(!loaded){v.src=v.dataset.src;loaded=true;}card.classList.add('playing');v.play().catch(()=>{});}});});
 
 /* ---------- lightbox ---------- */
-const lb=$('#lb');$$('#gal button').forEach(b=>b.onclick=()=>{lb.querySelector('img').src=b.querySelector('img').src;lb.querySelector('img').alt=b.querySelector('img').alt;lb.classList.add('on');});
+const lb=$('#lb');$$('#gal button, .zoom').forEach(b=>b.onclick=()=>{lb.querySelector('img').src=b.querySelector('img').src;lb.querySelector('img').alt=b.querySelector('img').alt;lb.classList.add('on');});
 lb.onclick=()=>lb.classList.remove('on');addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('on');});
 
 /* ---------- spacecraft orbit (passes behind the moon) ---------- */
@@ -641,5 +772,7 @@ requestAnimationFrame(frame);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!RM){last=performance.now();}});
 })();
 </script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module" src="js/space3d.js"></script>
 </body>
 </html>

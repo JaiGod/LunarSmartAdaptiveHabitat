@@ -16,7 +16,7 @@ Every script begins with the same header block: file, section, what the folder i
 | `05_Player_UI/` | The player rig (VR + desktop), the HUD and every pop-up panel. |
 | `06_Missions/` | Seven story missions and the rubric task list — the 'one next step' banner. |
 | `07_Deliverables/` | Project ARES D1–D6 inside the game: design pages, D4 ethics report, dimensioned floor plan. |
-| `Editor/` | Editor tools (not in the built game): scene/material builder, Blender import, the HunchBridge automation, probes, USB/VR/web build helpers. |
+| `Editor/` | Editor tools (not in the built game): scene/material builder, Blender import, the HunchBridge automation, probes, USB/VR/web build helpers, the VR audit + fix (`HunchVrAudit`, `HunchVrFix`: controller profiles and build scenes), `HunchBlenderRun` (runs Blender from Unity) and `HunchSitePreview` (serves the website locally). |
 
 
 ## `01_Core/`

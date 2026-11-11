@@ -1,4 +1,4 @@
-DOOR / PASSAGE REPORT  (10/18/2026 8:04:36 PM)
+DOOR / PASSAGE REPORT  (11/6/2026 11:57:27 AM)
 Player capsule (world): radius 0.2 m, height 1.7 m, step 0.45 m · rig scale (1.00, 1.00, 1.00)
 FIXED WP_A_Door|WP_A_Lock: A80_OuterHatch_Door_Open → non-solid; A10_PressureHull → passable inside this doorway; A11_MMOD_WhiteShield → passable inside this doorway; A22_Interior_Liner → passable inside this doorway
 FIXED WP_A_Dust|WP_A_Suit: A40_Partition_SuitRoom_DustLock → passable inside this doorway
