@@ -1,0 +1,17 @@
+# Asks GitHub Pages to rebuild the site from main after every push.
+# (Some pushes don't start the automatic "pages build and deployment" run; this makes sure they do.)
+name: Request Pages build
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  pages: write
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request a Pages build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds"
