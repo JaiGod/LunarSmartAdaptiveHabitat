@@ -52,17 +52,27 @@ function atmosphere(radius, color, power = 3.5, alpha = 1) {   // fresnel glow s
 }
 
 function makeRenderer(canvas) {
-  const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  r.setPixelRatio(Math.min(devicePixelRatio || 1, TOUCH ? 1.5 : 2));
+  const dpr = Math.min(devicePixelRatio || 1, TOUCH ? 1 : 1.25);
+  const r = new THREE.WebGLRenderer({ canvas, antialias: dpr < 1.5, alpha: true, powerPreference: 'high-performance' });
+  r.setPixelRatio(dpr); r.userData = { dpr, max: dpr };
   r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05;
   return r;
 }
 
-function loop(el, frame) {       // render only while visible
+// Adaptive quality: if frames are slow, render fewer pixels (down to 0.6x); speed back up when there's headroom.
+function tune(R, ms) {
+  if (!R) return; const u = R.userData; u.avg = u.avg == null ? ms : u.avg * .9 + ms * .1; u.n = (u.n || 0) + 1;
+  if (u.n < 20) return; u.n = 0;
+  if (u.avg > 24 && u.dpr > .6) { u.dpr = Math.max(.6, u.dpr - .15); R.setPixelRatio(u.dpr); }
+  else if (u.avg < 13 && u.dpr < u.max) { u.dpr = Math.min(u.max, u.dpr + .1); R.setPixelRatio(u.dpr); }
+}
+let HEAVY = 0; const busy = () => HEAVY > 0;
+function loop(el, frame, R, heavy) {       // render only while visible
   let on = false, raf = 0, last = performance.now();
-  const tick = n => { const dt = Math.min(.05, (n - last) / 1000); last = n; frame(dt, n / 1000); if (on && !RM) raf = requestAnimationFrame(tick); };
-  new IntersectionObserver(es => { const v = es[0].isIntersecting; if (v && !on) { on = true; last = performance.now(); raf = requestAnimationFrame(tick); } else if (!v) { on = false; cancelAnimationFrame(raf); } }, { rootMargin: '100px' }).observe(el);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { on = false; cancelAnimationFrame(raf); } });
+  const setOn = v => { if (heavy && v !== on) HEAVY += v ? 1 : -1; on = v; };
+  const tick = n => { const ms = n - last, dt = Math.min(.05, ms / 1000); last = n; frame(dt, n / 1000); tune(R, ms); if (on && !RM) raf = requestAnimationFrame(tick); };
+  new IntersectionObserver(es => { const v = es[0].isIntersecting; if (v && !on) { setOn(true); last = performance.now(); raf = requestAnimationFrame(tick); } else if (!v && on) { setOn(false); cancelAnimationFrame(raf); } }, { rootMargin: '100px' }).observe(el);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { setOn(false); cancelAnimationFrame(raf); } else if (el.getBoundingClientRect().bottom > 0 && el.getBoundingClientRect().top < innerHeight) { setOn(true); last = performance.now(); raf = requestAnimationFrame(tick); } });
   return () => frame(0, performance.now() / 1000);
 }
 
@@ -124,7 +134,7 @@ async function hero() {
     ang += dt * .35; ship.position.set(Math.cos(ang) * 2.25, 0, Math.sin(ang) * 2.25); ship.rotation.y = -ang;
     const p = .5 + .5 * Math.sin(t * 3); beacon.material.opacity = .6 + .4 * p; ring.scale.setScalar(.2 + .25 * ((t * .8) % 1)); ring.material.opacity = 1 - ((t * .8) % 1);
     R.render(scene, cam);
-  });
+  }, R);
   once(); box.classList.add('gl-on');
 }
 
@@ -137,7 +147,7 @@ function fbm(x, y) { let s = 0, a = .5, f = 1; for (let i = 0; i < 5; i++) { s +
 async function descent() {
   const sec = document.getElementById('descent'); if (!sec) return;
   const canvas = sec.querySelector('canvas'); const R = makeRenderer(canvas);
-  R.shadowMap.enabled = !TOUCH; R.shadowMap.type = THREE.PCFSoftShadowMap;
+  R.shadowMap.enabled = !TOUCH; R.shadowMap.type = THREE.PCFShadowMap; R.shadowMap.autoUpdate = false; R.userData.shadowDirty = true;
   const scene = new THREE.Scene(); scene.background = new THREE.Color(0x000000);
   const cam = new THREE.PerspectiveCamera(50, 1, .5, 2000);
   const [moonMap, earthMap] = await Promise.all([load('moon_1024.jpg'), load('earth_atmos_2048.jpg')]);
@@ -165,7 +175,7 @@ async function descent() {
 
   // Sun: at the south pole it skims the horizon — long shadows
   const sun = new THREE.DirectionalLight(0xfff1dc, 4.2); sun.position.set(-220, 26, 60); scene.add(sun); scene.add(sun.target);
-  sun.castShadow = !TOUCH; sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -95, right: 95, top: 95, bottom: -95, near: 1, far: 600 }); sun.shadow.bias = -.0018; sun.shadow.normalBias = .9;
+  sun.castShadow = !TOUCH; sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -95, right: 95, top: 95, bottom: -95, near: 1, far: 600 }); sun.shadow.bias = -.0018; sun.shadow.normalBias = .9;
   scene.add(new THREE.HemisphereLight(0x5a78b8, 0x111111, .18));
 
   // Earth low on the horizon (true at the south pole)
@@ -238,9 +248,13 @@ async function descent() {
     const box = new THREE.Box3().setFromObject(m), c = box.getCenter(new THREE.Vector3());
     m.position.set(-c.x, H0 - box.min.y, -c.z);
     m.traverse(o => { if (o.isMesh) { o.castShadow = !TOUCH; o.receiveShadow = true; if (o.material && o.material.map) o.material.map.anisotropy = 8; } });
-    hab.add(m); habPrim.visible = false; sleepers.length = 0;
+    hab.add(m); habPrim.visible = false; sleepers.length = 0; R.userData.shadowDirty = true;
     m.updateMatrixWorld(true);
-    const glowAt = (name, col) => { const o = m.getObjectByName(name); if (!o) return; const b = new THREE.Box3().setFromObject(o), p = b.getCenter(new THREE.Vector3());
+    const glowAt = (name, col) => {
+      let p, top, bot; const T = m.getObjectByName('GLOWTOP_' + name), B = m.getObjectByName('GLOWBASE_' + name);
+      if (T && B) { p = T.getWorldPosition(new THREE.Vector3()); top = p.y; bot = B.getWorldPosition(new THREE.Vector3()).y; }
+      else { const o = m.getObjectByName(name); if (!o) return; const bb = new THREE.Box3().setFromObject(o); p = bb.getCenter(new THREE.Vector3()); top = bb.max.y; bot = bb.min.y; }
+      const b = { max: { y: top }, min: { y: bot } };
       const beacon = new THREE.Mesh(new THREE.SphereGeometry(.35, 16, 16), new THREE.MeshStandardMaterial({ color: 0x000000, emissive: col, emissiveIntensity: 3 })); beacon.position.set(p.x, b.max.y + .5, p.z);
       const pl = new THREE.PointLight(col, 10, 16, 2); pl.position.set(p.x, b.min.y + 1.2, p.z);
       scene.add(beacon, pl); glowers.push({ beacon, pl }); };
@@ -276,8 +290,9 @@ async function descent() {
     blink.visible = (t % 1.6) < .2; padLights.forEach((l, i) => l.visible = ((t * 6 + i) % 12) > 1.2);
     const a = dust.geometry.attributes.position; for (let i = 0; i < a.count; i++) { let y = a.getY(i) + dt * .25; if (y > H0 + 14) y = H0; a.setY(i, y); } a.needsUpdate = true;
     earth.rotation.y += dt * .02; sky.rotation.y += dt * .002;
+    if (R.userData.shadowDirty) { R.shadowMap.needsUpdate = true; R.userData.shadowDirty = false; }
     R.render(scene, cam);
-  });
+  }, R, true);
   addEventListener('scroll', () => { if (RM) once(); }, { passive: true });
   once(); sec.classList.add('gl-on');
 }
@@ -290,7 +305,7 @@ try { descent(); } catch (e) { console.warn('descent 3D', e); }
 function nebula() {
   const cv = document.getElementById('neb'); if (!cv) return;
   const R = new THREE.WebGLRenderer({ canvas: cv, antialias: false, alpha: true, powerPreference: 'low-power' });
-  const scale = TOUCH ? .3 : .42; R.setPixelRatio(scale);
+  const scale = TOUCH ? .22 : .3; R.setPixelRatio(scale);
   const scene = new THREE.Scene(), cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const u = { t: { value: 0 }, res: { value: new THREE.Vector2(1, 1) }, scroll: { value: 0 } };
   scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ uniforms: u, depthWrite: false, transparent: true,
@@ -310,7 +325,7 @@ function nebula() {
   })));
   const size = () => { R.setSize(innerWidth, innerHeight, false); u.res.value.set(innerWidth, innerHeight); }; size(); addEventListener('resize', size);
   addEventListener('scroll', () => u.scroll.value = scrollY / Math.max(1, document.body.scrollHeight), { passive: true });
-  let last = 0; const tick = n => { if (!document.hidden && n - last > 40) { last = n; u.t.value = n / 1000; R.render(scene, cam); } if (!RM) requestAnimationFrame(tick); };
+  let last = 0; const tick = n => { if (!document.hidden && n - last > 90 && !busy()) { last = n; u.t.value = n / 1000; R.render(scene, cam); } if (!RM) requestAnimationFrame(tick); };
   requestAnimationFrame(tick); u.t.value = 20; R.render(scene, cam); cv.classList.add('on');
 }
 
@@ -394,7 +409,7 @@ async function eva() {
     eMesh.rotation.y += dt * .004; if (cl) cl.rotation.y += dt * .006;
     truss.rotation.z = .32 + Math.sin(t * .1) * .015;
     updateTether(t); R.render(scene, cam); drawFlare(t);
-  });
+  }, R, true);
   once(); sec.classList.add('gl-on');
 }
 

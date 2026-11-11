@@ -11,7 +11,7 @@
 <style>
 :root{
   --void:#050816; --blue:#0B3D91; --cyan:#38BDF8; --white:#E6F1FF; --red:#FC3D21; --purple:#6D28D9;
-  --mut:#93A4C8; --line:rgba(56,189,248,.22); --glass:rgba(10,20,48,.46); --glass2:rgba(14,28,66,.62);
+  --mut:#93A4C8; --line:rgba(56,189,248,.22); --glass:rgba(10,20,48,.66); --glass2:rgba(14,28,66,.78);
   --ok:#34D399; --amber:#FBBF24;
   --hd:'Orbitron',system-ui,sans-serif; --bd:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
   --nav:68px;
@@ -31,10 +31,10 @@ img{max-width:100%;display:block}
    radial-gradient(35% 30% at 12% 70%,rgba(11,61,145,.40),transparent 70%),
    radial-gradient(28% 22% at 60% 85%,rgba(56,189,248,.10),transparent 70%),
    radial-gradient(50% 40% at 30% 10%,rgba(11,61,145,.25),transparent 70%);
-  animation:drift 60s ease-in-out infinite alternate}
-.aurora{position:fixed;left:-20%;right:-20%;top:-30%;height:70%;z-index:0;pointer-events:none;opacity:.35;filter:blur(60px);
+  will-change:transform;animation:drift 60s ease-in-out infinite alternate}
+.aurora{position:fixed;left:-20%;right:-20%;top:-30%;height:70%;z-index:0;pointer-events:none;opacity:.22;will-change:transform;
   background:conic-gradient(from 200deg at 50% 60%,transparent,rgba(56,189,248,.35),transparent 25%,rgba(109,40,217,.35),transparent 50%);
-  animation:aurora 28s linear infinite}
+  animation:aurora 90s linear infinite}
 @keyframes drift{to{transform:translate3d(3%,-2%,0) scale(1.05)}}
 @keyframes aurora{to{transform:rotate(360deg)}}
 .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
@@ -65,7 +65,7 @@ main,header,footer{position:relative;z-index:2}
 
 /* ---------- nav ---------- */
 header{position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:50;display:flex;align-items:center;gap:20px;padding:0 max(20px,4vw);transition:background .35s,border-color .35s,backdrop-filter .35s;border-bottom:1px solid transparent}
-header.scrolled{background:rgba(5,8,22,.55);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-color:var(--line)}
+header.scrolled{background:rgba(5,8,22,.86);border-color:var(--line)}
 .brand{display:flex;align-items:center;gap:12px;font:700 13px var(--hd);letter-spacing:.22em;white-space:nowrap}
 .emblem{width:38px;height:38px;flex:none}
 .emblem .ring{transform-origin:20px 20px;animation:spin 9s linear infinite}
@@ -90,7 +90,7 @@ section{padding:110px 0 40px}
 h2.sec{font:900 clamp(26px,4vw,44px)/1.1 var(--hd);letter-spacing:.06em;text-transform:uppercase;margin:12px 0 10px}
 .sub{color:var(--mut);max-width:720px}
 .glass{position:relative;background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:18px;
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden}
+  overflow:hidden}
 .glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:linear-gradient(120deg,transparent 30%,rgba(56,189,248,.08) 45%,transparent 60%);transform:translateX(-120%);transition:transform .9s}
 .glass:hover::after{transform:translateX(120%)}
@@ -295,7 +295,8 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
 /* ---------- real 3D (three.js) ---------- */
 .orbitwrap canvas.gl{position:absolute;inset:-8%;width:116%;height:116%;z-index:2;cursor:grab;opacity:0;transition:opacity 1.2s}
 .orbitwrap.gl-on canvas.gl{opacity:1}.orbitwrap canvas.gl:active{cursor:grabbing}
-.orbitwrap.gl-on>.moon,.orbitwrap.gl-on>.earth,.orbitwrap.gl-on>.orb,.orbitwrap.gl-on>.orb2,.orbitwrap.gl-on>.ship{opacity:0;transition:opacity .8s;pointer-events:none}
+.orbitwrap.gl-on>.moon,.orbitwrap.gl-on>.earth,.orbitwrap.gl-on>.orb,.orbitwrap.gl-on>.orb2,.orbitwrap.gl-on>.ship{opacity:0;visibility:hidden;transition:opacity .8s,visibility 0s .8s;pointer-events:none}
+.orbitwrap.gl-on *{animation-play-state:paused}.orbitwrap.gl-on canvas{animation:none}
 .orbitwrap .hud{z-index:3}
 .drag-hint{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);font:600 10px var(--mono);letter-spacing:.12em;color:var(--mut);opacity:0;transition:opacity 1s;z-index:3;white-space:nowrap}
 .orbitwrap.gl-on .drag-hint{opacity:.8}
@@ -726,7 +727,8 @@ lb.onclick=()=>lb.classList.remove('on');addEventListener('keydown',e=>{if(e.key
 
 /* ---------- spacecraft orbit (passes behind the moon) ---------- */
 (function(){const ship=$('#ship'),box=$('#orbit');let ang=0,lt=performance.now();
-  function step(n){const dt=(n-lt)/1000;lt=n;ang+=dt*0.45;const w=box.clientWidth,h=box.clientHeight;
+  let vis=true;new IntersectionObserver(e=>{vis=e[0].isIntersecting;},{rootMargin:'100px'}).observe(box);
+  function step(n){const dt=(n-lt)/1000;lt=n;if(!vis||box.classList.contains('gl-on')||document.hidden){requestAnimationFrame(step);return;}ang+=dt*0.45;const w=box.clientWidth,h=box.clientHeight;
     const rx=w*.47,ry=w*.15,rot=-18*Math.PI/180,ex=Math.cos(ang)*rx,ey=Math.sin(ang)*ry;
     const x=w/2+ex*Math.cos(rot)-ey*Math.sin(rot),y=h/2+ex*Math.sin(rot)+ey*Math.cos(rot);
     const front=Math.sin(ang)>0,sc=front?1.05:.7;const dx=-Math.sin(ang)*rx,dy=Math.cos(ang)*ry;
@@ -736,11 +738,11 @@ lb.onclick=()=>lb.classList.remove('on');addEventListener('keydown',e=>{if(e.key
   requestAnimationFrame(step);})();
 
 /* ---------- starfield canvas ---------- */
-const cv=$('#space'),ctx=cv.getContext('2d');let W=0,H=0,DPR=Math.min(devicePixelRatio||1,1.75);
+const cv=$('#space'),ctx=cv.getContext('2d');let W=0,H=0,DPR=1;
 let layers=[],dust=[],shoots=[],links=[],trail=[];let mx=0,my=0,tx=0,ty=0,sy=0;
 function build(){W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
   const area=W*H/1e4,m=TOUCH?.55:1;
-  layers=[{s:.15,n:Math.round(area*1.6*m),r:[.3,.9]},{s:.35,n:Math.round(area*.7*m),r:[.6,1.3]},{s:.7,n:Math.round(area*.22*m),r:[1,1.9]}]
+  layers=[{s:.15,n:Math.round(area*1.1*m),r:[.3,.9]},{s:.35,n:Math.round(area*.7*m),r:[.6,1.3]},{s:.7,n:Math.round(area*.22*m),r:[1,1.9]}]
     .map(L=>({...L,stars:Array.from({length:L.n},()=>({x:Math.random()*W,y:Math.random()*H,r:L.r[0]+Math.random()*(L.r[1]-L.r[0]),t:Math.random()*6.28,ts:.5+Math.random()*1.8,c:Math.random()<.12?'#bfe3ff':Math.random()<.06?'#ffd9cf':'#fff',flare:Math.random()<.012}))}));
   dust=Array.from({length:Math.round(area*.25*m)},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.08,vy:-.03-Math.random()*.08,a:.05+Math.random()*.15,r:.6+Math.random()*1.6}));}
 build();let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(build,150);});
@@ -751,7 +753,7 @@ function link(){if(RM||document.hidden)return;const L=layers[2].stars;if(L.lengt
   if(a.sx==null)return;const near=L.filter(s=>s!==a&&s.sx!=null&&Math.hypot(s.sx-a.sx,s.sy-a.sy)<200).slice(0,3);if(near.length<2)return;links.push({pts:[a,...near],t:0});}
 setInterval(shoot,3800);setInterval(link,2600);
 let last=performance.now();
-function frame(now){const dt=Math.min(50,now-last)/16.7;last=now;
+function frame(now){if(document.hidden||now-last<32){if(!RM)requestAnimationFrame(frame);return;}const dt=Math.min(50,now-last)/16.7;last=now;
   mx+=(tx-mx)*.04;my+=(ty-my)*.04;ctx.clearRect(0,0,W,H);
   for(const L of layers){const ox=-mx*40*L.s,oy=-(sy*L.s*.35)%H-my*40*L.s;
     for(const s of L.stars){s.t+=.02*s.ts*dt;let x=(s.x+ox)%W;if(x<0)x+=W;let y=(s.y+oy)%H;if(y<0)y+=H;const tw=.55+.45*Math.sin(s.t);

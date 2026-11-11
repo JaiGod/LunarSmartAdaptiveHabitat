@@ -6,6 +6,10 @@
 >
 > 💻 **[Code highlights](Docs/Code_Highlights/README.md)**: the 12 most important pieces of code in both games, as screenshots with plain-English explanations ([web version](https://jaigod.github.io/LunarSmartAdaptiveHabitat/code.html)).
 >
+> 🌐 **[Project website](https://jaigod.github.io/LunarSmartAdaptiveHabitat/)**: 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://jaigod.github.io/LunarSmartAdaptiveHabitat/#floorplan).
+>
+> 🖨️ **[STL to 3D print: realistic habitat, bases only](3D_Print_Kits/Realistic_Bases_Only/)**: core, four tunnels, five ring nodes and the airlock, 1:320 (about 20 × 14 cm). No sleeping pods, shields, tower or vehicles.
+>
 > 🏆 **[Rubric & what we did well](https://jaigod.github.io/LunarSmartAdaptiveHabitat/rubric.html)**: our 200/200 + 20/20 bonus self-assessment, with the evidence for each line.
 
 
@@ -41,6 +45,7 @@
 | [`Unity_Game_Moon_Base_Final/`](Unity_Game_Moon_Base_Final/) | **Lunar Smart Adaptive Habitat**: the Unity 6 source (VR + desktop). Open with Unity Hub (6000.3.21f1). |
 | [`Models/`](Models/) | **Every 3D model**: all texture-baked habitat models (`Blender_Rich_Baked`), the Crew Wellness Dome, Base1 FBX, and Lunar Habitat v1 (.blend, .obj, 1:50 STL parts, renders) |
 | [`3D_Print_Kits/`](3D_Print_Kits/) | All STL files for projects 1, 2 and 3 (1:150 kits + the big 1:100 2 ft board), display extras, specs spreadsheet. GitHub shows every `.stl` as a 3D model you can spin. |
+| [`3D_Print_Kits/Realistic_Bases_Only/`](3D_Print_Kits/Realistic_Bases_Only/) | **One-piece STL of the realistic habitat, bases only** (no sleeping pods), ready to slice |
 | [`3D_Print_Kits/BUILD_GUIDE.md`](3D_Print_Kits/BUILD_GUIDE.md) | Step-by-step print and assembly guide |
 | [`Docs/Presentation_Agency_Review_Board.pdf`](Docs/Presentation_Agency_Review_Board.pdf) | **The 15-minute Agency Review Board presentation** (19 slides: game pictures, D1–D4, Config A/B, flowcharts, ethics, live-demo plan, Q1–Q6 answers) |
 | [`Docs/Project_ARES_Lunar_Habitat_FINAL_slides.pdf`](Docs/Project_ARES_Lunar_Habitat_FINAL_slides.pdf) | Project ARES final slideshow |
@@ -52,6 +57,8 @@
 | [`Docs/Lunar_Habitat_Model_Comparison.pptx`](Docs/Lunar_Habitat_Model_Comparison.pptx) | Model comparison deck |
 | [`Docs/Lunar_Habitat_Commander/`](Docs/Lunar_Habitat_Commander/) | Game 2 README, store page text and screenshots |
 | [`Docs/Lunar_Habitat_Commander/Unity_Scripts/`](Docs/Lunar_Habitat_Commander/Unity_Scripts/) | **Game 2 source code**: all 84 C# scripts, organised by job, each with a header comment ([script map](Docs/Lunar_Habitat_Commander/Unity_Scripts/README.md)) |
+| [`Docs/Deck_Design/`](Docs/Deck_Design/) | **Floor plan**: the first concept sketch (health zones + sizes) and the TimberTech Deck Designer build, from first octagon to the finished 3D deck |
+| [`index.html`](index.html) · [`js/space3d.js`](js/space3d.js) · [`models/`](models/) | **The project website**: three.js scenes (Moon, descent to the habitat, spacewalk), web copies of the habitat and NASA astronaut models |
 | [`Docs/Screenshots/`](Docs/Screenshots/) | **115 screenshots from both games** (57 realistic, 58 sci-fi) in one gallery |
 | [`Docs/Chat_Log/`](Docs/Chat_Log/) | Summary of every request made while building, and where each one ended up in the games |
 
@@ -128,6 +135,10 @@ Copies of our own project documents. Under each instruction we typed what we bui
 | With regolith shields | Real design (Blender render) |
 |---|---|
 | ![shielded](3D_Print_Kits/images/project3_finished_model_shielded.png) | ![real](3D_Print_Kits/images/project3_real_design_render.jpg) |
+
+| Floor plan: first concept | Floor plan: finished 3D deck |
+|---|---|
+| ![concept](Docs/Deck_Design/01_initial_concept_plan.png) | ![deck](Docs/Deck_Design/06_final_3d_overhead.jpg) |
 
 | Habitat exterior | Lower deck cutaway |
 |---|---|
