@@ -4,6 +4,8 @@
 >
 > ⬇️ **[Download both complete habitat designs](Downloads/Lunar_Habitat_Complete_Designs.zip)** (realistic + sci-fi, .fbx + floor plans, 53 MB).
 >
+> 💻 **[Code highlights](Docs/Code_Highlights/README.md)**: the 12 most important pieces of code in both games, as screenshots with plain-English explanations ([web version](https://jaigod.github.io/LunarSmartAdaptiveHabitat/code.html)).
+>
 > 🏆 **[Rubric & what we did well](https://jaigod.github.io/LunarSmartAdaptiveHabitat/rubric.html)**: our 200/200 + 20/20 bonus self-assessment, with the evidence for each line.
 
 
