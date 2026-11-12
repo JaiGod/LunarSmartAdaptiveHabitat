@@ -1,6 +1,6 @@
 # Crew Health Sim (Godot 4)
 
-**Play in the browser:** https://jaigod.github.io/ares-site/godot/
+**Play in the browser:** https://claude.ai/artifact/XvN6tgr64TKRe2oBUM24Yn
 
 This is the third Project ARES simulator. It's a 3D first-person game (no VR) about one thing: **how the habitat can tell how an astronaut feels.** You live a mission day in a lunar module. Six health devices watch over you, and your choices (sleep, exercise, EVA, meals, calls home) change your body and your mood.
 
@@ -25,6 +25,18 @@ The habitat itself has:
 - Power conduit to the wall outlets, and a solar-mast power cable on the surface.
 - Circadian LED rings (cool white by day, amber at night) and a red CO2 alarm light.
 - A treadmill, a crew console (meal, call home, work block, CO2 drill), and a lunar surface at 1.62 m/s² with 3 rock samples to collect.
+
+## Project ARES rubric in the game (P = ARES panel, R = rubric checklist)
+
+| Rubric part | Where to try it |
+|---|---|
+| D1 sensors | Dashboard tab: 9 sensors, weight table, thresholds, mass/power. Dock the beacon or let the patch expire to see degradation |
+| D2 spatial design | Habitat tab: floor plan, shared vs private zones. Configuration A/B only with consent |
+| D3 response protocol | Protocols tab: every condition from detect to monitor, with evidence. Tiers 0.35 / 0.55 / 0.75 run live; Tier 2 offers appear on screen (Y / N) |
+| D4 ethics | Hard limits tab (8 limits, Test buttons). O = AI off switch. Your data tab: log, pause, sensor opt-out, delete |
+| Board Q1–Q6 | Board tab: each question sets up the situation in the game |
+| Bonus A / B | Tabletop tab (72-hour run) · Your data tab (crew interface) |
+| Research proposal | Daily journal language check (crew console) · Model tab (LR / RF / SVM results, sensitivity test) · Building tab (ECLSS, power, maintenance) · Report tab · greenhouse and VR countermeasures |
 
 ## The body model (`scripts/astro.gd`)
 

@@ -22,6 +22,9 @@ extends RefCounted
 const SENSORS = ["Heart-rate variability", "Skin response (GSR)", "Sleep stages", "Voice tone", "Facial expression", "Movement / where you are", "Cortisol", "CO2 / air", "Task performance"]
 const SENSOR_DEVICE = ["Crew beacon", "Crew beacon", "Night wristband + bunk", "Zone sensor pod (shared zones)", "Zone sensor pod (shared zones)", "Crew beacon + door sensors", "Cortisol patch", "Zone sensor pod", "Crew console"]
 const THRESHOLD = ["HRV −25 % vs your baseline for 3 min", "> 3 skin-response peaks / min", "Sleep efficiency < 80 % or REM < 15 %", "Pitch variance −30 % (flat) or +40 % (tense)", "Sad / tense expressions 2σ above baseline", "Time alone +60 %, time with crew −50 %", "Morning cortisol 2σ high for 3 days", "CO2 above the zone limit", "Errors +20 % or task time +25 %"]
+const MASS_KG = [0.03, 0.02, 0.03, 0.25, 0.35, 0.15, 0.01, 0.12, 0.0]     # per unit
+const POWER_W = [0.05, 0.05, 0.05, 2.5, 4.0, 1.2, 0.01, 0.8, 0.0]
+const FAILURE = ["Loose strap → gaps; exercise looks like stress", "Sweat saturates it; gets used to chronic stress", "Not worn → no data", "Noise or a mask → weak signal", "Low light → no detection", "Beacon battery flat", "Patch expires after 48 h", "Drifts, needs calibration", "Task mix changes → false trend"]
 const CONDS = ["Anxiety", "Depression", "Conflict", "Cognitive fatigue", "Autonomy loss", "Monotony"]
 # weight table W[condition][sensor]   HRV  GSR  Sleep Voice Face Motion Cort CO2 Task
 const W = [
@@ -47,6 +50,9 @@ const HARD_LIMITS = [
 	"A human reviews the system at least every 7 days, or the AI drops to Tier 1.",
 	"Public indicators (beacon light, door light) never show your mood unless you share it.",
 ]
+const MONITOR = ["20 min", "72 h", "24 h", "4 h", "48 h", "72 h"]
+const CHECK = ["HRV back within 10 % of baseline", "Sleep efficiency > 85 % and mood score up", "Time together back to normal", "Error rate back to baseline", "You chose your own schedule twice", "Novelty score above 0.5"]
+const EVIDENCE = ["Slow breathing lowers heart rate and anxiety; warm dim light reduces arousal", "Bright-light therapy and family contact improve low mood (isolation studies)", "Separate spaces and shared meals reduce friction in confined crews (Antarctic, Mars-500)", "CO2 above ~1000 ppm and sleep loss slow thinking; breaks restore it", "Choice and control over the schedule protect wellbeing in isolation", "Novel food, views and activities counter monotony on long missions"]
 const TIER1 = ["Lights warmed to 2700 K, ventilation hum lowered", "Morning bright-light (blue-enriched) scheduled", "Meal times staggered by 20 min (nobody named)", "Focus lighting on, water reminder", "AI backed off: no automatic changes for 2 h", "New soundscape and Earth view in the wardroom"]
 const TIER2 = ["Want a 10-minute breathing session in your quarters?", "Want to call home?", "Switch to Configuration B (second dining spot, acoustic screen)?", "Take a 20-minute break before the next task?", "Want to choose your own task order today?", "Want to plan an EVA walk or a new recipe tonight?"]
 
@@ -76,7 +82,31 @@ var blocked_log: Array = []
 var entries: Array = []         # the crew member's own AI log (Bonus B)
 var pending_offer = -1      # condition index of a Tier 2 offer waiting for an answer
 var last_review_min = 0.0
-var flags = {}              # rubric checklist: what the player has seen / done
+var flags = {}
+# research (proposal §3): language-based mood check on the daily journal, 3 classes like the trained models
+var lang_distress = 0.0
+var journal_last = {}
+const POS_WORDS = ["good", "great", "happy", "calm", "fine", "rested", "fun", "excited", "proud", "love", "better", "relaxed", "glad", "thanks", "enjoy", "awesome", "ok", "okay"]
+const NEG_WORDS = ["tired", "sad", "alone", "lonely", "angry", "stressed", "anxious", "worried", "bored", "can't", "cant", "hate", "exhausted", "miss", "homesick", "scared", "nervous", "upset", "awful", "bad", "annoyed", "argue", "argued", "pointless", "hopeless", "sleep"]
+const MODELS = [["Logistic Regression", 0.82, 0.81, 0.52], ["Random Forest", 0.83, 0.83, 0.54], ["SVM (RBF)", 0.76, 0.74, 0.51]]
+
+## journal entry → sentiment (−1…1) + stress index → class: Neutral / Underlying issue / Suspected illness
+func journal(text: String) -> Dictionary:
+	var words = text.to_lower().replace(",", " ").replace(".", " ").replace("!", " ").replace("?", " ").split(" ", false)
+	var pos = 0; var neg = 0
+	for w in words:
+		if w in POS_WORDS: pos += 1
+		if w in NEG_WORDS: neg += 1
+	var sentiment = 0.0 if pos + neg == 0 else float(pos - neg) / float(pos + neg)
+	var stress_idx = clamp(0.5 * A.stress + 0.3 * score[0] + 0.2 * max(0.0, -sentiment), 0.0, 1.0)
+	var cls = "Neutral"
+	if sentiment < -0.3 and stress_idx > 0.45: cls = "Suspected illness"
+	elif sentiment < 0.0 or stress_idx > 0.35: cls = "Underlying issue"
+	lang_distress = clamp(0.5 * max(0.0, -sentiment) + 0.5 * stress_idx, 0.0, 1.0)
+	journal_last = {"text": text, "sentiment": sentiment, "stress": stress_idx, "class": cls, "words": words.size()}
+	note("Journal checked (text stays on the device): sentiment %+.2f, class %s" % [sentiment, cls]); flag("journal")
+	return journal_last
+              # rubric checklist: what the player has seen / done
 
 func _init(astro: Astro) -> void:
 	A = astro
@@ -131,6 +161,7 @@ func step(dm: float, shared: bool) -> void:
 			total += w
 			if sensor_ok[i]: s += w * sensor_val[i]; wsum += w; have += w
 		var raw = s / wsum if wsum > 0.0 else 0.0
+		if (c == 0 or c == 1) and not journal_last.is_empty(): raw = 0.8 * raw + 0.2 * lang_distress   # your own words (journal), with consent
 		if c == 4: raw = 0.5 * raw + 0.5 * (1.0 - autonomy)
 		if c == 5: raw = 0.5 * raw + 0.5 * (1.0 - novelty)
 		score[c] = lerp(score[c], raw, min(1.0, 0.08 * dm))
@@ -267,6 +298,16 @@ func rubric() -> Array:
 		["BOARD QUESTIONS", ""],
 		["Q2 two conditions at once", "q2"],
 		["Q5 opt-out", "q5"],
+		["PROTOCOLS + HABITAT (D2/D3)", ""],
+		["Protocol for every condition: detect, persist, Tier 1–3, monitor, evidence", "protocols"],
+		["Floor plan with shared / private zones and where each sensor is", "habitat"],
+		["Sensor mass and power budget", "dash"],
+		["RESEARCH PROPOSAL", ""],
+		["Language mood check: daily journal → 3 classes (crew console)", "journal"],
+		["Model results + sensitivity test (Model tab)", "model"],
+		["Smart building: ECLSS, power, maintenance (Building tab)", "building"],
+		["Countermeasures: greenhouse plant care, VR nature break, adaptive light, group meal", "counter"],
+		["Individual + aggregate health report (Report tab)", "report"],
 		["BONUS", ""],
 		["A: 72-hour tabletop", "tabletop"],
 		["B: crew interface (your data, log, pause, opt-out)", "crew"],

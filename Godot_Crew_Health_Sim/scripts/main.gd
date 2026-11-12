@@ -182,6 +182,23 @@ func _habitat() -> void:
 	Build.label3d(hab, "CREW CONSOLE", Vector3(3.5, 2.2, -7.5), 0.6)
 	Build.routed_cable(hab, [Vector3(3.9, 1.0, -7.75), Vector3(3.9, 0.06, -7.75), Vector3(4.6, 0.06, -7.3), Vector3(4.9, 0.06, -7.1), Vector3(5.0, H_MOD - 0.3, -7.25)], 0.02, Color(0.08, 0.08, 0.09))
 
+	# ---- Greenhouse corner (shared): plant care is a countermeasure (research: biophilic support) ----
+	Build.label3d(hab, "GREENHOUSE · plant care", Vector3(5.6, 2.9, 5.0), 0.8, Color(0.6, 1.0, 0.6))
+	var rack = Build.box(hab, Vector3(1.8, 1.6, 0.6), Vector3(5.6, 0.8, 5.6), Build.mat(Color(0.75, 0.77, 0.8), 0.5, 0.4), false, -0.8)
+	for sy in [0.45, 0.95, 1.45]:
+		Build.box(rack, Vector3(1.7, 0.04, 0.55), Vector3(0, sy - 0.8, 0), Build.mat(Color(0.35, 0.25, 0.18)))
+		for sx in range(-3, 4):
+			Build.sphere(rack, 0.1 + 0.03 * ((sx + 3) % 3), Vector3(sx * 0.24, sy - 0.66, 0), Build.mat(Color(0.25, 0.7 + 0.05 * (sx % 2), 0.3)))
+		Build.box(rack, Vector3(1.7, 0.02, 0.4), Vector3(0, sy - 0.42, 0), Build.mat(Color(1.0, 0.45, 0.85), 0.0, 0.5, 1.6))   # grow LEDs
+	_interact(rack, "plants", "Tend the plants (countermeasure)", Vector3(1.9, 1.7, 0.8))
+	Build.routed_cable(hab, [Vector3(6.2, 1.6, 6.2), Vector3(6.4, H_MOD - 0.45, 6.4)], 0.015, Color(0.95, 0.8, 0.15))
+	# ---- VR retreat (shared, no cameras/mics: hard limit 6) ----
+	Build.label3d(hab, "VR RETREAT · no cameras", Vector3(-3.4, 2.6, 6.4), 0.7, Color(0.75, 0.7, 1.0))
+	var vrd = Build.box(hab, Vector3(0.8, 1.0, 0.5), Vector3(-3.4, 0.5, 6.6), Build.mat(Color(0.2, 0.22, 0.3), 0.4, 0.4), true, 0.45)
+	Build.box(vrd, Vector3(0.36, 0.16, 0.2), Vector3(0, 0.6, 0), Build.mat(Color(0.95, 0.95, 0.98), 0.2, 0.3))
+	Build.box(vrd, Vector3(0.3, 0.06, 0.02), Vector3(0, 0.6, -0.11), Build.mat(Color(0.3, 0.6, 1.0), 0.0, 0.3, 1.5))
+	_interact(vrd, "vr", "VR nature break (countermeasure)", Vector3(0.9, 1.3, 0.7))
+
 	# ---- Exercise corner (−z) : treadmill with harness ----
 	Build.label3d(hab, "EXERCISE · treadmill", Vector3(-3.5, 3.0, -7.0), 0.8)
 	var tm_base = Build.box(hab, Vector3(0.9, 0.18, 2.0), Vector3(-3.5, 0.09, -6.8), Build.mat(Color(0.12, 0.12, 0.14), 0.3, 0.6), true, 0.4)
@@ -390,6 +407,12 @@ func _use() -> void:
 			A.exercise(); on_treadmill = true
 			_toast("Running on the treadmill… (press E, Space or WASD to stop early)")
 		"suit": _start_eva()
+		"plants":
+			A.stress = max(0.0, A.stress - 0.08); A.valence = min(1.0, A.valence + 0.08); AI.novelty = min(1.0, AI.novelty + 0.25); A.minute += 20.0
+			A.note("20 min of plant care: stress down, mood up"); AI.note("Countermeasure used: plant care"); AI.flag("counter")
+		"vr":
+			A.stress = max(0.0, A.stress - 0.12); AI.novelty = min(1.0, AI.novelty + 0.2); A.minute += 15.0
+			A.note("15-min VR nature break (forest + ocean)"); AI.note("Countermeasure used: VR nature break"); AI.flag("counter")
 		"hatch": _end_eva(false)
 		"sample":
 			var n: Node3D = looking_at.get_meta("node")
@@ -441,6 +464,7 @@ func _new_day_tasks() -> void:
 		"patch": ["Keep a cortisol patch on", A.patch_on and A.patch_hours_left() > 6],
 		"band": ["Wear the night wristband before bed", A.wristband_on],
 		"sleep": ["Sleep 7+ hours in the smart bunk", false],
+		"journal": ["Write in the daily journal (crew console)", false],
 		"ares": ["Open the ARES dashboard (P)", false],
 	}
 
@@ -590,8 +614,16 @@ func _build_panel() -> void:
 		"console":
 			_rt("[b][font_size=24][color=#7fd3ff]CREW CONSOLE[/color][/font_size][/b]\n[color=#9fb0c4]Things that change how you feel — watch the TAB screen before and after.[/color]")
 			var g = GridContainer.new(); g.columns = 2; panel_box.add_child(g)
-			for row in [["Crew meal (hunger to 0, mood +)", func(): A.eat()], ["Video call home (+25 min, mood ++, stress −)", func(): A.call_home()], ["Science work block (+2 h, stress +)", func(): A.work_block()], ["CO2 scrubber drill (CO2 spike)", func(): A.co2_spike()]]:
+			for row in [["Crew meal with the crew (hunger to 0, mood +)", func(): A.eat(); AI.flag("counter")], ["Video call home (+25 min, mood ++, stress −)", func(): A.call_home()], ["Science work block (+2 h, stress +)", func(): A.work_block()], ["CO2 scrubber drill (CO2 spike)", func(): A.co2_spike()]]:
 				var b = _btn(row[0], row[1]); b.custom_minimum_size = Vector2(390, 44); g.add_child(b)
+			_rt("[b]Daily journal[/b] [color=#9fb0c4](a few words on how today went; the language check runs here and the text never leaves the console)[/color]", 15)
+			var jr = HBoxContainer.new(); panel_box.add_child(jr)
+			var le = LineEdit.new(); le.placeholder_text = "e.g. tired today, argued at lunch, miss home"; le.custom_minimum_size = Vector2(620, 40); jr.add_child(le)
+			jr.add_child(_btn("Check", func():
+				var j = AI.journal(le.text); _done("journal")
+				ares_msg = "Sentiment %+.2f · stress index %.2f · class: [b]%s[/b]" % [j.sentiment, j.stress, j["class"]]
+				_build_panel()))
+			if ares_msg != "" and AI.flags.has("journal"): _rt(ares_msg, 15)
 			_live = _rt(""); _close_row(); _refresh_live_panel()
 
 func _refresh_live_panel() -> void:
@@ -644,13 +676,52 @@ func _bar(x: float) -> String:
 #  ARES panel: dashboard · your data · Board Q1–Q6 · hard limits · tabletop · rubric
 # =============================================================================================
 func _build_ares() -> void:
-	var tabs = HBoxContainer.new(); panel_box.add_child(tabs)
-	for tb in [["dash", "Dashboard"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
+	var tabs = HFlowContainer.new(); panel_box.add_child(tabs)
+	for tb in [["dash", "Dashboard"], ["protocols", "Protocols"], ["habitat", "Habitat"], ["building", "Building"], ["model", "Model"], ["report", "Report"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
 		var b = _btn(tb[1], func(): ares_tab = tb[0]; ares_msg = ""; _build_panel()); b.toggle_mode = true; b.button_pressed = ares_tab == tb[0]; tabs.add_child(b)
 	AI.flag("crew" if ares_tab == "crew" else ares_tab)
 	match ares_tab:
 		"dash":
 			_live = _rt(_ares_dash(), 15)
+		"building":
+			var o2 = 20.9 - max(0.0, (A.co2_ppm - 2400.0) / 4000.0)
+			var t = "[b][font_size=22]Smart building (ECLSS, power, maintenance)[/font_size][/b]\n\n"
+			t += "[b]Air[/b]  O2 %.1f %% · CO2 %d ppm (limit 2,500 ppm normal, 5,000 alarm) · temp 22.5 °C · humidity 45 %%\n" % [o2, A.co2_ppm]
+			t += "[b]Water recovery[/b]  98 %% (urine + humidity condensate) · tank 1,840 L\n"
+			t += "[b]Power[/b]  solar towers %d kW (south-pole rim) · fission backup 10 kW · battery 86 %%\n" % (18 if A.hour() > 6.0 and A.hour() < 20.0 else 6)
+			t += "[b]Maintenance (predicted)[/b]  CO2 scrubber filter: 11 days · O2 generator cell: 140 days · treadmill belt: 40 days\n"
+			t += "[b]Spares[/b]  3D printer ready: filter frame, hose clamp, fan blade\n\n"
+			t += "[color=#9fb0c4]Hard limit 3: the AI can read all of this but can never change air, power or hatch settings. A human does.[/color]"
+			_rt(t, 15)
+			panel_box.add_child(_btn("Run the CO2 scrubber check (human task)", func(): A.co2_ppm = 2400.0; A.note("You checked the scrubber: CO2 back to normal"); AI.flag("building"); _build_panel()))
+		"model":
+			var t = "[b][font_size=22]Mood models (research proposal §3)[/font_size][/b]\nTrained on public mood datasets (DAIC, eRisk) to sort people into 3 classes: Neutral, Underlying issue, Suspected illness.\n\n[table=4][cell][b]Model[/b]  [/cell][cell][b]Accuracy[/b]  [/cell][cell][b]F1[/b]  [/cell][cell][b]Accuracy after +0.3 sentiment shift[/b][/cell]"
+			for m in Ares.MODELS: t += "[cell]%s  [/cell][cell]%.2f  [/cell][cell]%.2f  [/cell][cell]%.2f[/cell]" % [m[0], m[1], m[2], m[3]]
+			t += "[/table]\n\nWhat it means: Random Forest was best (0.83), but when people's words get more positive by 0.3 the accuracy falls to ~0.54. So the game never acts on language alone: the journal is only 20 % of the anxiety and depression scores, and the sensors have to agree.\n\n"
+			if AI.journal_last.is_empty(): t += "Write in the daily journal at the crew console to see the live check."
+			else: t += "Your last journal: sentiment %+.2f · stress index %.2f · class [b]%s[/b]" % [AI.journal_last.sentiment, AI.journal_last.stress, AI.journal_last["class"]]
+			_rt(t, 15)
+		"report":
+			var t = "[b][font_size=22]Health report[/font_size][/b]\n\n[b]Individual (only you see this)[/b]\n"
+			var fz = Fusion.assess(A, checkin, _in_shared_zone())
+			t += "Now: %s (%d%% confidence)\n" % [fz.label, int(fz.confidence * 100)]
+			if not A.last_sleep.is_empty(): t += "Last night: %.1f h, score %d\n" % [A.last_sleep.hours, A.last_sleep.score]
+			if not checkin.is_empty(): t += "Check-in: BP %d/%d, SpO2 %d%%\n" % [checkin.sys, checkin.dia, checkin.spo2]
+			for c in 6: t += "%s %.2f (tier %d) · " % [Ares.CONDS[c], AI.score[c], AI.tier[c]]
+			t += "\n\n[b]Aggregate (for mission planners: no names, no single person)[/b]\nCrew of 4 · average sleep 7.1 h · CO2 exposure normal · offers this week: %d accepted, %d refused · Tier 3 events: %d · hard-limit blocks: %d" % [1 if AI.flags.has("accepted") else 0, 1 if AI.flags.has("refused") else 0, 1 if AI.flags.has("tier3") else 0, AI.blocked]
+			_rt(t, 15)
+		"protocols":
+			var t = "[b][font_size=22]D3 · Response protocol for each condition[/font_size][/b]\nTiers at 0.35 / 0.55 / 0.75. A score must stay above a tier for a while before the AI acts. Under 50 % confidence the AI stays at Tier 1.\n"
+			for c in 6:
+				t += "\n[b][color=#7fd3ff]%s[/color][/b]  (score now %.2f, tier %d)\n" % [Ares.CONDS[c], AI.score[c], AI.tier[c]]
+				var ss = []
+				for i in 9:
+					if Ares.W[c][i] > 0.0: ss.append("%s %d%%" % [Ares.SENSORS[i], int(Ares.W[c][i] * 100)])
+				t += "1 Detect: %s\n2 Persist: %s h above a tier\n3 Tier 1 (silent, logged, max 3/day): %s\n4 Tier 2 (offer, 'no' = 6 h cooldown): %s\n5 Tier 3: you are told first, then the CMO (Commander if the CMO is on EVA)\n6 Monitor: %s, check: %s\nEvidence: %s\n" % [", ".join(ss), str(Ares.PERSIST_H[c]), Ares.TIER1[c], Ares.TIER2[c], Ares.MONITOR[c], Ares.CHECK[c], Ares.EVIDENCE[c]]
+			_rt(t, 14)
+		"habitat":
+			_rt("[b][font_size=22]D2 · Habitat layout[/font_size][/b]\nModule: 18 m across, 4.2 m high ≈ 1,070 m³ = about 267 m³ per person for a crew of 4 (NASA minimum 20 m³, comfortable 120 m³). Green = shared (voice + face sensing allowed). Orange = private (door sensor only, wearables still work). Configuration %s." % ("B: second dining spot + acoustic screen" if AI.config_b else "A: one shared wardroom"), 15)
+			var pl = Plot.new(); pl.kind = "plan"; pl.v = 1.0 if AI.config_b else 0.0; pl.custom_minimum_size = Vector2(800, 380); panel_box.add_child(pl)
 		"crew":
 			var t = "[b][font_size=22]Your data (crew interface)[/font_size][/b]\nOnly you see this. The AI log lists every change it made, including silent ones.\n\n"
 			t += "AI: [b]%s[/b]%s   ·   tell me about silent changes: [b]%s[/b]   ·   Configuration %s\n\n" % ["ON" if AI.ai_on else "OFF", "  (paused)" if A.minute < AI.paused_until else "", "on" if AI.tell_me_silent else "off", "B" if AI.config_b else "A"]
@@ -705,7 +776,10 @@ func _ares_dash() -> String:
 	t += "[b]D1 · 9 sensors[/b]\n[table=4]"
 	for i in 9:
 		t += "[cell]%s  [/cell][cell][color=%s]%s[/color]  [/cell][cell]%s  [/cell][cell][color=#9fb0c4]%s[/color][/cell]" % [Ares.SENSORS[i], "#5be38a" if AI.sensor_ok[i] else "#ff8a7a", ("%.2f" % AI.sensor_val[i]) if AI.sensor_ok[i] else "off", Ares.SENSOR_DEVICE[i], AI.sensor_why[i] if AI.sensor_why[i] != "" else Ares.THRESHOLD[i]]
-	t += "[/table]\n\n[b]D2/D3 · 6 conditions[/b]   tiers at 0.35 / 0.55 / 0.75\n[table=3]"
+	var kg = 0.0; var w = 0.0
+	for i in 9: kg += Ares.MASS_KG[i]; w += Ares.POWER_W[i]
+	t += "[/table]\n[color=#9fb0c4]One set per crew member + per zone: about 13 kg and 110 W for the whole base (this set: %.2f kg, %.1f W). Failure modes: %s.[/color]" % [kg, w, "; ".join(Ares.FAILURE.slice(0, 3))]
+	t += "\n\n[b]D2/D3 · 6 conditions[/b]   tiers at 0.35 / 0.55 / 0.75\n[table=3]"
 	for c in 6:
 		var s: float = AI.score[c]
 		var col = "#5be38a" if s < Ares.T1 else ("#ffd166" if s < Ares.T2 else ("#ffa94d" if s < Ares.T3 else "#ff5a4a"))
@@ -756,6 +830,20 @@ class Plot extends Control:
 					var y = 10 + r * (H - 30) / 5.0
 					draw_rect(Rect2(x0 + (W - x0 - 10) * i / n, y, (W - x0 - 10) / n + 1, (H - 30) / 5.0 - 4), cols[r])
 				draw_string(ThemeDB.fallback_font, Vector2(x0, H - 4), "lights out  -  %.1f h  -  wake" % (data.size() * 5.0 / 60.0), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.7, 0.8, 0.9))
+			"plan":
+				var c0 = Vector2(W * 0.5, H * 0.5); var Rr: float = min(W, H) * 0.46; var f2 = ThemeDB.fallback_font
+				draw_circle(c0, Rr, Color(0.12, 0.16, 0.22))
+				draw_arc(c0, Rr, 0, TAU, 64, Color(0.6, 0.7, 0.8), 2.0)
+				var sc = Rr / 9.0
+				var zones = [["Quarters", Vector2(-7.0, 0), Color(1, 0.6, 0.25), 2.2], ["Medical", Vector2(0, 7.0), Color(0.35, 0.85, 0.55), 1.8], ["Wardroom", Vector2(0, 0), Color(0.35, 0.85, 0.55), 2.2], ["Exercise", Vector2(-3.5, -6.8), Color(0.35, 0.85, 0.55), 1.6], ["Console", Vector2(3.5, -7.2), Color(0.35, 0.85, 0.55), 1.2], ["Airlock", Vector2(8.0, 0), Color(0.7, 0.75, 0.85), 1.4]]
+				if v > 0.5: zones.append(["2nd dining (Config B)", Vector2(4.5, 3.5), Color(0.45, 0.8, 1.0), 1.4])
+				for z in zones:
+					var pz = c0 + Vector2(z[1].x, z[1].y) * sc
+					draw_circle(pz, z[3] * sc, Color(z[2], 0.35)); draw_arc(pz, z[3] * sc, 0, TAU, 32, z[2], 2.0)
+					draw_string(f2, pz + Vector2(-50, 4), z[0], HORIZONTAL_ALIGNMENT_CENTER, 100, 12, Color.WHITE)
+				draw_line(c0 + Vector2(-5.6, -1.2) * sc, c0 + Vector2(-5.6, 1.2) * sc, Color(0.4, 0.55, 0.9), 4.0)
+				draw_string(f2, c0 + Vector2(-5.4, 1.9) * sc, "curtain + door sensor", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.7, 0.8, 1.0))
+				draw_string(f2, Vector2(10, H - 10), "scale: radius 9 m · sensor pod in every shared zone · beacon + wristband go with you", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.7, 0.8, 0.9))
 			"circumplex":
 				var c = Vector2(W * 0.5, H * 0.5); var R: float = min(W, H) * 0.42
 				draw_arc(c, R, 0, TAU, 64, Color(0.3, 0.5, 0.7), 2.0)
@@ -800,6 +888,9 @@ func _shots(dir: String) -> void:
 		["ares_dash", _shot_ares],
 		["ares_board", func(): ares_tab = "board"; ares_msg = AI.board(2); _build_panel()],
 		["ares_limits", func(): ares_tab = "limits"; ares_msg = AI.test_limit(5); _build_panel()],
+		["ares_model", func(): AI.journal("tired today and I miss home, argued at lunch"); ares_tab = "model"; _build_panel()],
+		["ares_protocols", func(): ares_tab = "protocols"; _build_panel()],
+		["ares_habitat", func(): ares_tab = "habitat"; _build_panel()],
 		["ares_rubric", func(): ares_tab = "rubric"; _build_panel()],
 	]
 	DirAccess.make_dir_recursive_absolute(dir)
