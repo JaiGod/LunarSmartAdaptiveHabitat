@@ -1,0 +1,290 @@
+{
+ "file": "Lunar_Habitat_Realistic_Bases_Hallways_RegolithShield_SEPARATE_PARTS_1-150.stl",
+ "scale": "1:150",
+ "plate_mm": [
+  278.3,
+  326.8,
+  76.5
+ ],
+ "parts": [
+  {
+   "group": "base",
+   "name": "06_Node_Command",
+   "size_mm": [
+    48.0,
+    48.0,
+    27.3
+   ]
+  },
+  {
+   "group": "base",
+   "name": "07_Node_Maintenance",
+   "size_mm": [
+    48.0,
+    48.0,
+    27.3
+   ]
+  },
+  {
+   "group": "base",
+   "name": "08_Node_Medical_StormShelter",
+   "size_mm": [
+    48.0,
+    48.0,
+    27.3
+   ]
+  },
+  {
+   "group": "base",
+   "name": "09_Node_Recreation_Commons",
+   "size_mm": [
+    48.0,
+    48.0,
+    27.3
+   ]
+  },
+  {
+   "group": "base",
+   "name": "10_Node_CrewSupport_Hygiene2",
+   "size_mm": [
+    48.0,
+    48.0,
+    27.3
+   ]
+  },
+  {
+   "group": "base",
+   "name": "11_Node_Quarters_Vestibule",
+   "size_mm": [
+    60.0,
+    60.0,
+    27.4
+   ]
+  },
+  {
+   "group": "hallway",
+   "name": "16_Hallway_N01_B_to_N",
+   "size_mm": [
+    17.5,
+    17.5,
+    34.1
+   ]
+  },
+  {
+   "group": "hallway",
+   "name": "17_Hallway_H01_D_to_H",
+   "size_mm": [
+    17.5,
+    17.5,
+    34.1
+   ]
+  },
+  {
+   "group": "hallway",
+   "name": "18_Hallway_E01_C_to_E",
+   "size_mm": [
+    17.5,
+    17.5,
+    34.1
+   ]
+  },
+  {
+   "group": "hallway",
+   "name": "19_Hallway_L1_N_to_R",
+   "size_mm": [
+    17.5,
+    17.5,
+    76.5
+   ]
+  },
+  {
+   "group": "hallway",
+   "name": "20_Hallway_L2_R_to_E",
+   "size_mm": [
+    17.5,
+    17.5,
+    73.3
+   ]
+  },
+  {
+   "group": "hallway",
+   "name": "21_Hallway_L3_E_to_G",
+   "size_mm": [
+    17.5,
+    17.5,
+    73.3
+   ]
+  },
+  {
+   "group": "hallway",
+   "name": "22_Hallway_L4_G_to_H",
+   "size_mm": [
+    17.5,
+    17.5,
+    76.5
+   ]
+  },
+  {
+   "group": "hallway",
+   "name": "23_Hallway_K_H_to_K",
+   "size_mm": [
+    17.5,
+    17.5,
+    32.2
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S00_CoreDome_PrintedRegolith_Segment_1of8",
+   "size_mm": [
+    48.4,
+    34.4,
+    70.6
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S01_CoreDome_PrintedRegolith_Segment_2of8",
+   "size_mm": [
+    34.4,
+    48.4,
+    70.6
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S02_CoreDome_PrintedRegolith_Segment_3of8",
+   "size_mm": [
+    34.4,
+    48.4,
+    70.6
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S03_CoreDome_PrintedRegolith_Segment_4of8",
+   "size_mm": [
+    48.4,
+    34.4,
+    70.6
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S04_CoreDome_PrintedRegolith_Segment_5of8",
+   "size_mm": [
+    48.4,
+    34.4,
+    70.6
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S05_CoreDome_PrintedRegolith_Segment_6of8",
+   "size_mm": [
+    34.4,
+    48.4,
+    70.6
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S06_CoreDome_PrintedRegolith_Segment_7of8",
+   "size_mm": [
+    34.4,
+    48.4,
+    70.6
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S07_CoreDome_PrintedRegolith_Segment_8of8",
+   "size_mm": [
+    48.4,
+    34.4,
+    70.6
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S10_LabArch_PrintedRegolith_Ring_1of4",
+   "size_mm": [
+    74.6,
+    15.2,
+    37.3
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S10_LabArch_PrintedRegolith_Ring_2of4",
+   "size_mm": [
+    74.6,
+    15.2,
+    37.3
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S10_LabArch_PrintedRegolith_Ring_3of4",
+   "size_mm": [
+    74.6,
+    15.2,
+    37.3
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S10_LabArch_PrintedRegolith_Ring_4of4",
+   "size_mm": [
+    74.6,
+    15.2,
+    37.3
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S20_GreenhouseArch_PrintedRegolith_Ring_1of3",
+   "size_mm": [
+    18.1,
+    74.6,
+    37.3
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S20_GreenhouseArch_PrintedRegolith_Ring_2of3",
+   "size_mm": [
+    18.1,
+    74.6,
+    37.3
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S20_GreenhouseArch_PrintedRegolith_Ring_3of3",
+   "size_mm": [
+    18.1,
+    74.6,
+    37.3
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S30_WellnessArch_PrintedRegolith_Ring_1of2",
+   "size_mm": [
+    74.6,
+    17.3,
+    37.3
+   ]
+  },
+  {
+   "group": "regolith shield",
+   "name": "S30_WellnessArch_PrintedRegolith_Ring_2of2",
+   "size_mm": [
+    74.6,
+    17.3,
+    37.3
+   ]
+  }
+ ]
+}

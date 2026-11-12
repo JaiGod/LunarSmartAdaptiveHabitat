@@ -352,9 +352,10 @@ namespace Hunch3
                 (SpaceRealism.I ? "\n" + SpaceRealism.I.Status : "");
             autoBanner.text = pr.autopilot ? (string.IsNullOrEmpty(navGoal) ? "◆ AUTOPILOT — AI is playing as you (Shift+P / B to take control) ◆" : $"◆ AUTO-WALK to {navLabel} (Shift+P / B to stop) ◆") : (GameState.mode == GameMode.Tour ? "GUIDED TOUR" : "");
             if (Time.time > toastUntil) toast.text = "";
+            { bool full = !Clean; if (statsBg.gameObject.activeSelf != full) { statsBg.gameObject.SetActive(full); miniBg.gameObject.SetActive(full); } }   // VR too: a headset HUD full of panels is worse than a monitor
             if (!world)
             {
-                bool full = !Clean; if (statsBg.gameObject.activeSelf != full) { statsBg.gameObject.SetActive(full); miniBg.gameObject.SetActive(full); }
+                bool full = !Clean;
                 navText.rectTransform.anchoredPosition = new Vector2(16, full ? -660 : -(HabitatOps.I ? HabitatOps.I.PanelBottom : 16) - 6);
                 if (hint) hint.text = keysBg.gameObject.activeSelf ? "" : "<b>E</b> use   ·   <b>J</b> all tasks   ·   <b>Tab</b> crew health   ·   <b>M</b> map   ·   <b>P</b> psych   ·   <b>L</b> life support   ·   <b>H</b> help   ·   <b>K</b> keys   ·   <b>`</b> all panels";
             }

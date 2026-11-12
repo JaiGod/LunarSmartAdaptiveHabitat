@@ -159,7 +159,7 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
             if (boardBg.gameObject.activeSelf) { if (kb != null && kb.escapeKey.wasPressedThisFrame) boardBg.gameObject.SetActive(false); else FillBoard(); }
             // the route is ALWAYS shown: if anything cleared it (another mission, arrival elsewhere) it comes back
             if (Time.time > renav) { renav = Time.time + 3f; if (HUD.I && string.IsNullOrEmpty(HUD.I.NavGoal)) { if (alertObj) { var w2 = Nav.Nearest(alertObj.transform.position); var fp = PlayerRig.I ? PlayerRig.I.FeetPosition : Vector3.zero; if (w2 != null && Nav.wp.ContainsKey(w2) && (Nav.wp[w2].position - fp).sqrMagnitude > 16f) HUD.I.SetNavTarget(w2, "REPAIR: " + alertObj.title); } else PointNav(true); } }
-            bool compact = HUD.Clean && !vr;
+            bool compact = HUD.Clean;      // desktop and VR: the short task list
             taskBg.rectTransform.anchoredPosition = new Vector2(16, compact ? -16 : vr ? -560 : -728);
             taskBg.rectTransform.sizeDelta = new Vector2(compact ? 470 : 430, compact ? 196 : 200); taskText.rectTransform.sizeDelta = new Vector2(compact ? 450 : 408, compact ? 188 : 186);
             if (compact)
