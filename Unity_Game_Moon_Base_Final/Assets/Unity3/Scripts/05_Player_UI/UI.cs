@@ -409,6 +409,12 @@ namespace Hunch3
             toast.text = s; toastUntil = Time.time + 7f;
         }
         public void SetPrompt(string s) { if (prompt) prompt.text = s; }
+        public Canvas HudCanvas => canvas;
+        /// the interaction card lifts the toast above itself so they never overlap (0 = back to normal)
+        public void LiftToast(float y) { if (toast) toast.rectTransform.anchoredPosition = new Vector2(0, y > 0 ? Mathf.Max(200, y) : 200); }
+        /// while the interaction card is up it shows the prompt line itself, so the centre prompt hides (no overlap)
+        public string PromptText => prompt ? prompt.text : "";
+        public void ShowPrompt(bool on) { if (prompt && prompt.enabled != on) prompt.enabled = on; }
         public void Procedure(string s) { if (procedure) procedure.text = string.IsNullOrEmpty(s) ? "" : "<b>" + s + "</b>"; }
         public void ZoneCard(Zone z)
         {

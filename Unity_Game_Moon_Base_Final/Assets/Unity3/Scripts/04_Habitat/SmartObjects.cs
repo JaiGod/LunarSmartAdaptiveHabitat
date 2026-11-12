@@ -4,7 +4,7 @@
 //  Section : 04_Habitat
 //  Purpose : Every wellness / medical / life-support asset is a SYSTEM, not a prop. Look at one and it
 //            highlights in its category colour with a holographic label; context keys run real actions
-//            that change crew health and habitat telemetry; TAB opens diagnostics + AI recommendations;
+//            that change crew health and habitat telemetry; the card shows live readings + AI suggestions;
 //            holding the right mouse button runs an engineering scan (integrity, last service, AI failure
 //            prediction) and E while scanning performs maintenance. Equipment wears out over mission time.
 //  Colours : green = life support · blue = psychological health · yellow = research/ops ·
@@ -18,6 +18,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 namespace Hunch3
@@ -55,7 +56,7 @@ namespace Hunch3
             All.Add(this);
             var bc = gameObject.AddComponent<BoxCollider>(); bc.isTrigger = true; bc.center = localBounds.center; bc.size = localBounds.size + Vector3.one * .06f;
             AddSolidColliders(model);
-            try { var xr = gameObject.AddComponent<XRSimpleInteractable>(); xr.selectEntered.AddListener(_ => { if (actions.Count > 0) SmartInteractor.Report(this, actions[0].run(this)); }); } catch (Exception e) { Debug.LogWarning("[HUNCH3] XR on " + key + ": " + e.Message); }
+            try { var xr = gameObject.AddComponent<XRSimpleInteractable>(); xr.selectEntered.AddListener(_ => { if (actions.Count > 0) SmartInteractor.Report(this, actions[0].run(this), actions[0].key); }); } catch (Exception e) { Debug.LogWarning("[HUNCH3] XR on " + key + ": " + e.Message); }
             BuildHighlight();
             lastServiceHours = SimClock.hours - UnityEngine.Random.Range(24f, 24f * 20f);
         }
@@ -104,7 +105,7 @@ namespace Hunch3
             {
                 var cam = PlayerRig.I ? PlayerRig.I.cam : Camera.main;
                 if (cam) { label.transform.rotation = Quaternion.LookRotation(label.transform.position - cam.transform.position); }
-                if (Time.time > nextLabel) { nextLabel = Time.time + .3f; label.text = LabelText(); }
+                if (Time.time > nextLabel) { nextLabel = Time.time + .3f; label.text = PlayerRig.I && PlayerRig.I.isXR ? LabelText() : ""; }   // desktop uses the bottom card
             }
         }
 
@@ -140,46 +141,96 @@ namespace Hunch3
         }
     }
 
-    /// Desktop look-at selection, context keys, TAB diagnostics and hold-RMB engineering scan.
+    /// Desktop look-at selection, context keys, bottom card and hold-RMB engineering scan.
     public class SmartInteractor : MonoBehaviour
     {
-        bool diag; public static bool debugDiag; string last = ""; float lastUntil; SmartObject lastObj;
-        GUIStyle box, txt;
-        public static void Report(SmartObject so, string msg)
+        // ONE interaction card, bottom-centre, above the key bar: what you're looking at, what it's for, and exactly which key
+        // does what. No floating world text on desktop (it overlapped the HUD panels) — the outline shows the target.
+        bool diag; public static bool debugDiag; string last = ""; float lastUntil; SmartObject lastObj; bool helpShown;
+        Image card, stripe; Text cardText; RectTransform cardRect;
+        public static void Report(SmartObject so, string msg, Key key = Key.None)
         {
+            HabitatOps.I?.OnUse(so, key);
             if (string.IsNullOrEmpty(msg)) return; so.uses++;
-            HUD.I?.Toast(msg); var si = FindFirstObjectByType<SmartInteractor>(); if (si) { si.last = msg; si.lastUntil = Time.time + 6f; si.lastObj = so; }
+            var si = FindFirstObjectByType<SmartInteractor>(); if (si) { si.last = msg; si.lastUntil = Time.time + 7f; si.lastObj = so; } else HUD.I?.Toast(msg);
         }
-        bool Scanning => Mouse.current != null && Mouse.current.rightButton.isPressed;
+        bool Scanning => false;   // right mouse is mouse-look in this game, so repair is simply E on a broken system
+
+        void BuildCard()
+        {
+            var hud = HUD.I ? HUD.I.HudCanvas : null; if (!hud || card) return;
+            var BC = new Vector2(0.5f, 0);
+            card = UIKit.Panel(hud.transform, "InteractionCard", BC, new Vector2(-60, 58), new Vector2(800, 120), new Color(0.03f, 0.06f, 0.13f, 0.94f), BC);
+            cardRect = card.rectTransform; card.raycastTarget = false;
+            stripe = UIKit.Panel(card.transform, "CategoryStripe", new Vector2(0, 0.5f), Vector2.zero, new Vector2(8, 120), Color.cyan, new Vector2(0, 0.5f)); stripe.raycastTarget = false;
+            var sr = stripe.rectTransform; sr.anchorMin = new Vector2(0, 0); sr.anchorMax = new Vector2(0, 1); sr.sizeDelta = new Vector2(8, 0);
+            cardText = UIKit.Label(card.transform, "", 20, Color.white, new Vector2(0, 1), new Vector2(22, -10), new Vector2(764, 600), TextAnchor.UpperLeft, new Vector2(0, 1));
+            card.gameObject.SetActive(false);
+        }
+        static string Pretty(string n)
+        {
+            var parts = n.Split('_').ToList(); if (parts.Count > 1 && parts[0].Any(char.IsDigit)) parts.RemoveAt(0);
+            parts.RemoveAll(x => x == "0" || x == "1" || x == "Glow" || x == "Top" || x == "Body" || x == "Deck" || x == "Interior");
+            return string.Join(" ", parts);
+        }
+        static string KeyTag(string k) => $"<b><color=#FFD54F>[{k}]</color></b>";
+        static string FirstSentence(string s) { if (string.IsNullOrEmpty(s)) return ""; int i = s.IndexOf(". "); return i > 0 ? s.Substring(0, i + 1) : s; }
 
         void Update()
         {
-            var pr = PlayerRig.I; SmartObject hit = null;
-            if (pr && pr.cam && !pr.isXR) { Aim.Resolve(); hit = Aim.Smart; }      // shared aim: one target per frame
+            var pr = PlayerRig.I; SmartObject hit = null; HabInteractable hab = null;
+            if (pr && pr.cam && !pr.isXR) { Aim.Resolve(); hit = Aim.Smart; hab = Aim.Hab; }      // shared aim: one target per frame
             if (SmartObject.Hover && SmartObject.Hover != hit) SmartObject.Hover.SetHighlight(false);
-            SmartObject.Hover = hit; if (!hit) { diag = false; return; }
+            SmartObject.Hover = hit;
+            if (!card) BuildCard();
+            UpdateCard(hit, hab, pr);
+            if (!hit) { diag = false; return; }
             hit.SetHighlight(true);
+            if (!helpShown) { helpShown = true; HUD.I?.Toast("Look at anything with an outline: the card at the bottom tells you what it is and which key to press."); }
             var kb = Keyboard.current; if (kb == null || Panels.AnyOpen) return;
-            if (kb.tabKey.wasPressedThisFrame) diag = !diag;
-            if (Scanning) { if (kb.eKey.wasPressedThisFrame) Report(hit, hit.Service()); return; }
+            if (hit.Failed) { if (kb.eKey.wasPressedThisFrame) Report(hit, hit.Service(), Key.E); return; }   // broken: E repairs it
             foreach (var a in hit.actions)
-                if (kb[a.key].wasPressedThisFrame) { Report(hit, a.run(hit)); break; }
+                if (kb[a.key].wasPressedThisFrame) { Report(hit, a.run(hit), a.key); break; }
         }
 
-        void OnGUI()
+        void UpdateCard(SmartObject so, HabInteractable hab, PlayerRig pr)
         {
-            var so = SmartObject.Hover; if (!so) return;
-            if (box == null)
+            if (!card) return;
+            bool recent = Time.time < lastUntil && lastObj && lastObj == so;
+            if ((!so && !hab) || (HabitatOps.I && HabitatOps.I.WelcomeOpen)) { card.gameObject.SetActive(false); HUD.I?.LiftToast(0); HUD.I?.ShowPrompt(true); return; }
+            var sb = new System.Text.StringBuilder(); Color c = UIKit.Accent;
+            if (so)
             {
-                box = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, richText = true, fontSize = 15, wordWrap = true, padding = new RectOffset(14, 14, 12, 12) };
-                var tex = new Texture2D(1, 1); tex.SetPixel(0, 0, new Color(.02f, .05f, .12f, .88f)); tex.Apply(); box.normal.background = tex; box.normal.textColor = Color.white;
+                c = SmartObject.CatColor(so.cat);
+                sb.Append($"<size=24><b>{so.title}</b></size>   <size=16><color=#{SmartObject.Hex(c)}>{SmartObject.CatName(so.cat)}</color>  ·  {so.Status}  ·  condition {so.integrity * 100:0}%</size>\n");
+                if (so.Failed)
+                {
+                    sb.Append("<size=20><color=#FF7070><b>BROKEN</b></color>  ").Append(KeyTag("E")).Append(" <b>Repair now</b></size>\n");
+                    foreach (var l in so.Engineering().Skip(1).Take(3)) sb.Append("<size=16><color=#C9D6E8>").Append(l).Append("</color></size>\n");
+                }
+                else
+                {
+                    sb.Append("<size=17><color=#C9D6E8>").Append(FirstSentence(so.why)).Append("</color></size>\n");
+                    sb.Append("<size=17><b>Live:</b> ").Append(string.Join("  ·  ", so.telemetry(so).Where(x => !string.IsNullOrEmpty(x)))).Append("</size>\n");
+                    var adv = so.advice(so); if (adv.Length > 0) sb.Append("<size=17><b>AI suggests:</b> ").Append(string.Join("  ·  ", adv.Take(2))).Append("</size>\n");
+                    sb.Append("<size=19>");
+                    foreach (var a in so.actions) sb.Append(KeyTag(a.key.ToString())).Append(' ').Append(a.label).Append("     ");
+                    sb.Append("</size>");
+                }
+                if (recent) sb.Append("\n<size=18><color=#7CFFB2>Done: ").Append(last).Append("</color></size>");
             }
-            string[] lines = Scanning ? so.Engineering() : diag || debugDiag ? so.Diagnostics() : null;
-            if (lines == null) return;
-            float w = Mathf.Min(460, Screen.width * .4f), h = 30 + lines.Length * 21;
-            var r = new Rect(Screen.width - w - 20, Screen.height * .18f, w, h);
-            var c = SmartObject.CatColor(so.cat); GUI.color = c; GUI.Box(new Rect(r.x - 3, r.y - 3, r.width + 6, r.height + 6), GUIContent.none); GUI.color = Color.white;
-            GUI.Box(r, string.Join("\n", lines), box);
+            else
+            {
+                sb.Append($"<size=24><b>{Pretty(hab.name)}</b></size>\n");
+                sb.Append("<size=19>").Append(KeyTag("E")).Append(" or ").Append(KeyTag("click")).Append(' ').Append(hab.Prompt).Append("</size>");
+            }
+            var other = HUD.I ? HUD.I.PromptText : "";      // e.g. "Okafor is here. press I ..." from the missions — shown inside the card instead of on top of it
+            if (!string.IsNullOrEmpty(other)) sb.Append("\n<size=16><color=#F48FB1>").Append(other).Append("</color></size>");
+            HUD.I?.ShowPrompt(false);
+            card.gameObject.SetActive(true); stripe.color = c;
+            cardText.text = sb.ToString();
+            float h = Mathf.Clamp(cardText.preferredHeight + 22, 70, 260); cardRect.sizeDelta = new Vector2(800, h);
+            HUD.I?.LiftToast(58 + h + 12);      // the toast sits above the card, never under it
         }
     }
 
@@ -650,6 +701,8 @@ namespace Hunch3
         static int idx;
         public static void StartHabitat() { MenuBoot.Go(GameMode.Sandbox); }
         public static void Diag() { SmartInteractor.debugDiag = !SmartInteractor.debugDiag; }
+        public static void TestAlert() { HabitatOps.I?.DebugAlert(); }
+        public static void TestCheer() { HabitatOps.I?.DebugCheer(); }
         public static void VisitNext()
         {
             var l = SmartObject.All.Where(o => o).ToList(); if (l.Count == 0 || !PlayerRig.I) return;

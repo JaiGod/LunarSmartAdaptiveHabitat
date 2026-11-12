@@ -321,8 +321,8 @@ namespace Hunch3
             {
                 Aim.Resolve();
                 var hi = Aim.Hab;
-                if (hi) { HabInteractable.Hover = hi; HUD.I?.SetPrompt("E / click: " + hi.Prompt); if (Pressed()) hi.Activate(); return; }
-                if (Aim.Smart) { var so = Aim.Smart; HUD.I?.SetPrompt((so.actions.Count > 0 ? "E: " + so.actions[0].label + "   " : "") + "TAB: diagnostics   hold right-click: scan"); return; }
+                if (hi) { HabInteractable.Hover = hi; HUD.I?.SetPrompt(""); if (Pressed()) hi.Activate(); return; }   // the bottom card explains it
+                if (Aim.Smart) { HUD.I?.SetPrompt(""); return; }
             }
             HUD.I?.SetPrompt("");
         }
