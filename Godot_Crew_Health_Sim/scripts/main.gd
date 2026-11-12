@@ -23,6 +23,34 @@ const G_MOON := 1.62
 var A = Astro.new()
 var AI: Ares                      # Project ARES rubric layer (sensors → conditions → tiers, limits, Board Q1–Q6)
 var ares_tab = "dash"
+## Why each object exists: the line in the research proposal it answers. Nothing is in the base without one.
+const REQ = {
+	"bunk": ["Crew Quarters", "Private sleep pod; sleep monitoring (proposal: circadian disruption countermeasure)"],
+	"lights": ["Crew Quarters", "Adaptive lighting tied to circadian rhythm (proposal §2A Personalization)"],
+	"wristband": ["Biomedical", "Simulated wearable data: sleep stages (proposal Deliverables: biomedical simulation)"],
+	"beacon": ["Biomedical", "Wearable heart rate / HRV / skin response (proposal §5b data sources)"],
+	"station": ["Medical", "Medical / first aid zone: daily vitals (proposal NASA functional zones)"],
+	"patch": ["Biomedical", "Stress biomarker; individualized crew profile (proposal §5b)"],
+	"pod": ["AI monitoring", "Environmental sensors + mood assessment in shared zones only (proposal §5b privacy & ethics)"],
+	"console": ["Workstation", "Workstations + AI dashboard + daily journal for language-based mood check (proposal §3)"],
+	"plants": ["Greenhouse", "Food + O2, stress reduction, hobby, AI-linked (greenhouse requirements §2, §4)"],
+	"vr": ["Countermeasure", "VR for relaxation (proposal §5d countermeasures)"],
+	"treadmill": ["Exercise", "Exercise countermeasure; bone and mood in 1/6 g (proposal §5d)"],
+	"suit": ["Airlock", "EVA with suit biomedical monitoring (proposal: biomedical monitoring)"],
+	"dust": ["Airlock / dust mitigation", "Dust mitigation at the airlock (proposal: zoning for dust mitigation)"],
+	"eclss": ["ECLSS", "Air revitalization, water recovery, O2 generation on a smart dashboard (proposal §5c)"],
+	"hygiene": ["Hygiene", "Hygiene zone, private: no cameras or mics (proposal zoning + hard limit 6)"],
+	"storage": ["Storage", "Logistics/storage + 3D printing of spare parts (proposal §1C automated maintenance)"],
+	"robot": ["Maintenance", "Robotic inspection + predictive maintenance (proposal §1C, §2A)"],
+	"hatch": ["Airlock", "Airlock between surface and habitat (proposal NASA functional zones)"],
+	"sample": ["EVA work", "Surface science task that drives suit workload (EVA biomedical data)"],
+}
+var used = {}
+var light_mode = 0                 # 0 auto circadian · 1 focus 6500 K · 2 wind-down 1800 K
+var suit_dust = 0.0
+var cabin_dust = 0.0
+var robot: Node3D
+var robot_t = 0.0
 var ares_msg = ""
 var checkin = {}                 # last health-station check-in
 var checkins_today = 0
@@ -199,6 +227,36 @@ func _habitat() -> void:
 	Build.box(vrd, Vector3(0.3, 0.06, 0.02), Vector3(0, 0.6, -0.11), Build.mat(Color(0.3, 0.6, 1.0), 0.0, 0.3, 1.5))
 	_interact(vrd, "vr", "VR nature break (countermeasure)", Vector3(0.9, 1.3, 0.7))
 
+	# ---- ECLSS rack (life support): the AI reads it, only humans change it (hard limit 3) ----
+	Build.label3d(hab, "ECLSS · air + water", Vector3(7.0, 2.9, -4.6), 0.7, Color(0.6, 0.9, 1.0))
+	var ec = Build.box(hab, Vector3(1.4, 2.2, 0.7), Vector3(7.0, 1.1, -4.6), Build.mat(Color(0.82, 0.84, 0.86), 0.4, 0.4), true, -0.55)
+	for k in 4: Build.box(ec, Vector3(1.2, 0.02, 0.02), Vector3(0, -0.7 + 0.45 * k, -0.36), Build.mat(Color(0.3, 0.9, 0.5) if k != 1 else Color(0.3, 0.7, 1.0), 0.0, 0.5, 1.5))
+	_interact(ec, "eclss", "ECLSS rack: air, water, O2 (open the Building tab)", Vector3(1.5, 2.3, 0.9))
+	Build.routed_cable(hab, [Vector3(7.3, 2.2, -4.9), Vector3(7.6, H_MOD - 0.45, -5.2)], 0.03, Color(0.55, 0.58, 0.62))
+	# ---- Hygiene (private, no sensors) ----
+	Build.label3d(hab, "HYGIENE · private", Vector3(-5.6, 2.7, -5.4), 0.7, Color(1, 0.8, 0.5))
+	var hy = Build.box(hab, Vector3(1.3, 2.2, 1.3), Vector3(-5.6, 1.1, -5.4), Build.mat(Color(0.88, 0.9, 0.92), 0.1, 0.6), true, 0.6)
+	_interact(hy, "hygiene", "Hygiene stall (private: no sensors)", Vector3(1.4, 2.3, 1.4))
+	# ---- Storage + 3D printer (spare parts) ----
+	Build.label3d(hab, "STORAGE · 3D printer", Vector3(0.0, 2.6, -8.1), 0.7)
+	var st = Build.box(hab, Vector3(1.6, 1.8, 0.6), Vector3(0.0, 0.9, -8.2), Build.mat(Color(0.6, 0.62, 0.66), 0.5, 0.4), true)
+	for k in 3: Build.box(st, Vector3(1.5, 0.03, 0.55), Vector3(0, -0.6 + 0.5 * k, 0), Build.mat(Color(0.4, 0.42, 0.45), 0.5, 0.4))
+	Build.box(st, Vector3(0.5, 0.45, 0.45), Vector3(0.45, 0.2, 0.0), Build.mat(Color(0.15, 0.16, 0.2), 0.3, 0.4))
+	_interact(st, "storage", "Storage + 3D printer: print a spare part", Vector3(1.7, 1.9, 0.8))
+	# ---- Maintenance robot (patrols the ring) ----
+	robot = Node3D.new(); hab.add_child(robot)
+	Build.cyl(robot, 0.28, 0.25, Vector3(0, 0.2, 0), Build.mat(Color(0.9, 0.9, 0.92), 0.3, 0.4))
+	Build.sphere(robot, 0.12, Vector3(0, 0.42, 0.12), Build.mat(Color(0.3, 0.8, 1.0), 0.0, 0.4, 1.2))
+	_interact(robot, "robot", "Maintenance robot: inspection report", Vector3(0.7, 0.7, 0.7))
+	# ---- Dust station in the airlock ----
+	var du = Build.box(hab, Vector3(0.6, 1.6, 0.4), Vector3(8.2, 0.8, 1.2), Build.mat(Color(0.95, 0.6, 0.15), 0.3, 0.5), true)
+	Build.label3d(hab, "DUST STATION", Vector3(8.2, 1.9, 1.2), 0.6, Color(1, 0.75, 0.4))
+	_interact(du, "dust", "Dust station: brush + vacuum the suit", Vector3(0.8, 1.7, 0.6))
+	# ---- Light control in quarters ----
+	var lp = Build.box(hab, Vector3(0.05, 0.3, 0.4), Vector3(-8.75, 1.4, -1.8), Build.mat(Color(0.1, 0.12, 0.16), 0.3, 0.3))
+	Build.box(lp, Vector3(0.02, 0.22, 0.32), Vector3(0.03, 0, 0), Build.mat(Color(1.0, 0.75, 0.45), 0.0, 0.4, 1.4))
+	_interact(lp, "lights", "Light control: auto / focus / wind-down", Vector3(0.4, 0.4, 0.5))
+
 	# ---- Exercise corner (−z) : treadmill with harness ----
 	Build.label3d(hab, "EXERCISE · treadmill", Vector3(-3.5, 3.0, -7.0), 0.8)
 	var tm_base = Build.box(hab, Vector3(0.9, 0.18, 2.0), Vector3(-3.5, 0.09, -6.8), Build.mat(Color(0.12, 0.12, 0.14), 0.3, 0.6), true, 0.4)
@@ -266,6 +324,7 @@ func _surface() -> void:
 func _interact(node: Node3D, id: String, prompt: String, size: Vector3) -> void:
 	var sb = Build.collider(node, size, Vector3(0, size.y / 2, 0))
 	sb.set_meta("id", id); sb.set_meta("prompt", prompt); sb.set_meta("node", node)
+	sb.set_meta("req", REQ[id][1] if REQ.has(id) else "")
 
 # =============================================================================================
 #  PLAYER
@@ -366,6 +425,11 @@ func _world_tick(dt: float) -> void:
 	if AI.ai_on and AI.tier[0] >= 1: c = Color(1.0, 0.72, 0.45)        # Tier 1 (anxiety): warm 2700 K
 	elif AI.ai_on and AI.tier[5] >= 1: c = Color(0.55, 0.95, 0.85)     # Tier 1 (monotony): new colour scene
 	elif AI.ai_on and AI.tier[3] >= 1 and h >= 7.0 and h < 19.0: c = Color(0.8, 0.9, 1.0) * 1.15   # Tier 1 (fatigue): focus light
+	if light_mode == 1: c = Color(0.85, 0.92, 1.0) * 1.2
+	elif light_mode == 2: c = Color(1.0, 0.5, 0.22)
+	if suit_dust > 0.0 and not A.on_eva: cabin_dust = min(1.0, cabin_dust + dt * 0.004)
+	robot_t += dt * 0.12
+	if robot: robot.position = Vector3(cos(robot_t) * 5.3, 0, sin(robot_t) * 5.3); robot.rotation.y = -robot_t
 	var alarm = A.co2_ppm > 4000.0
 	for m in led_mats: m.emission = m.emission.lerp(c, 0.05); m.albedo_color = m.emission
 	warn_light.light_energy = (0.8 + 0.8 * sin(Time.get_ticks_msec() * 0.008)) if alarm else 0.0
@@ -383,6 +447,7 @@ func _in_shared_zone() -> bool:
 func _use() -> void:
 	if looking_at == null: return
 	var id: String = looking_at.get_meta("id")
+	used[id] = true
 	match id:
 		"bunk":
 			if A.hour() > 10.0 and A.hour() < 19.0 and A.sleep_pressure < 0.55:
@@ -407,6 +472,17 @@ func _use() -> void:
 			A.exercise(); on_treadmill = true
 			_toast("Running on the treadmill… (press E, Space or WASD to stop early)")
 		"suit": _start_eva()
+		"eclss": ares_tab = "building"; _open_panel("ares")
+		"hygiene": A.stress = max(0.0, A.stress - 0.03); A.minute += 10.0; A.note("Hygiene: private, no sensors in here (hard limit 6)")
+		"storage":
+			A.minute += 30.0; A.note("Printed a spare CO2-filter frame (3D printer, regolith-free polymer)"); A.co2_ppm = min(A.co2_ppm, 2400.0); AI.flag("building")
+		"robot":
+			_toast("Robot inspection: CO2 filter 11 days left · O2 cell 140 days · cabin dust %d%% · treadmill belt 40 days" % int(cabin_dust * 100)); AI.flag("building")
+		"dust":
+			suit_dust = 0.0; cabin_dust *= 0.3; A.note("Suit brushed and vacuumed: dust kept out of the cabin"); AI.flag("dust")
+		"lights":
+			light_mode = (light_mode + 1) % 3
+			A.note("Lights: " + ["auto (follows your body clock)", "focus 6500 K", "wind-down 1800 K (helps sleep)"][light_mode]); AI.flag("lights")
 		"plants":
 			A.stress = max(0.0, A.stress - 0.08); A.valence = min(1.0, A.valence + 0.08); AI.novelty = min(1.0, AI.novelty + 0.25); A.minute += 20.0
 			A.note("20 min of plant care: stress down, mood up"); AI.note("Countermeasure used: plant care"); AI.flag("counter")
@@ -445,7 +521,8 @@ func _start_eva() -> void:
 
 func _end_eva(forced: bool) -> void:
 	if not A.on_eva: return
-	A.on_eva = false; A.activity = 0.2
+	A.on_eva = false; A.activity = 0.2; suit_dust = 1.0
+	_toast("Suit is covered in lunar dust. Use the dust station before it spreads into the cabin.")
 	player.global_position = Vector3(7.2, 0.3, 0); yaw = deg_to_rad(90)
 	A.note("EVA ended" + (" — O2 reserve reached, auto-return" if forced else ""))
 
@@ -531,7 +608,7 @@ func _hud_tick() -> void:
 	t += "[color=#9fb0c4]%d / %d done[/color][/right]" % [done, tasks.size()]
 	hud_tasks.text = t
 	if _toast_t > 0.0: _toast_t -= get_process_delta_time()
-	elif looking_at != null: hud_prompt.text = "E  " + str(looking_at.get_meta("prompt"))
+	elif looking_at != null: hud_prompt.text = "E  " + str(looking_at.get_meta("prompt")) + ("\n[Why: " + str(looking_at.get_meta("req")) + "]" if str(looking_at.get_meta("req")) != "" else "")
 	elif A.asleep: hud_prompt.text = "Asleep · %s · F speed up · SPACE wake up" % A.stage
 	elif AI.pending_offer >= 0: hud_prompt.text = "AI offer: %s   Y yes · N no" % Ares.TIER2[AI.pending_offer]
 	else: hud_prompt.text = ""
@@ -677,18 +754,25 @@ func _bar(x: float) -> String:
 # =============================================================================================
 func _build_ares() -> void:
 	var tabs = HFlowContainer.new(); panel_box.add_child(tabs)
-	for tb in [["dash", "Dashboard"], ["protocols", "Protocols"], ["habitat", "Habitat"], ["building", "Building"], ["model", "Model"], ["report", "Report"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
+	for tb in [["trace", "Why it's here"], ["dash", "Dashboard"], ["protocols", "Protocols"], ["habitat", "Habitat"], ["building", "Building"], ["model", "Model"], ["report", "Report"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
 		var b = _btn(tb[1], func(): ares_tab = tb[0]; ares_msg = ""; _build_panel()); b.toggle_mode = true; b.button_pressed = ares_tab == tb[0]; tabs.add_child(b)
 	AI.flag("crew" if ares_tab == "crew" else ares_tab)
 	match ares_tab:
 		"dash":
 			_live = _rt(_ares_dash(), 15)
+		"trace":
+			var t = "[b][font_size=22]Why each object is here[/font_size][/b]\nEvery object in the base answers a line in the research proposal. Nothing is decoration. Ticks show what you have used.\n\n[table=3]"
+			for k in REQ:
+				t += "[cell]%s  [/cell][cell][b]%s[/b]  [/cell][cell]%s[/cell]" % ["[color=#5be38a]used[/color]" if used.has(k) else "[color=#6f8398]-[/color]", REQ[k][0], REQ[k][1]]
+			_rt(t + "[/table]", 14)
 		"building":
 			var o2 = 20.9 - max(0.0, (A.co2_ppm - 2400.0) / 4000.0)
 			var t = "[b][font_size=22]Smart building (ECLSS, power, maintenance)[/font_size][/b]\n\n"
 			t += "[b]Air[/b]  O2 %.1f %% · CO2 %d ppm (limit 2,500 ppm normal, 5,000 alarm) · temp 22.5 °C · humidity 45 %%\n" % [o2, A.co2_ppm]
 			t += "[b]Water recovery[/b]  98 %% (urine + humidity condensate) · tank 1,840 L\n"
 			t += "[b]Power[/b]  solar towers %d kW (south-pole rim) · fission backup 10 kW · battery 86 %%\n" % (18 if A.hour() > 6.0 and A.hour() < 20.0 else 6)
+			t += "[b]Dust[/b]  suit %s · cabin dust %d %% %s\n" % ["dusty, use the dust station" if suit_dust > 0.0 else "clean", int(cabin_dust * 100), "(rising: affects air filters)" if cabin_dust > 0.2 else ""]
+			t += "[b]Greenhouse[/b]  ~0.3 kg O2 and 0.4 kg food per day · plant care counts as a countermeasure\n"
 			t += "[b]Maintenance (predicted)[/b]  CO2 scrubber filter: 11 days · O2 generator cell: 140 days · treadmill belt: 40 days\n"
 			t += "[b]Spares[/b]  3D printer ready: filter frame, hose clamp, fan blade\n\n"
 			t += "[color=#9fb0c4]Hard limit 3: the AI can read all of this but can never change air, power or hatch settings. A human does.[/color]"
@@ -891,6 +975,8 @@ func _shots(dir: String) -> void:
 		["ares_model", func(): AI.journal("tired today and I miss home, argued at lunch"); ares_tab = "model"; _build_panel()],
 		["ares_protocols", func(): ares_tab = "protocols"; _build_panel()],
 		["ares_habitat", func(): ares_tab = "habitat"; _build_panel()],
+		["ares_trace", func(): ares_tab = "trace"; _build_panel()],
+		["overview", func(): _close_panel(); player.global_position = Vector3(-2.0, 0.1, -2.0); yaw = deg_to_rad(-45); pitch = -0.2],
 		["ares_rubric", func(): ares_tab = "rubric"; _build_panel()],
 	]
 	DirAccess.make_dir_recursive_absolute(dir)
