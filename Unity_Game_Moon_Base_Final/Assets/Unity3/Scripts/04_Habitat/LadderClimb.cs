@@ -54,6 +54,8 @@ namespace Hunch3
         public Vector3 StandAt(float y) => new Vector3(Stand.x, y, Stand.z);
 
         /// Player starts climbing (from an E press / VR select on the ladder, or the autopilot with dir ±1).
+        /// developer self-test (debug panel F9 → 1): ride the ladder from the top deck all the way down and log the result
+        public void SelfTest() { var pr = PlayerRig.I; if (!pr || climbing) return; pr.Teleport(Top); testRun = true; Begin(pr, -1); HLog.I("Ladder", "self-test ride started"); }
         public void Begin(PlayerRig pr, int autoDirection = 0)
         {
             if (!pr || climbing) return;
@@ -77,8 +79,6 @@ namespace Hunch3
             var pr = PlayerRig.I; if (!pr) return;
             if (!climbing)
             {
-                // F8 = self-test: ride the ladder from the top deck all the way down (logs the result)
-                if (Keyboard.current != null && Keyboard.current.f8Key.wasPressedThisFrame) { pr.Teleport(Top); testRun = true; Begin(pr, -1); return; }
                 // you can always grab the ladder just by standing at it (top hole or bottom landing) and pressing E / trigger
                 Vector3 f = pr.FeetPosition; float hd = new Vector2(f.x - Stand.x, f.z - Stand.z).magnitude;
                 bool nearEnd = Mathf.Abs(f.y - Top.y) < 0.6f || Mathf.Abs(f.y - Bottom.y) < 0.6f;
@@ -152,7 +152,7 @@ namespace Hunch3
         void Dismount(PlayerRig pr, Vector3 from, Vector3 to)
         {
             dismountFrom = from; dismountTo = to; dismountT = 0;
-            Debug.Log($"[HUNCH3] ladder: stepped off at the {(to == Top ? "TOP" : "BOTTOM")} (y {to.y:0.00}){(testRun ? " — F8 self-test PASSED" : "")}"); testRun = false;
+            HLog.I("Ladder", $"stepped off at the {(to == Top ? "TOP" : "BOTTOM")} (y {to.y:0.00}){(testRun ? " — self-test PASSED" : "")}"); testRun = false;
             HUD.I?.SetPrompt("");
             if (!auto) HUD.I?.Toast(to == Top ? "Upper deck — wardroom, galley, sleep pods." : "Lower deck — hallways to every module.");
         }

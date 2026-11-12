@@ -537,7 +537,7 @@ public class HunchWorldFX : MonoBehaviour
             if (found.Count >= 24) break;
         }
         doors.AddRange(found);
-        Debug.Log("[HUNCH] automatic doors placed: " + doors.Count);
+        HLog.I("FX", "automatic doors placed: " + doors.Count);
     }
 
     Transform Panel(Transform root, Material glass, Material trim, Vector3 axis, float w, float h, float side)

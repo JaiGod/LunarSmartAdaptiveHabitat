@@ -52,23 +52,23 @@ public partial class HunchFrontier
     }
     void BuildBatch10()
     {
-        try { BuildRadio(); } catch (Exception e) { Debug.LogError("[HUNCH] radio: " + e); }
-        try { BuildLevels(); } catch (Exception e) { Debug.LogError("[HUNCH] levels: " + e); }
-        try { BuildHallReads(); } catch (Exception e) { Debug.LogError("[HUNCH] hall: " + e); }
-        try { BuildSeason(); } catch (Exception e) { Debug.LogError("[HUNCH] season: " + e); }
-        try { BuildPhysics(); } catch (Exception e) { Debug.LogError("[HUNCH] physics view: " + e); }
-        try { BuildPortalPlaza(); } catch (Exception e) { Debug.LogError("[HUNCH] portal plaza: " + e); }
-        try { BuildHunch(); } catch (Exception e) { Debug.LogError("[HUNCH] hunch mode: " + e); }
-        try { BuildCrewFour(); BuildSleep(); BuildHunchExtras(); } catch (Exception e) { Debug.LogError("[HUNCH] crew of four, sleep, extras: " + e); }
-        try { BuildEndlessGround(); } catch (Exception e) { Debug.LogError("[HUNCH] endless ground: " + e); }
-        try { if (fieldOk) BuildFunZone(); } catch (Exception e) { Debug.LogError("[HUNCH] fun zone: " + e); }
-        try { BuildMeetingTable(); BuildTrackBoard(); BuildSwitchPage(); } catch (Exception e) { Debug.LogError("[HUNCH] meeting table, tracking board: " + e); }
-        try { BuildAres(); } catch (Exception e) { Debug.LogError("[HUNCH] Project ARES: " + e); }
+        try { BuildRadio(); } catch (Exception e) { HLog.E("Minigames", "radio: " + e); }
+        try { BuildLevels(); } catch (Exception e) { HLog.E("Minigames", "levels: " + e); }
+        try { BuildHallReads(); } catch (Exception e) { HLog.E("Minigames", "hall: " + e); }
+        try { BuildSeason(); } catch (Exception e) { HLog.E("Minigames", "season: " + e); }
+        try { BuildPhysics(); } catch (Exception e) { HLog.E("Minigames", "physics view: " + e); }
+        try { BuildPortalPlaza(); } catch (Exception e) { HLog.E("Minigames", "portal plaza: " + e); }
+        try { BuildHunch(); } catch (Exception e) { HLog.E("Minigames", "hunch mode: " + e); }
+        try { BuildCrewFour(); BuildSleep(); BuildHunchExtras(); } catch (Exception e) { HLog.E("Minigames", "crew of four, sleep, extras: " + e); }
+        try { BuildEndlessGround(); } catch (Exception e) { HLog.E("Minigames", "endless ground: " + e); }
+        try { if (fieldOk) BuildFunZone(); } catch (Exception e) { HLog.E("Minigames", "fun zone: " + e); }
+        try { BuildMeetingTable(); BuildTrackBoard(); BuildSwitchPage(); } catch (Exception e) { HLog.E("Minigames", "meeting table, tracking board: " + e); }
+        try { BuildAres(); } catch (Exception e) { HLog.E("Minigames", "Project ARES: " + e); }
     }
     void UpdateBatch10(float dt)
     {
         UpdateRadio(dt); UpdateClicker(dt); UpdateLevels(dt); UpdatePet(dt); UpdateSeason(dt); UpdatePortals(dt); UpdateHunch(dt); UpdatePhysics(dt); UpdateSleep(dt); UpdateShow(); UpdateFunZone(dt);
-        try { UpdateAres(dt); } catch (Exception e) { if (!aresErr) { aresErr = true; Debug.LogError("[HUNCH] Project ARES update: " + e); } }
+        try { UpdateAres(dt); } catch (Exception e) { if (!aresErr) { aresErr = true; HLog.E("Minigames", "Project ARES update: " + e); } }
     }
     IEnumerator AutoMapExtra2(int k)
     {

@@ -323,7 +323,7 @@ namespace Hunch3
                 if (GameObject.Find("Panel_crew")) sawCrewUI = true;
                 if (GameObject.Find("Panel_docs") && DesignDocs.Current.section == "D1 Sensors" && DesignDocs.page >= 1) sawMatrix = true;
                 Scan();
-                try { MissionTick(); } catch (Exception ex) { Debug.LogWarning("[HUNCH3] missions: " + ex.Message); }
+                try { MissionTick(); } catch (Exception ex) { HLog.W("Missions", ex.Message); }
                 foreach (var t in tasks)
                 {
                     if (t.done) continue;

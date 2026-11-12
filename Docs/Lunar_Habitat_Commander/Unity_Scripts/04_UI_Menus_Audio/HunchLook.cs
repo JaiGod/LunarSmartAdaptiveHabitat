@@ -59,7 +59,7 @@ public class HunchLook : MonoBehaviour
             string title = have.Contains("Bahnschrift SemiBold") ? "Bahnschrift SemiBold" : (have.Contains("Segoe UI Semibold") ? "Segoe UI Semibold" : body);
             Title = Font.CreateDynamicFontFromOSFont(new[] { title, body, "Arial" }, 48);
         }
-        catch (System.Exception e) { Debug.Log("[HUNCH] system fonts not available: " + e.Message); }
+        catch (System.Exception e) { HLog.I("UI", "system fonts not available: " + e.Message); }
     }
 
     IEnumerator Start()
@@ -92,7 +92,7 @@ public class HunchLook : MonoBehaviour
         {
             int n = 0;
             foreach (var t in FindObjectsByType<TextMeshPro>(FindObjectsInactive.Include, FindObjectsSortMode.None)) { t.font = fa; n++; }
-            Debug.Log("[HUNCH] font " + FontName + " applied to " + n + " world labels");
+            HLog.I("UI", "font " + FontName + " applied to " + n + " world labels");
         }
 
         // one more edge-smoothing pass on the desktop camera (VR keeps MSAA only, for speed)
@@ -125,7 +125,7 @@ public class HunchLook : MonoBehaviour
             sb.Append("ambient occlusion features ").Append(ao).Append(vr ? " (off in the headset)" : " (on)");
         }
         catch (System.Exception e) { sb.Append("realism: ").Append(e.Message); }
-        RealismReport = sb.ToString(); Debug.Log("[HUNCH] look: " + RealismReport);
+        RealismReport = sb.ToString(); HLog.I("UI", "look: " + RealismReport);
     }
     public string ProbeLook() { return RealismReport; }
 

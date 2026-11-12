@@ -142,7 +142,7 @@ public partial class HunchFrontier
     {
         var g = new GameObject("Gate").transform; g.SetParent(parent, false); g.localPosition = lp;
         var glow = Glow(c); var metal = Lit(new Color(0.3f, 0.32f, 0.36f)); bool stone = false;
-        try { stone = PortalStone(g, c, index); } catch (Exception e) { Debug.LogError("[HUNCH] portal: " + e); }
+        try { stone = PortalStone(g, c, index); } catch (Exception e) { HLog.E("Minigames", "portal: " + e); }
         if (!stone)
         {
             Prim(PrimitiveType.Cube, g, new Vector3(-1.1f, 1.4f, 0f), new Vector3(0.2f, 2.8f, 0.2f), metal); Prim(PrimitiveType.Cube, g, new Vector3(1.1f, 1.4f, 0f), new Vector3(0.2f, 2.8f, 0.2f), metal);

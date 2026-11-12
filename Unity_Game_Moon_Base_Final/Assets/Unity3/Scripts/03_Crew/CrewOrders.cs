@@ -246,7 +246,7 @@ namespace Hunch3
                     if (!near) nearShown = -1;
                 }
             }
-            catch (Exception e) { Debug.LogWarning("[HUNCH3] jobs: " + e.Message); enabled = false; }
+            catch (Exception e) { HLog.W("Crew", "jobs: " + e.Message); enabled = false; }
         }
         void OnDestroy() { foreach (var t in tags.Values) if (t) Destroy(t.gameObject); }
     }

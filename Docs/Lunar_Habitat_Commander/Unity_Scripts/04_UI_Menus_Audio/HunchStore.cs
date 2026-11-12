@@ -166,13 +166,13 @@ public static class HunchStore
         try { foreach (var s in PlayerPrefs.GetString(CacheKey, "").Split('|')) if (s.Length > 0 && Find(s) != null) owned.Add(s); } catch { }
     }
     static void SaveCache() { if (testMode) return; PlayerPrefs.SetString(CacheKey, string.Join("|", owned)); PlayerPrefs.Save(); }
-    static void Fire() { var c = Changed; if (c != null) try { c(); } catch (Exception e) { Debug.LogError("[HUNCH] store listener: " + e); } }
+    static void Fire() { var c = Changed; if (c != null) try { c(); } catch (Exception e) { HLog.E("UI", "store listener: " + e); } }
     static string Err(Oculus.Platform.Message m)
     {
         if (m == null) return "no answer";
         try { var e = m.GetError(); return e != null ? e.Code + " " + e.Message : "unknown"; } catch { return "unknown"; }
     }
-    static void Log(string s) { Debug.Log("[HUNCH] store: " + s); }
+    static void Log(string s) { HLog.I("UI", "store: " + s); }
 
     // ---------------------------------------------------------------- Editor testing only (never in the headset build)
     static bool testMode;

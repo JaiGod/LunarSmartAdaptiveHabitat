@@ -49,7 +49,7 @@ public partial class HunchFrontier
     void BuildHunch()
     {
         hunchOn = PlayerPrefs.GetInt("hunch_mode2", 0) == 1;      // the game starts with NASA HUNCH mode off (the full game); switch it on in the menu
-        try { BuildHygiene(); } catch (Exception e) { Debug.LogError("[HUNCH] hygiene: " + e); }
+        try { BuildHygiene(); } catch (Exception e) { HLog.E("Crew", "hygiene: " + e); }
         for (int i = 0; i < 4; i++) hunchConsent[i] = PlayerPrefs.GetInt("hunch_consent_" + i, 1) == 1;
         // ---- the documents (read on the same sheet as the tablets, so they work in the headset too)
         hunchSheetFirst = reads.Count;

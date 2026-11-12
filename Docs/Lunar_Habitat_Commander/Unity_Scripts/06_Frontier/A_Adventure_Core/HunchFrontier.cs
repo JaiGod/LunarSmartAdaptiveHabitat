@@ -96,7 +96,7 @@ public partial class HunchFrontier : MonoBehaviour
         root = new GameObject("HUNCH Frontier").transform;
         SetupMaterials(); SetupAudio();
         HubClearEarly();
-        try { FixFloorsAndTrees(); } catch (Exception e) { Debug.LogError("[HUNCH] floors and trees: " + e); }
+        try { FixFloorsAndTrees(); } catch (Exception e) { HLog.E("Adventure", "floors and trees: " + e); }
         FindField();
         BuildSky(); BuildGrid(); BuildToolModel(); BuildShots();
         BuildConsoles(); BuildGunModels();
@@ -106,7 +106,7 @@ public partial class HunchFrontier : MonoBehaviour
         game.toolInUse = () => ready && Playing && (tool != Hands || focus != null || heldRock != null || smartTool != 0 || mapNow != 0 || readOpen >= 0);
         game.uiHover = () => ready && QuickHovered() != null;
         ready = true;
-        Debug.Log("[HUNCH] frontier ready, field " + (fieldOk ? fieldC.ToString("F0") : "not found"));
+        HLog.I("Adventure", "frontier ready, field " + (fieldOk ? fieldC.ToString("F0") : "not found"));
     }
 
     // ------------------------------------------------------------------ materials, shapes, sound
@@ -1063,7 +1063,7 @@ public partial class HunchFrontier : MonoBehaviour
             if (n.Contains("motion") || n.Contains("sentry") || n.Contains("turret")) continue;      // that one is a turret: BuildTurret uses it
             var prefab = HunchFx.Prefab(n); if (!prefab) continue;
             long tris = 0; foreach (var mf in prefab.GetComponentsInChildren<MeshFilter>(true)) if (mf.sharedMesh) for (int sm = 0; sm < mf.sharedMesh.subMeshCount; sm++) tris += mf.sharedMesh.GetIndexCount(sm) / 3;
-            if (game.HeadsetActive && tris > 500000) { Debug.Log("[HUNCH] gun model " + n + " has " + tris + " triangles: too heavy for VR, keeping the simple gun in the headset"); continue; }
+            if (game.HeadsetActive && tris > 500000) { HLog.I("Adventure", "gun model " + n + " has " + tris + " triangles: too heavy for VR, keeping the simple gun in the headset"); continue; }
             GameObject g = null;
             try
             {
@@ -1088,9 +1088,9 @@ public partial class HunchFrontier : MonoBehaviour
                 foreach (var r in rs) { r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; }
                 holder.SetActive(false); gunModels.Add(holder);
             }
-            catch (Exception e) { Debug.LogWarning("[HUNCH] could not use gun model " + n + ": " + e.Message); if (g) Destroy(g); }
+            catch (Exception e) { HLog.W("Adventure", "could not use gun model " + n + ": " + e.Message); if (g) Destroy(g); }
         }
-        if (gunModels.Count > 0) Debug.Log("[HUNCH] using " + gunModels.Count + " imported gun models");
+        if (gunModels.Count > 0) HLog.I("Adventure", "using " + gunModels.Count + " imported gun models");
     }
 
     void BuildShots()

@@ -51,7 +51,7 @@ public partial class HunchFrontier
                     foreach (var r in holder.GetComponentsInChildren<Renderer>(true)) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                     holder.SetActive(false); extraGun[i] = holder;
                 }
-                catch (Exception e) { Debug.LogWarning("[HUNCH] tool model " + ExtraGunModel[i] + ": " + e.Message); }
+                catch (Exception e) { HLog.W("Minigames", "tool model " + ExtraGunModel[i] + ": " + e.Message); }
             }
         }
         if (eff == extraShown) return; extraShown = eff;
@@ -238,7 +238,7 @@ public partial class HunchFrontier
         BuildBlaster();
         BuildMoonGates();
         Physics.SyncTransforms();
-        Debug.Log("[HUNCH] fun zone: stage " + stageOk + ", zero-G " + zeroOk + ", slicer " + sliceOk + " " + funLog);
+        HLog.I("Minigames", "fun zone: stage " + stageOk + ", zero-G " + zeroOk + ", slicer " + sliceOk + " " + funLog);
     }
 
     /// open, level ground for a pad: first beside the emote stage, then anywhere round the mining field. Never on top of something else.

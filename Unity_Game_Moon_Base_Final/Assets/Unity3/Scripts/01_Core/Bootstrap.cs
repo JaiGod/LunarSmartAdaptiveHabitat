@@ -30,8 +30,8 @@ namespace Hunch3
         }
         static void OnLoaded(Scene s, LoadSceneMode m)
         {
-            if (s.name.Contains("Menu") && !Object.FindFirstObjectByType<MenuBoot>()) { new GameObject("MenuBoot (auto)").AddComponent<MenuBoot>(); Debug.Log("[HUNCH3] MenuBoot started by bootstrap"); }
-            if (s.name.Contains("LunarHabitat") && !Object.FindFirstObjectByType<HabitatBoot>()) { new GameObject("HabitatBoot (auto)").AddComponent<HabitatBoot>(); Debug.Log("[HUNCH3] HabitatBoot started by bootstrap"); }
+            if (s.name.Contains("Menu") && !Object.FindFirstObjectByType<MenuBoot>()) { new GameObject("MenuBoot (auto)").AddComponent<MenuBoot>(); HLog.I("Boot", "MenuBoot started by bootstrap"); }
+            if (s.name.Contains("LunarHabitat") && !Object.FindFirstObjectByType<HabitatBoot>()) { new GameObject("HabitatBoot (auto)").AddComponent<HabitatBoot>(); HLog.I("Boot", "HabitatBoot started by bootstrap"); }
         }
     }
 

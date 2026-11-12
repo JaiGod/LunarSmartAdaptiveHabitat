@@ -143,7 +143,7 @@ namespace Hunch3
             if (GameState.selfTest) MenuBoot.StopXR();
             Physics.gravity = new Vector3(0, -1.62f, 0);
             // neutral lunar interior: no fog haze, no stray post-process volumes tinting the picture
-            Debug.Log($"[HUNCH3] render: fog={RenderSettings.fog} fogCol={RenderSettings.fogColor} mode={RenderSettings.fogMode} dens={RenderSettings.fogDensity} amb={RenderSettings.ambientLight} refl={RenderSettings.defaultReflectionMode}");
+            HLog.I("Render", $"render: fog={RenderSettings.fog} fogCol={RenderSettings.fogColor} mode={RenderSettings.fogMode} dens={RenderSettings.fogDensity} amb={RenderSettings.ambientLight} refl={RenderSettings.defaultReflectionMode}");
             RenderSettings.fog = false;
             // No baked lighting data → Unity falls back to the DEFAULT blue-sky ambient probe + reflection cube,
             // which is what tinted every interior wall teal. Replace both with neutral grey at runtime.
@@ -154,7 +154,7 @@ namespace Hunch3
             cube.Apply();
             RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Custom; RenderSettings.customReflectionTexture = cube; RenderSettings.reflectionIntensity = 0.6f;
             DynamicGI.UpdateEnvironment();
-            foreach (var v in FindObjectsByType<UnityEngine.Rendering.Volume>(FindObjectsInactive.Include, FindObjectsSortMode.None)) { Debug.Log($"[HUNCH3] disabling volume {v.name} (global={v.isGlobal})"); v.enabled = false; }
+            foreach (var v in FindObjectsByType<UnityEngine.Rendering.Volume>(FindObjectsInactive.Include, FindObjectsSortMode.None)) { HLog.I("Render", $"disabling volume {v.name} (global={v.isGlobal})"); v.enabled = false; }
             Nav.Build();
             gameObject.AddComponent<Sim>();
             gameObject.AddComponent<HabitatEnvironment>();
@@ -163,7 +163,9 @@ namespace Hunch3
             gameObject.AddComponent<SmartInteractor>(); SmartObject.All.Clear();   // wellness / medical / life-support systems
             gameObject.AddComponent<WellnessSpawner>();
             gameObject.AddComponent<HabitatDressing>();
-            gameObject.AddComponent<HabitatLEDs>();         // pathway / door / ladder / ceiling-channel / status LEDs, circadian + emergency     // function-first wall equipment, stowage, wardroom table refit
+            gameObject.AddComponent<HabitatLEDs>();
+            gameObject.AddComponent<DebugPanel>();          // F9 debug panel (dev tests live here, not on player keys)
+            gameObject.AddComponent<HabitatGizmos>();       // Scene-view debug drawing         // pathway / door / ladder / ceiling-channel / status LEDs, circadian + emergency     // function-first wall equipment, stowage, wardroom table refit
             gameObject.AddComponent<HabitatOps>();          // how-to-play card, daily ops tasks, repair alerts, rewards
             gameObject.AddComponent<HUD>();
             gameObject.AddComponent<CrewOrdersTicker>(); CrewOrders.active.Clear(); CrewOrders.history.Clear(); CrewOrders.done = 0; HealthCheck.last.Clear(); HealthCheck.scanned.Clear(); HealthCheck.at.Clear(); HealthCheck.lastId = -1; CrewOrders.asked.Clear();
@@ -171,7 +173,7 @@ namespace Hunch3
         }
         void Start()
         {
-            try { RenderFix.Apply(); } catch (System.Exception e) { Debug.LogWarning("[HUNCH3] RenderFix: " + e); }
+            try { RenderFix.Apply(); } catch (System.Exception e) { HLog.W("Render", "RenderFix: " + e); }
             Invoke(nameof(LateRenderReport), 6f);
             for (int n = 1; n <= 4; n++)
             {

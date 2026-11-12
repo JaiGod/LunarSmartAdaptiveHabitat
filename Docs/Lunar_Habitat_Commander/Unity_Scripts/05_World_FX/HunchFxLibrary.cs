@@ -36,9 +36,9 @@ public static class HunchFx
         if (tried) return;
         tried = true; map = new Dictionary<string, GameObject>();
         var lib = Resources.Load<HunchFxLibrary>("HunchFxLibrary");
-        if (!lib) { Debug.Log("[HUNCH] no effect library found (HUNCH > Use imported effect packs creates it)"); return; }
+        if (!lib) { HLog.I("FX", "no effect library found (HUNCH > Use imported effect packs creates it)"); return; }
         for (int i = 0; i < lib.names.Count && i < lib.prefabs.Count; i++) if (lib.prefabs[i]) map[lib.names[i]] = lib.prefabs[i];
-        Debug.Log("[HUNCH] effect library loaded: " + map.Count + " effects");
+        HLog.I("FX", "effect library loaded: " + map.Count + " effects");
     }
 
     public static int Count { get { Load(); return map.Count; } }

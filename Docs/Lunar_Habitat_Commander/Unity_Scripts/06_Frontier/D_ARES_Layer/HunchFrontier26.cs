@@ -133,7 +133,7 @@ public partial class HunchFrontier
     {
         var m = AmCur; if (m == null || ares == null) return;
         amStarted = true; amStep = 0; amFlags.Clear(); amStartH = AR.SimClock.hours - 0.001f;
-        try { m.setup?.Invoke(); } catch (Exception e) { Debug.LogWarning("[HUNCH] mission setup: " + e.Message); }
+        try { m.setup?.Invoke(); } catch (Exception e) { HLog.W("ARES", "mission setup: " + e.Message); }
         ares.Log(0, "mission", "Mission " + (amIndex + 1) + " started: " + m.name);
         Banner("MISSION " + (amIndex + 1), m.name, false);
         sim.Say("ARIA: Mission " + (amIndex + 1) + " — " + m.name + ". " + m.story + " First: " + m.steps[0].text + ". (G = I'll do it with you.)");

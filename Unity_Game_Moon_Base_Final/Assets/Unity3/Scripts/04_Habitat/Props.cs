@@ -136,7 +136,7 @@ namespace Hunch3
                     c.transform.position = p + Vector3.up * 0.4f; c.rb.linearDamping = 0f; c.rb.angularDamping = 0.02f; n++;
                 }
             }
-            Debug.Log($"[HUNCH3] LunarProps: {n} movable props placed (1/6 g physics).");
+            HLog.I("Props", $"LunarProps: {n} movable props placed (1/6 g physics).");
         }
 
         /// put props on the floor of a zone, away from every walking route (so they never block a door)

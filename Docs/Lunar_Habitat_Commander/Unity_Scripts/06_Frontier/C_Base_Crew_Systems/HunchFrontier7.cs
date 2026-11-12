@@ -794,9 +794,9 @@ public partial class HunchFrontier
     void BuildBatch7()
     {
         BuildReads();
-        try { BuildMaps(); } catch (Exception e) { Debug.LogError("[HUNCH] maps: " + e); }
-        try { BuildRichNodes(); } catch (Exception e) { Debug.LogError("[HUNCH] rich nodes: " + e); }
-        try { BuildBank(); BuildHealth(); BuildMeeting(); BuildPicks(); BuildCams(); } catch (Exception e) { Debug.LogError("[HUNCH] base systems: " + e); }
+        try { BuildMaps(); } catch (Exception e) { HLog.E("Crew", "maps: " + e); }
+        try { BuildRichNodes(); } catch (Exception e) { HLog.E("Crew", "rich nodes: " + e); }
+        try { BuildBank(); BuildHealth(); BuildMeeting(); BuildPicks(); BuildCams(); } catch (Exception e) { HLog.E("Crew", "base systems: " + e); }
         if (!musicRef) musicRef = FindFirstObjectByType<HunchMusic>();
         calcLast = Feet();
         if (menu)

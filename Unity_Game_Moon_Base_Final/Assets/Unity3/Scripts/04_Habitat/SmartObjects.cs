@@ -61,7 +61,7 @@ namespace Hunch3
                 var xr = gameObject.AddComponent<XRSimpleInteractable>();
                 xr.hoverEntered.AddListener(_ => VrHover = this); xr.hoverExited.AddListener(_ => { if (VrHover == this) VrHover = null; });
                 xr.selectEntered.AddListener(_ => { HabitatOps.vrSel = true; if (Failed) { SmartInteractor.Report(this, Service(), Key.E); return; } if (actions.Count > 0) { var a = actions[Mathf.Clamp(sel, 0, actions.Count - 1)]; SmartInteractor.Report(this, a.run(this), a.key); } });
-            } catch (Exception e) { Debug.LogWarning("[HUNCH3] XR on " + key + ": " + e.Message); }
+            } catch (Exception e) { HLog.W("Interaction", "XR on " + key + ": " + e.Message); }
             BuildHighlight();
             lastServiceHours = SimClock.hours - UnityEngine.Random.Range(24f, 24f * 20f);
         }
@@ -302,7 +302,7 @@ namespace Hunch3
                 try { log.Add(Spawn(s)); } catch (Exception e) { log.Add($"{s.key}: ERROR {e.Message}"); }
             }
             foreach (var w in Wraps) { try { log.Add(Wrap(w.prefix, w.key, w.title)); } catch (Exception e) { log.Add($"wrap {w.prefix}: ERROR {e.Message}"); } }
-            Debug.Log("[HUNCH3] smart systems placed " + placed + "/" + specs.Length + "\n" + string.Join("\n", log));
+            HLog.I("Interaction", "smart systems placed " + placed + "/" + specs.Length + "\n" + string.Join("\n", log));
             try { System.IO.Directory.CreateDirectory("Reports"); System.IO.File.WriteAllLines("Reports/smart_objects.txt", log); } catch { }
         }
 

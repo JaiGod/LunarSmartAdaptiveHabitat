@@ -67,7 +67,7 @@ public partial class HunchFrontier
         }
         transitionsBuilt = false;      // corridors are laid along the walking paths once the walk mesh is ready (UpdateAresWorld)
         aresWorld.gameObject.SetActive(aresWorldOn);
-        Debug.Log("[HUNCH] ARES in the world: " + game.zones.Count + " zones dressed, " + aresTransitions + " transition corridors");
+        HLog.I("ARES", "ARES in the world: " + game.zones.Count + " zones dressed, " + aresTransitions + " transition corridors");
     }
 
     bool transitionsBuilt;
@@ -106,12 +106,12 @@ public partial class HunchFrontier
                 }
             }
         }
-        Debug.Log("[HUNCH] ARES transition corridors: " + aresTransitions);
+        HLog.I("ARES", "ARES transition corridors: " + aresTransitions);
     }
 
     void UpdateAresWorld()
     {
-        if (!transitionsBuilt && aresWorld && Time.frameCount % 30 == 0) try { BuildTransitions(); } catch (Exception e) { transitionsBuilt = true; Debug.LogWarning("[HUNCH] transitions: " + e.Message); }
+        if (!transitionsBuilt && aresWorld && Time.frameCount % 30 == 0) try { BuildTransitions(); } catch (Exception e) { transitionsBuilt = true; HLog.W("ARES", "transitions: " + e.Message); }
         if (!aresWorld || !aresWorld.gameObject.activeSelf) return;
         var cam = Camera.main; if (!cam) return;
         foreach (var s in aresSigns) if (s) { var d = s.position - cam.transform.position; d.y = 0f; if (d.sqrMagnitude > 0.01f) s.rotation = Quaternion.LookRotation(d); s.gameObject.SetActive(d.sqrMagnitude < 9f * 9f); }   // a sign only when you are near it

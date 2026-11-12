@@ -122,7 +122,7 @@ namespace Hunch3
             sb.AppendLine($"walkway planks (seam bridges) built: {planks}");
             sb.AppendLine($"\nlinks tested {links} · blocked before fix {blockedLinks} · still blocked {still} · hardware colliders made non-solid {disabled.Count} · doorway corridors {corridors.Count}");
             try { System.IO.File.WriteAllText(System.IO.Path.Combine(Application.dataPath, "Unity3", "door_report.txt"), sb.ToString()); } catch { }
-            Debug.Log($"[HUNCH3] DoorPassage: {links} links, {blockedLinks} were blocked, {still} still blocked, {disabled.Count} hardware colliders off, {corridors.Count} corridors.");
+            HLog.I("Doors", $"DoorPassage: {links} links, {blockedLinks} were blocked, {still} still blocked, {disabled.Count} hardware colliders off, {corridors.Count} corridors.");
         }
 
         // Invisible smooth walkway along every nav link: samples the real floor every 0.4 m, bridges seams / lips / gaps
@@ -241,7 +241,6 @@ namespace Hunch3
             Assist(f);
             Contain(f);
             if (Keyboard.current != null && Keyboard.current[Key.U].wasPressedThisFrame) Unstuck();
-            if (Keyboard.current != null && Keyboard.current[Key.F9].wasPressedThisFrame && !walking) StartCoroutine(WalkTest());
         }
 
         // ---- learn doorways from real contact: if you bump into structure ABOVE step height that sits right on a walking
@@ -264,7 +263,7 @@ namespace Hunch3
             if (!found) return;
             corridors.Add(new Corridor { a = best.a, b = best.b, col = c });
             Physics.IgnoreCollision(cc, c, true); ignored.Add(c);
-            Debug.Log($"[HUNCH3] doorway learned: {c.name} made passable along {V(best.a)}→{V(best.b)} (hit {probe.above:0.00} m up)");
+            HLog.I("Doors", $"doorway learned: {c.name} made passable along {V(best.a)}→{V(best.b)} (hit {probe.above:0.00} m up)");
         }
 
         bool Overlaps(Collider c)
@@ -327,14 +326,16 @@ namespace Hunch3
             if (outsideT > 0.12f && haveInside)
             {
                 outsideT = 0;
-                Debug.Log($"[HUNCH3] containment: pulled back from {f} (floor={(floor ? hd.collider.name : "none")}, roof={roof}) to {lastInside}");
+                HLog.I("Doors", $"containment: pulled back from {f} (floor={(floor ? hd.collider.name : "none")}, roof={roof}) to {lastInside}");
                 cc.enabled = false; cc.transform.position = lastInside + Vector3.up * 0.02f; cc.enabled = true; ignored.Clear(); ccWasEnabled = true;
                 if (Time.time > warnAt) { warnAt = Time.time + 5f; HUD.I?.Toast("⛔ That's vacuum out there! You can only go outside in a spacesuit — use the suitport in the Airlock module."); }
             }
         }
 
-        // ---- F9: real walk test — drives the player's own CharacterController along every link with physics ----
+        // ---- door walk test (debug panel F9 → 2) — drives the player's own CharacterController along every link with physics ----
         bool walking; public static bool Walking => I && I.walking;
+        /// developer test (debug panel F9 → 2): walks every doorway and logs which ones are passable
+        public void RunWalkTest() { if (!walking) { StartCoroutine(WalkTest()); HLog.I("Doors", "walk test started"); } }
         System.Collections.IEnumerator WalkTest()
         {
             walking = true; var pr = PlayerRig.I; if (pr) pr.autopilot = false;
@@ -353,7 +354,7 @@ namespace Hunch3
             }
             sb.AppendLine($"\nlinks walked {pairs.Count} · both directions OK {ok} · failed {fail}");
             try { System.IO.File.WriteAllText(System.IO.Path.Combine(Application.dataPath, "Unity3", "walk_report.txt"), sb.ToString()); } catch { }
-            Debug.Log($"[HUNCH3] WalkTest: {ok}/{pairs.Count} links walkable both ways, {fail} failed.");
+            HLog.I("Doors", $"WalkTest: {ok}/{pairs.Count} links walkable both ways, {fail} failed.");
             HUD.I?.Toast($"Walk test done: {ok}/{pairs.Count} hallway links walkable both ways ({fail} failed).");
             walking = false;
         }

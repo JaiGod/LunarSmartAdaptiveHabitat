@@ -43,8 +43,8 @@ public static class HunchBoot
                 var m = t.GetMethod("Boot", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, null, Type.EmptyTypes, null);
                 if (m != null) m.Invoke(null, null);
             }
-            catch (Exception e) { Debug.LogWarning("[HUNCH] could not restart " + name + ": " + (e.InnerException ?? e).Message); }
+            catch (Exception e) { HLog.W("Core", "could not restart " + name + ": " + (e.InnerException ?? e).Message); }
         }
-        Debug.Log("[HUNCH] scene loaded again (restart " + Restarts + "): game parts re-attached");
+        HLog.I("Core", "scene loaded again (restart " + Restarts + "): game parts re-attached");
     }
 }

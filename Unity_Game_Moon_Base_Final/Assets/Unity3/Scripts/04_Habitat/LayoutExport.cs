@@ -51,7 +51,7 @@ namespace Hunch3
             var empt = root ? root.GetComponentsInChildren<Transform>(true).Where(t => !t.GetComponent<Renderer>() && (t.name.StartsWith("SPAWN_") || t.name.StartsWith("ZONE_") || t.name.StartsWith("X_") || t.name.StartsWith("S_"))) : Enumerable.Empty<Transform>();
             sb.Append(string.Join(",\n", empt.Select(t => $"{{\"n\":\"{Esc(t.name)}\",\"x\":{F(t.position.x)},\"y\":{F(t.position.y)},\"z\":{F(t.position.z)}}}")));
             sb.Append("\n]\n}\n");
-            try { System.IO.File.WriteAllText(System.IO.Path.Combine(Application.dataPath, "Unity3", "layout_export.json"), sb.ToString()); Debug.Log("[HUNCH3] layout exported"); } catch (System.Exception e) { Debug.LogWarning(e); }
+            try { System.IO.File.WriteAllText(System.IO.Path.Combine(Application.dataPath, "Unity3", "layout_export.json"), sb.ToString()); HLog.I("Layout", "layout exported"); } catch (System.Exception e) { Debug.LogWarning(e); }
         }
     }
 }

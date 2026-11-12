@@ -144,7 +144,7 @@ namespace Hunch3
         {
             var m = CurMission; if (m == null || E == null) return;
             mStarted = true; mStep = 0; mFlags.Clear(); mStartH = SimClock.hours - 0.001f;
-            try { m.setup?.Invoke(); } catch (Exception ex) { Debug.LogWarning("[HUNCH3] mission setup: " + ex.Message); }
+            try { m.setup?.Invoke(); } catch (Exception ex) { HLog.W("Missions", "setup: " + ex.Message); }
             E.Log(0, "mission", $"Mission {mIndex + 1} started: {m.name}");
             if (flashText) flashText.text = $"<b>MISSION {mIndex + 1} of {missions.Count}: {m.name}</b>\n<size=18>{m.story}</size>";
             flashUntil = Time.time + 6f;
@@ -169,7 +169,7 @@ namespace Hunch3
             if (Hazards.I && Hazards.I.Active && Near(Hazards.I.Muster)) { if (atMusterSince < 0) atMusterSince = Time.time; else if (Time.time - atMusterSince > 12f) { Hazards.I.Clear("all 4 crew accounted for (you at the muster point, the rest by radio roll call)"); atMusterSince = -1; } }
             else atMusterSince = -1;
             BedtimeTick();
-            try { DailyTick(); } catch (Exception ex) { Debug.LogWarning("[HUNCH3] daily: " + ex.Message); }
+            try { DailyTick(); } catch (Exception ex) { HLog.W("Missions", "daily: " + ex.Message); }
             var m = CurMission; if (m == null || GameState.mode != GameMode.Sandbox) return;
             if (!mStarted) { if (SleepSystem.PlayerAsleep) return; StartMission(); return; }      // the next mission waits until you wake up
             while (mStep < m.steps.Count) { bool ok = false; try { ok = m.steps[mStep].done(); } catch { } if (!ok) break; mStep++; SpaceRealism.I?.Quindar(); if (mStep < m.steps.Count) PopTask("✓ STEP DONE!  NEXT TASK:", m.steps[mStep]); }

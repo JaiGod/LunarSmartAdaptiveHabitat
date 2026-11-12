@@ -129,7 +129,7 @@ public partial class HunchFrontier
             Plate(p, "TELESCOPE", 4.3f);
         }
         A("Ship spotter", "Go outside and look up at the ships circling the base.", () => flyers.Count > 0 && Playing && fx && fx.Outside && cam.forward.y > 0.25f);
-        Debug.Log("[HUNCH] Drive models placed: " + driveCount + driveLog);
+        HLog.I("Adventure", "Drive models placed: " + driveCount + driveLog);
     }
 
     void UpdateDriveModels(float dt)

@@ -494,7 +494,7 @@ public partial class HunchFrontier
                 RenderTexture.active = prev; RenderTexture.ReleaseTemporary(rt);
                 File.WriteAllBytes(Path.Combine(dir, "f_" + recFrames.ToString("0000") + ".jpg"), small.EncodeToJPG(72)); recFrames++;
             }
-            catch (Exception e) { Debug.LogWarning("[HUNCH] recorder: " + e.Message); recording = false; }
+            catch (Exception e) { HLog.W("Adventure", "recorder: " + e.Message); recording = false; }
             if (full) Destroy(full); if (small) Destroy(small);
         }
     }

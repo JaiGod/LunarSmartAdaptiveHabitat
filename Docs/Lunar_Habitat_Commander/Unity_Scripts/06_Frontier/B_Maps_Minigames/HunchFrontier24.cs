@@ -66,7 +66,7 @@ public partial class HunchFrontier
         };
         foreach (var it in HunchStore.Items) storeDetail[it.sku] = MakeDetail(it);
         menu.SetStore(storePage, StoreButtonLabel);
-        try { BuildKiosk(); } catch (Exception e) { Debug.LogError("[HUNCH] store showcase: " + e); }
+        try { BuildKiosk(); } catch (Exception e) { HLog.E("Minigames", "store showcase: " + e); }
     }
 
     string StoreButtonLabel()

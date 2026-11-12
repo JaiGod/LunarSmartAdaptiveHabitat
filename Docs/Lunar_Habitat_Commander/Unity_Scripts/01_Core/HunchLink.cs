@@ -44,18 +44,18 @@ public class HunchLink : MonoBehaviour
     {
         game = GetComponent<HabitatGame>();
         try { page = File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, "hunch-crew-health.html")); }
-        catch (Exception e) { page = null; Debug.LogWarning("[HUNCH] link: web page not found: " + e.Message); }
+        catch (Exception e) { page = null; HLog.W("Core", "link: web page not found: " + e.Message); }
         for (int p = 8765; p <= 8770 && !Running; p++)
         {
             try
             {
                 Port = p; listener = new HttpListener(); listener.Prefixes.Add(Url); listener.Start();
                 Running = true; listener.BeginGetContext(OnRequest, listener);
-                Debug.Log("[HUNCH] live link for the Crew Health page: " + Url);
+                HLog.I("Core", "live link for the Crew Health page: " + Url);
             }
             catch (Exception e) { Running = false; Problem = e.Message; try { if (listener != null) listener.Close(); } catch { } listener = null; }
         }
-        if (!Running) { Port = 8765; Debug.Log("[HUNCH] live link is off (another program uses the ports 8765 to 8770): " + Problem); }
+        if (!Running) { Port = 8765; HLog.I("Core", "live link is off (another program uses the ports 8765 to 8770): " + Problem); }
     }
 
     // runs on a background thread: it only hands out text prepared on the main thread
@@ -97,12 +97,12 @@ public class HunchLink : MonoBehaviour
             lock (queue) { if (queue.Count > 0) q = queue.Dequeue(); }
             if (q == null) break;
             commands++;
-            try { frontier.LinkCommand(q); } catch (Exception e) { Debug.LogWarning("[HUNCH] link command failed: " + e.Message); }
+            try { frontier.LinkCommand(q); } catch (Exception e) { HLog.W("Core", "link command failed: " + e.Message); }
         }
         tick -= Time.unscaledDeltaTime;
         if (tick > 0f) return;
         tick = 0.5f;
-        try { string s = frontier.LinkJson(); if (!string.IsNullOrEmpty(s)) json = s; } catch (Exception e) { Debug.LogWarning("[HUNCH] link state failed: " + e.Message); }
+        try { string s = frontier.LinkJson(); if (!string.IsNullOrEmpty(s)) json = s; } catch (Exception e) { HLog.W("Core", "link state failed: " + e.Message); }
     }
 
     void Close()

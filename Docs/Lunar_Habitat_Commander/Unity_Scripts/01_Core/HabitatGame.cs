@@ -266,7 +266,7 @@ public class HabitatGame : MonoBehaviour
     public void GoToUrgent()
     {
         if (!started || menuOpen || zones.Count == 0 || sim.phase == HabPhase.Briefing || sim.phase == HabPhase.Report) return;
-        if (UrgentZone() < 0 && sim.phase == HabPhase.Mission && UrgentExtra != null) { bool done = false; try { done = UrgentExtra(); } catch (System.Exception e) { Debug.LogWarning("[HUNCH] mission step: " + e.Message); } if (done) return; }
+        if (UrgentZone() < 0 && sim.phase == HabPhase.Mission && UrgentExtra != null) { bool done = false; try { done = UrgentExtra(); } catch (System.Exception e) { HLog.W("Core", "mission step: " + e.Message); } if (done) return; }
         if (!TeleOk()) return;
         int k = UrgentZone();
         if (k < 0 && sim.phase == HabPhase.Commissioning) k = ZoneIndex(HabitatSim.AdjacencyOrder[Mathf.Min(sim.tutorialIndex, HabitatSim.AdjacencyOrder.Length - 1)]);

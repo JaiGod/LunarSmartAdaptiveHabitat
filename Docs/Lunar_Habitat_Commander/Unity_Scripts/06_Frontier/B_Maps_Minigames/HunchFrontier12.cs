@@ -230,7 +230,7 @@ public partial class HunchFrontier
             }
             if (storePage != null) m.AddItem("<b>STAR STORE</b>   costumes, Lumi outfits, Supporter Pack", "One-time add-ons from the Meta Horizon Store. Star coins are never sold: they are only earned by playing.", () => m.OpenExtra(storePage), 1);
         };
-        try { BuildStore(); } catch (Exception e) { Debug.LogError("[HUNCH] store: " + e); }
+        try { BuildStore(); } catch (Exception e) { HLog.E("Minigames", "store: " + e); }
     }
     bool Spend(int n) { if (lvCoins < n) { Play(cBoop, 0.4f); Note("That costs " + n + " star coins. You have " + lvCoins + ". Presents, Lumi and the boss give coins."); return false; } lvCoins -= n; LvSave(); Play(cPick, 0.6f); return true; }
     void CostumePick(int i)

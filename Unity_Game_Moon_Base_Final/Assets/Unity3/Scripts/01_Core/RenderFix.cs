@@ -76,7 +76,7 @@ namespace Hunch3
             }
             if (!Object.FindFirstObjectByType<LightShadowBudget>()) new GameObject("LightShadowBudget").AddComponent<LightShadowBudget>();
             try { System.IO.File.WriteAllText(System.IO.Path.Combine(Application.dataPath, "Unity3", "render_report.txt"), sb.ToString()); } catch { }
-            Debug.Log("[HUNCH3] RenderFix applied\n" + sb);
+            HLog.I("Render", "fix applied\n" + sb);
         }
     }
 

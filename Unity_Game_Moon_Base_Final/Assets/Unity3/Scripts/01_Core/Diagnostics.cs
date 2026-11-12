@@ -37,7 +37,7 @@ namespace Hunch3
             }
             if (PlayerRig.I) sb.AppendLine($"PLAYER feet {V(PlayerRig.I.FeetPosition)} cam {V(PlayerRig.I.cam.transform.position)}");
             string p = System.IO.Path.Combine(Application.dataPath, "Unity3", "diag_positions.txt");
-            System.IO.File.WriteAllText(p, sb.ToString()); Debug.Log("[HUNCH3] diagnostics → " + p);
+            System.IO.File.WriteAllText(p, sb.ToString()); HLog.I("Diagnostics", "report → " + p);
         }
     }
 }

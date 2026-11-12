@@ -38,12 +38,13 @@ namespace Hunch3
             bool bf = Physics.queriesHitBackfaces; Physics.queriesHitBackfaces = true;
             path = HUD.Glow(new Color(.25f, .55f, 1f)); ceil = HUD.Glow(new Color(1f, .97f, .92f)); door = HUD.Glow(new Color(.75f, .9f, 1f)); ladder = HUD.Glow(new Color(1f, .7f, .2f));
             var pv = new MeshB(); var cv = new MeshB(); var dv = new MeshB(); var lv = new MeshB();
-            try { Pathways(pv, cv); } catch (System.Exception e) { Debug.LogWarning("[LED] path " + e.Message); }
-            try { Doors(dv); } catch (System.Exception e) { Debug.LogWarning("[LED] doors " + e.Message); }
-            try { Ladders(lv); } catch (System.Exception e) { Debug.LogWarning("[LED] ladder " + e.Message); }
+            try { Pathways(pv, cv); } catch (System.Exception e) { HLog.W("Lighting", "pathway strips: " + e.Message); }
+            try { Doors(dv); } catch (System.Exception e) { HLog.W("Lighting", "door outlines: " + e.Message); }
+            try { Ladders(lv); } catch (System.Exception e) { HLog.W("Lighting", "ladder strips: " + e.Message); }
             Physics.queriesHitBackfaces = bf;
             foreach (var m in new[] { path, ceil, door, ladder }) if (m.HasProperty("_Cull")) m.SetFloat("_Cull", 0);   // thin strips: draw both sides
             pv.Make("LED_Pathway", path, null); cv.Make("LED_CeilingChannels", ceil, null); dv.Make("LED_DoorOutlines", door, null); lv.Make("LED_LadderRails", ladder, null);
+            HLog.I("Lighting", $"LED strips {strips} · {meters:0} m · status LEDs {status.Count}");
             try { System.IO.File.WriteAllText(System.IO.Path.Combine(GameState.ReportsDir, "leds.txt"), $"LED strips {strips} · {meters:0} m (~{meters * 0.5f:0} W) · status LEDs {status.Count}\n"); } catch { }
         }
 

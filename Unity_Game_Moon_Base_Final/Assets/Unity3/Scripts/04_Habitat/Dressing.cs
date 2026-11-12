@@ -61,7 +61,7 @@ namespace Hunch3
                 int k = 0; foreach (var it in r.items) if (Place(it, w.position, k++)) made++;
             }
             Physics.queriesHitBackfaces = bf;
-            log.Insert(0, $"habitat dressing: {made} items\n");
+            log.Insert(0, $"habitat dressing: {made} items\n"); HLog.I("Habitat", $"dressing placed {made} wall/stowage items");
             try { System.IO.File.WriteAllText(System.IO.Path.Combine(GameState.ReportsDir, "dressing.txt"), log.ToString()); } catch { }
         }
 

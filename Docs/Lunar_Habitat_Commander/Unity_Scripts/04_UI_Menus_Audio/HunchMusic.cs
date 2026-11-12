@@ -37,7 +37,7 @@ public class HunchMusic : MonoBehaviour
     {
         if (FindFirstObjectByType<HunchMusic>()) return;
         var clip = Resources.Load<AudioClip>("HUNCH_Music_OutThere");
-        if (!clip) Debug.LogWarning("[HUNCH] recorded music clip not found; the made-up styles still work");
+        if (!clip) HLog.W("UI", "recorded music clip not found; the made-up styles still work");
         var go = new GameObject("HUNCH Music");
         DontDestroyOnLoad(go);
         var m = go.AddComponent<HunchMusic>();

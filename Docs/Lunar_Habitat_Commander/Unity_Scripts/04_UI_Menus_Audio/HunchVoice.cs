@@ -69,7 +69,7 @@ public class HunchVoice : MonoBehaviour
             tts = System.Diagnostics.Process.Start(psi);
             SpeakAvailable = tts != null && !tts.HasExited;
         }
-        catch (Exception e) { tts = null; SpeakAvailable = false; Debug.Log("[HUNCH] voice output not available: " + e.Message); }
+        catch (Exception e) { tts = null; SpeakAvailable = false; HLog.I("UI", "voice output not available: " + e.Message); }
     }
 
     void Send(string line)
@@ -142,7 +142,7 @@ public class HunchVoice : MonoBehaviour
             if (!Listening) ListenProblem = "the recogniser did not start (check Windows Settings > Privacy > Microphone and Speech)";
         }
         catch (Exception e) { ListenProblem = e.Message; Listening = false; rec = null; }
-        if (!Listening) Debug.Log("[HUNCH] voice commands not available: " + ListenProblem);
+        if (!Listening) HLog.I("UI", "voice commands not available: " + ListenProblem);
         return Listening;
     }
 
@@ -175,7 +175,7 @@ public class HunchVoice : MonoBehaviour
             Dictating = true; dictEnded = false;
         }
         catch (Exception e) { DictationProblem = e.Message; EndDictation(); }
-        if (!Dictating) Debug.Log("[HUNCH] speech to text not available: " + DictationProblem);
+        if (!Dictating) HLog.I("UI", "speech to text not available: " + DictationProblem);
         return Dictating;
     }
 

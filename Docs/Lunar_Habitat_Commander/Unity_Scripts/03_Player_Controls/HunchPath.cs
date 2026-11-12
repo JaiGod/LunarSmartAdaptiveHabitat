@@ -50,9 +50,9 @@ public class HunchPath : MonoBehaviour
         if (op == null) yield break;
         BuildSeconds = Time.realtimeSinceStartup - t0;
         var tri = NavMesh.CalculateTriangulation();
-        if (tri.vertices == null || tri.vertices.Length < 30) { Failed = true; Info = "no walkable map could be made from the model (its meshes may not allow reading in a built game)"; Debug.LogWarning("[HUNCH] path: " + Info); yield break; }
+        if (tri.vertices == null || tri.vertices.Length < 30) { Failed = true; Info = "no walkable map could be made from the model (its meshes may not allow reading in a built game)"; HLog.W("Player", "path: " + Info); yield break; }
         Ready = true; Info = "walkable map ready: " + (tri.indices.Length / 3) + " pieces from " + Sources + " shapes in " + BuildSeconds.ToString("F1") + " s" + (Unreadable > 0 ? " (" + Unreadable + " shapes are not readable outside the Editor)" : "");
-        Debug.Log("[HUNCH] path: " + Info);
+        HLog.I("Player", "path: " + Info);
     }
 
     void Begin()
@@ -83,7 +83,7 @@ public class HunchPath : MonoBehaviour
             data = new NavMeshData(s.agentTypeID); inst = NavMesh.AddNavMeshData(data);
             op = NavMeshBuilder.UpdateNavMeshDataAsync(data, s, src, bounds); Info = "building the walkable map from " + Sources + " shapes";
         }
-        catch (System.Exception e) { Failed = true; op = null; Info = "could not start: " + e.Message; Debug.LogWarning("[HUNCH] path: " + Info); }
+        catch (System.Exception e) { Failed = true; op = null; Info = "could not start: " + e.Message; HLog.W("Player", "path: " + Info); }
     }
     static string TopName(Transform t) { while (t.parent) t = t.parent; return t.name; }
 

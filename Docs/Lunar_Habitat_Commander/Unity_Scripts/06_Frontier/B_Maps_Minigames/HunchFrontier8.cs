@@ -176,7 +176,7 @@ public partial class HunchFrontier
 
         A("Iron age", "Smelt your first iron bar in Factory Land.", () => facBars > 0);
         A("Factory boss", "Make a base panel and ship it from the rocket pad.", () => facShipped > 0);
-        try { FacKit(r); } catch (Exception e) { Debug.LogError("[HUNCH] factory kit: " + e); }
+        try { FacKit(r); } catch (Exception e) { HLog.E("Minigames", "factory kit: " + e); }
         A("Green thumb", "Harvest five crops from the garden.", () => facHarvest >= 5);
     }
 

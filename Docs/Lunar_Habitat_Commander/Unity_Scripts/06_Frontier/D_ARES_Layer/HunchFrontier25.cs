@@ -57,7 +57,7 @@ public partial class HunchFrontier
         }
         treeLog = trees + " trees outside the greenhouse removed (" + tris + " triangles) " + perMesh + (treeLog.Length > 0 ? "; " + treeLog : "");
         Physics.SyncTransforms();
-        Debug.Log("[HUNCH] floors: " + floorLog + " | trees: " + treeLog);
+        HLog.I("ARES", "floors: " + floorLog + " | trees: " + treeLog);
     }
 
     /// Finds trees in a baked mesh by their shape (a cluster of round crowns on a trunk) and cuts them out. Works in world space,
@@ -179,8 +179,8 @@ public partial class HunchFrontier
         aresSheet = reads.Count;
         reads.Add(new ReadItem { title = "Project ARES", zone = "Project ARES", got = true, body = () => aresSheetText });
         BuildAresMenu();
-        try { BuildAresMissions(); } catch (Exception e) { Debug.LogError("[HUNCH] ARES missions: " + e); }
-        try { BuildAresWorld(); AddAresWorldMenu(); } catch (Exception e) { Debug.LogError("[HUNCH] ARES world: " + e); }
+        try { BuildAresMissions(); } catch (Exception e) { HLog.E("ARES", "ARES missions: " + e); }
+        try { BuildAresWorld(); AddAresWorldMenu(); } catch (Exception e) { HLog.E("ARES", "ARES world: " + e); }
     }
     float AresNow() { return (sim.Day - 1) * 24f + sim.Hour; }
     string AresTypeOf(string id)
@@ -201,7 +201,7 @@ public partial class HunchFrontier
     {
         if (ares == null) return;
         try { UpdateAresWorld(); } catch { }
-        try { UpdateAresMissions(dt); } catch (Exception e) { if (!aresMissionErr) { aresMissionErr = true; Debug.LogError("[HUNCH] ARES missions: " + e); } }
+        try { UpdateAresMissions(dt); } catch (Exception e) { if (!aresMissionErr) { aresMissionErr = true; HLog.E("ARES", "ARES missions: " + e); } }
         var kb = Keyboard.current;
         if (kb != null && !game.menuOpen && readOpen < 0)
         {

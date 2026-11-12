@@ -206,7 +206,7 @@ public partial class HunchFrontier
         int reach = 0; var chk = new List<Vector3>(); for (int j = 0; j < pts.Count; j++) { if (j == root) { reach++; continue; } float cl; bool cc2; if (hp.Find(start, pts[j], chk, out cl, out cc2) && cc2) reach++; }
         airLog = "airlock doors " + airDoors + ", lifts " + airLifts + ", places you can walk to " + reach + " of " + pts.Count + (airFailed > 0 ? ", problems " + airFailed + ": " + airLog : "");
         HunchPath.HubSet = true;
-        Debug.Log("[HUNCH] ways through the base: " + airLog);
+        HLog.I("Crew", "ways through the base: " + airLog);
         airBuilt = true;
     }
 

@@ -116,7 +116,7 @@ public class HunchSelfTest : MonoBehaviour
             }
             nav.debugIntent = Vector3.zero;
             txt += leg[0] + " -> " + leg[1] + ": " + (dist < 1.2f ? "ARRIVED" : "STUCK at " + dist.ToString("F1") + " m") + " in " + (Time.time - t0).ToString("F1") + " s, auto-door used " + (nav.passes - p0) + " times, height " + nav.Feet().y.ToString("F2") + " (target " + target.y.ToString("F2") + ")\n";
-            Debug.Log("[HUNCH] navtest " + leg[0] + " -> " + leg[1] + " dist " + dist.ToString("F1") + " passes " + (nav.passes - p0));
+            HLog.I("Core", "navtest " + leg[0] + " -> " + leg[1] + " dist " + dist.ToString("F1") + " passes " + (nav.passes - p0));
             yield return null;
         }
         game.GoTo(game.ZoneIndex("shelter")); yield return new WaitForSeconds(0.3f);

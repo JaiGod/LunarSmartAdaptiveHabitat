@@ -68,7 +68,7 @@ namespace Hunch3
             var nb = r.bounds;
             transform.position += new Vector3(doorX - nb.center.x, 0, (hullZ - 0.05f) - nb.center.z);
             toggled = true;
-            Debug.Log($"[HUNCH3] airlock outer hatch sealed: turned {yaw:0}°, now at {r.bounds.center}");
+            HLog.I("Interaction", $"airlock outer hatch sealed: turned {yaw:0}°, now at {r.bounds.center}");
         }
 
         public string Prompt
@@ -259,7 +259,7 @@ namespace Hunch3
     public static class Aim
     {
         static int frame = -1; public static HabInteractable Hab; public static SmartObject Smart;
-        const float HabReach = 2.9f, SmartReach = 3.8f, Cone = 14f;
+        public const float HabReach = 2.9f, SmartReach = 3.8f, Cone = 14f;
         public static void Resolve()
         {
             if (frame == Time.frameCount) return; frame = Time.frameCount; Hab = null; Smart = null;

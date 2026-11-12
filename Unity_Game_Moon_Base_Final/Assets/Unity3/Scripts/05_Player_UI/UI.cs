@@ -182,7 +182,7 @@ namespace Hunch3
             K("Q", "menu", "FFB74D") + "   " + K("Tab", "crew health", "FFB74D") + "   " + K("H", "help", "FFB74D") + "   " + K("M", "map", "FFB74D") + "   " + K("N", "go to room", "FFB74D") + "   " + K("P", "psych dashboard", "BA68C8") + "   " + K("L", "life support", "BA68C8") + "   " +
             K("G", "wave", "F06292") + "   " + K("T", "time speed", "F06292") + "\n" +
             K("F1", "AI dashboard", "4DD0E1") + "   " + K("F2", "CMO", "4DD0E1") + "   " + K("F3", "meeting", "4DD0E1") + "   " + K("F4", "tabletop", "4DD0E1") + "   " + K("F5", "board Qs", "4DD0E1") + "   " + K("I", "CHECK ON CREW", "F48FB1") + "   " +
-            K("F6", "safety drill", "E57373") + "   " + K("F7", "quick travel", "AED581") + "   " + K("F8", "ladder test", "AED581") + "   " + K("F10", "outside cameras", "AED581") + "   " + K("U", "unstuck", "FFD54F") + "   " + K("K", "hide this bar", "B0BEC5") + "\n" +
+            K("F6", "safety drill", "E57373") + "   " + K("F7", "quick travel", "AED581") + "   " + K("F9", "debug panel", "AED581") + "   " + K("F10", "outside cameras", "AED581") + "   " + K("U", "unstuck", "FFD54F") + "   " + K("K", "hide this bar", "B0BEC5") + "\n" +
             K("J", "all tasks", "FFD54F") + "   " + K("Shift+J", "rubric", "FFD54F") + "   " + K("`", "all panels", "4DD0E1") + "   " + K("B", "find my bed", "FFB74D") + "   " + K("F", "3rd-person view", "BA68C8") + "   " + K("E / click", "pick up · throw boxes & tools", "81C784") + "   " + K("O", "AI OFF SWITCH", "FF5252");
         public static readonly string KeysVR =
             K("Left stick", "move", "4FC3F7") + "   " + K("Right stick", "turn", "4FC3F7") + "   " + K("Grip", "teleport", "81C784") + "   " + K("Trigger", "use · ladder · sleep · wake", "81C784") + "   " +
@@ -218,7 +218,7 @@ namespace Hunch3
   F1  AI dashboard   F2  CMO console   F3  Team meeting   F4  Tabletop simulation   F5  Board scenarios Q1–Q6   F11  ARES deliverables D1–D4
   C   Config A ↔ B (conflict protocol)   T  time speed   Z  zone info cards   Q  main menu (VR: left-stick click)   U  unstuck   F12 screenshot   Esc  close / menu
 <b>Life</b>  Sleep: E on your bed (Pod 1) — 1 real minute = the whole night, lights OFF, sunrise wake-up · Ladder: E on it, then W / S (VR: stick or grip-and-pull)
-  G (VR: raise a hand + wave)  wave hello · F6  safety drill / alarm (red lights, klaxon, muster) · F9  door walk test
+  G (VR: raise a hand + wave)  wave hello · F6  safety drill / alarm (red lights, klaxon, muster) · F9  debug panel (FPS, position, room, logs, tests)
 <b>Going outside</b>  Go to the suit room (Airlock module) → interact with a suitport hatch → 6-step don procedure.
   Return to your suit's platform and press E / trigger to dock. The airlock is the contingency route (suit required).";
 
