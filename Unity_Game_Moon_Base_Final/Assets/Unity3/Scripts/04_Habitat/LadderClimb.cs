@@ -83,6 +83,15 @@ namespace Hunch3
                 Vector3 f = pr.FeetPosition; float hd = new Vector2(f.x - Stand.x, f.z - Stand.z).magnitude;
                 bool nearEnd = Mathf.Abs(f.y - Top.y) < 0.6f || Mathf.Abs(f.y - Bottom.y) < 0.6f;
                 bool near = hd < 1.6f && nearEnd && pr.suit != SuitState.EVA && !SleepSystem.PlayerAsleep;
+                // E belongs to the ladder only when you are actually facing it (or right on it) AND you are not
+                // looking at something else you can use — otherwise it stole E from every system around the core hub.
+                if (near && !pr.isXR && pr.cam)
+                {
+                    Vector3 to = new Vector3(Stand.x - f.x, 0, Stand.z - f.z), fw = pr.cam.transform.forward; fw.y = 0;
+                    bool facing = hd < 0.7f || (to.sqrMagnitude > 1e-4f && fw.sqrMagnitude > 1e-4f && Vector3.Angle(fw, to) < 45f);
+                    bool other = (HabInteractable.Hover && HabInteractable.Hover.kind != "climb_ladder") || SmartObject.Hover;
+                    near = facing && !other;
+                }
                 if (near && !wasNear) HUD.I?.Toast(Mathf.Abs(f.y - Top.y) < 0.6f ? "Ladder down to the lower deck — press E (VR: trigger) to climb down." : "Ladder up to the wardroom deck — press E (VR: trigger) to climb up.");
                 wasNear = near;
                 if (near)

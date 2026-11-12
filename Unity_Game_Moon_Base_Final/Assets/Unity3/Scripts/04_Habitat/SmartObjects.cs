@@ -41,7 +41,7 @@ namespace Hunch3
         public Func<SmartObject, string[]> telemetry = _ => new string[0];
         public Func<SmartObject, string[]> advice = _ => new string[0];
         public Action<SmartObject> tick;
-        public GameObject model; public Bounds localBounds;
+        public GameObject model; public Bounds localBounds; public Vector3 facing = Vector3.forward;
         GameObject highlight; TextMesh label; float lastHours = -1, nextLabel;
 
         public bool Failed => integrity < .35f;
@@ -143,7 +143,7 @@ namespace Hunch3
     /// Desktop look-at selection, context keys, TAB diagnostics and hold-RMB engineering scan.
     public class SmartInteractor : MonoBehaviour
     {
-        bool diag; string last = ""; float lastUntil; SmartObject lastObj;
+        bool diag; public static bool debugDiag; string last = ""; float lastUntil; SmartObject lastObj;
         GUIStyle box, txt;
         public static void Report(SmartObject so, string msg)
         {
@@ -161,8 +161,11 @@ namespace Hunch3
                 var hits = Physics.RaycastAll(new Ray(origin, pr.cam.transform.forward), 3.6f, ~0, QueryTriggerInteraction.Collide).OrderBy(h => h.distance);
                 foreach (var h in hits)
                 {
-                    if (h.collider.transform.IsChildOf(pr.transform)) continue;
-                    hit = h.collider.GetComponentInParent<SmartObject>(); break;
+                    if (h.collider.transform.IsChildOf(pr.transform) || h.collider.GetComponentInParent<CharacterController>()) continue;
+                    var so = h.collider.GetComponentInParent<SmartObject>();
+                    if (so) { hit = so; break; }
+                    if (h.collider.isTrigger) continue;          // zone volumes, open doorways etc. don't block your view
+                    break;                                         // a solid wall/object in front: nothing selected
                 }
             }
             if (SmartObject.Hover && SmartObject.Hover != hit) SmartObject.Hover.SetHighlight(false);
@@ -183,7 +186,7 @@ namespace Hunch3
                 box = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, richText = true, fontSize = 15, wordWrap = true, padding = new RectOffset(14, 14, 12, 12) };
                 var tex = new Texture2D(1, 1); tex.SetPixel(0, 0, new Color(.02f, .05f, .12f, .88f)); tex.Apply(); box.normal.background = tex; box.normal.textColor = Color.white;
             }
-            string[] lines = Scanning ? so.Engineering() : diag ? so.Diagnostics() : null;
+            string[] lines = Scanning ? so.Engineering() : diag || debugDiag ? so.Diagnostics() : null;
             if (lines == null) return;
             float w = Mathf.Min(460, Screen.width * .4f), h = 30 + lines.Length * 21;
             var r = new Rect(Screen.width - w - 20, Screen.height * .18f, w, h);
@@ -197,14 +200,29 @@ namespace Hunch3
     public class WellnessSpawner : MonoBehaviour
     {
         public struct Spec { public string key, anchor; public bool wall; public float plinth, scale; public Spec(string k, string a, bool w = false, float p = 0, float s = 1) { key = k; anchor = a; wall = w; plinth = p; scale = s; } }
+        /// New hardware only where the habitat has no equivalent yet; it goes in the zone that uses it, on a wall when it is a wall unit.
+        /// (The habitat already has a greenhouse, ECLSS racks, a medical bay, VR retreat, lounge and beds: those are WRAPPED below
+        /// as smart systems instead of adding duplicates — every cubic metre on the Moon is expensive.)
         public static readonly Spec[] Realistic =
         {
-            new Spec("recovery_pod_healthy", "WP_H_C"), new Spec("medical_scanner", "WP_H_C"), new Spec("heart_rate_monitor", "WP_H_C"), new Spec("bp_monitor", "WP_H_C", true),
-            new Spec("smart_bed", "WP_H_C"), new Spec("ai_health_hub", "WP_N_C"), new Spec("habitat_console", "WP_N_C"), new Spec("sensor_wall", "WP_N_C", true),
-            new Spec("eclss_core", "WP_EclA_In"), new Spec("oxygen_tanks", "WP_EclA_In"), new Spec("greenhouse", "WP_C_Mid"), new Spec("emotional_garden", "WP_C_Mid"),
-            new Spec("sanctuary_pod", "WP_D_VR"), new Spec("earth_window", "WP_D_Obs", true), new Spec("hologram_companion", "WP_Up_Lounge"), new Spec("stress_lounge", "WP_R_C"),
-            new Spec("emergency_mh_station", "WP_R_C", true), new Spec("mood_tracker", "WP_K_C", true), new Spec("maintenance_drone", "WP_E_C"),
-            new Spec("ai_wristband", "WP_SQ1_Health", false, .95f, 5f), new Spec("circadian_light", "WP_SQ1_Bed", false, .55f, 1f),
+            new Spec("heart_rate_monitor", "WP_H_NE|WP_H_W"), new Spec("bp_monitor", "WP_H_NE|WP_H_W", true), new Spec("oxygen_tanks", "WP_Sto_In", true),
+            new Spec("ai_health_hub", "WP_N_C"), new Spec("habitat_console", "WP_N_C"), new Spec("hologram_companion", "WP_Up_Lounge"),
+            new Spec("emergency_mh_station", "WP_R_C|WP_G_C", true), new Spec("mood_tracker", "WP_K_C|WP_R_C", true), 
+            new Spec("maintenance_drone", "WP_E_C"), new Spec("ai_wristband", "WP_SQ1_Health", false, .95f, 5f), new Spec("circadian_light", "WP_SQ1_Bed", false, .55f, 1f),
+        };
+        /// existing habitat equipment turned into smart systems: renderer-name prefix → catalog entry (+ optional title)
+        public static readonly (string prefix, string key, string title)[] Wraps =
+        {
+            ("LE00_Rack_CO2_Removal", "eclss_core", "CO2 Removal (CDRA)"), ("LE01_Rack_O2_Generation", "eclss_core", "Oxygen Generation (OGA)"),
+            ("LE02_Rack_TraceContaminant", "eclss_core", "Trace Contaminant Control"), ("LE03_Rack_Sabatier", "eclss_core", "Sabatier Reactor"),
+            ("C40_GrowRack_N", "greenhouse", "Greenhouse Grow Rack N"), ("C40_GrowRack_S", "greenhouse", "Greenhouse Grow Rack S"),
+            ("H40_Medical_ExamCouch", "medical_scanner", "Medical Exam Couch & Scanner"), ("H45_CMO_Tier3_Alert", "ai_health_hub", "CMO Tier-3 Alert Console"),
+            ("N31_Display_AI_PsychMonitoring", "ai_health_hub", "AI Psych-Monitoring Dashboard"), ("D63_VR_Headset_Dock", "sanctuary_pod", "VR Retreat"),
+            ("D51_EarthView_Display_0", "earth_window", "Earth View Display"), ("D40_Treadmill", "exercise", "Treadmill"), ("D45_CycleErgometer", "exercise", "Cycle Ergometer"),
+            ("D48_ResistiveDevice", "exercise", "Resistive Exercise Device"), ("Q1_Bed_", "smart_bed", "Rest Pod 1 (yours)"), ("Q2_Bed_", "smart_bed", "Rest Pod 2"),
+            ("Q3_Bed_", "smart_bed", "Rest Pod 3"), ("Q4_Bed_", "smart_bed", "Rest Pod 4"), ("SQ1_SleepPod_Mattress", "smart_bed", "Your Sleep Pod"),
+            ("SQ1_HealthBot_DockTray", "health_robot", "AI Health Robot"), ("R52_FamilyCallBooth", "family_call", "Family Call Booth"), ("E38_RobotArm", "maintenance_drone", "Maintenance Robot Arm"),
+            ("A71_Airlock_ControlPanel", "airlock", "Airlock Control"), ("W01_MeetingTable", "wardroom", "Wardroom Table"),
         };
         public Spec[] specs = Realistic; public int placed;
         public static readonly Dictionary<string, Material> matCache = new Dictionary<string, Material>();
@@ -217,8 +235,28 @@ namespace Hunch3
             {
                 try { log.Add(Spawn(s)); } catch (Exception e) { log.Add($"{s.key}: ERROR {e.Message}"); }
             }
+            foreach (var w in Wraps) { try { log.Add(Wrap(w.prefix, w.key, w.title)); } catch (Exception e) { log.Add($"wrap {w.prefix}: ERROR {e.Message}"); } }
             Debug.Log("[HUNCH3] smart systems placed " + placed + "/" + specs.Length + "\n" + string.Join("\n", log));
             try { System.IO.Directory.CreateDirectory("Reports"); System.IO.File.WriteAllLines("Reports/smart_objects.txt", log); } catch { }
+        }
+
+        string Wrap(string prefix, string key, string title)
+        {
+            var root = Util.Find("LunarHabitat_Unity3_Habitat"); if (!root) return "wrap: habitat root missing";
+            var rs = root.GetComponentsInChildren<Renderer>().Where(r => r.name.StartsWith(prefix) && r.enabled).ToList();
+            if (rs.Count == 0) return $"wrap {prefix}: not found";
+            var b = rs[0].bounds; foreach (var r in rs) b.Encapsulate(r.bounds);
+            var g = new GameObject("SMART_wrap_" + prefix.TrimEnd('_')); g.transform.position = new Vector3(b.center.x, b.min.y, b.center.z);
+            var so = g.AddComponent<SmartObject>(); so.key = key; so.localBounds = new Bounds(new Vector3(0, b.extents.y, 0), b.size);
+            SmartCatalog.Configure(so); if (!string.IsNullOrEmpty(title)) so.title = title;
+            var hi = rs.Select(r => r.GetComponentInParent<HabInteractable>()).FirstOrDefault(h => h);
+            if (hi)
+            {   // E keeps doing exactly what this equipment always did; the smart layer adds diagnostics, scan, wear and the other keys
+                so.actions.RemoveAll(a => a.key == Key.E);
+                so.actions.Insert(0, new SmartAction(Key.E, hi.Prompt, _ => { hi.Activate(); return ""; }));
+            }
+            so.Init(); placed++;
+            return $"wrap {prefix} → {key} ({title}) {rs.Count} parts, size {b.size:F2}{(hi ? ", keeps its E action" : "")}";
         }
 
         public static GameObject LoadModel(string key)
@@ -229,8 +267,8 @@ namespace Hunch3
         string Spawn(Spec s)
         {
             var model = LoadModel(s.key); if (!model) return $"{s.key}: model missing in Resources/Wellness";
-            if (!Nav.wp.TryGetValue(s.anchor, out var anchor) || !anchor) anchor = Util.Find(s.anchor);
-            if (!anchor) { Destroy(model); return $"{s.key}: anchor {s.anchor} not found"; }
+            var anchors = s.anchor.Split('|').Select(n => Nav.wp.TryGetValue(n, out var t) && t ? t : Util.Find(n)).Where(t => t).ToList();
+            if (anchors.Count == 0) { Destroy(model); return $"{s.key}: anchor {s.anchor} not found"; }
             var root = new GameObject("SMART_" + s.key);
             // front of the asset (Blender -Y) from the FRONT_MARKER empty, measured before anything rotates
             model.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity); model.transform.localScale *= s.scale;
@@ -245,10 +283,13 @@ namespace Hunch3
             else model.transform.position = new Vector3(-mb.center.x, -mb.min.y + .01f, -mb.center.z);
             model.transform.SetParent(root.transform, true);
             var lb = WorldBounds(root);   // root still at origin, identity → world == local
-            if (!Place(root.transform, lb, front, anchor, s.wall, out string how)) { Destroy(root); return $"{s.key}: no clear spot near {s.anchor} (skipped)"; }
-            var so = root.AddComponent<SmartObject>(); so.key = s.key; so.model = model; so.localBounds = lb;
+            string how = ""; Transform anchor = null;
+            foreach (var an in anchors) if (Place(root.transform, lb, front, an, s.wall, out how)) { anchor = an; break; }
+            if (!anchor) { Destroy(root); return $"{s.key}: no clear spot near {s.anchor} (skipped)"; }
+            var so = root.AddComponent<SmartObject>(); so.key = s.key; so.model = model; so.localBounds = lb; so.facing = root.transform.rotation * front;
             SmartCatalog.Configure(so); so.Init(); placed++;
-            return $"{s.key}: placed {how} near {s.anchor} at {root.transform.position:F2} size {lb.size:F2}";
+            if (!s.key.StartsWith("recovery_pod")) StaticBatchingUtility.Combine(model);   // hundreds of small parts → a few draw calls
+            return $"{s.key}: placed {how} near {anchor.name} at {root.transform.position:F2} size {lb.size:F2}";
         }
 
         static Bounds WorldBounds(GameObject g)
@@ -257,10 +298,12 @@ namespace Hunch3
             var b = rs[0].bounds; foreach (var r in rs) b.Encapsulate(r.bounds); return b;
         }
 
-        static bool Blocked(Vector3 center, Vector3 half, Quaternion rot, Transform self)
+        static bool Blocked(Vector3 center, Vector3 half, Quaternion rot, Transform self, Collider ignore = null)
         {
             foreach (var c in Physics.OverlapBox(center, half, rot, ~0, QueryTriggerInteraction.Ignore))
             {
+                if (c == ignore) continue;
+                if (c.GetComponentInParent<SmartObject>()) return true;
                 if (self && c.transform.IsChildOf(self)) continue;
                 if (PlayerRig.I && c.transform.IsChildOf(PlayerRig.I.transform)) continue;
                 if (c.GetComponentInParent<CrewAgent>()) continue;
@@ -271,9 +314,14 @@ namespace Hunch3
 
         static bool Place(Transform root, Bounds lb, Vector3 front, Transform anchor, bool wall, out string how)
         {
+            // the habitat hull is single-sided mesh colliders: from inside, rays would pass straight through the walls
+            bool bf = Physics.queriesHitBackfaces; Physics.queriesHitBackfaces = true;
+            try { return PlaceInner(root, lb, front, anchor, wall, out how); } finally { Physics.queriesHitBackfaces = bf; }
+        }
+        static bool PlaceInner(Transform root, Bounds lb, Vector3 front, Transform anchor, bool wall, out string how)
+        {
             how = "";
-            Vector3 a = anchor.position; float floorY = a.y;
-            if (Physics.Raycast(a + Vector3.up * .6f, Vector3.down, out var fh, 4f, ~0, QueryTriggerInteraction.Ignore)) floorY = fh.point.y;
+            Vector3 a = anchor.position; float floorY = a.y;   // waypoints sit on the deck
             Vector3 af = new Vector3(a.x, floorY, a.z);
             Vector3 half = lb.extents; float radius = Mathf.Max(half.x, half.z);
             int seed = Mathf.Abs(root.name.GetHashCode()) % 360;
@@ -289,10 +337,10 @@ namespace Hunch3
                         {
                             if (!Physics.Raycast(af + Vector3.up * hgt, dir, out var wh, 5f, ~0, QueryTriggerInteraction.Ignore) || Mathf.Abs(wh.normal.y) > .3f) continue;
                             if (wh.collider.GetComponentInParent<SmartObject>() || wh.collider.GetComponentInParent<CrewAgent>()) continue;
-                            var n = new Vector3(wh.normal.x, 0, wh.normal.z).normalized;
+                            var n = new Vector3(wh.normal.x, 0, wh.normal.z).normalized; if (Vector3.Dot(n, dir) > 0) n = -n;   // back-face hit → face the room
                             var rot = Quaternion.FromToRotation(front, n);
                             var foot = wh.point + n * (half.z + .04f); foot.y = floorY;
-                            if (Try(root, lb, rot, foot, floorY, clear, out how)) { how = "on wall" + how; return true; }
+                            if (Try(root, lb, rot, foot, floorY, clear, out how, wh.collider)) { how = "on wall" + how; return true; }
                         }
                     }
                 }
@@ -302,7 +350,7 @@ namespace Hunch3
                         for (int k = 0; k < 18; k++)
                         {
                             var dir = Quaternion.Euler(0, seed + k * 20f, 0) * Vector3.forward; var p = af + dir * r;
-                            if (Physics.Linecast(af + Vector3.up * 1.1f, p + Vector3.up * 1.1f, ~0, QueryTriggerInteraction.Ignore)) continue;   // a wall in between
+                            if (Physics.Linecast(af + Vector3.up * 1.1f, p + Vector3.up * 1.1f, ~0, QueryTriggerInteraction.Ignore) || Physics.Linecast(af + Vector3.up * .5f, p + Vector3.up * .5f, ~0, QueryTriggerInteraction.Ignore)) continue;   // a wall or partition in between
                             var face = af - p; face.y = 0; var rot = Quaternion.FromToRotation(front, face.normalized);
                             if (Try(root, lb, rot, p, floorY, clear, out how)) { how = "on floor" + how; return true; }
                         }
@@ -311,13 +359,17 @@ namespace Hunch3
             return false;
         }
 
-        static bool Try(Transform root, Bounds lb, Quaternion rot, Vector3 foot, float floorY, float clear, out string how)
+        static bool Try(Transform root, Bounds lb, Quaternion rot, Vector3 foot, float floorY, float clear, out string how, Collider ignore = null)
         {
             how = "";
-            if (!Physics.Raycast(foot + Vector3.up * 1.2f, Vector3.down, out var gh, 2.4f, ~0, QueryTriggerInteraction.Ignore) || Mathf.Abs(gh.point.y - floorY) > .25f) return false;
+            if (!Physics.Raycast(foot + Vector3.up * 1.2f, Vector3.down, out var gh, 2.4f, ~0, QueryTriggerInteraction.Ignore) || Mathf.Abs(gh.point.y - floorY) > .15f) return false;
             Vector3 pos = new Vector3(foot.x, gh.point.y, foot.z) - rot * new Vector3(lb.center.x, 0, lb.center.z);
             Vector3 c = pos + rot * lb.center + Vector3.up * .04f, h = lb.extents + new Vector3(.04f, -.06f, .04f);
-            if (Blocked(c, h, rot, root)) return false;
+            if (Blocked(c, h, rot, root, ignore)) return false;
+            // other smart systems (their small parts have no solid colliders): keep 25 cm between footprints
+            var mine = new Bounds(c, Vector3.zero); foreach (var corner in new[] { new Vector3(1, 1, 1), new Vector3(-1, 1, 1), new Vector3(1, 1, -1), new Vector3(-1, 1, -1) }) mine.Encapsulate(c + rot * Vector3.Scale(h, corner));
+            mine.Expand(new Vector3(.5f, 0, .5f));
+            foreach (var o in SmartObject.All) { if (!o || o.transform == root) continue; var oc = o.transform.position + o.transform.rotation * o.localBounds.center; var ob = new Bounds(oc, Vector3.zero); foreach (var corner in new[] { new Vector3(1, 1, 1), new Vector3(-1, 1, 1), new Vector3(1, 1, -1), new Vector3(-1, 1, -1) }) ob.Encapsulate(oc + o.transform.rotation * Vector3.Scale(o.localBounds.extents, corner)); var a2 = new Vector2(mine.center.x - ob.center.x, mine.center.z - ob.center.z); if (Mathf.Abs(a2.x) < mine.extents.x + ob.extents.x && Mathf.Abs(a2.y) < mine.extents.z + ob.extents.z && Mathf.Abs(mine.center.y - ob.center.y) < 2f) return false; }
             float rad = Mathf.Max(lb.extents.x, lb.extents.z);
             foreach (var w in Nav.wp.Values)
             {
@@ -544,6 +596,32 @@ namespace Hunch3
                     so.telemetry = s => new[] { $"Mode: {new[] { "Sunrise 06:30", "Focus 6500 K", "Wind-down 1800 K" }[lightMode]}", "Melatonin-safe after 21:00", "" };
                     A(so, Key.E, "Change light mode", s => { lightMode = (lightMode + 1) % 3; if (lightMode == 2) Fx(sleep: .05f); if (lightMode == 1) Fx(fatigue: -.04f); return $"Circadian light: {new[] { "sunrise alarm set for 06:30", "focus light 6500 K", "wind-down 1800 K (melatonin-safe)" }[lightMode]}."; });
                     break;
+                case "exercise":
+                    so.title = "Exercise Station"; so.cat = SysCat.Medical; so.powerW = 150;
+                    so.why = "2.5 h a day protects bone and muscle in 1/6 g, and exercise is one of the strongest countermeasures for low mood and stress. Heart-rate rises here are tagged so the AI never mistakes a workout for anxiety.";
+                    so.telemetry = s => new[] { $"Today: {(Me != null && SimClock.hours - Me.lastExerciseHour < 24 ? "done" : "not yet")}", "Bone-loss risk: low with daily use", $"Fatigue {P(Me?.fatigue ?? .2f)}" };
+                    A(so, Key.E, "Work out", s => { Fx(stress: -.1f, mood: .05f, fatigue: .05f, eff: s.Eff); if (Me != null) Me.lastExerciseHour = SimClock.hours; return "Workout logged. Stress down, mood up."; });
+                    A(so, Key.F, "Training plan", s => "Plan: 30 min treadmill (harness 70% body weight), 45 min resistive, 15 min cycle. Rest day every 7th day."); break;
+                case "health_robot":
+                    so.title = "AI Health Robot"; so.cat = SysCat.Medical; so.powerW = 60;
+                    so.why = "Morning check: BP, SpO2, temperature, heart rate. It only scans you after you say yes, and you see every number it sees.";
+                    so.telemetry = s => new[] { "Docked · charged", "Daily check: 07:00", "Consent required each time" };
+                    A(so, Key.E, "Request a check", s => "Health robot: please sit. (Use the robot directly to run the full consent-based check.)"); break;
+                case "family_call":
+                    so.title = "Family Call Booth"; so.cat = SysCat.Psych; so.powerW = 40;
+                    so.why = "Private calls home are the strongest counter to isolation. Acoustic curtain, no AI audio or video recording, 1.3 s delay each way.";
+                    so.telemetry = s => new[] { $"Last call home: {(Me != null ? (SimClock.hours - Me.lastSocialHour).ToString("0") + " h ago" : "-")}", "Delay 1.3 s each way", "Not recorded" };
+                    A(so, Key.E, "Call home", s => { Fx(mood: .12f, stress: -.05f); if (Me != null) Me.lastSocialHour = SimClock.hours; return "Family call connected. Private: no AI recording."; }); break;
+                case "airlock":
+                    so.title = "Airlock Control"; so.cat = SysCat.Emergency; so.powerW = 400;
+                    so.why = "Pressure control for EVA. Suitports are the normal way out; the airlock is the contingency path for cargo or an injured crew member.";
+                    so.telemetry = s => new[] { "Pressure 70.3 kPa", "Outer hatch: sealed", "Suits: 4 docked" };
+                    A(so, Key.E, "Airlock status", s => "Airlock: pressurised, outer hatch sealed. Go outside through the suitports."); break;
+                case "wardroom":
+                    so.title = "Wardroom Table"; so.cat = SysCat.Psych; so.powerW = 20;
+                    so.why = "Shared meals and team meetings are where crew cohesion is built; the inlay display shows the day plan.";
+                    so.telemetry = s => new[] { "Seats 4", "Next meal: 12:00", "Meeting: 08:30 daily" };
+                    A(so, Key.E, "Start team meeting", s => { Panels.Open("meeting"); return ""; }); break;
                 default:
                     so.title = so.key.Replace("_", " "); so.cat = SysCat.Research; so.why = "Habitat system.";
                     A(so, Key.E, "Use", s => s.title + " used."); break;
@@ -575,6 +653,24 @@ namespace Hunch3
             m.transform.SetParent(so.transform, false);
             if (so.model) { m.transform.localPosition = so.model.transform.localPosition; m.transform.localRotation = so.model.transform.localRotation; m.transform.localScale = so.model.transform.localScale; UnityEngine.Object.Destroy(so.model); }
             so.model = m; SmartObject.AddSolidColliders(m);
+        }
+    }
+
+    /// Test hooks for the editor bridge (invoke Hunch3.SmartDebug.X): start the habitat and walk up to each system.
+    public static class SmartDebug
+    {
+        static int idx;
+        public static void StartHabitat() { MenuBoot.Go(GameMode.Sandbox); }
+        public static void Diag() { SmartInteractor.debugDiag = !SmartInteractor.debugDiag; }
+        public static void VisitNext()
+        {
+            var l = SmartObject.All.Where(o => o).ToList(); if (l.Count == 0 || !PlayerRig.I) return;
+            var so = l[idx++ % l.Count]; var c = so.transform.position + so.transform.rotation * so.localBounds.center;
+            float r = Mathf.Max(so.localBounds.extents.x, so.localBounds.extents.z);
+            var stand = c + so.facing * (r + 1.3f); stand.y = so.transform.position.y + .02f;
+            var look = c - stand; look.y = 0;
+            PlayerRig.I.Teleport(stand, Quaternion.LookRotation(look).eulerAngles.y);
+            System.IO.File.WriteAllText("HunchBridge/visit.txt", $"{idx}/{l.Count} {so.key} at {so.transform.position:F2} stand {stand:F2}");
         }
     }
 }

@@ -98,6 +98,16 @@ public partial class HunchFrontier
     // ================================================================== sleep
     [NonSerialized] public bool sleepOn; bool sleepMe; float sleepStart, sleepMeStart, sleepHours; int sleepAlerts; Vector3 sleepAt;
     readonly Transform[] sleepBed = new Transform[4]; readonly TextMeshPro[] sleepZ = new TextMeshPro[4]; string sleepPlaced = ""; int sleepZone = -1;
+    // Adaptive Recovery Pod layer on the SAME four bunks (no extra beds): a state light strip the AI drives
+    // (green healthy · yellow fatigue → circadian reset · blue stress → calm protocol), sleep analytics (H) and a recovery session (G).
+    readonly GameObject[,] podLight = new GameObject[4, 3]; readonly int[] podState = new int[4]; float podRecoverUntil;
+    static readonly string[] PodStateName = { "<color=#5BFF8A>HEALTHY</color>", "<color=#FFD23F>FATIGUE · circadian reset</color>", "<color=#6FA0FF>STRESS · calm protocol</color>" };
+    void PodLights(Transform bed, int k, Vector3 at)
+    {
+        Color[] c = { new Color(0.35f, 2.2f, 0.8f), new Color(2.2f, 1.7f, 0.3f), new Color(0.5f, 0.9f, 2.4f) };
+        for (int s = 0; s < 3; s++) { var g = Prim(PrimitiveType.Cube, bed, at, new Vector3(0.9f, 0.035f, 0.035f), Glow(c[s])); g.name = "Recovery state light " + s; g.SetActive(s == 0); podLight[k, s] = g; }
+    }
+    int PodStateOf(int k) { if (k >= sim.crew.Count) return 0; var c = sim.crew[k]; return c.stress > 55f ? 2 : (c.sleep < 55f ? 1 : 0); }
     static readonly Color[] SleepColour = { new Color(0.85f, 0.7f, 0.25f), new Color(0.25f, 0.55f, 0.85f), new Color(0.3f, 0.7f, 0.4f), new Color(0.75f, 0.35f, 0.35f) };
 
     void BuildSleep()
@@ -146,7 +156,7 @@ public partial class HunchFrontier
                 Prim(PrimitiveType.Cube, bed, new Vector3(0.3f, 0.95f, -1.0f), new Vector3(0.12f, 0.06f, 0.03f), Glow(new Color(1.6f, 1.1f, 0.5f)));
                 FacButton(bed, new Vector3(0f, 0.5f, 0f), new Vector3(1.05f, 0.9f, 2.15f), Clear(new Color(1f, 1f, 1f, 0.02f)), 1500 + k);
                 if (!upper) Solid(bed, new Vector3(0f, 0.3f, 0f), new Vector3(1.0f, 0.6f, 2.1f));
-                var l = Label(bed, "", 0f, 0f, 0.5f, 2.0f, 0.4f, Color.white); l.transform.localPosition = new Vector3(0f, 0.95f, 1.0f); mapLabels.Add(l); sleepZ[k] = l;
+                var l = Label(bed, "", 0f, 0f, 0.5f, 2.0f, 0.4f, Color.white); l.transform.localPosition = new Vector3(0f, 0.95f, 1.0f); mapLabels.Add(l); sleepZ[k] = l; PodLights(bed, k, new Vector3(0f, 0.36f, -1.07f));
                 sleepBed[k] = bed;
             }
             Physics.SyncTransforms(); sleepPlaced = "bedroom " + W.ToString("F1") + " x " + D.ToString("F1") + " at " + rp.ToString("F1");
@@ -169,7 +179,7 @@ public partial class HunchFrontier
                 FacButton(bed, new Vector3(0f, 0.5f, 0f), new Vector3(1.05f, 0.9f, 2.15f), Clear(new Color(1f, 1f, 1f, 0.02f)), 1500 + k);
                 if (up > 0f) foreach (float px in new[] { -0.52f, 0.52f }) foreach (float pz in new[] { -1.02f, 1.02f }) Prim(PrimitiveType.Cube, bed, new Vector3(px, -up * 0.5f + 0.2f, pz), new Vector3(0.06f, up + 0.4f, 0.06f), steel);
                 if (up <= 0f) { Solid(bed, new Vector3(0f, 0.3f, 0f), new Vector3(1.0f, 0.6f, 2.1f)); Physics.SyncTransforms(); }
-                var l = Label(bed, "", 0f, 0f, 0.7f, 2.2f, 0.5f, Color.white); l.transform.localPosition = new Vector3(0f, 1.25f, -0.9f); mapLabels.Add(l); sleepZ[k] = l;
+                var l = Label(bed, "", 0f, 0f, 0.7f, 2.2f, 0.5f, Color.white); l.transform.localPosition = new Vector3(0f, 1.25f, -0.9f); mapLabels.Add(l); sleepZ[k] = l; PodLights(bed, k, new Vector3(0f, 0.36f, -1.07f));
                 sleepBed[k] = bed; sleepPlaced += k + (ok ? ":floor " : (up > 0f ? ":upper bunk " : ":default "));
             }
         }
@@ -244,7 +254,26 @@ public partial class HunchFrontier
         {
             if (!sleepZ[k]) continue; bool me = k == 0, asleep = me ? sleepMe : CrewAsleep(k);
             string who = k < sim.crew.Count ? sim.crew[k].name : "crew";
-            sleepZ[k].text = "<b>SLEEP POD</b>\n<size=60%>" + who + (asleep ? "   <color=#9AD0FF>z z z   asleep</color>" : (k < sim.crew.Count ? "   sleep " + Mathf.RoundToInt(sim.crew[k].sleep) + "%" : "")) + "</size>";
+            int st = PodStateOf(k);
+            if (st != podState[k]) { podState[k] = st; for (int s = 0; s < 3; s++) if (podLight[k, s]) podLight[k, s].SetActive(s == st); }
+            bool looking = focus != null && focus.kind == 35 && focus.index == 1500 + k;
+            sleepZ[k].text = "<b>RECOVERY POD</b>\n<size=60%>" + who + (asleep ? "   <color=#9AD0FF>z z z   asleep</color>" : (k < sim.crew.Count ? "   sleep " + Mathf.RoundToInt(sim.crew[k].sleep) + "%" : "")) + "\n" + PodStateName[st]
+                + (looking ? "\n<color=#9fdcff>[H] sleep analytics   [G] recovery session</color>" : "") + "</size>";
+        }
+        {   // keys while looking at a pod (H and G are free in this game)
+            var kb = Keyboard.current; int k = focus != null && focus.kind == 35 ? focus.index - 1500 : -1;
+            if (kb != null && k >= 0 && k < 4 && k < sim.crew.Count && !game.menuOpen)
+            {
+                var c = sim.crew[k];
+                if (kb.hKey.wasPressedThisFrame)
+                    Banner("SLEEP ANALYTICS · " + c.name.ToUpper(), "Sleep " + Mathf.RoundToInt(c.sleep) + "%  ·  stress " + Mathf.RoundToInt(c.stress) + "%  ·  HR " + c.HeartRate + "  ·  " + (podState[k] == 2 ? "AI: calm protocol, Earth view, counsellor" : podState[k] == 1 ? "AI: circadian reset 21:30, light therapy" : "AI: at baseline, keep the routine"), false);
+                if (kb.gKey.wasPressedThisFrame)
+                {
+                    if (sim.missionSeconds < podRecoverUntil) Note("A recovery session is already running.");
+                    else { podRecoverUntil = sim.missionSeconds + 3f; if (podState[k] == 2) { c.stress -= 15f; c.mood += 4f; } else if (podState[k] == 1) { c.sleep += 12f; } else { c.mood += 3f; } c.Clamp();
+                        sim.Say("ARIA: Recovery session for " + c.name + ": " + (podState[k] == 2 ? "calming blue light, Earth view and slow breathing." : podState[k] == 1 ? "circadian reset light and a 20-minute nap." : "a short relaxation, you're at your baseline.")); }
+                }
+            }
         }
     }
     string SleepText(int i) { int k = i - 1500; return k == 0 ? (sleepMe ? "your sleep pod: get up" : "your sleep pod: sleep until morning") : (k > 0 && k < sim.crew.Count ? sim.crew[k].name + "'s sleep pod: " + (sleepOn ? "wake the crew" : "send the crew to sleep") : ""); }

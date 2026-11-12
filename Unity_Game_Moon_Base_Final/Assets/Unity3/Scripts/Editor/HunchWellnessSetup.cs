@@ -19,6 +19,7 @@ public static class HunchWellnessSetup
             bool ch = false;
             if (mi.importCameras || mi.importLights) { mi.importCameras = false; mi.importLights = false; ch = true; }
             if (mi.importAnimation) { mi.importAnimation = false; ch = true; }
+            if (!mi.isReadable) { mi.isReadable = true; ch = true; }   // runtime static batching + mesh colliders in builds
             if (ch) mi.SaveAndReimport();
             var go = AssetDatabase.LoadAssetAtPath<GameObject>(p);
             var b = new Bounds(); bool f = false; foreach (var r in go.GetComponentsInChildren<Renderer>()) { if (!f) { b = r.bounds; f = true; } else b.Encapsulate(r.bounds); }
