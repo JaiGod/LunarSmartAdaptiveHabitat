@@ -1,0 +1,409 @@
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D Model Library · Project ARES</title>
+<meta name="description" content="Every 3D model in the Lunar Smart Adaptive Habitat project, viewable in the browser, with what each one does to keep the crew safe and healthy.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================================
+   PROJECT ARES · NASA HUNCH 2025–26 · 3D model library
+   One live 3D viewer + a card for every model: what it is, how it fits the project,
+   and what it does to keep the crew safe and healthy.
+   © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.
+   ===================================================================================== */
+:root{--void:#050816;--panel:rgba(12,22,52,.82);--panel2:rgba(16,30,70,.9);--line:rgba(56,189,248,.24);--cyan:#38BDF8;--white:#E6F1FF;--mut:#93A4C8;
+  --ok:#34D399;--red:#FC3D21;--amber:#FFB547;--hd:'Orbitron',system-ui,sans-serif;--bd:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:clip}
+body{background:var(--void);color:var(--white);font:16px/1.6 var(--bd);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(60% 40% at 80% 0%,rgba(109,40,217,.18),transparent 70%),radial-gradient(50% 40% at 0% 30%,rgba(11,61,145,.28),transparent 70%)}
+a{color:var(--cyan)}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;padding:12px max(16px,4vw);background:rgba(5,8,22,.92);border-bottom:1px solid var(--line)}
+header .brand{font:900 14px var(--hd);letter-spacing:.18em;text-transform:uppercase;color:var(--white);text-decoration:none}
+header .brand small{display:block;font:600 9px var(--hd);letter-spacing:.3em;color:var(--cyan)}
+header nav{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap}
+header nav a{font:700 11px var(--hd);letter-spacing:.16em;text-transform:uppercase;color:var(--mut);text-decoration:none}
+header nav a:hover{color:var(--white)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,3vw)}
+.kicker{font:600 11px var(--hd);letter-spacing:.32em;text-transform:uppercase;color:var(--cyan)}
+h1{font:900 clamp(30px,5vw,54px)/1.05 var(--hd);letter-spacing:.02em;text-transform:uppercase;margin:10px 0 12px}
+h2{font:900 clamp(22px,3vw,32px)/1.1 var(--hd);text-transform:uppercase;letter-spacing:.03em;margin:8px 0 10px}
+.lead{color:var(--mut);max-width:820px;font-size:17px}
+.hero{padding:42px 0 18px}
+/* viewer */
+.stage{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;margin-top:22px}
+.view{position:relative;height:min(68vh,620px);min-height:360px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:radial-gradient(80% 70% at 50% 40%,#0d1838,#04060f)}
+.view canvas{display:block;width:100%;height:100%}
+.view .vtag{position:absolute;left:14px;top:12px;font:700 11px var(--hd);letter-spacing:.18em;text-transform:uppercase;background:rgba(5,8,22,.75);border:1px solid var(--line);padding:7px 11px;border-radius:8px}
+.view .hint{position:absolute;left:14px;bottom:12px;font:500 12px var(--bd);color:var(--mut);background:rgba(5,8,22,.7);padding:6px 10px;border-radius:8px}
+.view .tools{position:absolute;right:12px;top:12px;display:flex;gap:8px}
+.view .tools button{font:700 10px var(--hd);letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:rgba(5,8,22,.75);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+.view .tools button.on{border-color:var(--cyan);color:var(--cyan)}
+#load{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:700 12px var(--hd);letter-spacing:.24em;color:var(--mut);pointer-events:none}
+#load .bar{width:220px;height:5px;border-radius:5px;background:rgba(56,189,248,.15);margin:12px auto 0;overflow:hidden}
+#load .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#0B3D91,var(--cyan));transition:width .2s}
+.info{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:22px 22px 18px;max-height:min(68vh,620px);overflow:auto}
+.info h3{font:900 20px/1.2 var(--hd);text-transform:uppercase;letter-spacing:.04em;margin:6px 0 10px}
+.info p{color:var(--mut);margin-bottom:12px}
+.info h4{font:700 11px var(--hd);letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);margin:16px 0 8px}
+.info ul{list-style:none;display:grid;gap:8px}
+.info li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:14.5px}
+.info li b{color:var(--white)}
+.info li i{font-style:normal;color:var(--ok)}
+.spec{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.spec span{font:600 12px var(--mono);color:var(--white);background:rgba(56,189,248,.08);border:1px solid var(--line);border-radius:8px;padding:5px 9px}
+.dl{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.dl a{font:700 10px var(--hd);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--white);border:1px solid var(--cyan);background:rgba(11,61,145,.5);padding:9px 12px;border-radius:9px}
+/* sections + cards */
+section{padding:46px 0 10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:20px}
+.card{display:flex;flex-direction:column;text-align:left;border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,var(--panel2),var(--panel));padding:18px;color:inherit;font:inherit;cursor:pointer;transition:border-color .2s,transform .2s}
+.card:hover,.card.on{border-color:var(--cyan);transform:translateY(-2px)}
+.card.on{box-shadow:0 0 0 1px var(--cyan),0 10px 40px rgba(56,189,248,.15)}
+.card .ic{font-size:26px}
+.card .t{font:900 15px/1.25 var(--hd);text-transform:uppercase;letter-spacing:.05em;margin:8px 0 6px}
+.card .d{color:var(--mut);font-size:14px;flex:1}
+.card .go{margin-top:12px;font:700 10px var(--hd);letter-spacing:.18em;text-transform:uppercase;color:var(--cyan)}
+.tag{display:inline-block;font:700 9px var(--hd);letter-spacing:.2em;text-transform:uppercase;padding:4px 8px;border-radius:6px;border:1px solid var(--line);color:var(--cyan);margin-right:6px}
+.tag.h{color:var(--ok);border-color:rgba(52,211,153,.4)}
+.tag.n{color:var(--amber);border-color:rgba(255,181,71,.4)}
+/* safety layers */
+.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:20px}
+.layer{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--panel)}
+.layer b{display:block;font:700 12px var(--hd);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.layer p{color:var(--mut);font-size:14px}
+.layer .n{font:900 26px var(--hd);color:var(--cyan);opacity:.6;float:right;line-height:1}
+/* flow */
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px}
+.flow div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel);font-size:14px;flex:1 1 160px}
+.flow div b{display:block;font:700 11px var(--hd);letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:4px}
+.flow .ar{flex:0 0 auto;border:0;background:none;padding:0;color:var(--cyan);font-size:20px}
+footer{margin-top:50px;border-top:1px solid var(--line);padding:26px 0 40px;color:var(--mut);font-size:14px}
+@media(max-width:900px){.stage{grid-template-columns:1fr}.info{max-height:none}.view{height:56vh}header nav{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<header><a class="brand" href="https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj"><small>Project ARES · NASA HUNCH</small>3D Model Library</a>
+  <nav><a href="#habitat">Habitat</a><a href="#health">Health monitoring</a><a href="#wellness">Wellness systems</a><a href="#around">Around the base</a><a href="#files">Files</a><a href="https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj">← Main website</a></nav></header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="kicker">Every model · view it live in your browser</div>
+    <h1>The habitat, the sensors, the crew</h1>
+    <p class="lead">A lunar habitat has one job before anything else: keep the Moon outside and keep four people alive and well inside. Pick any model below to spin it in 3D, then read what it does for the crew and where it fits in our project.</p>
+  </div>
+
+  <div class="stage" id="viewer">
+    <div class="view"><canvas id="cv" aria-label="3D model viewer"></canvas>
+      <div class="vtag" id="vtag">Loading…</div>
+      <div class="tools"><button id="spin" class="on" type="button">Auto-spin</button><button id="reset" type="button">Reset view</button></div>
+      <div id="load"><div>LOADING MODEL<div class="bar"><i id="lbar"></i></div><div id="lpct" style="margin-top:8px;font-size:10px">0 %</div></div></div>
+      <div class="hint">Drag to orbit · scroll or pinch to zoom · right-drag to pan</div>
+    </div>
+    <aside class="info" id="info" aria-live="polite"></aside>
+  </div>
+
+  <section id="habitat">
+    <div class="kicker">01 · The habitat</div>
+    <h2>Built to keep the Moon out</h2>
+    <p class="lead">The Moon has no air, deadly radiation, ±150 °C swings, micrometeoroids and razor-sharp dust. The realistic habitat stops each of these with its own layer, from the outside in:</p>
+    <div class="layers">
+      <div class="layer"><span class="n">1</span><b>Regolith shield domes</b><p>3D-printed from Moon soil and piled over every module. Blocks most galactic radiation and stops micrometeoroids before they reach the hull.</p></div>
+      <div class="layer"><span class="n">2</span><b>Multi-layer insulation</b><p>Gold MLI blankets around each hull keep the inside at about 21 °C through the 14-day lunar night.</p></div>
+      <div class="layer"><span class="n">3</span><b>Pressure hull</b><p>Rigid aluminium lower deck plus an inflatable upper deck hold 70.3 kPa of breathable air.</p></div>
+      <div class="layer"><span class="n">4</span><b>Hatches between modules</b><p>Every tunnel ends in bulkhead hatches, so a leak in one module can be sealed off while the crew moves to safety.</p></div>
+      <div class="layer"><span class="n">5</span><b>Dust lock + suitports</b><p>Crew climb into suits docked to the wall, so lunar dust never comes inside. Air knives clean anything that does.</p></div>
+      <div class="layer"><span class="n">6</span><b>Storm shelter</b><p>The medical node doubles as a shielded shelter for solar storms, with jump seats for all four crew.</p></div>
+    </div>
+    <div class="cards" id="cards-habitat"></div>
+  </section>
+
+  <section id="health">
+    <div class="kicker">02 · Health monitoring · designed in Blender</div>
+    <h2>The hardware that watches over the crew</h2>
+    <p class="lead">Our AI looks after crew mental and physical health using nine sensors (deliverable D1). These are the devices that carry them. Every one is small, light, low-power, and keeps the raw data on the device: only a few numbers leave it.</p>
+    <div class="flow" aria-label="How a reading becomes help">
+      <div><b>1 · Sense</b>Beacon, wristband, patch and zone pods take readings.</div><div class="ar">→</div>
+      <div><b>2 · Score</b>Readings are compared with each person's own 14-day baseline.</div><div class="ar">→</div>
+      <div><b>3 · Decide</b>Six condition scores, three tiers. No single sensor can trigger an action.</div><div class="ar">→</div>
+      <div><b>4 · Help</b>Light, sound and schedule nudges first. A human doctor makes Tier-3 decisions.</div>
+    </div>
+    <div class="cards" id="cards-health"></div>
+  </section>
+
+  <section id="wellness">
+    <div class="kicker">03 · Wellness, medical &amp; life support · 23 new Blender models</div>
+    <h2>Every object has a job</h2>
+    <p class="lead">A real lunar habitat has no decorative props: every kilogram is launched from Earth. Each model below is a working system in the realistic game. Look at it and it lights up in its category colour, press its keys to use it, TAB for diagnostics and AI recommendations, and hold the right mouse button for an engineering scan. Systems wear out, so the crew has to maintain them.</p>
+    <div class="flow" aria-label="Categories">
+      <div><b style="color:#40ff73">● Life support</b>ECLSS, oxygen, greenhouse, sensors</div>
+      <div><b style="color:#5a9eff">● Psychological health</b>pods, companion, garden, lounge, trackers</div>
+      <div><b style="color:#c773ff">● Medical</b>scanner bay, vitals, BP, sleep-detection bed</div>
+      <div><b style="color:#ff4d4d">● Emergency</b>24/7 private crisis line</div>
+    </div>
+    <div class="cards" id="cards-wellness"></div>
+  </section>
+
+  <section id="around">
+    <div class="kicker">04 · Around the base</div>
+    <h2>Outside the walls</h2>
+    <div class="cards" id="cards-around"></div>
+  </section>
+
+  <section id="files">
+    <div class="kicker">05 · Files</div>
+    <h2>Download the source models</h2>
+    <p class="lead">Everything above, in formats you can open, edit or 3D-print.</p>
+    <div class="dl" style="margin-top:18px">
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/raw/main/Downloads/Lunar_Habitat_Complete_Designs.zip">⬇ Both habitats (.fbx + floor plans)</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/3D_Print_Kits/Realistic_Bases_Only">🖨 STL: realistic bases only</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/raw/main/3D_Print_Kits/Realistic_Shell_Hallways_Shield/Lunar_Habitat_Realistic_Shell_Hallways_RegolithShield_1-320.stl">🖨 STL: whole base, outer shell + hallways + regolith shield (1:320)</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/raw/main/3D_Print_Kits/Realistic_Separate_Parts/Lunar_Habitat_Realistic_Bases_Hallways_RegolithShield_SEPARATE_PARTS_1-150.stl">🖨 STL: 6 bases + 8 hallways + regolith shield, separate parts (1:150)</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/3D_Print_Kits">🖨 All 3D-print kits</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Models/Blender_Rich_Baked">Blender files (texture-baked)</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/models/health">Health-monitoring models (.glb)</a>
+      <a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/models/wellness">Wellness, medical &amp; life-support models (.glb, 23)</a>
+    </div>
+  </section>
+
+  <footer><b style="font-family:var(--hd);letter-spacing:.14em">PROJECT ARES · NASA HUNCH 2025–26</b><br>© 2026 Jaineil R. · with thanks to Angel C. and Farhan K. · Astronaut and LRO models: NASA (public domain).<br>Student project for NASA HUNCH. Not an official NASA website.</footer>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// ---------------------------------------------------------------- the models
+const M = {
+  habitat: { group: 'habitat', ic: '🏠', tag: ['Realistic game', ''], title: 'Lunar Smart Adaptive Habitat', file: 'models/habitat.glb.wasm', parts: ['models/habitat_part1.glb.wasm', 'models/habitat_part2.glb.wasm'],
+    short: 'The full realistic base: core, four tunnels, a ring of five nodes, four sleeping pods and the airlock.',
+    what: 'Our main design, at true scale (about 60 m across) for a crew of four at Shackleton crater. The same model runs inside Game 1, and you fly down to it in the descent on the main site.',
+    role: ['<b>Keeps the Moon out:</b> regolith shields, MLI blankets, a pressure hull and hatches on every tunnel', '<b>Keeps the crew sane:</b> private sleep pods, a greenhouse, a recreation commons and a family-call booth', '<b>Gives the AI eyes:</b> 17 air-quality pods, 28 UWB anchors and shared-zone sensors are placed in it', '<b>Survives emergencies:</b> a shielded storm shelter and two exits from every node'],
+    spec: ['≈ 60 × 63 m', '4 crew', '70.3 kPa cabin', '40 kW fission + solar'] },
+  scifi: { group: 'habitat', ic: '🛸', tag: ['Sci-fi game', ''], title: 'Lunar Habitat Commander base', file: 'Downloads/models/HUNCH_Lunar_Base.fbx', fbx: true, big: '41 MB',
+    short: 'The base from Game 2, the VR adventure where you command the crew, mine and survive storms.',
+    what: 'A more imaginative take on the same ideas: the same health systems and crew of four, built for play. In the game, the crew lives in it while ARIA, the AI, watches their wellbeing.',
+    role: ['<b>Same core rule:</b> sealed modules joined by hatches', '<b>Power + life support:</b> solar, batteries and ECLSS you have to wire up in the game', '<b>Teaches the design:</b> players learn why shielding and hatches matter by surviving without them'],
+    spec: ['VR (Meta Quest) + desktop', 'Unity 6'] },
+
+  beacon: { group: 'health', ic: '❤️', tag: ['Health', 'h'], title: 'Crew beacon (chest)', file: 'models/health/crew_beacon.glb.wasm', isNew: true,
+    short: 'Worn on the chest all day. Measures heart rate and heart-rate variability, and doubles as the comms radio.',
+    what: 'D1 sensors 1 + 2 + 6. A 2-lead ECG reads every heartbeat (250 Hz). Heart-rate variability (RMSSD) is the most useful single number for stress, fatigue and mood, so this one device feeds 5 of the 6 conditions the AI watches.',
+    role: ['<b>Heart rate + HRV:</b> 2 ECG electrodes, compared with the wearer\'s own 14-day baseline', '<b>Skin response:</b> a sweat-gland contact counts stress peaks per minute', '<b>Where am I:</b> a UWB tag tells the AI which room you are in, never what you say', '<b>Safety floor:</b> a dangerous heart rate goes straight to the doctor, not to the AI'],
+    spec: ['30 g', '0.05 W', 'Qty 4 (one per crew)', 'Feeds 5 of 6 conditions'] },
+  wrist: { group: 'health', ic: '⌚', tag: ['Health', 'h'], title: 'Night wristband', file: 'models/health/sleep_wristband.glb.wasm', isNew: true,
+    short: 'Worn at night to track sleep: how long, how deep, and how often you wake up.',
+    what: 'D1 sensor 3. A PPG light sensor plus an accelerometer splits the night into 30-second epochs and estimates light, deep and REM sleep. Poor sleep is the earliest warning sign for fatigue and depression.',
+    role: ['<b>Sleep stages:</b> light, deep and REM, plus efficiency and number of awakenings', '<b>Overnight heart rate:</b> a second HRV reading while the beacon charges', '<b>Feeds the pods:</b> the sleep pod dims its lights and shifts colour temperature from these readings'],
+    spec: ['30 g', '0.05 W', 'Qty 4', 'Feeds 3 conditions'] },
+  patch: { group: 'health', ic: '🩹', tag: ['Health', 'h'], title: 'Cortisol patch', file: 'models/health/cortisol_patch.glb.wasm', isNew: true,
+    short: 'A tiny microneedle sweat patch that measures cortisol, the body\'s stress hormone.',
+    what: 'D1 sensor 7. Microneedles sample sweat 4 times a day for 24 to 48 hours. It is the only objective chronic-stress marker in the system, so the AI uses it to confirm long-term stress rather than one bad day.',
+    role: ['<b>Chronic stress:</b> the morning cortisol peak compared with the wearer\'s own baseline', '<b>Painless:</b> needles shorter than a hair is thick', '<b>Colour indicator:</b> the crew can see their own reading, and nobody else can'],
+    spec: ['10 g', '≈ 0 W', 'Qty 4', '4.8 kg of spares for 180 days'] },
+  pod: { group: 'health', ic: '📡', tag: ['Health · air', 'h'], title: 'Zone sensor pod', file: 'models/health/zone_sensor_pod.glb.wasm', isNew: true,
+    short: 'Mounted on the ceiling of every zone: watches the air, and in shared rooms only, voices and faces.',
+    what: 'D1 sensors 4, 5, 6 and 8. Two CO₂ sensors cross-check each other (they must agree within 50 ppm). In shared zones a mic array and camera read tone of voice and facial expressions on the device. No audio or images are ever stored.',
+    role: ['<b>Air you can trust:</b> paired NDIR CO₂, humidity and particle sensors every 10 s', '<b>Voice + face, privately:</b> only 4 numbers a minute leave the pod; none in sleep pods or the bathroom', '<b>Room tracking:</b> a UWB anchor for the crew beacons', '<b>Fails safe:</b> if the two CO₂ readings disagree, it flags itself and the life-support reading is used'],
+    spec: ['0.12–0.35 kg per sensor', 'Qty 17 air · 8 mic · 7 camera', 'Shared with safety systems'] },
+  station: { group: 'health', ic: '🩺', tag: ['Health · medical', 'h'], title: 'Crew Health Station', file: 'models/health/health_station.glb.wasm', isNew: true,
+    short: 'The medical bay kiosk for a daily 2-minute check-in: ECG, blood pressure, SpO₂ and temperature.',
+    what: 'Lives in the medical node. Each morning a crew member sits, clips on the pulse oximeter and slips on the cuff. The screen shows a live ECG, the vitals and how the person is doing compared with their own baseline. A private mood check-in finishes it.',
+    role: ['<b>Live ECG:</b> a full heartbeat trace for the doctor (the CMO) to review', '<b>Vitals:</b> blood pressure, oxygen saturation and temperature', '<b>Human in charge:</b> Tier-3 alerts go to the CMO and Mission Control, never straight to an action', '<b>Your data, your view:</b> the crew see everything the AI sees about them'],
+    spec: ['Medical node', 'Daily check-in', 'Links to Mission Control'] },
+  bunk: { group: 'health', ic: '🛏️', tag: ['Health · sleep', 'h'], title: 'Smart sleep bunk', file: 'models/health/sleep_bunk.glb.wasm', isNew: true,
+    short: 'The bed in each private sleep pod: a sensor strip under the mattress and a circadian mood light.',
+    what: 'Sleep is the base of crew health. The bunk\'s sensor strip backs up the wristband, and the mood light runs a fake sunrise and sunset because the Moon\'s day lasts a month. Crew can switch everything off: it is their private space.',
+    role: ['<b>Sleep sensing:</b> breathing and movement through the mattress, no camera', '<b>Circadian light:</b> 1800 to 6500 K, blue breathing light to help fall asleep', '<b>Privacy:</b> a curtain, no microphones or cameras, and an off switch'],
+    spec: ['2.0 × 0.9 m', 'One per crew pod'] },
+
+  w_recovery_pod_healthy: { group: 'wellness', ic: "🛌", tag: ["Psych · centrepiece", 'h'], title: "Adaptive Recovery Pod · Healthy", file: 'models/wellness/recovery_pod_healthy.glb.wasm', isNew: true,
+    short: "Sleep and recovery capsule. Green: the crew member is rested.",
+    what: "The centrepiece of the habitat. A sensor mat, EEG headrest and canopy sensors feed the AI, which adapts light, temperature, sound and the canopy tint. In the game the pod model itself changes with your state.",
+    role: ["<b>Biomedical:</b> heart rate, breathing, SpO₂, sleep stages, EEG headrest", "<b>Mental health:</b> circadian strips, aurora light, nature sounds, Earth view, counsellor hologram", "<b>Mechanical:</b> opening canopy, scanner gantry arm, privacy wings, drawers, ladder"],
+    spec: ["3.17 × 1.73 × 2.17 m", "21,132 triangles", "932 KB", "In game: E enter · F sleep analytics · R recovery session · TAB AI tips"] },
+  w_recovery_pod_fatigue: { group: 'wellness', ic: "🟡", tag: ["Psych · AI state 2", 'h'], title: "Adaptive Recovery Pod · Fatigue", file: 'models/wellness/recovery_pod_fatigue.glb.wasm', isNew: true,
+    short: "Yellow: poor sleep detected. The AI shows its recommendations.",
+    what: "State 2: the AI has detected fatigue. Indicators turn yellow, the canopy half-closes and a recommendation panel appears: light therapy, a greenhouse session, and a recovery nap.",
+    role: ["<b>Detects:</b> poor sleep score, low HRV, slow task times", "<b>Acts:</b> circadian reset light and a cooler pod", "<b>Suggests, never forces:</b> the crew member chooses"],
+    spec: ["3.17 × 1.71 × 2.14 m", "34,548 triangles", "1454 KB", "In game: Switches automatically when fatigue > 55%"] },
+  w_recovery_pod_stress: { group: 'wellness', ic: "🔵", tag: ["Psych · AI state 3", 'h'], title: "Adaptive Recovery Pod · Stress", file: 'models/wellness/recovery_pod_stress.glb.wasm', isNew: true,
+    short: "Blue: calming light, Earth view and the counsellor hologram.",
+    what: "State 3: psychological stress detected. Calming blue light, the canopy darkens (electrochromic glass), the Earth-view screen turns on and the AI counsellor appears. The relaxation protocol runs.",
+    role: ["<b>Electrochromic canopy:</b> tints for privacy and calm", "<b>Hologram counsellor:</b> a voice to talk to at 3 a.m.", "<b>Hard limit:</b> never reports anyone without telling them first"],
+    spec: ["3.17 × 1.58 × 2.14 m", "27,328 triangles", "1306 KB", "In game: Switches automatically when stress > 55%"] },
+  w_ai_wristband: { group: 'wellness', ic: "⌚", tag: ["Psych · wearable", 'h'], title: "AI Psychological Monitoring Wristband", file: 'models/wellness/ai_wristband.glb.wasm', isNew: true,
+    short: "Heart rate, stress, sleep and a private mood ring on one band.",
+    what: "Worn at night and during the day. PPG LEDs read heart rate, gold contacts read skin conductance (stress), a thermistor reads skin temperature. The mood ring shows your state only to you unless you choose to share it.",
+    role: ["<b>Sensors:</b> PPG, EDA, skin temperature, accelerometer", "<b>Emergency:</b> SOS button and red alert LED", "<b>Privacy:</b> raw data stays on the band; only scores leave it"],
+    spec: ["0.08 × 0.04 × 0.09 m", "10,408 triangles", "528 KB", "In game: E sync · F share mood ring"] },
+  w_sanctuary_pod: { group: 'wellness', ic: "🧘", tag: ["Psych · countermeasure", 'h'], title: "Personal Sanctuary Pod", file: 'models/wellness/sanctuary_pod.glb.wasm', isNew: true,
+    short: "A noise-cancelling retreat with a recliner, VR dock and holo-plants.",
+    what: "15 acoustic felt panels cut noise by 38 dB. A breathing light guides six breaths a minute. A VR headset dock lets you walk through a forest on Earth. No cameras or microphones inside.",
+    role: ["<b>Stress:</b> guided breathing session", "<b>Monotony:</b> VR nature sessions", "<b>Privacy:</b> nothing records you in here"],
+    spec: ["2.5 × 2.5 × 2.16 m", "26,442 triangles", "1500 KB", "In game: E breathing · R VR nature"] },
+  w_greenhouse: { group: 'wellness', ic: "🌱", tag: ["Life support · mood", 'h'], title: "Modular Lunar Greenhouse", file: 'models/wellness/greenhouse.glb.wasm', isNew: true,
+    short: "Four hydroponic towers, grow lights, water loop, O₂ module and an AI growth monitor.",
+    what: "Food and oxygen, and the top evidence-based countermeasure for low mood: tending plants. The AI growth monitor tracks pH, EC, temperature and how many mood sessions the crew logged.",
+    role: ["<b>Life support:</b> about 2.1 kg of O₂ a day", "<b>Food:</b> salad trays plus 96 tower cups", "<b>Mood:</b> behavioural activation for depression"],
+    spec: ["3.2 × 2.2 × 2.49 m", "51,212 triangles", "3344 KB", "In game: E care mode · F plant health · G harvest"] },
+  w_medical_scanner: { group: 'wellness', ic: "🩻", tag: ["Medical · CMO bay", 'h'], title: "Smart Medical Scanner Bay", file: 'models/wellness/medical_scanner.glb.wasm', isNew: true,
+    short: "A realistic CMO station: scan arch, hydraulic chair, vitals monitor, AED, ultrasound, O₂ and IV.",
+    what: "The non-contact scan arch (mmWave, thermal, PPG) slides on floor rails over a reclining hydraulic chair with restraints for 1/6 g. The articulated monitor shows live ECG and vitals. The cart holds an AED, ultrasound, labelled drawers, a sharps bin, a blood analyser and portable oxygen.",
+    role: ["<b>Biomedical:</b> HR, SpO₂, BP, temperature, respiration", "<b>Emergency:</b> AED, O₂ mask, IV pump, AI emergency display", "<b>Consent:</b> every scan stays with the crew member unless they share it"],
+    spec: ["2.7 × 1.95 × 2.45 m", "54,244 triangles", "2635 KB", "In game: E begin scan · F health history"] },
+  w_hologram_companion: { group: 'wellness', ic: "🤖", tag: ["Psych · AI", 'h'], title: "AI Companion Hologram Projector", file: 'models/wellness/hologram_companion.glb.wasm', isNew: true,
+    short: "A round table that projects a virtual counsellor for check-ins.",
+    what: "A coaching companion for isolation: it asks how you are, suggests activities and listens. It suggests, never orders. You can switch it off any time, and it never reports you without telling you first.",
+    role: ["<b>Isolation:</b> someone to talk to between Earth calls", "<b>Mood check-ins:</b> 2 quick questions that outrank sensors for 24 h", "<b>Privacy:</b> runs on board only, no cloud"],
+    spec: ["1.25 × 1.44 × 1.86 m", "15,684 triangles", "893 KB", "In game: E talk · F mood check-in"] },
+  w_circadian_light: { group: 'wellness', ic: "🌅", tag: ["Psych · sleep", 'h'], title: "Adaptive Circadian Lighting", file: 'models/wellness/circadian_light.glb.wasm', isNew: true,
+    short: "A bedside sunrise lamp and under-bunk strip that keep the body clock on Earth time.",
+    what: "The Moon's day lasts 29.5 Earth days, so the body clock drifts. This light gives blue-rich light to wake up, 6500 K to focus and warm, melatonin-safe light after 21:00.",
+    role: ["<b>Sleep:</b> sunrise alarm at 06:30", "<b>Focus:</b> 6500 K work light", "<b>Wind-down:</b> 1800 K, melatonin-safe"],
+    spec: ["0.6 × 0.41 × 0.54 m", "11,264 triangles", "627 KB", "In game: E change mode"] },
+  w_emotional_garden: { group: 'wellness', ic: "🌸", tag: ["Psych · biophilia", 'h'], title: "Emotional Support Garden", file: 'models/wellness/emotional_garden.glb.wasm', isNew: true,
+    short: "Flower beds, a bench, a water station and an AI planting arm.",
+    what: "Colour, soil smell and something alive to care for. A small, dense garden that the AI suggests when mood is low. The planting arm on its rail helps sow seeds.",
+    role: ["<b>Stress:</b> a bench among the flowers", "<b>Monotony:</b> new blooms to watch", "<b>Behavioural activation:</b> planting tasks"],
+    spec: ["3.03 × 1.58 × 1.72 m", "19,748 triangles", "1300 KB", "In game: E plant · G sit"] },
+  w_eclss_core: { group: 'wellness', ic: "🫁", tag: ["Life support", 'h'], title: "ECLSS Core", file: 'models/wellness/eclss_core.glb.wasm', isNew: true,
+    short: "CO₂ scrubbers, oxygen generation, water recovery and the life-support display.",
+    what: "Environmental Control and Life Support. High CO₂ causes fatigue and headaches, so its readings feed the AI's fatigue signal. The AI predicts when the scrubber filter needs changing.",
+    role: ["<b>Air:</b> 3 CO₂ scrubber beds and an oxygen generator", "<b>Water:</b> 92% recovery", "<b>AI prediction:</b> filter change countdown"],
+    spec: ["2.0 × 1.2 × 2.17 m", "26,460 triangles", "1345 KB", "In game: E inspect · R replace filter · F water"] },
+  w_oxygen_tanks: { group: 'wellness', ic: "🟢", tag: ["Life support · medical", 'h'], title: "Oxygen Tank Rack", file: 'models/wellness/oxygen_tanks.glb.wasm', isNew: true,
+    short: "Four high-pressure O₂ cylinders with regulators, gauges and a manifold.",
+    what: "The backup if oxygen generation fails, and medical oxygen for the CMO. Strapped into a rack, with pressure gauges, a low-pressure alarm and oxidizer warnings.",
+    role: ["<b>Reserve:</b> 4 × 6.8 kg at 2200 psi", "<b>Safety:</b> low-pressure alarm, no-flame label", "<b>Maintenance:</b> swap an empty tank in-game"],
+    spec: ["1.86 × 0.56 × 1.85 m", "47,348 triangles", "2402 KB", "In game: E check · R swap tank"] },
+  w_ai_health_hub: { group: 'wellness', ic: "🧠", tag: ["Psych · AI detection", 'h'], title: "AI Health Detection System", file: 'models/wellness/ai_health_hub.glb.wasm', isNew: true,
+    short: "The on-board computer and dashboard that score the six conditions.",
+    what: "An edge-compute cabinet (no cloud, encrypted) and a dashboard showing anxiety, depression, conflict, fatigue, autonomy and monotony scores, the current tier and sensor-fusion confidence.",
+    role: ["<b>Six conditions:</b> scored from nine sensor types", "<b>Tiers:</b> 0–3 with human review for Tier 3", "<b>Hard limits:</b> enforced in code, violations logged"],
+    spec: ["2.12 × 0.83 × 2.07 m", "29,116 triangles", "1375 KB", "In game: E dashboard · F explain my scores"] },
+  w_mood_tracker: { group: 'wellness', ic: "🙂", tag: ["Psych · self-report", 'h'], title: "Mood Health Tracker", file: 'models/wellness/mood_tracker.glb.wasm', isNew: true,
+    short: "A two-tap mood check-in panel with a 14-day trend and a crew tablet.",
+    what: "Five mood buttons from great to bad, a private trend line and a docked tablet. Self-report is weighted above the sensors for 24 hours: the person always knows best.",
+    role: ["<b>Voluntary:</b> nobody is forced to check in", "<b>Private:</b> only you see it", "<b>Learning:</b> sets your personal baseline"],
+    spec: ["0.7 × 0.14 × 1.0 m", "14,632 triangles", "628 KB", "In game: E feeling good · R feeling low"] },
+  w_heart_rate_monitor: { group: 'wellness', ic: "💓", tag: ["Medical · vitals", 'h'], title: "Heart-Rate & Vitals Monitor", file: 'models/wellness/heart_rate_monitor.glb.wasm', isNew: true,
+    short: "A rolling bedside monitor with ECG, pleth, respiration, a chest strap and a finger clip.",
+    what: "Heart rate and heart-rate variability are core stress and anxiety signals. Exercise is context-tagged so the AI never mistakes a workout for anxiety.",
+    role: ["<b>Waves:</b> ECG lead II, pleth, respiration", "<b>Numbers:</b> HR, SpO₂, HRV, respiratory rate", "<b>Sensors:</b> chest strap and finger clip"],
+    spec: ["0.6 × 0.63 × 1.58 m", "11,136 triangles", "501 KB", "In game: E measure · F 24 h trend"] },
+  w_bp_monitor: { group: 'wellness', ic: "🩸", tag: ["Medical · vitals", 'h'], title: "Blood-Pressure Tracker", file: 'models/wellness/bp_monitor.glb.wasm', isNew: true,
+    short: "A wall-mounted automatic cuff with display, coiled hose and arm rest.",
+    what: "Fluid shifts in 1/6 g and chronic stress both show up in blood pressure. Readings auto-log to the CMO only with consent.",
+    role: ["<b>Reads:</b> systolic, diastolic, pulse", "<b>Simple:</b> start and stop buttons", "<b>Consent:</b> logs to the CMO only if you agree"],
+    spec: ["0.5 × 0.42 × 0.86 m", "28,152 triangles", "1347 KB", "In game: E take reading"] },
+  w_smart_bed: { group: 'wellness', ic: "🛏️", tag: ["Medical · sleep AI", 'h'], title: "AI Sleep-Detection Bed", file: 'models/wellness/smart_bed.glb.wasm', isNew: true,
+    short: "A realistic crew bed with under-mattress sensing and sleep software on the headboard.",
+    what: "Nothing is worn. Ballistocardiography in the sensor mat reads heart rate, breathing and movement, and the headboard software shows a hypnogram (awake, REM, light, deep) and a sleep score.",
+    role: ["<b>Contact-free:</b> sensor mat under the mattress", "<b>Software:</b> hypnogram, sleep score, temperature", "<b>Realistic:</b> storage drawers, reading light, privacy curtain"],
+    spec: ["2.25 × 1.58 × 2.07 m", "19,188 triangles", "830 KB", "In game: E rest · F sleep software"] },
+  w_emergency_mh_station: { group: 'wellness', ic: "🆘", tag: ["Emergency", 'h'], title: "Emergency Mental Health Station", file: 'models/wellness/emergency_mh_station.glb.wasm', isNew: true,
+    short: "A 24/7 private line to Earth, a breathing guide and a comfort kit.",
+    what: "A big TALK NOW button opens a private line to the flight psychologist. It always works, even if the AI is switched off. A privacy curtain, headset, handset and weighted blanket are within reach.",
+    role: ["<b>Crisis:</b> private line, 1.3 s delay", "<b>Self-help:</b> box-breathing guide", "<b>Privacy:</b> the AI cannot listen in"],
+    spec: ["1.38 × 1.12 × 2.12 m", "17,656 triangles", "888 KB", "In game: E TALK NOW · R breathing · F comfort kit"] },
+  w_sensor_wall: { group: 'wellness', ic: "📶", tag: ["Life support · sensors", 'h'], title: "Biometrics Sensor Array", file: 'models/wellness/sensor_wall.glb.wasm', isNew: true,
+    short: "A wall of camera, microphone, CO₂, temperature, UWB and radiation sensor tiles.",
+    what: "The room sensors the AI fuses with the wearables. Cameras are only in shared zones, never in pods, bathrooms, the VR retreat or the call booth. If one fails the AI drops that signal and tells the crew.",
+    role: ["<b>Six sensor types:</b> per tile, with status LEDs", "<b>Failure planning:</b> a broken sensor is dropped, not trusted", "<b>Maintenance:</b> recalibrate in-game"],
+    spec: ["2.4 × 0.18 × 1.37 m", "19,072 triangles", "1002 KB", "In game: E status · R recalibrate"] },
+  w_earth_window: { group: 'wellness', ic: "🌍", tag: ["Psych · isolation", 'h'], title: "Virtual Earth Window", file: 'models/wellness/earth_window.glb.wasm', isNew: true,
+    short: "A high-brightness panel with a live Earth view and nature scenes.",
+    what: "Counters isolation and the grey monotony of the lunar surface. Views rotate between Earth live, forest, ocean and home city.",
+    role: ["<b>Isolation:</b> a view of home", "<b>Monotony:</b> four rotating scenes", "<b>Light:</b> adds daylight-coloured light to the room"],
+    spec: ["1.9 × 0.31 × 1.25 m", "9,428 triangles", "624 KB", "In game: E change view"] },
+  w_maintenance_drone: { group: 'wellness', ic: "🚁", tag: ["Operations", 'h'], title: "Autonomous Maintenance Drone", file: 'models/wellness/maintenance_drone.glb.wasm', isNew: true,
+    short: "A ducted-fan inspection drone with tool arms, dust brush and a charging dock.",
+    what: "Inspects seals, filters and wiring, brushes off lunar dust and predicts failures, so the crew spends less time on chores and more on rest.",
+    role: ["<b>Inspection:</b> camera dome and repair probe", "<b>Dust:</b> brush head for sharp regolith", "<b>In-game:</b> repairs the most worn system"],
+    spec: ["0.85 × 0.85 × 0.57 m", "13,588 triangles", "831 KB", "In game: E dispatch · R recharge"] },
+  w_habitat_console: { group: 'wellness', ic: "🖥️", tag: ["Operations", 'h'], title: "Smart Habitat Control Console", file: 'models/wellness/habitat_console.glb.wasm', isNew: true,
+    short: "Three screens: crew mood, habitat health and 7-day trends.",
+    what: "Command and comms. Shows O₂, power, radiation and crew wellness as aggregate numbers only, never one person's data without consent.",
+    role: ["<b>Habitat:</b> O₂, CO₂, power, radiation", "<b>Crew:</b> aggregate wellness bars", "<b>Trends:</b> sleep and stress over 7 days"],
+    spec: ["1.8 × 1.39 × 1.39 m", "26,220 triangles", "1088 KB", "In game: E dashboard · F wellness trend"] },
+  w_stress_lounge: { group: 'wellness', ic: "🛋️", tag: ["Psych · social", 'h'], title: "Stress Recovery Lounge", file: 'models/wellness/stress_lounge.glb.wasm', isNew: true,
+    short: "A curved sofa, warm ring light, low table, plants and a nature screen.",
+    what: "The shared place to decompress together after hard shifts. Warm 2700 K light, cushions and a nature soundscape. Time here counts as social contact.",
+    role: ["<b>Social:</b> seats four, the whole crew", "<b>Calm:</b> warm light, nature mode", "<b>Small:</b> 3.3 m across, nothing wasted"],
+    spec: ["3.33 × 3.45 × 2.32 m", "13,984 triangles", "871 KB", "In game: E unwind · F nature mode"] },
+  astro: { group: 'around', ic: '🧑‍🚀', tag: ['NASA model', 'n'], title: 'Astronaut (EVA suit)', file: 'models/astronaut.glb.wasm',
+    short: 'NASA\'s free 3D astronaut. Shown floating on a tether in the spacewalk scene on the main site.',
+    what: 'Moonwalks are the riskiest thing the crew does. Our suitports let them step into a suit straight from inside, so the dust stays out, and the beacon keeps reading their heart rate the whole time.',
+    role: ['<b>Dust stays out:</b> suits dock to the outside wall of the dust lock', '<b>Monitored outside:</b> heart rate and location keep streaming during the EVA', '<b>Buddy system:</b> the AI never schedules a solo EVA'],
+    spec: ['NASA · public domain'] },
+  lro: { group: 'around', ic: '🛰️', tag: ['NASA model', 'n'], title: 'Lunar Reconnaissance Orbiter', file: 'models/lro.glb.wasm',
+    short: 'NASA\'s orbiter that mapped the Shackleton crater rim where our base sits.',
+    what: 'LRO\'s maps told us where the rim stays lit almost all the time (for solar power) and where ice sits in shadow nearby. That is why the habitat is on the Shackleton rim.',
+    role: ['<b>Site choice:</b> near-constant sunlight on the rim', '<b>Water:</b> ice in permanently shadowed craters close by', '<b>Comms:</b> a relay orbiter keeps the crew in touch with family and Mission Control'],
+    spec: ['NASA · public domain'] }
+};
+
+// ---------------------------------------------------------------- cards + info panel
+const esc = s => s;
+for (const [k, m] of Object.entries(M)) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'card'; b.dataset.k = k;
+  b.innerHTML = `<div class="ic" aria-hidden="true">${m.ic}</div><div class="t">${m.title}</div><div><span class="tag ${m.tag[1]}">${m.tag[0]}</span>${m.isNew ? '<span class="tag h">New</span>' : ''}</div><div class="d" style="margin-top:8px">${m.short}</div><div class="go">View in 3D →</div>`;
+  b.onclick = () => { show(k); document.getElementById('viewer').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
+  document.getElementById('cards-' + m.group).appendChild(b);
+}
+const info = document.getElementById('info');
+function panel(k) {
+  const m = M[k];
+  info.innerHTML = `<div><span class="tag ${m.tag[1]}">${m.tag[0]}</span>${m.isNew ? '<span class="tag h">Designed in Blender</span>' : ''}</div>
+  <h3>${m.title}</h3><p>${m.what}</p>
+  <h4>What it does for the crew</h4><ul>${m.role.map(r => `<li><i>✓</i><span>${r}</span></li>`).join('')}</ul>
+  <h4>Specs</h4><div class="spec">${m.spec.map(s => `<span>${s}</span>`).join('')}</div>
+  <div class="dl"><a href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/raw/main/${m.file.replace(".glb.wasm", ".glb")}">⬇ Download model${m.big ? ' (' + m.big + ')' : ''}</a></div>`;
+  document.querySelectorAll('.card').forEach(c => c.classList.toggle('on', c.dataset.k === k));
+}
+
+// ---------------------------------------------------------------- viewer
+const cv = document.getElementById('cv'), view = cv.parentElement;
+const R = new THREE.WebGLRenderer({ canvas: cv, antialias: true }); R.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.1;
+const S = new THREE.Scene(); S.environment = new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(), .04).texture;
+const C = new THREE.PerspectiveCamera(40, 1, .001, 5000);
+const ctl = new OrbitControls(C, cv); ctl.enableDamping = true; ctl.autoRotate = !matchMedia('(prefers-reduced-motion: reduce)').matches; ctl.autoRotateSpeed = .8;
+S.add(new THREE.HemisphereLight(0xdfe9ff, 0x1a1410, .6)); const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 5, 2); S.add(sun);
+const grid = new THREE.GridHelper(1, 20, 0x38bdf8, 0x1c3a66); grid.material.transparent = true; grid.material.opacity = .25; S.add(grid);
+function size() { const w = view.clientWidth, h = view.clientHeight; R.setSize(w, h, false); C.aspect = w / h; C.updateProjectionMatrix(); dirty = true; }
+let dirty = true; new ResizeObserver(size).observe(view);
+const gltf = new GLTFLoader(); { const d = new DRACOLoader(); d.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/'); gltf.setDRACOLoader(d); }
+let fbx = null, cur = null, token = 0, home = null;
+const load = document.getElementById('load'), lbar = document.getElementById('lbar'), lpct = document.getElementById('lpct'), vtag = document.getElementById('vtag');
+const prog = e => { if (e.total) { const p = e.loaded / e.total * 100; lbar.style.width = p + '%'; lpct.textContent = p.toFixed(0) + ' %'; } };
+async function show(k) {
+  const m = M[k], my = ++token; panel(k); vtag.textContent = m.title; load.style.display = 'grid'; lbar.style.width = '0'; lpct.textContent = '0 %';
+  try { if (location.hash !== '#m-' + k) history.replaceState(null, '', '#m-' + k); } catch (e) {}
+  let obj;
+  try {
+    if (m.fbx) { if (!fbx) { const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js'); fbx = new FBXLoader(); } obj = await fbx.loadAsync(m.file, prog);
+      obj.traverse(o => { if (o.isMesh) [].concat(o.material).forEach(x => { if (x) { x.side = THREE.DoubleSide; if (x.shininess !== undefined) x.shininess = Math.min(x.shininess, 30); } }); }); }
+    else if (m.parts) { obj = new THREE.Group(); for (const f of m.parts) obj.add((await gltf.loadAsync(f, prog)).scene); }   // big model shipped in parts
+    else obj = (await gltf.loadAsync(m.file, prog)).scene;
+  } catch (e) { if (my === token) { load.style.display = 'grid'; load.firstElementChild.textContent = 'Could not load this model. Try again or download it below.'; } return; }
+  if (my !== token) return;
+  if (cur) { S.remove(cur); cur.traverse(o => { o.geometry && o.geometry.dispose(); }); }
+  cur = obj; S.add(obj);
+  const box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3()), r = sz.length() / 2;
+  obj.position.sub(c); obj.position.y += sz.y / 2;                        // sit on the grid
+  grid.scale.setScalar(Math.max(sz.x, sz.z) * 1.6); grid.position.y = 0;
+  ctl.target.set(0, sz.y / 2, 0); C.near = r / 200; C.far = r * 60; C.position.set(r * 1.25, sz.y / 2 + r * 1.1, r * 1.45); C.updateProjectionMatrix(); ctl.update();
+  home = C.position.clone(); load.style.display = 'none'; dirty = true;
+}
+document.getElementById('spin').onclick = e => { ctl.autoRotate = !ctl.autoRotate; e.currentTarget.classList.toggle('on', ctl.autoRotate); };
+document.getElementById('reset').onclick = () => { if (home) { C.position.copy(home); ctl.update(); dirty = true; } };
+ctl.addEventListener('change', () => dirty = true);
+let vis = true; new IntersectionObserver(e => vis = e[0].isIntersecting).observe(view);
+(function loop() { requestAnimationFrame(loop); if (!vis || document.hidden) return; ctl.update(); if (dirty || ctl.autoRotate) { R.render(S, C); dirty = false; } })();
+const q = location.hash.replace(/^#m-/, ''); show(M[q] ? q : 'habitat');
+</script>
+

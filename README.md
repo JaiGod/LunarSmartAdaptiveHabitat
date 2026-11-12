@@ -6,9 +6,11 @@
 >
 > 💻 **[Code highlights](Docs/Code_Highlights/README.md)**: the 12 most important pieces of code in both games, as screenshots with plain-English explanations ([web version](https://jaigod.github.io/LunarSmartAdaptiveHabitat/code.html)).
 >
-> 🌐 **[Project website](https://jaigod.github.io/LunarSmartAdaptiveHabitat/)**: 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://jaigod.github.io/LunarSmartAdaptiveHabitat/#floorplan).
+> 🌐 **[Project website](https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj)** (latest, linked both ways with the 3D model library · [GitHub Pages copy](https://jaigod.github.io/LunarSmartAdaptiveHabitat/)): 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://jaigod.github.io/LunarSmartAdaptiveHabitat/#floorplan).
 >
 > 🛰️ **[3D model library](https://claude.ai/artifact/BMs8Ea9epbjhnYAMEk7w2D)**: spin every model in the browser, with what each one does to keep the crew safe, including the new health-monitoring hardware (heart-rate chest beacon, sleep wristband, cortisol patch, sensor pods, Crew Health Station, smart sleep bunk) designed in Blender ([source](Models/Health_Monitoring/)).
+>
+> 🖨️ **[STL: 6 ring bases + 8 hallways + regolith shield, separate parts](3D_Print_Kits/Realistic_Separate_Parts/)** (1:150) · **[STL: whole outer shell + hallways + regolith shield](3D_Print_Kits/Realistic_Shell_Hallways_Shield/)** (1:320)
 >
 > 🖨️ **[STL to 3D print: realistic habitat, bases only](3D_Print_Kits/Realistic_Bases_Only/)**: core, four tunnels, five ring nodes and the airlock, 1:320 (about 20 × 14 cm). No sleeping pods, shields, tower or vehicles.
 >
