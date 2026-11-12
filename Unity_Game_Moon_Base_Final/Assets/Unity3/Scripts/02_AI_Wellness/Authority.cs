@@ -27,6 +27,7 @@ namespace Hunch3
     public static class AIAuthority
     {
         public static bool Blocked;
+        public static int AllowCount;      // how many times a human has allowed the AI again (missions check this)
         public static bool Misbehaving;
         static float lastRefusedLog = -99f;
         static MoodEngine E => Sim.I != null ? Sim.I.engine : null;
@@ -49,7 +50,7 @@ namespace Hunch3
         public static void Allow()
         {
             if (!Blocked) return;
-            Blocked = false;
+            Blocked = false; AllowCount++;
             E?.Log(1, "authority", "Commander allowed AI support again (AI control mode stays OFF until a human turns it on).");
             HUD.I?.Toast("AI support allowed again. It may adjust the habitat, but AI control mode stays OFF unless you turn it on.");
         }

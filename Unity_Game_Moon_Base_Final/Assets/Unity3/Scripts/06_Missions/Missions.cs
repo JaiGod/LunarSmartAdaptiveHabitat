@@ -100,7 +100,7 @@ namespace Hunch3
                 () => { if (SleepSystem.PlayerAsleep) { HUD.I?.Toast("You're asleep… 1 real minute = the whole night."); return; } Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); }));
             m.steps.Add(S("Sleep — if something goes wrong, the AI stops and you take over", "Tonight the AI will break a bedtime rule. Watch what happens: it STOPS itself, undoes its change and wakes you. You are in charge.", () => mFlags.Contains("overstep") && AIAuthority.Blocked,
                 () => { if (!mFlags.Contains("overstep")) { if (!SleepSystem.PlayerAsleep) { nightTest = true; Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); } else HUD.I?.Toast("Still asleep — wait a moment."); return; } AIAuthority.Disallow("the Commander pressed the AI off switch"); }));
-            m.steps.Add(S("You decide: allow the AI again, then sleep", "Everything the AI did is logged (Shift+Tab → What the AI did). Press O to allow it again — AI control mode stays off — and you go back to sleep.", () => mFlags.Contains("overstep") && !AIAuthority.Blocked,
+            m.steps.Add(S("You decide: allow the AI again, then sleep", "Everything the AI did is logged (Shift+Tab → What the AI did). Press O to allow it again — AI control mode stays off — and you go back to sleep.", () => mFlags.Contains("overstep") && (!AIAuthority.Blocked || AIAuthority.AllowCount > allowAtStop),
                 () => { if (AIAuthority.Blocked) AIAuthority.Allow(); if (!SleepSystem.PlayerAsleep) { Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); } }));
             missions.Add(m);
 
@@ -202,6 +202,7 @@ namespace Hunch3
 
         // ------------------------------------------------------------------ BEDTIME RULES (Human > AI)
         // ------------------------------------------------------------------ NIGHT WATCH: if anything goes wrong while you sleep, the AI stops and the human takes over
+        int allowAtStop;      // AIAuthority.AllowCount when the night watch stopped the AI: pressing O after that finishes mission 5
         bool inNight; float wokeAt = -1; int escAtBed, failAtBed; string inCharge; int inChargeStep;
         int FailedSensors() { var e = E; return e == null ? 0 : e.crew.Sum(c => c.sensors.Count(x => x == SensorHealth.Failed)); }
         void BedtimeTick()
@@ -228,7 +229,7 @@ namespace Hunch3
                 else if (FailedSensors() > failAtBed) what = "a health sensor failed";
                 if (what != null)
                 {
-                    mFlags.Add("overstep"); inNight = false; inCharge = what; inChargeStep = 0;
+                    mFlags.Add("overstep"); inNight = false; inCharge = what; inChargeStep = 0; allowAtStop = AIAuthority.AllowCount;
                     AIAuthority.Disallow("night watch: " + what + " — the AI stopped itself, the human takes over");
                     if (SleepSystem.PlayerAsleep) SleepSystem.I.Wake("⚠ Something went wrong");
                     e.Log(1, "night", "NIGHT WATCH: " + what + ". AI STOPPED (watch-only, every change undone). Commander woken and in charge.", 2);
