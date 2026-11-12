@@ -259,7 +259,11 @@ func _unhandled_input(e: InputEvent) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if e is InputEventKey and e.pressed and not e.echo:
 		match e.keycode:
-			KEY_E: if panel_kind == "": _use()
+			KEY_E:
+				if on_treadmill: _leave_treadmill(); A.exercising = 0.0; A.note("stopped the workout early")
+				elif panel_kind == "": _use()
+			KEY_W, KEY_A, KEY_S, KEY_D:
+				if on_treadmill: _leave_treadmill(); A.exercising = 0.0; A.note("stopped the workout early")
 			KEY_TAB: _toggle_panel("feel")
 			KEY_H: _toggle_panel("help")
 			KEY_J: _toggle_panel("tasks")
@@ -270,7 +274,8 @@ func _unhandled_input(e: InputEvent) -> void:
 			KEY_BRACKETLEFT, KEY_MINUS: speed_i = max(speed_i - 1, 0)
 			KEY_F: if A.asleep: sleep_fast = not sleep_fast
 			KEY_SPACE:
-				if A.asleep: _wake()
+				if on_treadmill: _leave_treadmill(); A.exercising = 0.0; A.note("stopped the workout early")
+				elif A.asleep: _wake()
 				elif player.is_on_floor(): player.velocity.y = 2.2
 
 func _physics_process(dt: float) -> void:
@@ -305,13 +310,14 @@ func _process(dt: float) -> void:
 	var rate: float = speeds[speed_i]
 	if A.asleep: rate = 40.0 if sleep_fast else 8.0
 	if panel_kind == "station" and ecg_t < 6.0: rate = 0.3
+	if on_treadmill: rate = 15.0     # the 45-minute workout plays out in about 3 seconds
 	var dm = rate * dt
 	# step the body in ≤1-minute chunks so the model stays stable at high speed
 	while dm > 0.0:
 		var s: float = min(dm, 1.0); A.step(s); dm -= s
 	if A.day() != task_day: _new_day_tasks()
 	if not A.asleep and on_treadmill and A.exercising <= 0.0:
-		on_treadmill = false; _done("exercise")
+		_leave_treadmill(); _done("exercise"); _toast("Workout done — stress down, mood up.")
 	_world_tick(dt)
 	_hud_tick()
 	if panel_kind == "feel" or panel_kind == "pod": _refresh_live_panel()
@@ -362,7 +368,7 @@ func _use() -> void:
 		"treadmill":
 			if A.exercising > 0.0: return
 			A.exercise(); on_treadmill = true
-			player.global_position = Vector3(-3.5, 0.3, -6.8); _toast("Running… 45 sim-minutes. Stress and mood improve when you finish.")
+			_toast("Running on the treadmill… (press E, Space or WASD to stop early)")
 		"suit": _start_eva()
 		"hatch": _end_eva(false)
 		"sample":
@@ -371,6 +377,10 @@ func _use() -> void:
 				n.visible = false; (n.get_meta("beam") as Node3D).visible = false; looking_at.get_parent().remove_child(looking_at)
 				samples += 1; A.note("rock sample %d/3 bagged" % samples); A.activity = min(1.0, A.activity + 0.2)
 				if samples >= 3: _done("eva"); _toast("All 3 samples collected — head back to the airlock.")
+
+func _leave_treadmill() -> void:
+	on_treadmill = false
+	player.global_position = Vector3(-2.0, 0.2, -5.0)     # step off beside the treadmill, clear of its frame
 
 func _sleep() -> void:
 	A.go_to_bed(); sleep_fast = false
