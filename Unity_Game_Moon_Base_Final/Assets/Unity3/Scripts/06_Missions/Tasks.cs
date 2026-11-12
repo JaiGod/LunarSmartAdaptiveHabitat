@@ -168,13 +168,13 @@ namespace Hunch3
                 "When an offer appears, press N (VR: B). Hard limit #2: the AI stops that intervention at once and writes it in your log.",
                 () => events.Contains("refuse1"), null, () => RaiseOfferForMe(), null, "Send me an offer");
             Add("optout", "D4", "Opt out of a sensor (privacy control)",
-                "Tab → PRIVACY → opt out of voice, face, cortisol or skin sensor. Heart rate and CO2 stay on (the safety floor) and the screen explains why.",
+                "Shift+Tab → PRIVACY → opt out of voice, face, cortisol or skin sensor. Heart rate and CO2 stay on (the safety floor) and the screen explains why.",
                 () => events.Contains("optout"), () => OpenCrew("privacy"));
             Add("override", "D4", "Override the AI",
-                "Tab → OVERRIDES → \"Restore my room to default\" or \"Pause ALL AI adjustments 24 h\". The human always wins.",
+                "Shift+Tab → OVERRIDES → \"Restore my room to default\" or \"Pause ALL AI adjustments 24 h\". The human always wins.",
                 () => events.Contains("override"), () => OpenCrew("overrides"));
             Add("export", "D4", "Export everything the AI recorded about you",
-                "Tab → PRIVACY → \"Export my full log\". Transparency: every crew member can see all their own data.",
+                "Shift+Tab → PRIVACY → \"Export my full log\". Transparency: every crew member can see all their own data.",
                 () => events.Contains("export"), () => OpenCrew("privacy"));
             Add("aioff", "D4", "Stop a misbehaving AI — disallow AI control",
                 "When the AI oversteps (\"Show me\" makes it blast bright light and music into your quarters), press O (VR: menu → AI off switch). It becomes watch-only and every change is undone.",
@@ -194,7 +194,7 @@ namespace Hunch3
                 "F4 → \"Run 72-hour simulation\". Two events at once + a sensor failure + CMO on EVA; the report is saved in Reports/.",
                 () => !string.IsNullOrEmpty(TabletopSim.lastReport), () => Panels.Open("tabletop"));
             Add("crewui", "Bonus B", "Open the Crew Interface — your data and your controls",
-                "Press Tab (VR: Y). See your wellness, what the AI did for you, overrides, privacy and preferences.",
+                "Press Shift+Tab (VR: Y). See your wellness, what the AI did for you, overrides, privacy and preferences.",
                 () => sawCrewUI, () => OpenCrew("wellness"));
         }
 
@@ -543,7 +543,8 @@ namespace Hunch3
         class Row { public Text name, pill, info, bar1Label, bar2Label; public Image pillBg, bar1, bar2, bar2Back; }
         readonly Row[] rows = new Row[5];
         Text baseLine, foot;
-        public static bool Visible = true;
+        public static bool Visible = false;      // clean screen: Tab (or V) shows it
+
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Init()
@@ -602,7 +603,7 @@ namespace Hunch3
         {
             Visible = !Visible; if (!canvas) return;
             canvas.gameObject.SetActive(Visible); if (Visible) { Place(); next = 0; }
-            HUD.I?.Toast(Visible ? "Crew health card ON (V to hide)." : "Crew health card hidden (V to show).");
+            HUD.I?.Toast(Visible ? "Crew health ON (Tab to hide)." : "Crew health hidden (Tab to show).");
         }
 
         static bool CanSeeMood(MoodEngine e, CrewMember c) => c.id == 1 || c.shareMoodPublic || (e.escalatedTo.TryGetValue(c.id, out int who) && who == 1);   // quiet check (no 'blocked' log)

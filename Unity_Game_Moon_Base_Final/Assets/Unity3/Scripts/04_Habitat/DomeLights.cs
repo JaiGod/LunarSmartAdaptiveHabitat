@@ -128,7 +128,7 @@ namespace Hunch3
                 bool problem = hazard || e.offers.Any(o => o.crew == 1 && !o.done) || e.escalatedTo.Count > 0;
                 if (!AIHasControl && HandoverReason != "manual takeover" && !string.IsNullOrEmpty(HandoverReason) && !problem)
                 {
-                    if (resumeAt < 0) { resumeAt = Time.time + 20f; HUD.I?.Toast("Problem resolved. The AI will resume routine control in 20 s (press P to stay in manual)."); }
+                    if (resumeAt < 0) { resumeAt = Time.time + 20f; HUD.I?.Toast("Problem resolved. The AI will resume routine control in 20 s (press Shift+P to stay in manual)."); }
                     else if (Time.time > resumeAt) GiveToAI("AI resumed routine control.");
                 }
                 else if (problem) resumeAt = -1;

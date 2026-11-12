@@ -110,9 +110,15 @@ namespace Hunch3
             bool y = Btn(XRNode.LeftHand, XRUsages.secondaryButton), x = Btn(XRNode.LeftHand, XRUsages.primaryButton);
             bool b = Btn(XRNode.RightHand, XRUsages.secondaryButton), a = Btn(XRNode.RightHand, XRUsages.primaryButton);
             bool st = Btn(XRNode.LeftHand, XRUsages.primary2DAxisClick);
-            if (Key(UnityEngine.InputSystem.Key.Tab) || (y && !prevY)) Panels.Toggle("crew");
+            bool shift = Keyboard.current != null && Keyboard.current.shiftKey.isPressed;
+            // clean NASA-style screen: only the objective + reticle. Everything else is one key away.
+            if (Key(UnityEngine.InputSystem.Key.Tab)) { if (shift) Panels.Toggle("crew"); else CrewHealthCard.I?.Toggle(); }   // Tab crew health · Shift+Tab your Crew Interface
+            if (y && !prevY) Panels.Toggle("crew");
+            if (Key(UnityEngine.InputSystem.Key.Backquote)) HUD.I?.ToggleClean();
             if (Key(UnityEngine.InputSystem.Key.M) || (x && !prevX)) HUD.I?.ToggleBigMap();
-            if (Key(UnityEngine.InputSystem.Key.P) || (b && !prevB)) { autopilot = !autopilot; apSlot = ""; HUD.I?.Toast(autopilot ? "AUTOPILOT ON — the AI is playing as you (P to take back control)" : "Autopilot off — you're in control"); }
+            if (Key(UnityEngine.InputSystem.Key.P) && !shift) Panels.Toggle("dashboard");      // P psychology dashboard
+            if (Key(UnityEngine.InputSystem.Key.L) && !shift) Panels.Toggle("eclss");          // L life support
+            if ((Key(UnityEngine.InputSystem.Key.P) && shift) || (b && !prevB)) { autopilot = !autopilot; apSlot = ""; HUD.I?.Toast(autopilot ? "AUTOPILOT ON — the AI is playing as you (Shift+P to take back control)" : "Autopilot off — you're in control"); }
             if (Key(UnityEngine.InputSystem.Key.Y) || (a && !prevA)) HUD.I?.AnswerOffer(true);
             if (Key(UnityEngine.InputSystem.Key.R)) HUD.I?.AnswerOffer(false);
             if (Key(UnityEngine.InputSystem.Key.H)) HUD.I?.ToggleHelp();
@@ -156,7 +162,7 @@ namespace Hunch3
             {
                 var dlt = ms.delta.ReadValue() * 0.12f; yaw += dlt.x; pitch = Mathf.Clamp(pitch - dlt.y, -80, 80);
             }
-            if (kb.lKey.wasPressedThisFrame) Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
+            if (kb.lKey.wasPressedThisFrame && kb.shiftKey.isPressed) Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
             origin.transform.rotation = Quaternion.Euler(0, yaw, 0); cam.transform.localRotation = Quaternion.Euler(pitch, 0, 0);
             Vector3 mv = Vector3.zero;
             if (kb.wKey.isPressed || kb.upArrowKey.isPressed) mv += Vector3.forward; if (kb.sKey.isPressed || kb.downArrowKey.isPressed) mv += Vector3.back;

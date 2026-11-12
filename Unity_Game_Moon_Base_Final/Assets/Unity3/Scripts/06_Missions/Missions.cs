@@ -100,7 +100,7 @@ namespace Hunch3
                 () => { if (SleepSystem.PlayerAsleep) { HUD.I?.Toast("You're asleep… 1 real minute = the whole night."); return; } Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); }));
             m.steps.Add(S("Sleep — if something goes wrong, the AI stops and you take over", "Tonight the AI will break a bedtime rule. Watch what happens: it STOPS itself, undoes its change and wakes you. You are in charge.", () => mFlags.Contains("overstep") && AIAuthority.Blocked,
                 () => { if (!mFlags.Contains("overstep")) { if (!SleepSystem.PlayerAsleep) { nightTest = true; Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); } else HUD.I?.Toast("Still asleep — wait a moment."); return; } AIAuthority.Disallow("the Commander pressed the AI off switch"); }));
-            m.steps.Add(S("You decide: allow the AI again, then sleep", "Everything the AI did is logged (Tab → What the AI did). Press O to allow it again — AI control mode stays off — and you go back to sleep.", () => mFlags.Contains("overstep") && !AIAuthority.Blocked,
+            m.steps.Add(S("You decide: allow the AI again, then sleep", "Everything the AI did is logged (Shift+Tab → What the AI did). Press O to allow it again — AI control mode stays off — and you go back to sleep.", () => mFlags.Contains("overstep") && !AIAuthority.Blocked,
                 () => { if (AIAuthority.Blocked) AIAuthority.Allow(); if (!SleepSystem.PlayerAsleep) { Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); } }));
             missions.Add(m);
 
@@ -119,7 +119,7 @@ namespace Hunch3
                 story = "Mission control wants proof the system is safe. Run a board question, the 72-hour test, and export your own data." };
             m.steps.Add(S("Run board question Q1", "Press F5 and tap Q1. The scenario is set up live and the AI explains what it does.", () => LogSince("scenario"), () => { Scenarios.Run(1); Panels.Open("scenarios"); }));
             m.steps.Add(S("Run the 72-hour tabletop test", "Press F4 and tap ▶ Run. It saves a full report to the Reports folder.", () => mFlags.Contains("tabletop"), () => { TabletopSim.Run(); Panels.Open("tabletop"); mFlags.Add("tabletop"); }));
-            m.steps.Add(S("Export your own data log", "Tab → Privacy → Export my data (ENTER does it). Your data belongs to you.", () => LogSince("privacy", l => l.text.Contains("exported")), ExportMine));
+            m.steps.Add(S("Export your own data log", "Shift+Tab → Privacy → Export my data (ENTER does it). Your data belongs to you.", () => LogSince("privacy", l => l.text.Contains("exported")), ExportMine));
             missions.Add(m);
         }
 

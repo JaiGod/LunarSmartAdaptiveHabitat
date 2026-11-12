@@ -162,6 +162,7 @@ namespace Hunch3
             gameObject.AddComponent<DesktopInteractor>();
             gameObject.AddComponent<SmartInteractor>(); SmartObject.All.Clear();   // wellness / medical / life-support systems
             gameObject.AddComponent<WellnessSpawner>();
+            gameObject.AddComponent<HabitatDressing>();     // function-first wall equipment, stowage, wardroom table refit
             gameObject.AddComponent<HabitatOps>();          // how-to-play card, daily ops tasks, repair alerts, rewards
             gameObject.AddComponent<HUD>();
             gameObject.AddComponent<CrewOrdersTicker>(); CrewOrders.active.Clear(); CrewOrders.history.Clear(); CrewOrders.done = 0; HealthCheck.last.Clear(); HealthCheck.scanned.Clear(); HealthCheck.at.Clear(); HealthCheck.lastId = -1; CrewOrders.asked.Clear();
@@ -182,7 +183,7 @@ namespace Hunch3
             if (GameState.questPerformance) foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None)) if (l.type == LightType.Point && l.GetInstanceID() % 2 == 0) l.enabled = false;
             switch (GameState.mode)
             {
-                case GameMode.Tour: PlayerRig.I.autopilot = true; HUD.I?.Toast("Guided tour: the autopilot walks you through every ARES zone. Press P to explore on your own."); break;
+                case GameMode.Tour: PlayerRig.I.autopilot = true; HUD.I?.Toast("Guided tour: the autopilot walks you through every ARES zone. Press Shift+P to explore on your own."); break;
                 case GameMode.Scenario: Panels.Open("scenarios"); break;
                 case GameMode.Tabletop: Panels.Open("tabletop"); break;
                 case GameMode.InterfaceDemo: Sim.I.engine.C(1).smooth[3] = 0.6f; Sim.I.engine.C(1).aboveSince[3] = SimClock.hours - 3; Panels.Open("crew"); break;

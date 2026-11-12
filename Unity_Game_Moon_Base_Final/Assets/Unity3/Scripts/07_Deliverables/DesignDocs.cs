@@ -527,7 +527,7 @@ namespace Hunch3
                 "<b>0:00</b> Title + the problem: 6 conditions, 4 crew, 18 months (slides)\n" +
                 "<b>1:30</b> D1 sensors — F11 → D1 pages; F1 dashboard → break a sensor live (graceful degradation)\n" +
                 "<b>4:00</b> D2 zones — M = annotated floor plan with coverage rings; walk a corridor (light gradient); C = Config B\n" +
-                "<b>7:00</b> D3 protocols — F11 → D3 flowcharts; Tab crew interface: answer a Tier-2 offer, STOP a support\n" +
+                "<b>7:00</b> D3 protocols — F11 → D3 flowcharts; Shift+Tab crew interface: answer a Tier-2 offer, STOP a support\n" +
                 "<b>10:00</b> Escalation — F5 → Q6 (CMO on EVA → backup chain); F2 CMO console\n" +
                 "<b>11:30</b> D4 ethics — hard limits page, press O (AI off switch), 'blocked' buttons on F1\n" +
                 "<b>13:30</b> Bonus A: F4 72-hour tabletop · Bonus B: crew interface tour\n" +

@@ -95,7 +95,17 @@ namespace Hunch3
             highlight.SetActive(false);
         }
 
-        public void SetHighlight(bool on) { if (highlight && highlight.activeSelf != on) { highlight.SetActive(on); nextLabel = 0; } }
+        /// What the player should read at a glance: GREEN = use it, YELLOW = information, RED = emergency or broken.
+        public static readonly Color Green = new Color(.3f, 1f, .5f), Yellow = new Color(1f, .82f, .25f), Red = new Color(1f, .3f, .3f);
+        public bool InfoOnly => actions.Count > 0 && System.Text.RegularExpressions.Regex.IsMatch(actions[0].label, @"^(View|Read|Review|Check|Show|Inspect|See|Diagnos|Monitor)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        public Color PurposeColor => Failed || cat == SysCat.Emergency ? Red : InfoOnly ? Yellow : Green;
+        public string Verb => Failed ? "Repair" : actions.Count > 0 ? actions[0].label.Split(' ')[0] : "Use";
+        public void SetHighlight(bool on)
+        {
+            if (!highlight) return;
+            if (on) { var pc = PurposeColor; foreach (var lr in highlight.GetComponentsInChildren<LineRenderer>(true)) { lr.startColor = lr.endColor = pc; lr.sharedMaterial.color = pc; } }
+            if (highlight.activeSelf != on) { highlight.SetActive(on); nextLabel = 0; }
+        }
 
         public string Status => Failed ? "<color=#ff5555>MAINTENANCE REQUIRED</color>" : state;
 
@@ -215,8 +225,8 @@ namespace Hunch3
             var sb = new System.Text.StringBuilder(); Color c = UIKit.Accent;
             if (so)
             {
-                c = SmartObject.CatColor(so.cat);
-                sb.Append($"<size=24><b>{so.title}</b></size>   <size=16><color=#{SmartObject.Hex(c)}>{SmartObject.CatName(so.cat)}</color>  ·  {so.Status}  ·  condition {so.integrity * 100:0}%</size>\n");
+                c = so.PurposeColor;
+                sb.Append($"<size=24><color=#{SmartObject.Hex(c)}><b>[{so.Verb}]</b></color>  <b>{so.title}</b></size>   <size=16><color=#9FB3C8>{SmartObject.CatName(so.cat)}</color>  ·  {so.Status}  ·  condition {so.integrity * 100:0}%</size>\n");
                 if (so.Failed)
                 {
                     sb.Append("<size=20><color=#FF7070><b>BROKEN</b></color>  ").Append(KeyTag(vr ? "Trigger" : "E")).Append(" <b>Repair now</b></size>\n");
@@ -236,7 +246,8 @@ namespace Hunch3
             }
             else
             {
-                sb.Append($"<size=24><b>{Pretty(hab.name)}</b></size>\n");
+                c = SmartObject.Green; var hv = string.IsNullOrEmpty(hab.Prompt) ? "Use" : hab.Prompt.Split(' ')[0];
+                sb.Append($"<size=24><color=#{SmartObject.Hex(c)}><b>[{hv}]</b></color>  <b>{Pretty(hab.name)}</b></size>\n");
                 sb.Append("<size=19>").Append(vr ? KeyTag("Trigger") : KeyTag("E") + " or " + KeyTag("click")).Append(' ').Append(hab.Prompt).Append("</size>");
             }
             var other = HUD.I ? HUD.I.PromptText : "";      // e.g. "Okafor is here. press I ..." from the missions — shown inside the card instead of on top of it

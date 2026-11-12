@@ -121,7 +121,10 @@ namespace Hunch3
         Camera mapCam; RenderTexture rt; Transform arrow; readonly List<GameObject> crumbs = new List<GameObject>();
         Text compass; Transform youMarker;
         Offer currentOffer; float toastUntil; public bool showZoneCards = false; string navGoal = "", navLabel = "";
-        bool world;
+        bool world; Image statsBg, miniBg; Text hint;
+        /// Clean screen (default): objective + reticle only. ` shows every panel again.
+        public static bool Clean = true;
+        public void ToggleClean() { Clean = !Clean; Toast(Clean ? "Clean view: objective only.  ` shows all panels." : "All panels on.  ` for the clean view."); }
 
         void Awake() { I = this; }
         void Start()
@@ -131,11 +134,11 @@ namespace Hunch3
             if (world) { canvas.transform.localPosition = new Vector3(0, 0, 1.1f); canvas.transform.localScale = Vector3.one * 0.00085f; }
             var root = canvas.transform;
             Vector2 TL = new Vector2(0, 1), TR = new Vector2(1, 1), BC = new Vector2(0.5f, 0), TC = new Vector2(0.5f, 1), C = new Vector2(0.5f, 0.5f);
-            var sp = UIKit.Panel(root, "StatsBg", TL, new Vector2(16, -16), new Vector2(430, 330), null, TL);
+            var sp = statsBg = UIKit.Panel(root, "StatsBg", TL, new Vector2(16, -16), new Vector2(430, 330), null, TL);
             stats = UIKit.Label(sp.transform, "", 19, Color.white, TL, new Vector2(12, -8), new Vector2(410, 320), TextAnchor.UpperLeft, TL);
             // minimap under the stats
             rt = new RenderTexture(512, 512, 16) { name = "MinimapRT" };
-            var mm = UIKit.Panel(root, "MiniBg", TL, new Vector2(16, -354), new Vector2(300, 300), new Color(0, 0, 0, 0.8f), TL);
+            var mm = miniBg = UIKit.Panel(root, "MiniBg", TL, new Vector2(16, -354), new Vector2(300, 300), new Color(0, 0, 0, 0.8f), TL);
             mini = UIKit.Rect(mm.transform, "Mini", C, Vector2.zero, new Vector2(290, 290)).gameObject.AddComponent<RawImage>(); mini.texture = rt;
             UIKit.Label(mm.transform, "<b>MAP</b>  (M = big map)", 15, UIKit.Accent, TL, new Vector2(6, -4), new Vector2(280, 22), TextAnchor.UpperLeft, TL);
             navText = UIKit.Label(root, "", 22, UIKit.Accent, TL, new Vector2(16, -660), new Vector2(520, 60), TextAnchor.UpperLeft, TL);
@@ -164,6 +167,7 @@ namespace Hunch3
             keysBg = UIKit.Panel(root, "KeysBar", BC, new Vector2(0, 4), new Vector2(1880, world ? 96 : 86), new Color(0.05f, 0.05f, 0.12f, 0.82f), BC);
             keys = UIKit.Label(keysBg.transform, world ? KeysVR : KeysSimple, world ? 17 : 22, Color.white, C, Vector2.zero, new Vector2(1860, 84), TextAnchor.MiddleCenter);
             if (!world) { var kr = keysBg.rectTransform; kr.sizeDelta = new Vector2(1180, 48); keys.rectTransform.sizeDelta = new Vector2(1160, 46); }
+            if (!world) { keysBg.gameObject.SetActive(false); hint = UIKit.Label(root, "", 16, new Color(1, 1, 1, 0.55f), new Vector2(0, 0), new Vector2(16, 10), new Vector2(900, 26), TextAnchor.LowerLeft, new Vector2(0, 0)); }
             fade = UIKit.Panel(root, "Fade", C, Vector2.zero, new Vector2(4000, 4000), new Color(0, 0, 0, 0)); fade.raycastTarget = false;
             BuildMapCam(); BuildArrow(); BuildHologram();
             Sim.OfferRaised += o => { currentOffer = o; };
@@ -174,24 +178,27 @@ namespace Hunch3
         Image keysBg; Text keys;
         static string K(string key, string what, string hex) => $"<color=#{hex}><b>[{key}]</b></color> {what}";
         public static readonly string KeysDesktop =
-            K("W A S D", "move", "4FC3F7") + "   " + K("Mouse", "look (L lock)", "4FC3F7") + "   " + K("E", "use / grab ladder / sleep", "81C784") + "   " + K("Space / X", "stand up · jump", "81C784") + "   " +
-            K("Q", "menu", "FFB74D") + "   " + K("Tab", "crew UI", "FFB74D") + "   " + K("H", "help", "FFB74D") + "   " + K("M", "map", "FFB74D") + "   " + K("N", "go to room", "FFB74D") + "   " + K("P", "AI autopilot", "BA68C8") + "   " +
+            K("W A S D", "move", "4FC3F7") + "   " + K("Mouse", "look (Shift+L lock)", "4FC3F7") + "   " + K("E", "use / grab ladder / sleep", "81C784") + "   " + K("Space / X", "stand up · jump", "81C784") + "   " +
+            K("Q", "menu", "FFB74D") + "   " + K("Tab", "crew health", "FFB74D") + "   " + K("H", "help", "FFB74D") + "   " + K("M", "map", "FFB74D") + "   " + K("N", "go to room", "FFB74D") + "   " + K("P", "psych dashboard", "BA68C8") + "   " + K("L", "life support", "BA68C8") + "   " +
             K("G", "wave", "F06292") + "   " + K("T", "time speed", "F06292") + "\n" +
             K("F1", "AI dashboard", "4DD0E1") + "   " + K("F2", "CMO", "4DD0E1") + "   " + K("F3", "meeting", "4DD0E1") + "   " + K("F4", "tabletop", "4DD0E1") + "   " + K("F5", "board Qs", "4DD0E1") + "   " + K("I", "CHECK ON CREW", "F48FB1") + "   " +
             K("F6", "safety drill", "E57373") + "   " + K("F7", "quick travel", "AED581") + "   " + K("F8", "ladder test", "AED581") + "   " + K("F10", "outside cameras", "AED581") + "   " + K("U", "unstuck", "FFD54F") + "   " + K("K", "hide this bar", "B0BEC5") + "\n" +
-            K("J", "rubric tasks", "FFD54F") + "   " + K("V", "crew health", "4DD0E1") + "   " + K("B", "find my bed", "FFB74D") + "   " + K("F", "3rd-person view", "BA68C8") + "   " + K("E / click", "pick up · throw boxes & tools", "81C784") + "   " + K("O", "AI OFF SWITCH", "FF5252");
+            K("J", "rubric tasks", "FFD54F") + "   " + K("`", "all panels", "4DD0E1") + "   " + K("B", "find my bed", "FFB74D") + "   " + K("F", "3rd-person view", "BA68C8") + "   " + K("E / click", "pick up · throw boxes & tools", "81C784") + "   " + K("O", "AI OFF SWITCH", "FF5252");
         public static readonly string KeysVR =
             K("Left stick", "move", "4FC3F7") + "   " + K("Right stick", "turn", "4FC3F7") + "   " + K("Grip", "teleport", "81C784") + "   " + K("Trigger", "use · ladder · sleep · wake", "81C784") + "   " +
             K("L-stick click", "menu", "FFB74D") + "   " + K("Y", "crew UI", "FFB74D") + "   " + K("X", "map", "FFB74D") + "   " + K("B", "autopilot", "BA68C8") + "   " + K("A", "accept offer", "F06292") + "   " + K("Hand up + shake", "wave", "F06292") + "\n" +
             K("Menu", "rubric tasks · crew health · find my bed · AI OFF SWITCH", "FFD54F");
         /// SIMPLE screen by default: only the 5 keys you need. K switches to every shortcut and back.
         public static readonly string KeysSimple =
-            K("ENTER", "do my next task", "7CFC9A") + "     " + K("I", "check on crew", "F48FB1") + "     " + K("O", "AI off", "FF5252") + "     " + K("Q", "menu", "FFB74D") + "     " + K("H", "help", "FFB74D") + "     " + K("K", "all keys", "B0BEC5");
+            K("ENTER", "do my next task", "7CFC9A") + "     " + K("I", "check on crew", "F48FB1") + "     " + K("O", "AI off", "FF5252") + "     " + K("Q", "menu", "FFB74D") + "     " + K("H", "help", "FFB74D") + "     " + K("`", "all panels", "B0BEC5") + "     " + K("K", "all keys", "B0BEC5");
         bool keysFull;
         public void ToggleKeys()
         {
             if (!keysBg) return; var pr = PlayerRig.I; if (pr && pr.isXR) { keysBg.gameObject.SetActive(!keysBg.gameObject.activeSelf); return; }
-            keysFull = !keysFull; keys.text = keysFull ? KeysDesktop : KeysSimple; keys.fontSize = keysFull ? 17 : 22;
+            // K cycles: hidden → simple bar → every key → hidden
+            if (!keysBg.gameObject.activeSelf) { keysBg.gameObject.SetActive(true); keysFull = false; }
+            else if (keysFull) { keysBg.gameObject.SetActive(false); return; }
+            else keysFull = true; keys.text = keysFull ? KeysDesktop : KeysSimple; keys.fontSize = keysFull ? 17 : 22;
             keysBg.rectTransform.sizeDelta = keysFull ? new Vector2(1880, 86) : new Vector2(1180, 48); keys.rectTransform.sizeDelta = keysFull ? new Vector2(1860, 84) : new Vector2(1160, 46);
         }
         public const string HelpText =
@@ -201,12 +208,13 @@ namespace Hunch3
   <b>O</b> — the AI OFF switch. Humans always outrank the AI (it also has bedtime rules and a 30-second hardware interlock).
   <b>J</b> — rubric checklist.   7 missions about the crew's mental health run in order; the banner always shows the ONE next step.
 <b><color=#40D9FF>CONTROLS</color></b>
-<b>Desktop</b>  WASD / arrows move · Shift run · Space jump (1/6 g!) · Right-mouse or L (lock) look · E / click interact
+<b>Desktop</b>  WASD / arrows move · Shift run · Space jump (1/6 g!) · Right-mouse or Shift+L (lock) look · E / click interact
 <b>VR (Quest)</b>  Left stick move · Right stick turn · Grip teleport · Trigger interact / press buttons · Y crew UI · X map · B autopilot · A accept
 <b>Shortcuts</b>  (VR button in brackets)
-  Tab  (Y)   Crew Interface — your data, AI actions, overrides, privacy
+  Tab        Crew health (all four crew, live)      Shift+Tab (VR: Y)  Crew Interface — your data, AI actions, overrides, privacy
+  P          Psychology dashboard      L   Life support (ECLSS)      `   show / hide all panels
   M    (X)   Big map            N   Navigate to a room (arrows + trail)
-  P    (B)   Autopilot — the AI plays as you      Y (A) accept · R decline AI offer
+  Shift+P (B) Autopilot — the AI plays as you      Y (A) accept · R decline AI offer
   F1  AI dashboard   F2  CMO console   F3  Team meeting   F4  Tabletop simulation   F5  Board scenarios Q1–Q6   F11  ARES deliverables D1–D4
   C   Config A ↔ B (conflict protocol)   T  time speed   Z  zone info cards   Q  main menu (VR: left-stick click)   U  unstuck   F12 screenshot   Esc  close / menu
 <b>Life</b>  Sleep: E on your bed (Pod 1) — 1 real minute = the whole night, lights OFF, sunrise wake-up · Ladder: E on it, then W / S (VR: stick or grip-and-pull)
@@ -342,8 +350,14 @@ namespace Hunch3
                 $"AI: {act} active support · {e.escalations} escalations · {EthicsGuard.blocked} blocked by hard limits\n" +
                 $"Activity: {me.activity}" +
                 (SpaceRealism.I ? "\n" + SpaceRealism.I.Status : "");
-            autoBanner.text = pr.autopilot ? (string.IsNullOrEmpty(navGoal) ? "◆ AUTOPILOT — AI is playing as you (P / B to take control) ◆" : $"◆ AUTO-WALK to {navLabel} (P / B to stop) ◆") : (GameState.mode == GameMode.Tour ? "GUIDED TOUR" : "");
+            autoBanner.text = pr.autopilot ? (string.IsNullOrEmpty(navGoal) ? "◆ AUTOPILOT — AI is playing as you (Shift+P / B to take control) ◆" : $"◆ AUTO-WALK to {navLabel} (Shift+P / B to stop) ◆") : (GameState.mode == GameMode.Tour ? "GUIDED TOUR" : "");
             if (Time.time > toastUntil) toast.text = "";
+            if (!world)
+            {
+                bool full = !Clean; if (statsBg.gameObject.activeSelf != full) { statsBg.gameObject.SetActive(full); miniBg.gameObject.SetActive(full); }
+                navText.rectTransform.anchoredPosition = new Vector2(16, full ? -660 : -(HabitatOps.I ? HabitatOps.I.PanelBottom : 16) - 6);
+                if (hint) hint.text = keysBg.gameObject.activeSelf ? "" : "<b>E</b> use   ·   <b>Tab</b> crew health   ·   <b>M</b> map   ·   <b>P</b> psych   ·   <b>L</b> life support   ·   <b>H</b> help   ·   <b>K</b> keys   ·   <b>`</b> all panels";
+            }
             if (offerBox.gameObject.activeSelf != (currentOffer != null && !currentOffer.done)) offerBox.gameObject.SetActive(currentOffer != null && !currentOffer.done);
             if (currentOffer != null) offerText.text = $"<b><color=#{UIKit.Hex(UIKit.Gold)}>AI offer (Tier 2 — your choice)</color></b>\n{currentOffer.text}";
             // minimap follows the player
@@ -360,6 +374,7 @@ namespace Hunch3
             UpdateNav(pr);
         }
 
+        Material crumbMat; Transform waypoint;
         public string NavGoal => navGoal; public string NavLabel => navLabel;
         public void SetNavTarget(string wpName, string label)
         {
@@ -368,18 +383,34 @@ namespace Hunch3
             foreach (var c in crumbs) Destroy(c); crumbs.Clear();
             if (string.IsNullOrEmpty(wpName) || !PlayerRig.I) { arrow.gameObject.SetActive(false); navText.text = ""; if (compass) compass.text = ""; return; }
             var path = Nav.Path(PlayerRig.I.FeetPosition, wpName);
-            var m = Glow(UIKit.Accent, 0.85f);
+            // AR-style guidance (HoloLens look): small holographic chevrons on the floor, only the next few metres lit,
+            // plus one floating waypoint diamond over the destination. No continuous debug line.
+            var m = Glow(new Color(0.35f, 0.9f, 1f), 0.5f); crumbMat = m;
             for (int i = 0; i + 1 < path.Count; i++)
             {
                 Vector3 a = path[i], b = path[i + 1]; if (Nav.IsLadder(a, b)) continue;
-                float len = Vector3.Distance(a, b); int n = Mathf.Max(1, Mathf.FloorToInt(len / 1.2f));
+                float len = Vector3.Distance(a, b); int n = Mathf.Max(1, Mathf.FloorToInt(len / 1.6f));
                 for (int k = 0; k < n; k++)
                 {
-                    var q = GameObject.CreatePrimitive(PrimitiveType.Quad); Destroy(q.GetComponent<Collider>()); q.name = "NavChevron";
-                    q.transform.position = Vector3.Lerp(a, b, (k + 0.5f) / n) + Vector3.up * 0.03f;
-                    q.transform.rotation = Quaternion.LookRotation(Vector3.down, (b - a).normalized); q.transform.localScale = new Vector3(0.25f, 0.4f, 1);
-                    q.GetComponent<Renderer>().sharedMaterial = m; crumbs.Add(q);
+                    var ch = new GameObject("NavChevron"); ch.transform.position = Vector3.Lerp(a, b, (k + 0.5f) / n) + Vector3.up * 0.02f;
+                    ch.transform.rotation = Quaternion.LookRotation((b - a).normalized == Vector3.zero ? Vector3.forward : new Vector3(b.x - a.x, 0, b.z - a.z).normalized);
+                    foreach (var sgn in new[] { -1f, 1f })
+                    {
+                        var q = GameObject.CreatePrimitive(PrimitiveType.Quad); Destroy(q.GetComponent<Collider>()); q.transform.SetParent(ch.transform, false);
+                        q.transform.localRotation = Quaternion.Euler(90, sgn * 40f, 0); q.transform.localPosition = new Vector3(sgn * 0.075f, 0, -0.06f); q.transform.localScale = new Vector3(0.045f, 0.24f, 1);
+                        var r = q.GetComponent<Renderer>(); r.sharedMaterial = m; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                    }
+                    crumbs.Add(ch);
                 }
+            }
+            if (Nav.wp.ContainsKey(wpName))
+            {
+                var mk = new GameObject("NavWaypoint"); mk.transform.position = Nav.wp[wpName].position + Vector3.up * 1.9f;
+                var d = GameObject.CreatePrimitive(PrimitiveType.Cube); Destroy(d.GetComponent<Collider>()); d.transform.SetParent(mk.transform, false); d.transform.localScale = new Vector3(0.14f, 0.14f, 0.14f); d.transform.localRotation = Quaternion.Euler(45, 0, 45);
+                d.GetComponent<Renderer>().sharedMaterial = Glow(UIKit.Gold, 0.85f);
+                var ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder); Destroy(ring.GetComponent<Collider>()); ring.transform.SetParent(mk.transform, false); ring.transform.localPosition = new Vector3(0, -1.86f, 0); ring.transform.localScale = new Vector3(0.7f, 0.004f, 0.7f);
+                ring.GetComponent<Renderer>().sharedMaterial = Glow(UIKit.Gold, 0.25f);
+                crumbs.Add(mk); waypoint = mk.transform;
             }
             arrow.gameObject.SetActive(true);
         }
@@ -392,7 +423,13 @@ namespace Hunch3
             var cam = pr.cam.transform;
             arrow.position = cam.position + cam.forward * 0.9f - cam.up * 0.25f;
             var dir = next - arrow.position; dir.y = 0; if (dir.sqrMagnitude > 1e-4f) arrow.rotation = Quaternion.Slerp(arrow.rotation, Quaternion.LookRotation(dir.normalized), Time.deltaTime * 8f);
-            if (compass) { var f = cam.forward; f.y = 0; var to = next - cam.position; to.y = 0; float rel = Vector3.SignedAngle(f, to, Vector3.up); compass.text = "➜"; compass.rectTransform.localEulerAngles = new Vector3(0, 0, 90f - rel); }
+            if (compass && Clean) compass.text = "";
+            else if (compass) { var f = cam.forward; f.y = 0; var to = next - cam.position; to.y = 0; float rel = Vector3.SignedAngle(f, to, Vector3.up); compass.text = "➜"; compass.rectTransform.localEulerAngles = new Vector3(0, 0, 90f - rel); }
+            // breadcrumbs: only the next ~9 m glow, with a soft pulse running toward the goal
+            var feet = pr.FeetPosition;
+            foreach (var c in crumbs) if (c && c.transform != waypoint) { float dd = (c.transform.position - feet).sqrMagnitude; bool on = dd < 81f && dd > 0.3f; if (c.activeSelf != on) c.SetActive(on); }
+            if (crumbMat) { var col = new Color(0.35f, 0.9f, 1f, 0.35f + 0.2f * Mathf.Sin(Time.time * 4f)); crumbMat.color = col; if (crumbMat.HasProperty("_BaseColor")) crumbMat.SetColor("_BaseColor", col); }
+            if (waypoint) { waypoint.GetChild(0).Rotate(0, 90f * Time.deltaTime, 0, Space.World); var wpp = waypoint.position; wpp.y = goal.y + 1.9f + 0.06f * Mathf.Sin(Time.time * 2f); waypoint.position = wpp; }
             navText.text = $"➜ <b>{navLabel}</b>  {dist:0} m" + (Mathf.Abs(goal.y - pr.FeetPosition.y) > 1.5f ? "  (use the ladder)" : "");
             if (dist < 1.2f) { Toast($"Arrived: {navLabel}"); SetNavTarget("", ""); }
         }
@@ -410,7 +447,7 @@ namespace Hunch3
         }
         public void SetPrompt(string s) { if (prompt) prompt.text = s; }
         public Canvas HudCanvas => canvas;
-        public float KeysBarTop => keysBg && keysBg.gameObject.activeSelf ? keysBg.rectTransform.anchoredPosition.y + keysBg.rectTransform.sizeDelta.y : 0;
+        public float KeysBarTop => keysBg && keysBg.gameObject.activeSelf ? keysBg.rectTransform.anchoredPosition.y + keysBg.rectTransform.sizeDelta.y : (hint ? 38 : 0);
         /// the interaction card lifts the toast above itself so they never overlap (0 = back to normal)
         public void LiftToast(float y) { if (toast) toast.rectTransform.anchoredPosition = new Vector2(0, y > 0 ? Mathf.Max(200, y) : 200); }
         /// while the interaction card is up it shows the prompt line itself, so the centre prompt hides (no overlap)

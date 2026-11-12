@@ -66,6 +66,8 @@ namespace Hunch3
         AudioSource sfx; AudioClip ding, alarm; ParticleSystem confetti;
 
         void Awake() { I = this; }
+        /// bottom edge of the objective panel (the nav line sits under it)
+        public float PanelBottom => taskBg && taskBg.gameObject.activeSelf ? -taskBg.rectTransform.anchoredPosition.y + taskBg.rectTransform.sizeDelta.y : 16;
         public bool WelcomeOpen => welcomeBg && welcomeBg.gameObject.activeSelf;
         public void DebugAlert() { var o = SmartObject.All.FirstOrDefault(x => x && Breakable.Contains(x.key)); if (o) { o.integrity = .22f; alertObj = null; } }
         public void DebugCheer() { if (welcomeBg) welcomeBg.gameObject.SetActive(false); points += 25; Cheer("TASK COMPLETE!  Log how you feel", 25); }
@@ -79,8 +81,8 @@ namespace Hunch3
             taskBg = UIKit.Panel(root, "OpsTasks", TL, new Vector2(16, vr ? -560 : -728), new Vector2(430, 200), new Color(0.03f, 0.06f, 0.13f, 0.9f), TL);
             taskText = UIKit.Label(taskBg.transform, "", 18, Color.white, TL, new Vector2(12, -8), new Vector2(408, 186), TextAnchor.UpperLeft, TL);
             // alerts: under the mission banner and the compass
-            alertBg = UIKit.Panel(root, "OpsAlert", TC, new Vector2(0, -250), new Vector2(1000, 100), new Color(0.35f, 0.04f, 0.05f, 0.94f), TC);
-            alertText = UIKit.Label(alertBg.transform, "", 19, Color.white, TL, new Vector2(14, -8), new Vector2(972, 90), TextAnchor.UpperLeft, TL);
+            alertBg = UIKit.Panel(root, "OpsAlert", TC, new Vector2(0, -200), new Vector2(820, 40), new Color(0.35f, 0.04f, 0.05f, 0.88f), TC);      // slim strip, not a wall of red
+            alertText = UIKit.Label(alertBg.transform, "", 18, Color.white, C, Vector2.zero, new Vector2(800, 38), TextAnchor.MiddleCenter);
             alertBg.gameObject.SetActive(false);
             // celebration
             cheerBg = UIKit.Panel(root, "OpsCheer", C, new Vector2(0, 170), new Vector2(760, 120), new Color(0.04f, 0.18f, 0.08f, 0.92f));
@@ -99,16 +101,17 @@ namespace Hunch3
 
         const string Welcome =
 @"<size=30><b><color=#40D9FF>HOW TO PLAY</color></b></size>
-<b>Move</b>  W A S D · <b>Look</b>  hold right mouse, or press L to lock the mouse · <b>Run</b> Shift · <b>Jump</b> Space
+<b>Move</b>  W A S D · <b>Look</b>  hold right mouse, or Shift+L to lock the mouse · <b>Run</b> Shift · <b>Jump</b> Space
 
 <b><color=#FFD54F>Use things</color></b>  Look at an object until it gets a <b>coloured outline</b>.
 The card at the bottom of the screen says what it is and <b>which key to press</b> (usually <b>E</b>).
-  <color=#40FF73>green</color> life support · <color=#5A9EFF>blue</color> mental health · <color=#C773FF>purple</color> medical · <color=#FFD23F>yellow</color> operations · <color=#FF4D4D>red</color> emergency
+  <color=#4DFF80>GREEN</color> = use it   ·   <color=#FFD240>YELLOW</color> = information   ·   <color=#FF4D4D>RED</color> = emergency / broken
 
-<b><color=#FFD54F>Daily ops</color></b> (left side)  one job at a time. The <b>arrow</b> on the floor takes you there. Finish it for points.
+<b><color=#FFD54F>Objective</color></b> (top left)  one job at a time. The <b>chevrons</b> on the floor take you there. Finish it for points.
 <b><color=#FF6B6B>Alerts</color></b> (red bar)  something broke. Follow the arrow, look at it and press <b>E</b> to repair it.
 
-<b>Other keys</b>  ENTER do the mission step · I check on crew · M map · N navigate · H all help · O AI off switch
+<b>Panels</b> (hidden until you need them)  <b>Tab</b> crew health · <b>M</b> map · <b>P</b> psych dashboard · <b>L</b> life support · <b>`</b> all panels
+<b>Other keys</b>  ENTER do the mission step · I check on crew · N navigate · H all help · O AI off switch
 
 <color=#9FB3C8>Press SPACE or ENTER to start.</color>";
         const string WelcomeVR =
@@ -144,11 +147,15 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
             }
             else if (!alertObj.Failed) { var o = alertObj; alertObj = null; alertBg.gameObject.SetActive(false); points += 50; Cheer($"SYSTEM RESTORED!  {o.title} is working again", 50); PointNav(); }
             else if (Time.time - alertSince > 20f && Time.time % 20f < Time.deltaTime) sfx.PlayOneShot(alarm, .35f);     // gentle reminder every 20 s
-            if (alertObj) alertText.text = $"<b><color=#FFB3B3>ALERT</color>  {alertObj.title} needs repair</b>  ({Mathf.RoundToInt(alertObj.integrity * 100)}% condition)\n" +
-                (vr ? "1. Follow the arrow   2. Point at it   3. Pull the <b><color=#FFD54F>trigger</color></b> to repair." : "1. Follow the arrow   2. Look at it   3. Press <b><color=#FFD54F>E</color></b> to repair.") + "   The alarm stops once it is fixed.";
+            if (alertObj) alertText.text = $"<b><color=#FFB3B3>ALERT</color>  {alertObj.title}</b> {Mathf.RoundToInt(alertObj.integrity * 100)}%   ·   follow the arrow, " + (vr ? "point + <b><color=#FFD54F>trigger</color></b>" : "look + <b><color=#FFD54F>E</color></b>") + " to repair";
             // tasks panel
             var cur = idx < tasks.Count ? tasks[idx] : null;
-            taskText.text = "<b><color=#7CFC9A>DAILY OPS</color></b>   <size=15><color=#9FB3C8>" + Mathf.Min(idx + 1, tasks.Count) + " of " + tasks.Count + "   ·   " + points + " pts" + (streak > 1 ? "   ·   streak " + streak : "") + "</color></size>\n" +
+            bool compact = HUD.Clean && !vr;
+            taskBg.rectTransform.anchoredPosition = new Vector2(16, compact ? -16 : vr ? -560 : -728);
+            taskBg.rectTransform.sizeDelta = new Vector2(compact ? 470 : 430, compact ? 84 : 200); taskText.rectTransform.sizeDelta = new Vector2(compact ? 450 : 408, compact ? 76 : 186);
+            if (compact) { taskText.text = cur == null ? "<b><color=#7CFC9A>OBJECTIVE</color></b>  all daily jobs done · " + points + " pts" :
+                $"<size=15><color=#7CFC9A><b>OBJECTIVE</b></color>  <color=#9FB3C8>{Mathf.Min(idx + 1, tasks.Count)}/{tasks.Count}  ·  {points} pts</color></size>\n<size=20><b>{cur.title}</b></size>  <size=15><color=#9FB3C8>+{cur.pts}</color></size>\n<size=16><color=#C9D6E8>{cur.room}: {(vr ? VrHow(cur.how) : cur.how)}</color></size>"; }
+            else taskText.text = "<b><color=#7CFC9A>DAILY OPS</color></b>   <size=15><color=#9FB3C8>" + Mathf.Min(idx + 1, tasks.Count) + " of " + tasks.Count + "   ·   " + points + " pts" + (streak > 1 ? "   ·   streak " + streak : "") + "</color></size>\n" +
                 (cur == null ? "<b>All daily jobs done!</b>\nGreat shift, Commander. New jobs tomorrow." :
                 $"<size=21><b>{cur.title}</b></size>\n<color=#C9D6E8>1. Go to {cur.room} (follow the arrow)\n2. {Cap(vr ? VrHow(cur.how) : cur.how)}</color>\n<size=15><color=#9FB3C8>+{cur.pts} pts when done</color></size>");
             // celebration fade
