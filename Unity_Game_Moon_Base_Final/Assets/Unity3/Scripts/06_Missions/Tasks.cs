@@ -622,7 +622,7 @@ namespace Hunch3
             if (!canvas || !Visible || Time.time < next) return; next = Time.time + 1f;
             var e = Sim.I != null ? Sim.I.engine : null; if (e == null) return;
             // hide on desktop when a big panel is open (it would cover it)
-            if (!(PlayerRig.I && PlayerRig.I.isXR)) bg.gameObject.SetActive(!Panels.AnyOpen && !SleepSystem.PlayerAsleep && !(HUD.I && HUD.I.BigMapOpen));
+            if (!(PlayerRig.I && PlayerRig.I.isXR)) bg.gameObject.SetActive(!Panels.AnyOpen && !SleepSystem.PlayerAsleep && !(HUD.I && HUD.I.BigMapOpen) && !SmartInteractor.CardVisible);   // steps aside while you use something
 
             var env = HabitatEnvironment.I;
             float co2 = env && env.zones.Count > 0 ? env.zones.Average(z => z.co2) : e.zoneCO2Ppm;

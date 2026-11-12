@@ -101,6 +101,7 @@ namespace Hunch3
         public void Activate()
         {
             if (Time.time < cooldown) return; cooldown = Time.time + 0.6f;
+            HabitatOps.I?.OnHab(this);      // Daily Ops task progress
             var eng = Sim.I ? Sim.I.engine : null; var me = eng?.C(1); var pr = PlayerRig.I;
             switch (kind)
             {

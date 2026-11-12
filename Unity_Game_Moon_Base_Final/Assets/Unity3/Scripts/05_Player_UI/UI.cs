@@ -142,7 +142,7 @@ namespace Hunch3
             autoBanner = UIKit.Label(root, "", 30, UIKit.Gold, TC, new Vector2(0, -12), new Vector2(900, 44), TextAnchor.UpperCenter, TC);
             compass = UIKit.Label(root, "", 64, UIKit.Gold, TC, new Vector2(0, -150), new Vector2(90, 90), TextAnchor.MiddleCenter);
             procedure = UIKit.Label(root, "", 26, Color.white, TC, new Vector2(0, -60), new Vector2(1100, 90), TextAnchor.UpperCenter, TC);
-            toast = UIKit.Label(root, "", 24, Color.white, BC, new Vector2(0, 200), new Vector2(1200, 110), TextAnchor.LowerCenter, BC);
+            toast = UIKit.Label(root, "", 24, Color.white, BC, new Vector2(0, 200), new Vector2(world ? 1200 : 900, 110), TextAnchor.LowerCenter, BC);
             prompt = UIKit.Label(root, "", 26, UIKit.Gold, C, new Vector2(0, -70), new Vector2(800, 40), TextAnchor.MiddleCenter);
             UIKit.Label(root, "+", 30, new Color(1, 1, 1, 0.6f), C, Vector2.zero, new Vector2(40, 40), TextAnchor.MiddleCenter);
             var zc = UIKit.Panel(root, "ZoneCard", TR, new Vector2(-16, -16), new Vector2(460, 230), null, TR);
@@ -410,6 +410,7 @@ namespace Hunch3
         }
         public void SetPrompt(string s) { if (prompt) prompt.text = s; }
         public Canvas HudCanvas => canvas;
+        public float KeysBarTop => keysBg && keysBg.gameObject.activeSelf ? keysBg.rectTransform.anchoredPosition.y + keysBg.rectTransform.sizeDelta.y : 0;
         /// the interaction card lifts the toast above itself so they never overlap (0 = back to normal)
         public void LiftToast(float y) { if (toast) toast.rectTransform.anchoredPosition = new Vector2(0, y > 0 ? Mathf.Max(200, y) : 200); }
         /// while the interaction card is up it shows the prompt line itself, so the centre prompt hides (no overlap)

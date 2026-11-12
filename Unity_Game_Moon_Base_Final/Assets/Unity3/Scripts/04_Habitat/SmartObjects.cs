@@ -35,7 +35,7 @@ namespace Hunch3
     public class SmartObject : MonoBehaviour
     {
         public static readonly List<SmartObject> All = new List<SmartObject>();
-        public static SmartObject Hover;
+        public static SmartObject Hover, VrHover; public int sel;   // VR: the option the stick-click picked
         public string key, title, why, state = "Nominal", mode = "";
         public SysCat cat; public float integrity = .9f, lastServiceHours, powerW = 40f; public int uses;
         public readonly List<SmartAction> actions = new List<SmartAction>();
@@ -56,7 +56,12 @@ namespace Hunch3
             All.Add(this);
             var bc = gameObject.AddComponent<BoxCollider>(); bc.isTrigger = true; bc.center = localBounds.center; bc.size = localBounds.size + Vector3.one * .06f;
             AddSolidColliders(model);
-            try { var xr = gameObject.AddComponent<XRSimpleInteractable>(); xr.selectEntered.AddListener(_ => { if (actions.Count > 0) SmartInteractor.Report(this, actions[0].run(this), actions[0].key); }); } catch (Exception e) { Debug.LogWarning("[HUNCH3] XR on " + key + ": " + e.Message); }
+            try
+            {
+                var xr = gameObject.AddComponent<XRSimpleInteractable>();
+                xr.hoverEntered.AddListener(_ => VrHover = this); xr.hoverExited.AddListener(_ => { if (VrHover == this) VrHover = null; });
+                xr.selectEntered.AddListener(_ => { HabitatOps.vrSel = true; if (Failed) { SmartInteractor.Report(this, Service(), Key.E); return; } if (actions.Count > 0) { var a = actions[Mathf.Clamp(sel, 0, actions.Count - 1)]; SmartInteractor.Report(this, a.run(this), a.key); } });
+            } catch (Exception e) { Debug.LogWarning("[HUNCH3] XR on " + key + ": " + e.Message); }
             BuildHighlight();
             lastServiceHours = SimClock.hours - UnityEngine.Random.Range(24f, 24f * 20f);
         }
@@ -146,7 +151,7 @@ namespace Hunch3
     {
         // ONE interaction card, bottom-centre, above the key bar: what you're looking at, what it's for, and exactly which key
         // does what. No floating world text on desktop (it overlapped the HUD panels) — the outline shows the target.
-        bool diag; public static bool debugDiag; string last = ""; float lastUntil; SmartObject lastObj; bool helpShown;
+        public static bool CardVisible; bool stickPrev; bool diag; public static bool debugDiag; string last = ""; float lastUntil; SmartObject lastObj; bool helpShown;
         Image card, stripe; Text cardText; RectTransform cardRect;
         public static void Report(SmartObject so, string msg, Key key = Key.None)
         {
@@ -180,6 +185,14 @@ namespace Hunch3
         {
             var pr = PlayerRig.I; SmartObject hit = null; HabInteractable hab = null;
             if (pr && pr.cam && !pr.isXR) { Aim.Resolve(); hit = Aim.Smart; hab = Aim.Hab; }      // shared aim: one target per frame
+            else if (pr && pr.isXR)
+            {
+                hit = SmartObject.VrHover;      // the right-hand ray hovers it; trigger = do it, stick-click = next option
+                var rh = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.RightHand);
+                bool st = rh.isValid && rh.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxisClick, out bool c2) && c2;
+                if (st && !stickPrev && hit && hit.actions.Count > 0) hit.sel = (hit.sel + 1) % hit.actions.Count;
+                stickPrev = st;
+            }
             if (SmartObject.Hover && SmartObject.Hover != hit) SmartObject.Hover.SetHighlight(false);
             SmartObject.Hover = hit;
             if (!card) BuildCard();
@@ -197,7 +210,8 @@ namespace Hunch3
         {
             if (!card) return;
             bool recent = Time.time < lastUntil && lastObj && lastObj == so;
-            if ((!so && !hab) || (HabitatOps.I && HabitatOps.I.WelcomeOpen)) { card.gameObject.SetActive(false); HUD.I?.LiftToast(0); HUD.I?.ShowPrompt(true); return; }
+            if ((!so && !hab) || (HabitatOps.I && HabitatOps.I.WelcomeOpen)) { card.gameObject.SetActive(false); CardVisible = false; HUD.I?.LiftToast(0); HUD.I?.ShowPrompt(true); return; }
+            bool vr = pr && pr.isXR;
             var sb = new System.Text.StringBuilder(); Color c = UIKit.Accent;
             if (so)
             {
@@ -205,7 +219,7 @@ namespace Hunch3
                 sb.Append($"<size=24><b>{so.title}</b></size>   <size=16><color=#{SmartObject.Hex(c)}>{SmartObject.CatName(so.cat)}</color>  ·  {so.Status}  ·  condition {so.integrity * 100:0}%</size>\n");
                 if (so.Failed)
                 {
-                    sb.Append("<size=20><color=#FF7070><b>BROKEN</b></color>  ").Append(KeyTag("E")).Append(" <b>Repair now</b></size>\n");
+                    sb.Append("<size=20><color=#FF7070><b>BROKEN</b></color>  ").Append(KeyTag(vr ? "Trigger" : "E")).Append(" <b>Repair now</b></size>\n");
                     foreach (var l in so.Engineering().Skip(1).Take(3)) sb.Append("<size=16><color=#C9D6E8>").Append(l).Append("</color></size>\n");
                 }
                 else
@@ -214,7 +228,8 @@ namespace Hunch3
                     sb.Append("<size=17><b>Live:</b> ").Append(string.Join("  ·  ", so.telemetry(so).Where(x => !string.IsNullOrEmpty(x)))).Append("</size>\n");
                     var adv = so.advice(so); if (adv.Length > 0) sb.Append("<size=17><b>AI suggests:</b> ").Append(string.Join("  ·  ", adv.Take(2))).Append("</size>\n");
                     sb.Append("<size=19>");
-                    foreach (var a in so.actions) sb.Append(KeyTag(a.key.ToString())).Append(' ').Append(a.label).Append("     ");
+                    if (vr) { for (int k = 0; k < so.actions.Count; k++) sb.Append(k == so.sel ? "<b><color=#7CFFB2>> " + so.actions[k].label + "</color></b>" : "<color=#9FB3C8>" + so.actions[k].label + "</color>").Append("     "); sb.Append("\n").Append(KeyTag("Trigger")).Append(" do it     ").Append(KeyTag("Stick click")).Append(" next option"); }
+                    else foreach (var a in so.actions) sb.Append(KeyTag(a.key.ToString())).Append(' ').Append(a.label).Append("     ");
                     sb.Append("</size>");
                 }
                 if (recent) sb.Append("\n<size=18><color=#7CFFB2>Done: ").Append(last).Append("</color></size>");
@@ -222,15 +237,16 @@ namespace Hunch3
             else
             {
                 sb.Append($"<size=24><b>{Pretty(hab.name)}</b></size>\n");
-                sb.Append("<size=19>").Append(KeyTag("E")).Append(" or ").Append(KeyTag("click")).Append(' ').Append(hab.Prompt).Append("</size>");
+                sb.Append("<size=19>").Append(vr ? KeyTag("Trigger") : KeyTag("E") + " or " + KeyTag("click")).Append(' ').Append(hab.Prompt).Append("</size>");
             }
             var other = HUD.I ? HUD.I.PromptText : "";      // e.g. "Okafor is here. press I ..." from the missions — shown inside the card instead of on top of it
             if (!string.IsNullOrEmpty(other)) sb.Append("\n<size=16><color=#F48FB1>").Append(other).Append("</color></size>");
             HUD.I?.ShowPrompt(false);
-            card.gameObject.SetActive(true); stripe.color = c;
+            card.gameObject.SetActive(true); CardVisible = true; stripe.color = c;
+            float baseY = (HUD.I ? HUD.I.KeysBarTop : 52) + 8; cardRect.anchoredPosition = new Vector2(vr ? 0 : -60, baseY);
             cardText.text = sb.ToString();
             float h = Mathf.Clamp(cardText.preferredHeight + 22, 70, 260); cardRect.sizeDelta = new Vector2(800, h);
-            HUD.I?.LiftToast(58 + h + 12);      // the toast sits above the card, never under it
+            HUD.I?.LiftToast(baseY + h + 12);      // the toast sits above the card, never under it
         }
     }
 
