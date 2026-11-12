@@ -99,7 +99,7 @@ namespace Hunch3
         void Hello()
         {
             if (GameState.mode != GameMode.Sandbox) return;
-            HUD.I?.Toast($"Rubric tasks: {Done}/{tasks.Count} done. The task at the top of the screen is your next job — press J for the full checklist.");
+            HUD.I?.Toast($"Rubric tasks: {Done}/{tasks.Count} done. The task at the top of the screen is your next job — press Shift+J for the full checklist.");
         }
 
         // ------------------------------------------------------------------ the 20 tasks
@@ -305,7 +305,7 @@ namespace Hunch3
             var kb = Keyboard.current;
             if (kb != null)
             {
-                if (kb.jKey.wasPressedThisFrame) ToggleList();
+                if (kb.jKey.wasPressedThisFrame && kb.shiftKey.isPressed) ToggleList();     // J alone = the full task board (HabitatOps)
                 if ((kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame) && !listCanvas && !SleepSystem.PlayerAsleep) DoNext();
                 if (kb.oKey.wasPressedThisFrame) AIAuthority.Toggle();
                 if (kb.mKey.wasPressedThisFrame) sawMap = true;

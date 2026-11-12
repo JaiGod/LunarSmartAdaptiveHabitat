@@ -62,7 +62,7 @@ namespace Hunch3
         List<OpsTask> tasks = new List<OpsTask>(); List<HabInteractable> habs = new List<HabInteractable>(); int idx; public int points, streak;
         SmartObject alertObj; float nextFault = 150f, alertSince; static readonly string[] Breakable = { "eclss_core", "oxygen_tanks", "greenhouse", "maintenance_drone", "heart_rate_monitor", "ai_health_hub", "exercise" };
 
-        float renav; bool vr; Image taskBg, alertBg, welcomeBg, cheerBg; Text taskText, alertText, welcomeText, cheerText; float cheerT = -1, welcomeUntil;
+        float renav; bool vr; Image boardBg; Text boardL, boardR; Image taskBg, alertBg, welcomeBg, cheerBg; Text taskText, alertText, welcomeText, cheerText; float cheerT = -1, welcomeUntil;
         AudioSource sfx; AudioClip ding, alarm; ParticleSystem confetti;
 
         void Awake() { I = this; }
@@ -96,6 +96,11 @@ namespace Hunch3
             foreach (var t in All) if (t.key != null ? SmartObject.All.Any(o => o && o.key == t.key) : habs.Any(h => h && h.kind == t.hab)) tasks.Add(t);
             sfx = gameObject.AddComponent<AudioSource>(); sfx.spatialBlend = 0; sfx.volume = .5f;
             ding = Tone("ding", new[] { 784f, 988f, 1319f }, .12f); alarm = Tone("alarm", new[] { 880f, 660f, 880f, 660f }, .18f);
+            // full task board (J): every job of the shift, done / now / to do, with points
+            boardBg = UIKit.Panel(root, "OpsBoard", C, Vector2.zero, new Vector2(1240, 760), new Color(0.02f, 0.05f, 0.11f, 0.96f));
+            boardL = UIKit.Label(boardBg.transform, "", 18, Color.white, TL, new Vector2(24, -18), new Vector2(600, 730), TextAnchor.UpperLeft, TL);
+            boardR = UIKit.Label(boardBg.transform, "", 18, Color.white, TL, new Vector2(630, -18), new Vector2(590, 730), TextAnchor.UpperLeft, TL);
+            boardBg.gameObject.SetActive(false);
             BuildConfetti(); PointNav();
         }
 
@@ -110,7 +115,7 @@ The card at the bottom of the screen says what it is and <b>which key to press</
 <b><color=#FFD54F>Objective</color></b> (top left)  one job at a time. The <b>chevrons</b> on the floor take you there. Finish it for points.
 <b><color=#FF6B6B>Alerts</color></b> (red bar)  something broke. Follow the arrow, look at it and press <b>E</b> to repair it.
 
-<b>Panels</b> (hidden until you need them)  <b>Tab</b> crew health · <b>M</b> map · <b>P</b> psych dashboard · <b>L</b> life support · <b>`</b> all panels
+<b>Panels</b> (hidden until you need them)  <b>J</b> all tasks · <b>Tab</b> crew health · <b>M</b> map · <b>P</b> psych dashboard · <b>L</b> life support · <b>`</b> all panels
 <b>Other keys</b>  ENTER do the mission step · I check on crew · N navigate · H all help · O AI off switch
 
 <color=#9FB3C8>Press SPACE or ENTER to start.</color>";
@@ -150,6 +155,8 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
             if (alertObj) alertText.text = $"<b><color=#FFB3B3>ALERT</color>  {alertObj.title}</b> {Mathf.RoundToInt(alertObj.integrity * 100)}%   ·   follow the arrow, " + (vr ? "point + <b><color=#FFD54F>trigger</color></b>" : "look + <b><color=#FFD54F>E</color></b>") + " to repair";
             // tasks panel
             var cur = idx < tasks.Count ? tasks[idx] : null;
+            if (kb != null && kb.jKey.wasPressedThisFrame && !kb.shiftKey.isPressed) boardBg.gameObject.SetActive(!boardBg.gameObject.activeSelf);
+            if (boardBg.gameObject.activeSelf) { if (kb != null && kb.escapeKey.wasPressedThisFrame) boardBg.gameObject.SetActive(false); else FillBoard(); }
             // the route is ALWAYS shown: if anything cleared it (another mission, arrival elsewhere) it comes back
             if (Time.time > renav) { renav = Time.time + 3f; if (HUD.I && string.IsNullOrEmpty(HUD.I.NavGoal)) { if (alertObj) { var w2 = Nav.Nearest(alertObj.transform.position); var fp = PlayerRig.I ? PlayerRig.I.FeetPosition : Vector3.zero; if (w2 != null && Nav.wp.ContainsKey(w2) && (Nav.wp[w2].position - fp).sqrMagnitude > 16f) HUD.I.SetNavTarget(w2, "REPAIR: " + alertObj.title); } else PointNav(true); } }
             bool compact = HUD.Clean && !vr;
@@ -167,6 +174,7 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
                     sbl.Append($"<size=15><color=#C9D6E8>   {cur.room}: {(vr ? VrHow(cur.how) : cur.how)}</color></size>\n");
                     for (int n = 1; n <= 3 && idx + n < tasks.Count; n++) { var t2 = tasks[idx + n]; sbl.Append($"<size=15><color=#8FA3B8>   {idx + n + 1}. {t2.title}  <color=#6F8398>· {t2.room}</color></color></size>\n"); }
                 }
+                sbl.Append("<size=14><color=#6F8398>J  see all tasks</color></size>");
                 taskText.text = sbl.ToString();
             }
             else taskText.text = "<b><color=#7CFC9A>DAILY OPS</color></b>   <size=15><color=#9FB3C8>" + Mathf.Min(idx + 1, tasks.Count) + " of " + tasks.Count + "   ·   " + points + " pts" + (streak > 1 ? "   ·   streak " + streak : "") + "</color></size>\n" +
@@ -180,6 +188,25 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
             }
         }
 
+        public bool BoardOpen => boardBg && boardBg.gameObject.activeSelf;
+        void FillBoard()
+        {
+            int doneN = Mathf.Min(idx, tasks.Count), total = tasks.Sum(t => t.pts), earned = tasks.Take(doneN).Sum(t => t.pts);
+            string Row(int i)
+            {
+                var t = tasks[i];
+                if (i < idx) return $"<color=#7CFC9A><b>DONE</b></color>  <color=#B8C6DC>{t.title}</color>  <color=#7CFC9A>+{t.pts}</color>";
+                if (i == idx) return $"<color=#FFD54F><b>NOW  > {t.title}</b></color>  <color=#FFD54F>+{t.pts}</color>\n          <size=15><color=#C9D6E8>{t.room}</color></size>";
+                return $"<color=#6F8398>  o    {t.title}  +{t.pts}</color>";
+            }
+            int half = (tasks.Count + 1) / 2; var l = new System.Text.StringBuilder(); var r = new System.Text.StringBuilder();
+            l.Append($"<size=28><b><color=#40D9FF>DAILY OPS — ALL TASKS</color></b></size>\n<size=17><color=#9FB3C8>{doneN} of {tasks.Count} done  ·  {earned} / {total} pts  ·  streak {streak}</color></size>\n");
+            int pct = tasks.Count > 0 ? Mathf.RoundToInt(100f * doneN / tasks.Count) : 0; l.Append("<color=#7CFC9A>").Append(new string('|', pct / 2)).Append("</color><color=#33404F>").Append(new string('|', 50 - pct / 2)).Append($"</color>  {pct}%\n\n");
+            r.Append("\n\n\n\n");
+            for (int i = 0; i < tasks.Count; i++) (i < half ? l : r).Append(Row(i)).Append('\n');
+            r.Append("\n<size=15><color=#9FB3C8>Repairs (red alerts) give +50 each.   J or Esc closes   ·   Shift+J: mission rubric checklist</color></size>");
+            boardL.text = l.ToString(); boardR.text = r.ToString();
+        }
         static string Cap(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s.Substring(1);
         static string VrHow(string how) => System.Text.RegularExpressions.Regex.Replace(how.Replace("look at", "point at"), @"press [EFGR]( \([^)]*\))?( or [EFGR]( \([^)]*\))?)?", "pull the trigger (click the right stick to pick the option)");
         void RaiseAlert(SmartObject o)

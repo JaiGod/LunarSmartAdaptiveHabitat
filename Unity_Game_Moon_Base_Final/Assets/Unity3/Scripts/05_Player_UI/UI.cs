@@ -183,7 +183,7 @@ namespace Hunch3
             K("G", "wave", "F06292") + "   " + K("T", "time speed", "F06292") + "\n" +
             K("F1", "AI dashboard", "4DD0E1") + "   " + K("F2", "CMO", "4DD0E1") + "   " + K("F3", "meeting", "4DD0E1") + "   " + K("F4", "tabletop", "4DD0E1") + "   " + K("F5", "board Qs", "4DD0E1") + "   " + K("I", "CHECK ON CREW", "F48FB1") + "   " +
             K("F6", "safety drill", "E57373") + "   " + K("F7", "quick travel", "AED581") + "   " + K("F8", "ladder test", "AED581") + "   " + K("F10", "outside cameras", "AED581") + "   " + K("U", "unstuck", "FFD54F") + "   " + K("K", "hide this bar", "B0BEC5") + "\n" +
-            K("J", "rubric tasks", "FFD54F") + "   " + K("`", "all panels", "4DD0E1") + "   " + K("B", "find my bed", "FFB74D") + "   " + K("F", "3rd-person view", "BA68C8") + "   " + K("E / click", "pick up · throw boxes & tools", "81C784") + "   " + K("O", "AI OFF SWITCH", "FF5252");
+            K("J", "all tasks", "FFD54F") + "   " + K("Shift+J", "rubric", "FFD54F") + "   " + K("`", "all panels", "4DD0E1") + "   " + K("B", "find my bed", "FFB74D") + "   " + K("F", "3rd-person view", "BA68C8") + "   " + K("E / click", "pick up · throw boxes & tools", "81C784") + "   " + K("O", "AI OFF SWITCH", "FF5252");
         public static readonly string KeysVR =
             K("Left stick", "move", "4FC3F7") + "   " + K("Right stick", "turn", "4FC3F7") + "   " + K("Grip", "teleport", "81C784") + "   " + K("Trigger", "use · ladder · sleep · wake", "81C784") + "   " +
             K("L-stick click", "menu", "FFB74D") + "   " + K("Y", "crew UI", "FFB74D") + "   " + K("X", "map", "FFB74D") + "   " + K("B", "autopilot", "BA68C8") + "   " + K("A", "accept offer", "F06292") + "   " + K("Hand up + shake", "wave", "F06292") + "\n" +
@@ -206,7 +206,7 @@ namespace Hunch3
   <b>ENTER</b> (VR: menu → Do my next step) — does the task at the top of the screen WITH you, one step per press.
   <b>I</b> next to a crewmate — health check-in: they say yes, you read their sensors and the 6 mental-health levels.  <b>I</b> anywhere — crew wellness screen.
   <b>O</b> — the AI OFF switch. Humans always outrank the AI (it also has bedtime rules and a 30-second hardware interlock).
-  <b>J</b> — rubric checklist.   7 missions about the crew's mental health run in order; the banner always shows the ONE next step.
+  <b>J</b> — every Daily Ops task with done / now / to do and points.   <b>Shift+J</b> — rubric checklist.   7 missions about the crew's mental health run in order; the banner always shows the ONE next step.
 <b><color=#40D9FF>CONTROLS</color></b>
 <b>Desktop</b>  WASD / arrows move · Shift run · Space jump (1/6 g!) · Right-mouse or Shift+L (lock) look · E / click interact
 <b>VR (Quest)</b>  Left stick move · Right stick turn · Grip teleport · Trigger interact / press buttons · Y crew UI · X map · B autopilot · A accept
@@ -356,7 +356,7 @@ namespace Hunch3
             {
                 bool full = !Clean; if (statsBg.gameObject.activeSelf != full) { statsBg.gameObject.SetActive(full); miniBg.gameObject.SetActive(full); }
                 navText.rectTransform.anchoredPosition = new Vector2(16, full ? -660 : -(HabitatOps.I ? HabitatOps.I.PanelBottom : 16) - 6);
-                if (hint) hint.text = keysBg.gameObject.activeSelf ? "" : "<b>E</b> use   ·   <b>Tab</b> crew health   ·   <b>M</b> map   ·   <b>P</b> psych   ·   <b>L</b> life support   ·   <b>H</b> help   ·   <b>K</b> keys   ·   <b>`</b> all panels";
+                if (hint) hint.text = keysBg.gameObject.activeSelf ? "" : "<b>E</b> use   ·   <b>J</b> all tasks   ·   <b>Tab</b> crew health   ·   <b>M</b> map   ·   <b>P</b> psych   ·   <b>L</b> life support   ·   <b>H</b> help   ·   <b>K</b> keys   ·   <b>`</b> all panels";
             }
             if (offerBox.gameObject.activeSelf != (currentOffer != null && !currentOffer.done)) offerBox.gameObject.SetActive(currentOffer != null && !currentOffer.done);
             if (currentOffer != null) offerText.text = $"<b><color=#{UIKit.Hex(UIKit.Gold)}>AI offer (Tier 2 — your choice)</color></b>\n{currentOffer.text}";

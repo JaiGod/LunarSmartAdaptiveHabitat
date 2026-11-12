@@ -306,7 +306,7 @@ namespace Hunch3
             else { inCharge = null; if (Hazards.I && Hazards.I.Active) { HUD.I?.Toast("The alarm is still on — follow the arrow to the muster point first."); return true; } Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); }
             return true;
         }
-        void DailyDo() { var t = DailyCur; if (t == null) { HUD.I?.Toast("Today's wellness list is done. Free time — explore, or press J for the rubric checklist."); return; } try { t.act(); } catch (Exception ex) { HUD.I?.Toast("Couldn't do that automatically: " + ex.Message); } }
+        void DailyDo() { var t = DailyCur; if (t == null) { HUD.I?.Toast("Today's wellness list is done. Free time — explore, or press Shift+J for the rubric checklist."); return; } try { t.act(); } catch (Exception ex) { HUD.I?.Toast("Couldn't do that automatically: " + ex.Message); } }
         bool DailyBanner()
         {
             var t = DailyCur;
