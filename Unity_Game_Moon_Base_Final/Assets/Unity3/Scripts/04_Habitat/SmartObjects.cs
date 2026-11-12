@@ -275,6 +275,10 @@ namespace Hunch3
             new Spec("ai_health_hub", "WP_N_C"), new Spec("habitat_console", "WP_N_C"), new Spec("hologram_companion", "WP_Up_Lounge"),
             new Spec("emergency_mh_station", "WP_R_C|WP_G_C", true), new Spec("mood_tracker", "WP_K_C|WP_R_C", true), 
             new Spec("maintenance_drone", "WP_E_C"), new Spec("ai_wristband", "WP_SQ1_Health", false, .95f, 5f), new Spec("circadian_light", "WP_SQ1_Bed", false, .55f, 1f),
+            // Crew Health Rounds (side mission): the six D1 health devices
+            new Spec("health_station", "WP_H_W|WP_H_NE"), new Spec("zone_sensor_pod", "WP_K_C|WP_R_C|WP_N_C", true, 0, 1.6f),
+            new Spec("crew_beacon", "WP_H_NE|WP_H_W", false, .95f, 3f), new Spec("cortisol_patch", "WP_H_W|WP_H_NE", false, .95f, 6f),
+            new Spec("sleep_wristband", "WP_SQ1_Health|WP_SQ1_Bed", false, .95f, 5f), new Spec("sleep_bunk", "WP_SQ1_Bed|WP_Up_Lounge"),
         };
         /// existing habitat equipment turned into smart systems: renderer-name prefix → catalog entry (+ optional title)
         public static readonly (string prefix, string key, string title)[] Wraps =
@@ -655,6 +659,43 @@ namespace Hunch3
                     so.telemetry = s => new[] { $"HR {Mathf.RoundToInt(58 + (Me?.stress ?? .2f) * 30)} · stress {(Me != null && Me.stress > .5f ? "HIGH" : "LOW")}", $"Sleep {P(Me?.sleepQ ?? .85f)}", $"Mood ring: {(Me != null && Me.shareMoodPublic ? "shared" : "private")}" };
                     A(so, Key.E, "Sync wristband", s => "Wristband synced: last night HR 52–61, 2 stress spikes (both during the 14:00 task), sleep 7 h 20 m.");
                     A(so, Key.F, "Share mood ring", s => { if (Me != null) Me.shareMoodPublic = !Me.shareMoodPublic; return Me != null && Me.shareMoodPublic ? "Your mood ring is now visible to crewmates (you can switch it off any time)." : "Your mood ring is private again."; });
+                    break;
+                // ---------------- Crew Health Rounds: the six D1 health devices ----------------
+                case "crew_beacon":
+                    so.title = "Crew Beacon (chest, display 6x)"; so.cat = SysCat.Medical; so.powerW = 0;
+                    so.why = "Worn on the chest: 2-lead ECG gives heart rate and HRV (stress), skin response, and a UWB tag that tells the AI which room you are in. HRV is the earliest stress signal the habitat has.";
+                    so.telemetry = s => new[] { $"HR {Mathf.RoundToInt(60 + (Me?.stress ?? .2f) * 28)} bpm · HRV {Mathf.RoundToInt(62 - (Me?.stress ?? .2f) * 35)} ms", $"Skin response {(Me != null && Me.stress > .5f ? "raised" : "calm")}", "Location: tracked (UWB)" };
+                    A(so, Key.E, "Read the beacon", s => $"Crew beacon: HR {Mathf.RoundToInt(60 + (Me?.stress ?? .2f) * 28)} bpm, HRV {Mathf.RoundToInt(62 - (Me?.stress ?? .2f) * 35)} ms. Low HRV = rising stress; the AI compares it with your own baseline, not anyone else's.");
+                    break;
+                case "sleep_wristband":
+                    so.title = "Night Wristband (display 5x)"; so.cat = SysCat.Psych; so.powerW = 0;
+                    so.why = "Worn in bed: PPG heart rate + accelerometer give sleep stages (light, deep, REM), wake-ups and a sleep score every morning.";
+                    so.telemetry = s => new[] { $"Sleep score {Mathf.RoundToInt((Me?.sleepQ ?? .85f) * 100)}", "Deep 1.4 h · REM 1.7 h", "2 wake-ups" };
+                    A(so, Key.E, "Download last night", s => { Fx(sleep: .02f); return $"Night wristband: sleep score {Mathf.RoundToInt((Me?.sleepQ ?? .85f) * 100)}. Deep sleep came early, REM late. {(Me != null && Me.sleepQ < .7f ? "Below your baseline: the AI suggests an early night and the 1800 K wind-down light." : "Right at your baseline.")}"; });
+                    break;
+                case "cortisol_patch":
+                    so.title = "Cortisol Patch (display 6x)"; so.cat = SysCat.Medical; so.powerW = 0;
+                    so.why = "Microneedle patch: measures the stress hormone cortisol 4x a day for 48 h. One high value means little; a flattened daily curve means chronic stress.";
+                    so.telemetry = s => new[] { $"Cortisol {(Me != null && Me.stress > .5f ? "HIGH for the time of day" : "normal daily curve")}", "Patch: 31 h left", "Next sample 14:00" };
+                    A(so, Key.E, "Fit a fresh patch", s => { Fx(stress: -.01f); return $"New cortisol patch fitted (48 h). Last curve: {(Me != null && Me.stress > .5f ? "flatter than normal — chronic stress flag sent to YOU first" : "normal morning peak, low at night")}."; });
+                    break;
+                case "zone_sensor_pod":
+                    so.title = "Zone Sensor Pod"; so.cat = SysCat.Psych; so.powerW = 6;
+                    so.why = "One per zone: paired CO2 sensors everywhere; voice tone and facial expression only in SHARED zones, processed on the pod. Raw audio and video never leave it.";
+                    so.telemetry = s => new[] { $"CO2 {Co2:0} ppm", $"Voice/face mood: {(Me != null && Me.mood < .4f ? "low" : "steady")}", "Raw data: never stored" };
+                    A(so, Key.E, "Mood check (consent)", s => { Fx(mood: .02f); return $"Zone pod: voice {(Me != null && Me.mood < .4f ? "flat and slow" : "bright")}, face {(Me != null && Me.stress > .5f ? "tense" : "relaxed")}. Only you see this unless you share it."; });
+                    break;
+                case "health_station":
+                    so.title = "Crew Health Station"; so.cat = SysCat.Medical; so.powerW = 90;
+                    so.why = "Daily vitals kiosk: live ECG, blood-pressure cuff, pulse-oximeter, thermometer. Medical numbers go to the flight surgeon; mood data does not.";
+                    so.telemetry = s => new[] { $"BP {Mathf.RoundToInt(114 + (Me?.stress ?? .2f) * 18)}/{Mathf.RoundToInt(74 + (Me?.stress ?? .2f) * 10)}", "SpO2 98% · 36.7 °C", $"ECG: sinus rhythm" };
+                    A(so, Key.E, "Daily check-in", s => { Fx(stress: -.02f); return $"Check-in saved: BP {Mathf.RoundToInt(114 + (Me?.stress ?? .2f) * 18)}/{Mathf.RoundToInt(74 + (Me?.stress ?? .2f) * 10)}, HR {Mathf.RoundToInt(60 + (Me?.stress ?? .2f) * 28)}, SpO2 98%, 36.7 °C, ECG normal sinus rhythm."; });
+                    break;
+                case "sleep_bunk":
+                    so.title = "Smart Sleep Bunk"; so.cat = SysCat.Psych; so.powerW = 25;
+                    so.why = "Under-mattress sensor (backup when the wristband is off), circadian mood light and a privacy curtain. Sleep is the #1 predictor of next-day mood on long missions.";
+                    so.telemetry = s => new[] { $"Sleep quality {P(Me?.sleepQ ?? .85f)}", "Light: 1800 K after 21:00", "Curtain: private" };
+                    A(so, Key.E, "Check the bunk sensor", s => $"Smart bunk: {(Me != null ? Me.sleepQ * 8.2f : 7.1f):0.0} h asleep, 3 position changes, light set to wind-down at 21:00.");
                     break;
                 case "circadian_light":
                     so.title = "Adaptive Circadian Light"; so.cat = SysCat.Psych; so.powerW = 12;

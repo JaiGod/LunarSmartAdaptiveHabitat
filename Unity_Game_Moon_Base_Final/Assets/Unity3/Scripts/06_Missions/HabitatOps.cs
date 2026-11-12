@@ -59,7 +59,16 @@ namespace Hunch3
             T("family_call", Key.E, "Call home", "the Recreation commons", "look at the Family Call Booth and press E", 30),
             H("sleep", "Go to bed (end of shift)", "your rest pod (upstairs)", "look at your bed and press E", 40),
         };
-        List<OpsTask> tasks = new List<OpsTask>(); List<HabInteractable> habs = new List<HabInteractable>(); int idx; public int points, streak;
+        /// SIDE MISSION · Crew Health Rounds: visit the six D1 health devices, in any order
+        static readonly (string key, string title)[] Rounds =
+        {
+            ("health_station", "Daily check-in at the Crew Health Station"), ("crew_beacon", "Read your chest crew beacon (HR + HRV)"),
+            ("sleep_wristband", "Download last night from the wristband"), ("sleep_bunk", "Check the smart sleep bunk sensor"),
+            ("cortisol_patch", "Fit a fresh cortisol patch"), ("zone_sensor_pod", "Mood check at a zone sensor pod"),
+        };
+        readonly HashSet<string> roundsDone = new HashSet<string>(); bool roundsBonus;
+        int RoundsTotal => Rounds.Count(r => SmartObject.All.Any(o => o && o.key == r.key));
+                List<OpsTask> tasks = new List<OpsTask>(); List<HabInteractable> habs = new List<HabInteractable>(); int idx; public int points, streak;
         SmartObject alertObj; float nextFault = 150f, alertSince; static readonly string[] Breakable = { "eclss_core", "oxygen_tanks", "greenhouse", "maintenance_drone", "heart_rate_monitor", "ai_health_hub", "exercise" };
 
         float renav; bool vr; Image boardBg; Text boardL, boardR; Image taskBg, alertBg, welcomeBg, cheerBg; Text taskText, alertText, welcomeText, cheerText; float cheerT = -1, welcomeUntil;
@@ -174,6 +183,7 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
                     sbl.Append($"<size=15><color=#C9D6E8>   {cur.room}: {(vr ? VrHow(cur.how) : cur.how)}</color></size>\n");
                     for (int n = 1; n <= 3 && idx + n < tasks.Count; n++) { var t2 = tasks[idx + n]; sbl.Append($"<size=15><color=#8FA3B8>   {idx + n + 1}. {t2.title}  <color=#6F8398>· {t2.room}</color></color></size>\n"); }
                 }
+                if (RoundsTotal > 0) sbl.Append($"<size=14><color=#B39DFF>Side mission · Crew Health Rounds {roundsDone.Count}/{RoundsTotal}</color></size>\n");
                 sbl.Append("<size=14><color=#6F8398>J  see all tasks</color></size>");
                 taskText.text = sbl.ToString();
             }
@@ -204,6 +214,12 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
             int pct = tasks.Count > 0 ? Mathf.RoundToInt(100f * doneN / tasks.Count) : 0; l.Append("<color=#7CFC9A>").Append(new string('|', pct / 2)).Append("</color><color=#33404F>").Append(new string('|', 50 - pct / 2)).Append($"</color>  {pct}%\n\n");
             r.Append("\n\n\n\n");
             for (int i = 0; i < tasks.Count; i++) (i < half ? l : r).Append(Row(i)).Append('\n');
+            if (RoundsTotal > 0)
+            {
+                r.Append($"\n<b><color=#B39DFF>SIDE MISSION · CREW HEALTH ROUNDS</color></b>  <color=#9FB3C8>{roundsDone.Count}/{RoundsTotal} · any order · +20 each, +60 bonus</color>\n");
+                foreach (var rd in Rounds) if (SmartObject.All.Any(o => o && o.key == rd.key))
+                    r.Append(roundsDone.Contains(rd.key) ? $"<color=#7CFC9A><b>DONE</b></color>  <color=#B8C6DC>{rd.title}</color>\n" : $"<color=#6F8398>  o    {rd.title}</color>\n");
+            }
             r.Append("\n<size=15><color=#9FB3C8>Repairs (red alerts) give +50 each.   J or Esc closes   ·   Shift+J: mission rubric checklist</color></size>");
             boardL.text = l.ToString(); boardR.text = r.ToString();
         }
@@ -227,6 +243,12 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
         }
         public void OnUse(SmartObject so, Key key)
         {
+            if (so && Rounds.Any(r => r.key == so.key) && roundsDone.Add(so.key))
+            {
+                points += 20; Cheer($"SIDE MISSION · Crew Health Rounds {roundsDone.Count}/{RoundsTotal}\n<size=22>{Rounds.First(r => r.key == so.key).title}</size>", 20);
+                HLog.I("Mission", "health rounds " + roundsDone.Count + "/" + RoundsTotal + " " + so.key);
+                if (!roundsBonus && roundsDone.Count >= RoundsTotal && RoundsTotal > 0) { roundsBonus = true; points += 60; Cheer("CREW HEALTH ROUNDS COMPLETE!\n<size=22>All six health devices checked</size>", 60); }
+            }
             if (!so || idx >= tasks.Count) return; var t = tasks[idx];
             if (t.key == null || so.key != t.key || (t.press.HasValue && t.press.Value != key && !(vrSel && key != Key.None))) return;
             idx++; streak++; points += t.pts; Cheer($"TASK COMPLETE!  {t.title}", t.pts); PointNav();

@@ -181,6 +181,7 @@ public partial class HunchFrontier
         BuildAresMenu();
         try { BuildAresMissions(); } catch (Exception e) { HLog.E("ARES", "ARES missions: " + e); }
         try { BuildAresWorld(); AddAresWorldMenu(); } catch (Exception e) { HLog.E("ARES", "ARES world: " + e); }
+        try { BuildHealthRounds(); } catch (Exception e) { HLog.E("ARES", "health rounds: " + e); }
     }
     float AresNow() { return (sim.Day - 1) * 24f + sim.Hour; }
     string AresTypeOf(string id)

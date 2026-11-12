@@ -7,6 +7,10 @@ import bpy, bmesh, math, os, json
 from mathutils import Vector
 OUT = r"C:\Users\jaine\Downloads\Nasa\Moon_Base_Final\HunchBridge\site\models\health"
 os.makedirs(OUT, exist_ok=True)
+# FBX copies for the two Unity games (Crew Health Rounds side mission)
+OUT_FBX = [r"C:\Users\jaine\Downloads\Nasa\Moon_Base_Final\Assets\Unity3\Resources\Wellness",
+           r"C:\Users\jaine\Downloads\Nasa\official projects for nasa\unity2\Nasa_Project\Assets\HUNCH\Resources\Health"]
+for d in OUT_FBX: os.makedirs(d, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 rep = {}
 
@@ -76,6 +80,9 @@ def export(key, title):
     for o in objs: o.select_set(True)
     path = os.path.join(OUT, key + '.glb')
     bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True, export_apply=True, export_cameras=False, export_lights=False)
+    fm = bpy.data.objects.new('FRONT_MARKER', None); bpy.context.scene.collection.objects.link(fm); fm.location = (0, -1, 0); fm.select_set(True)
+    for d in OUT_FBX:
+        bpy.ops.export_scene.fbx(filepath=os.path.join(d, key + '.fbx'), use_selection=True, apply_scale_options='FBX_SCALE_ALL', axis_forward='-Z', axis_up='Y', use_mesh_modifiers=True, mesh_smooth_type='FACE', bake_space_transform=True, object_types={'EMPTY', 'MESH'})
     tris = 0
     for o in objs:
         dg = bpy.context.evaluated_depsgraph_get(); me = o.evaluated_get(dg).to_mesh(); tris += sum(len(p.vertices) - 2 for p in me.polygons)

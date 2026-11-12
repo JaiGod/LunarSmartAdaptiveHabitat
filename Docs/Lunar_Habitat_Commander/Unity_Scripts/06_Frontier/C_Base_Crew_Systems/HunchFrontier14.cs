@@ -496,8 +496,8 @@ public partial class HunchFrontier
         var wl = Label(w, "<b>WASH STATION</b>\n<size=60%>sealed sink, rinseless soap, every drop recovered</size>", 0f, 0f, 0.8f, 2.6f, 0.6f, Color.white); wl.transform.localPosition = new Vector3(0f, 2.25f, 0f); mapLabels.Add(wl);
         Physics.SyncTransforms(); hunchPlaced += ok ? "wash free spot; " : "wash default; ";
     }
-    string RealText(int i) { return i >= 1800 && i < 1810 ? KioskText(i) : i >= 1600 && i < 1800 ? FunText(i) : i >= 1500 && i < 1504 ? SleepText(i) : i == 1400 ? "space toilet: how it works" : (i == 1401 ? "wash station: how it works" : ""); }
-    void RealUse(int i) { if (i >= 1800 && i < 1810) KioskUse(i); else if (i >= 1600 && i < 1800) FunUse(i); else if (i >= 1500 && i < 1504) SleepUse(i); else if ((i == 1400 || i == 1401) && hygSheet >= 0) OpenRead(hygSheet); }
+    string RealText(int i) { return i >= 1900 && i < 1906 ? HealthText(i) : i >= 1800 && i < 1810 ? KioskText(i) : i >= 1600 && i < 1800 ? FunText(i) : i >= 1500 && i < 1504 ? SleepText(i) : i == 1400 ? "space toilet: how it works" : (i == 1401 ? "wash station: how it works" : ""); }
+    void RealUse(int i) { if (i >= 1900 && i < 1906) HealthUse(i); else if (i >= 1800 && i < 1810) KioskUse(i); else if (i >= 1600 && i < 1800) FunUse(i); else if (i >= 1500 && i < 1504) SleepUse(i); else if ((i == 1400 || i == 1401) && hygSheet >= 0) OpenRead(hygSheet); }
 
     public string ProbeFitting() { string[] names = { "Space toilet", "Wash station", "Pantry rack", "Aquaponics fish tank" }; string nm = names[Mathf.Clamp(probeInt, 0, names.Length - 1)]; Transform t = null; foreach (var tr in root.GetComponentsInChildren<Transform>(true)) if (tr.name == nm) { t = tr; break; } if (!t) return nm + " not found"; game.flyMode = false; TeleportTo(t.position + t.forward * 1.9f, 0f); Face(t.position + Vector3.up * 0.9f); return nm + " at " + t.position.ToString("F1") + " | " + hunchPlaced; }
     int HunchPagesShown() { if (!menu) return -1; int n = 0; foreach (var p in menu.extraPages) if (menu.extraShow == null || menu.extraShow(p)) n++; return n; }
