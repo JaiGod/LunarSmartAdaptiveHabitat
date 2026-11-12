@@ -2,9 +2,9 @@
 
 These are the most important pieces of code in our two NASA HUNCH games, with a plain-English explanation of each one. You don't need to know C# to follow along: each picture shows the real code (with its file and line numbers), and the notes underneath say what it does, why we built it that way, and when it runs.
 
-- **Game 1 — Realistic (Moon Base Final):** [play it](https://jaigod.github.io/LunarSmartAdaptiveHabitat/play/) · [all scripts](../../Unity_Game_Moon_Base_Final/Assets/Unity3/Scripts/README.md)
-- **Game 2 — Sci-fi (Lunar Habitat Commander):** [play it](https://jaigod.github.io/LunarSmartAdaptiveHabitat/play2/) · [all scripts](../Lunar_Habitat_Commander/Unity_Scripts/README.md)
-- **Website version of this page:** [code.html](https://jaigod.github.io/LunarSmartAdaptiveHabitat/code.html) · **[PDF to print or share](Code_Highlights_Both_Games.pdf)**
+- **Game 1 — Realistic (Moon Base Final):** [play it](https://jaigod.github.io/ares-site/play/) · [all scripts](../../Unity_Game_Moon_Base_Final/Assets/Unity3/Scripts/README.md)
+- **Game 2 — Sci-fi (Lunar Habitat Commander):** [play it](https://jaigod.github.io/ares-site/play2/) · [all scripts](../Lunar_Habitat_Commander/Unity_Scripts/README.md)
+- **Website version of this page:** [code.html](https://jaigod.github.io/ares-site/code.html) · **[PDF to print or share](Code_Highlights_Both_Games.pdf)**
 
 **The big idea behind both games:** the AI looks after the crew's mental health, but it always asks before it acts, and a human can switch it off at any moment. When something goes wrong while the crew is asleep, the AI stops and a person takes over.
 

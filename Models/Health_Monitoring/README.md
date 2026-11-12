@@ -3,7 +3,7 @@
 Six devices that carry the nine D1 sensors, modelled in Blender by `health_models.py` (run it with
 `blender -b --python health_models.py`; it builds each model from scratch and exports a `.glb`).
 The exported models are in [`models/health/`](../../models/health/) and can be spun in the browser on the
-[3D model library](https://jaigod.github.io/LunarSmartAdaptiveHabitat/models.html#health).
+[3D model library](https://jaigod.github.io/ares-site/models.html#health).
 
 | Model | D1 sensors | What it does for the crew |
 |---|---|---|
