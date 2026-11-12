@@ -8,7 +8,7 @@
 >
 > 🌐 **[Project website](https://jaigod.github.io/LunarSmartAdaptiveHabitat/)**: 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://jaigod.github.io/LunarSmartAdaptiveHabitat/#floorplan).
 >
-> 🛰️ **[3D model library](https://jaigod.github.io/LunarSmartAdaptiveHabitat/models.html)**: spin every model in the browser, with what each one does to keep the crew safe, including the new health-monitoring hardware (heart-rate chest beacon, sleep wristband, cortisol patch, sensor pods, Crew Health Station, smart sleep bunk) designed in Blender ([source](Models/Health_Monitoring/)).
+> 🛰️ **[3D model library](https://claude.ai/artifact/BMs8Ea9epbjhnYAMEk7w2D)**: spin every model in the browser, with what each one does to keep the crew safe, including the new health-monitoring hardware (heart-rate chest beacon, sleep wristband, cortisol patch, sensor pods, Crew Health Station, smart sleep bunk) designed in Blender ([source](Models/Health_Monitoring/)).
 >
 > 🖨️ **[STL to 3D print: realistic habitat, bases only](3D_Print_Kits/Realistic_Bases_Only/)**: core, four tunnels, five ring nodes and the airlock, 1:320 (about 20 × 14 cm). No sleeping pods, shields, tower or vehicles.
 >
