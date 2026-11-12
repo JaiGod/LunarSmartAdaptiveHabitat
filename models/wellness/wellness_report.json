@@ -1,0 +1,304 @@
+{
+ "ai_wristband": {
+  "title": "AI Psychological Monitoring Wristband",
+  "kb": 528,
+  "tris": 10408,
+  "objects": 25,
+  "size_m": [
+   0.08,
+   0.04,
+   0.09
+  ],
+  "cat": "psych",
+  "priority": 1
+ },
+ "sanctuary_pod": {
+  "title": "Personal Sanctuary Relaxation Pod",
+  "kb": 1500,
+  "tris": 26442,
+  "objects": 66,
+  "size_m": [
+   2.5,
+   2.5,
+   2.16
+  ],
+  "cat": "psych",
+  "priority": 2
+ },
+ "greenhouse": {
+  "title": "Modular Lunar Greenhouse",
+  "kb": 3344,
+  "tris": 51212,
+  "objects": 538,
+  "size_m": [
+   3.2,
+   2.2,
+   2.49
+  ],
+  "cat": "life",
+  "priority": 3
+ },
+ "medical_scanner": {
+  "title": "Smart Medical Scanner Bay",
+  "kb": 2635,
+  "tris": 54244,
+  "objects": 122,
+  "size_m": [
+   2.7,
+   1.95,
+   2.45
+  ],
+  "cat": "medical",
+  "priority": 4
+ },
+ "hologram_companion": {
+  "title": "AI Companion Hologram Projector",
+  "kb": 893,
+  "tris": 15684,
+  "objects": 22,
+  "size_m": [
+   1.25,
+   1.44,
+   1.86
+  ],
+  "cat": "psych",
+  "priority": 5
+ },
+ "circadian_light": {
+  "title": "Adaptive Circadian Lighting System",
+  "kb": 627,
+  "tris": 11264,
+  "objects": 10,
+  "size_m": [
+   0.6,
+   0.41,
+   0.54
+  ],
+  "cat": "psych",
+  "priority": 6
+ },
+ "emotional_garden": {
+  "title": "Emotional Support Garden Module",
+  "kb": 1300,
+  "tris": 19748,
+  "objects": 157,
+  "size_m": [
+   3.03,
+   1.58,
+   1.72
+  ],
+  "cat": "psych",
+  "priority": 7
+ },
+ "eclss_core": {
+  "title": "ECLSS Core Life Support Machine",
+  "kb": 1345,
+  "tris": 26460,
+  "objects": 34,
+  "size_m": [
+   2.0,
+   1.2,
+   2.17
+  ],
+  "cat": "life",
+  "priority": 8
+ },
+ "maintenance_drone": {
+  "title": "Autonomous Maintenance Drone",
+  "kb": 831,
+  "tris": 13588,
+  "objects": 30,
+  "size_m": [
+   0.85,
+   0.85,
+   0.57
+  ],
+  "cat": "research",
+  "priority": 9
+ },
+ "habitat_console": {
+  "title": "Smart Habitat Control Console",
+  "kb": 1088,
+  "tris": 26220,
+  "objects": 32,
+  "size_m": [
+   1.8,
+   1.39,
+   1.39
+  ],
+  "cat": "research",
+  "priority": 10
+ },
+ "emergency_mh_station": {
+  "title": "Emergency Mental Health Station",
+  "kb": 888,
+  "tris": 17656,
+  "objects": 26,
+  "size_m": [
+   1.38,
+   1.12,
+   2.12
+  ],
+  "cat": "emergency",
+  "priority": 11
+ },
+ "sensor_wall": {
+  "title": "Biometrics Sensor Wall Array",
+  "kb": 1002,
+  "tris": 19072,
+  "objects": 71,
+  "size_m": [
+   2.4,
+   0.18,
+   1.37
+  ],
+  "cat": "life",
+  "priority": 12
+ },
+ "earth_window": {
+  "title": "Virtual Earth Window System",
+  "kb": 624,
+  "tris": 9428,
+  "objects": 42,
+  "size_m": [
+   1.9,
+   0.31,
+   1.25
+  ],
+  "cat": "psych",
+  "priority": 13
+ },
+ "recovery_pod_healthy": {
+  "title": "Adaptive Recovery Sleep Pod \u00b7 healthy",
+  "kb": 932,
+  "tris": 21132,
+  "objects": 60,
+  "size_m": [
+   3.17,
+   1.73,
+   2.17
+  ],
+  "cat": "psych",
+  "priority": 0,
+  "state": "healthy"
+ },
+ "recovery_pod_fatigue": {
+  "title": "Adaptive Recovery Sleep Pod \u00b7 fatigue",
+  "kb": 1454,
+  "tris": 34548,
+  "objects": 66,
+  "size_m": [
+   3.17,
+   1.71,
+   2.14
+  ],
+  "cat": "psych",
+  "priority": 0,
+  "state": "fatigue"
+ },
+ "recovery_pod_stress": {
+  "title": "Adaptive Recovery Sleep Pod \u00b7 stress",
+  "kb": 1306,
+  "tris": 27328,
+  "objects": 65,
+  "size_m": [
+   3.17,
+   1.58,
+   2.14
+  ],
+  "cat": "psych",
+  "priority": 0,
+  "state": "stress"
+ },
+ "stress_lounge": {
+  "title": "Stress Recovery Lounge",
+  "kb": 871,
+  "tris": 13984,
+  "objects": 40,
+  "size_m": [
+   3.33,
+   3.45,
+   2.32
+  ],
+  "cat": "psych",
+  "priority": 15
+ },
+ "oxygen_tanks": {
+  "title": "Oxygen Tank Rack",
+  "kb": 2402,
+  "tris": 47348,
+  "objects": 75,
+  "size_m": [
+   1.86,
+   0.56,
+   1.85
+  ],
+  "cat": "life",
+  "priority": 16
+ },
+ "ai_health_hub": {
+  "title": "AI Health Detection System",
+  "kb": 1375,
+  "tris": 29116,
+  "objects": 108,
+  "size_m": [
+   2.12,
+   0.83,
+   2.07
+  ],
+  "cat": "medical",
+  "priority": 17
+ },
+ "mood_tracker": {
+  "title": "Mood Health Tracker",
+  "kb": 628,
+  "tris": 14632,
+  "objects": 35,
+  "size_m": [
+   0.7,
+   0.14,
+   1.0
+  ],
+  "cat": "psych",
+  "priority": 18
+ },
+ "heart_rate_monitor": {
+  "title": "Heart-Rate & Vitals Monitor",
+  "kb": 501,
+  "tris": 11136,
+  "objects": 28,
+  "size_m": [
+   0.6,
+   0.63,
+   1.58
+  ],
+  "cat": "medical",
+  "priority": 19
+ },
+ "bp_monitor": {
+  "title": "Blood-Pressure Tracker",
+  "kb": 1347,
+  "tris": 28152,
+  "objects": 24,
+  "size_m": [
+   0.5,
+   0.42,
+   0.86
+  ],
+  "cat": "medical",
+  "priority": 20
+ },
+ "smart_bed": {
+  "title": "AI Sleep-Detection Bed",
+  "kb": 830,
+  "tris": 19188,
+  "objects": 38,
+  "size_m": [
+   2.25,
+   1.58,
+   2.07
+  ],
+  "cat": "psych",
+  "priority": 21
+ }
+}

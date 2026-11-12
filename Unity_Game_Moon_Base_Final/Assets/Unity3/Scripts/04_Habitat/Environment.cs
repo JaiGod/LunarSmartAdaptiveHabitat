@@ -146,6 +146,18 @@ namespace Hunch3
             }
             return best;
         }
+        /// closest zone on the same deck (for hallways / module edges that sit between the 3 m zone circles)
+        public Zone NearestZone(Vector3 p, float maxDist)
+        {
+            Zone best = null; float bd = maxDist;
+            foreach (var z in zones)
+            {
+                if (Mathf.Abs(p.y - z.center.y) > 2.2f) continue;
+                float d = Vector2.Distance(new Vector2(p.x, p.z), new Vector2(z.center.x, z.center.z));
+                if (d < bd) { bd = d; best = z; }
+            }
+            return best;
+        }
         public Zone Get(string name) => zones.FirstOrDefault(z => z.name == name);
 
         public void SetConfigB(bool on)

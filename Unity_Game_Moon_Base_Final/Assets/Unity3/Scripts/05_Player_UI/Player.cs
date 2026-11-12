@@ -86,10 +86,14 @@ namespace Hunch3
             // zone tracking
             if (HabitatEnvironment.I)
             {
+                // Without a suit you are ALWAYS inside the pressure hull (DoorPassage.Contain guarantees it), so a spot between
+                // zone markers (hallway, module edge, lower deck) is the nearest zone on your deck — never "Lunar surface".
                 var z = HabitatEnvironment.I.ZoneAt(FeetPosition);
-                if (z != zone)
+                if (z == null && suit == SuitState.IVA) z = HabitatEnvironment.I.NearestZone(FeetPosition, 14f);
+                string zn = z != null ? z.name.Replace("_", " ") : suit == SuitState.EVA ? "Lunar surface (EVA)" : "Habitat corridor";
+                if (z != zone || zn != zoneName)
                 {
-                    zone = z; zoneName = z != null ? z.name.Replace("_", " ") : (FeetPosition.y < 0.6f ? "Lunar surface" : "—");
+                    zone = z; zoneName = zn;
                     if (z != null && Sim.I != null) Sim.I.engine.C(1).zone = z.name;
                     if (z != null && (GameState.mode == GameMode.Tour || HUD.I && HUD.I.showZoneCards)) HUD.I?.ZoneCard(z);
                     if (z != null && z.type == "exercise") HabitatEnvironment.I.Apply("alert:1", 1, 3);

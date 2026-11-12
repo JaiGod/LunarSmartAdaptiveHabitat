@@ -295,7 +295,7 @@ namespace Hunch3
         {
             var pr = PlayerRig.I; if (!pr || !pr.cam) return;
             if (offset) { pr.cam.transform.localPosition = savedLocal; offset = false; }        // give the player rig its real head position back first
-            var kb = Keyboard.current; if (kb != null && kb.fKey.wasPressedThisFrame && !Panels.AnyOpen) Toggle();
+            var kb = Keyboard.current; if (kb != null && kb.fKey.wasPressedThisFrame && !Panels.AnyOpen && !SmartObject.Hover) Toggle();   // F on a smart system = its action
             if (Active && (pr.isXR || SleepSystem.PlayerAsleep)) { }                              // stays as is; LateUpdate skips
         }
 

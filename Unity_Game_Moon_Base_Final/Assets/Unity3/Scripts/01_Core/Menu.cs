@@ -160,6 +160,8 @@ namespace Hunch3
             gameObject.AddComponent<HabitatEnvironment>();
             gameObject.AddComponent<PlayerRig>();
             gameObject.AddComponent<DesktopInteractor>();
+            gameObject.AddComponent<SmartInteractor>(); SmartObject.All.Clear();   // wellness / medical / life-support systems
+            gameObject.AddComponent<WellnessSpawner>();
             gameObject.AddComponent<HUD>();
             gameObject.AddComponent<CrewOrdersTicker>(); CrewOrders.active.Clear(); CrewOrders.history.Clear(); CrewOrders.done = 0; HealthCheck.last.Clear(); HealthCheck.scanned.Clear(); HealthCheck.at.Clear(); HealthCheck.lastId = -1; CrewOrders.asked.Clear();
             if (!(UnityEngine.XR.XRSettings.isDeviceActive && !GameState.selfTest)) DesktopUIClicker.Ensure();

@@ -500,7 +500,7 @@ public partial class HunchFrontier
     // ================================================================== live tracking board (VR and desktop)
     // What the headset can really measure: where your head and hands are, how tall you stand, how fast you move, and where you look.
     // Eye tracking is read only when the headset has it. Face tracking and heart rate need sensors a Quest 2 or 3 does not have, and the board says so.
-    TextMeshPro trackBoard; float trackAt, trackSpeed, trackMoved, trackLog; Vector3 trackLast; float trackHeightMax; string trackFile = ""; readonly List<UnityEngine.XR.InputDevice> trackDevs = new List<UnityEngine.XR.InputDevice>();
+    TextMeshPro trackBoard, trackBack; float trackAt, trackSpeed, trackMoved, trackLog; Vector3 trackLast; float trackHeightMax; string trackFile = ""; readonly List<UnityEngine.XR.InputDevice> trackDevs = new List<UnityEngine.XR.InputDevice>();
     public bool trackOn = true;
     void BuildTrackBoard()
     {
@@ -508,7 +508,11 @@ public partial class HunchFrontier
         var b = new GameObject("Live tracking board").transform; b.SetParent(root, false); b.position = meetTable.position + new Vector3(0f, 0f, -6.2f); b.rotation = Quaternion.identity;
         Prim(PrimitiveType.Cube, b, new Vector3(0f, 1.9f, 0f), new Vector3(3.6f, 2.5f, 0.08f), Lit(new Color(0.05f, 0.08f, 0.14f)), true);
         Prim(PrimitiveType.Cube, b, new Vector3(0f, 0.35f, 0f), new Vector3(0.2f, 0.7f, 0.2f), Lit(new Color(0.75f, 0.77f, 0.82f)));
-        trackBoard = Label(b, "", 0f, 0f, 0.62f, 3.3f, 2.3f, Color.white); trackBoard.transform.localPosition = new Vector3(0f, 1.9f, 0.06f); trackBoard.alignment = TextAlignmentOptions.TopLeft; mapLabels.Add(trackBoard);
+        // the text sat 2 cm BEHIND the dark panel (panel face at z -0.04, text at +0.06), so the board hid it and only the
+        // letters poking past its edge showed. Text now sits in front of the panel on BOTH faces, sized to fit inside it.
+        trackBoard = Label(b, "", 0f, 0f, 0.5f, 3.3f, 2.3f, Color.white); trackBoard.transform.localPosition = new Vector3(0f, 1.9f, -0.07f); trackBoard.alignment = TextAlignmentOptions.TopLeft;   // NOT a billboard map label: those turn to face you and swung the text into the panel
+        trackBack = Label(b, "", 0f, 0f, 0.5f, 3.3f, 2.3f, Color.white); trackBack.transform.localPosition = new Vector3(0f, 1.9f, 0.07f); trackBack.transform.localRotation = Quaternion.Euler(0f, 180f, 0f); trackBack.alignment = TextAlignmentOptions.TopLeft;
+        foreach (var t in new[] { trackBoard, trackBack }) { t.enableAutoSizing = true; t.fontSizeMin = 0.2f; t.fontSizeMax = 0.5f; t.overflowMode = TextOverflowModes.Truncate; t.rectTransform.sizeDelta = new Vector2(3.3f, 2.3f); }
     }
     void UpdateTracking(float dt)
     {
@@ -541,6 +545,7 @@ public partial class HunchFrontier
             + "Looking at   " + looking + "\n"
             + "Eyes   " + eyes + hands + "\n"
             + "<color=#9AA6BA>Face   needs a headset with face sensors (Quest Pro)\nHeart rate   needs a heart sensor; the headset has none</color></size>";
+        if (trackBack) trackBack.text = trackBoard.text;
         // one line a second into a file, so the numbers can be charted afterwards
         if (Time.unscaledTime >= trackLog)
         {

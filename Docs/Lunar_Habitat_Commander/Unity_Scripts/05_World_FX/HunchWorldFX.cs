@@ -199,6 +199,25 @@ public class HunchWorldFX : MonoBehaviour
 
     void Play(AudioClip c, float v) { if (sfxOn && shots && c && Time.timeScale <= 2f) shots.PlayOneShot(c, v); }
 
+    int outsideVotes;
+    /// Inside = a roof over you OR walls all around you. One thin ray straight up used to miss through roof gaps,
+    /// skylights and the open ring over the meeting room, so you were told you were "outside" while indoors.
+    static bool Enclosed(Vector3 p)
+    {
+        int up = 0;
+        if (Physics.SphereCast(p, 0.35f, Vector3.up, out _, 200f, ~0, QueryTriggerInteraction.Ignore)) up += 2;
+        for (int i = 0; i < 6; i++)
+        {
+            Vector3 d = Quaternion.Euler(0f, i * 60f, 0f) * (Quaternion.Euler(-65f, 0f, 0f) * Vector3.forward);
+            if (Physics.Raycast(p, d, 200f, ~0, QueryTriggerInteraction.Ignore)) up++;
+        }
+        if (up >= 4) return true;
+        int walls = 0;
+        for (int i = 0; i < 8; i++)
+            if (Physics.Raycast(p, Quaternion.Euler(0f, i * 45f, 0f) * Vector3.forward, 30f, ~0, QueryTriggerInteraction.Ignore)) walls++;
+        return walls >= 7 && up >= 1;
+    }
+
     void UpdateAudio()
     {
         if (!origin || !origin.Camera) return;
@@ -208,9 +227,11 @@ public class HunchWorldFX : MonoBehaviour
         if (outsideCheck <= 0f)
         {
             outsideCheck = 0.35f;
-            bool now = sim.phase != HabPhase.Briefing && !Physics.Raycast(cam.position, Vector3.up, 1500f, ~0, QueryTriggerInteraction.Ignore);
-            if (now != outside)
+            bool now = sim.phase != HabPhase.Briefing && !Enclosed(cam.position);
+            if (now != outside) outsideVotes++; else outsideVotes = 0;
+            if (outsideVotes >= 2)      // must disagree twice in a row (0.7 s) — no flicker under skylights or ring gaps
             {
+                outsideVotes = 0;
                 outside = now;
                 if (Time.unscaledTime - lastTransition > 6f && sim.phase != HabPhase.Briefing)
                 {

@@ -112,7 +112,7 @@ namespace Hunch3
             if (Sim.I == null) return;
             var pr = PlayerRig.I; var e = Sim.I.engine;
             // ---- player waves (desktop G, or VR hand-above-head shake) ----
-            bool playerWave = Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame || XRWaveGesture(pr);
+            bool playerWave = Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame && !SmartObject.Hover || XRWaveGesture(pr);
             if (playerWave && Time.time - lastPlayerWave > 1.5f && pr)
             {
                 lastPlayerWave = Time.time;
