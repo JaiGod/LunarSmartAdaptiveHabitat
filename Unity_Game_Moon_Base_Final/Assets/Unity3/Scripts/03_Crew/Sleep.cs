@@ -71,7 +71,7 @@ namespace Hunch3
             // lie down on the mattress
             if (pr.cc) pr.cc.enabled = false;
             standPos = pr.FeetPosition; haveStand = true;
-            var bed = bedT ? bedT : Util.Find("Q1_Bed_Mattress");
+            var bed = bedT ? bedT : (Util.Find("SQ1_SleepPod_Mattress") ?? Util.Find("Q1_Bed_Mattress"));
             if (bed && Vector3.Distance(bed.position, standPos) > 4f && !bedT) bed = null;       // never jump to a far-away bed
             var rr = bed ? bed.GetComponentInChildren<Renderer>() : null;
             Vector3 c = rr ? rr.bounds.center : (bed ? bed.position : standPos);

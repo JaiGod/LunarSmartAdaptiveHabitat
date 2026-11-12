@@ -89,7 +89,7 @@ namespace Hunch3
             if (!bedLooked)
             {
                 bedLooked = true; Vector3 g = Nav.wp.TryGetValue(goal, out var gt) ? gt.position : transform.position;
-                mattress = Util.FindPrefix("Q").Where(t => t.name.EndsWith("_Bed_Mattress") && t.GetComponent<Renderer>()).OrderBy(t => (t.GetComponent<Renderer>().bounds.center - g).sqrMagnitude).FirstOrDefault();
+                mattress = Util.FindPrefix("SQ").Concat(Util.FindPrefix("Q")).Where(t => (t.name.EndsWith("_Bed_Mattress") || t.name.EndsWith("_SleepPod_Mattress")) && t.GetComponent<Renderer>() && t.GetComponent<Renderer>().enabled).OrderBy(t => (t.GetComponent<Renderer>().bounds.center - g).sqrMagnitude).FirstOrDefault();
                 if (mattress && (mattress.GetComponent<Renderer>().bounds.center - g).sqrMagnitude > 9f) mattress = null;
                 if (mattress) pillow = Util.Find(mattress.name.Replace("_Mattress", "_Pillow"));
             }

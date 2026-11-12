@@ -53,6 +53,7 @@ namespace Hunch3
             if (kb.digit3Key.wasPressedThisFrame) { HabitatOps.I?.DebugAlert(); HLog.I("Debug", "repair alert forced"); }
             if (kb.digit4Key.wasPressedThisFrame) HabitatOps.I?.DebugCheer();
             if (kb.digit5Key.wasPressedThisFrame) SmartDebug.VisitNext();
+            if (kb.digit6Key.wasPressedThisFrame && HabitatCleanup.I) { HabitatCleanup.Enabled = !HabitatCleanup.Enabled; HabitatCleanup.I.Apply(HabitatCleanup.Enabled); }
             if (Time.unscaledTime < nextText) return; nextText = Time.unscaledTime + 0.25f;
             var pr = PlayerRig.I; var env = HabitatEnvironment.I; var z = pr ? pr.zone : null;
             var aim = Aim.Smart ? Aim.Smart.title : Aim.Hab ? Aim.Hab.name : "—";
@@ -66,7 +67,7 @@ namespace Hunch3
             if (env) sb.Append($"O2 {env.o2Percent:0.0}%   CO2 {(z != null ? z.co2 : 0):0} ppm   power {env.powerKW:0} kW (solar {env.solarKW:0})   water {env.waterL:0} L\n");
             sb.Append($"Crew agents {CrewAgent.All.Count}   smart objects {SmartObject.All.Count(o => o)}   faults {SmartObject.All.Count(o => o && o.Failed)}\n");
             sb.Append($"Sim {SimClock.Now}  ×{GameState.timeScale / 60f:0.#}   alarm {(Hazards.I && Hazards.I.Active ? Hazards.I.Kind : "none")}\n");
-            sb.Append("\n<b>Tests</b>  1 ladder ride · 2 door walk · 3 repair alert · 4 reward · 5 next smart object\n");
+            sb.Append("\n<b>Tests</b>  1 ladder ride · 2 door walk · 3 repair alert · 4 reward · 5 next smart object · 6 show/hide cut objects\n");
             sb.Append("\n<b>Last logs</b>\n<size=13>");
             foreach (var l in HLog.Recent.Reverse()) sb.Append(l).Append('\n');
             sb.Append("</size>");
