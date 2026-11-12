@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astronaut Voice Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a spacecraft flight-data binder, with controls on the left page and the log book on the right. */
+:root {
+  --bg: #e6ebf0;
+  --panel: #f7f9fb;
+  --inset: #dde4eb;
+  --line: #b6c1cc;
+  --fg: #16232f;
+  --muted: #566573;
+  --primary: #1c4f7c;
+  --on-solid: #ffffff;
+  --record: #c8401a;
+  --mood-happy: #2f8a3e;
+  --mood-calm: #2a70b8;
+  --mood-sad: #4a51b0;
+  --mood-low: #7d44a8;
+  --mood-anxious: #c96a12;
+  --mood-worried: #9a7a06;
+  --mood-angry: #c5302b;
+  --mood-tired: #66727e;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101a24; --panel: #18242f; --inset: #22303d; --line: #38495a; --fg: #e6edf3; --muted: #9dacba;
+    --primary: #3f7fb8; --on-solid: #ffffff; --record: #d9502a;
+    --mood-happy: #63c274; --mood-calm: #69a9ea; --mood-sad: #9298ee; --mood-low: #bb8ce0;
+    --mood-anxious: #eb9c4b; --mood-worried: #dfc04a; --mood-angry: #ef7670; --mood-tired: #a4afba;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101a24; --panel: #18242f; --inset: #22303d; --line: #38495a; --fg: #e6edf3; --muted: #9dacba;
+  --primary: #3f7fb8; --on-solid: #ffffff; --record: #d9502a;
+  --mood-happy: #63c274; --mood-calm: #69a9ea; --mood-sad: #9298ee; --mood-low: #bb8ce0;
+  --mood-anxious: #eb9c4b; --mood-worried: #dfc04a; --mood-angry: #ef7670; --mood-tired: #a4afba;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.5 var(--body);
+  padding-block: 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.binder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  max-width: 1180px;
+  margin-inline: auto;
+  align-items: start;
+}
+.column { display: grid; gap: 16px; min-width: 0; }
+.eyebrow {
+  margin: 0;
+  font: 500 12px/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1, h2 { margin: 0; font-family: var(--display); font-weight: 700; text-wrap: balance; }
+h1 { font-size: clamp(2.5rem, 6vw, 3.5rem); line-height: 1; text-transform: uppercase; letter-spacing: 0.01em; }
+h2 { font-size: 1.6rem; line-height: 1.1; text-transform: uppercase; }
+header { display: grid; gap: 6px; }
+#status { margin: 0; font-weight: 600; font-size: 1.125rem; }
+#privacy { margin: 0; font-size: 0.8125rem; color: var(--muted); }
+
+button { font: inherit; cursor: pointer; }
+button:focus-visible, summary:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+#main-button {
+  width: 100%;
+  min-height: 150px;
+  padding: 16px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary);
+  color: var(--on-solid);
+  font: 700 clamp(2.5rem, 6vw, 3.5rem)/1 var(--display);
+  letter-spacing: 0.04em;
+}
+body[data-mode="recording"] #main-button { background: var(--record); }
+@media (prefers-reduced-motion: no-preference) {
+  body[data-mode="recording"] #main-button { animation: recording 1.6s ease-in-out infinite; }
+  @keyframes recording { 50% { opacity: 0.82; } }
+}
+
+.controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+.control {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--fg);
+  font-weight: 500;
+}
+.control.right { margin-left: auto; }
+#command-hint { margin: 0; font: 400 0.8125rem/1.6 var(--mono); color: var(--muted); }
+#baseline-script { margin: 0; font-size: 1.25rem; line-height: 1.45; }
+#live-speech {
+  min-height: 96px;
+  margin: 0;
+  padding: 12px;
+  border-radius: 4px;
+  background: var(--inset);
+  overflow-wrap: anywhere;
+}
+#live-speech.placeholder { color: var(--muted); }
+
+.mood-card { display: grid; gap: 8px; padding: 16px; background: var(--panel); border-left: 6px solid var(--mood); border-radius: 2px; }
+#mood-name { margin: 0; font: 700 2rem/1.1 var(--display); color: var(--mood); }
+#mood-confidence, #mood-support { margin: 0; }
+.bars { display: grid; gap: 6px; }
+.bar-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) 44px; align-items: center; gap: 8px; }
+.bar-track { height: 8px; background: var(--inset); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; }
+.bar-value { font: 400 0.8125rem var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.disclaimer { margin: 0; font-size: 0.8125rem; color: var(--muted); }
+
+.log-book { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding-block: 16px; min-width: 0; }
+.log-book-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-inline: 16px 16px; padding-bottom: 12px; border-bottom: 2px solid var(--fg); }
+#log-count { font: 500 1rem var(--mono); font-variant-numeric: tabular-nums; }
+#log-empty { margin: 0; padding: 24px 16px 8px; color: var(--muted); }
+.log { border-bottom: 1px solid var(--line); }
+.log:last-child { border-bottom: 0; }
+summary { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+.log-emoji { font-size: 1.75rem; line-height: 1; }
+.log-heading { display: grid; min-width: 0; }
+.log-heading time { font: 400 0.75rem var(--mono); color: var(--muted); }
+.log-body { display: grid; gap: 8px; padding-inline: 16px; padding-bottom: 14px; }
+.log-body p { margin: 0; overflow-wrap: anywhere; }
+.log-confidence { font-weight: 500; }
+.log-body ul { margin: 0; padding-left: 18px; font-size: 0.8125rem; color: var(--muted); }
+.log-actions { display: flex; flex-wrap: wrap; gap: 16px; }
+.text-button { padding: 2px 0; border: 0; background: none; color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .text-button { color: var(--mood-calm); } }
+:root[data-theme="dark"] .text-button { color: var(--mood-calm); }
+.text-button.danger { color: var(--mood-angry) !important; }
+
+@media (max-width: 760px) {
+  .binder { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body data-mode="idle">
+<main class="binder">
+  <section class="column" aria-label="Controls">
+    <header>
+      <p class="eyebrow"><a href="../" style="color: inherit">← Lunar Smart Adaptive Habitat</a> · Crew mood estimate</p>
+      <h1>Astronaut Voice Log</h1>
+      <p id="status" role="status">Tap Start Listening</p>
+      <p id="privacy">Works best in Chrome. Logs stay in this browser, but Chrome sends your speech to Google to turn it into text.</p>
+    </header>
+
+    <button id="main-button" type="button">START LOG</button>
+
+    <div class="controls">
+      <button id="start-listening" class="control" type="button">Start Listening</button>
+      <button id="stop-listening" class="control" type="button" hidden>Stop Listening</button>
+      <button id="baseline-button" class="control right" type="button" disabled>Set Calm Baseline</button>
+    </div>
+
+    <p id="command-hint">Say: "start log", "stop log", "set baseline", "play last log"</p>
+    <p id="baseline-script" hidden>Read calmly: "Today I checked the station systems, ate breakfast, and looked out at the Earth below. Everything is running as planned, and I am ready for the next task."</p>
+
+    <p id="live-speech" class="placeholder" aria-live="polite">Words you say appear here</p>
+
+    <section id="mood-card" class="mood-card" hidden>
+      <p class="eyebrow">Latest estimated mood</p>
+      <p id="mood-name"></p>
+      <p id="mood-confidence"></p>
+      <div id="mood-bars" class="bars"></div>
+      <p id="mood-support" hidden>If this feeling keeps coming back, talk with the flight surgeon or someone you trust.</p>
+      <p class="disclaimer">Estimate only. Not a medical diagnosis.</p>
+    </section>
+  </section>
+
+  <section class="log-book" aria-label="Saved logs">
+    <div class="log-book-head">
+      <h2>Mission logs</h2>
+      <span id="log-count" aria-label="Number of logs">000</span>
+    </div>
+    <p id="log-empty">No logs yet. Say "start log" or tap START LOG to record the first one.</p>
+    <div id="log-list"></div>
+  </section>
+</main>
+<script src="mood.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
