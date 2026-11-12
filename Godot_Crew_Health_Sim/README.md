@@ -30,9 +30,9 @@ The habitat itself has:
 
 | Rubric part | Where to try it |
 |---|---|
-| D1 sensors | Dashboard tab: 9 sensors, weight table, thresholds, mass/power. Dock the beacon or let the patch expire to see degradation |
-| D2 spatial design | Habitat tab: floor plan, shared vs private zones. Configuration A/B only with consent |
-| D3 response protocol | Protocols tab: every condition from detect to monitor, with evidence. Tiers 0.35 / 0.55 / 0.75 run live; Tier 2 offers appear on screen (Y / N) |
+| D1 sensors | Dashboard tab: 9 sensors, weight table, thresholds, mass/power. Dock the beacon or let the patch expire to see degradation. Threshold check tab: the same AI runs 36 simulated 72-hour missions and shows what it caught, how fast, and the unwanted offers on healthy days |
+| D2 spatial design | Habitat tab: floor plan, shared vs private zones. Configuration A/B only with consent. Each zone has its own light (warm wardroom, cool work corner, bright exercise). The quarters door light only shows free / resting, never mood |
+| D3 response protocol | Protocols tab: every condition from detect to monitor, with evidence. Tiers 0.35 / 0.55 / 0.75 run live; Tier 2 offers appear on screen (Y / N). Tier 3 escalation chain with response times |
 | D4 ethics | Hard limits tab (8 limits, Test buttons). O = AI off switch. Your data tab: log, pause, sensor opt-out, delete |
 | Board Q1–Q6 | Board tab: each question sets up the situation in the game |
 | Bonus A / B | Tabletop tab (72-hour run) · Your data tab (crew interface) |
@@ -71,3 +71,7 @@ godot --headless --path . --export-release "Web" ../godot/index.html
 The web export uses the no-threads template, so it runs on GitHub Pages without special headers.
 
 © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.
+
+## Testing
+
+`godot --path . -- --autotest` plays the game by itself: it aims at and uses every object, opens every panel and tab, presses the buttons, plays all 5 health cases, runs the threshold check, does two EVAs, falls off the map, sleeps and wakes. It prints `BUG:` lines and ends with `bugs=0` when everything works.

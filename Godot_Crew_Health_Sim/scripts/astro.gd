@@ -24,7 +24,7 @@ var awake_min = 0.0
 var woke_at = 7.0 * 60.0
 var stress = 0.25                # 0 … 1  (acute + chronic)
 var chronic = 0.15               # slow part of stress (drives cortisol baseline)
-var valence = 0.2                # mood −1 sad … +1 happy
+var valence = 0.2                # mood -1 sad … +1 happy
 var arousal = 0.4                # 0 calm … 1 activated
 var activity = 0.05              # 0 rest … 1 max effort
 var fitness = 0.6
@@ -61,6 +61,7 @@ var bp_dia = 76.0
 var spo2 = 98.0
 var core_t = 36.8
 var skin_t = 33.5
+var cortisol_expected = 12.0
 var cortisol = 12.0             # µg/dL saliva-equivalent
 var eda = 2.0                   # skin conductance µS
 var rr = 14.0                   # breaths/min
@@ -109,7 +110,7 @@ func step(dm: float) -> void:
 	# stress: workload, CO2, sleep debt, hunger, isolation push it up; it relaxes on its own
 	var push = 0.25 * activity * (1.0 if on_eva else 0.3) + 0.25 * co2_load + 0.03 * sleep_debt_h + 0.15 * max(hunger - 0.6, 0.0) + 0.15 * (1.0 - social) * 0.4
 	stress = clamp(lerp(stress, push + chronic * 0.6, 0.01 * dm), 0.0, 1.0)
-	chronic = clamp(lerp(chronic, stress, 0.0004 * dm), 0.0, 1.0)
+	chronic = clamp(lerp(chronic, max(stress, 0.6 * max(-valence, 0.0)), 0.0004 * dm), 0.0, 1.0)   # low mood keeps the slow stress system up
 
 	# mood follows stress, sleep, social connection; arousal follows activity + circadian
 	var v_target = 0.55 - 0.9 * stress - 0.25 * max(sleep_pressure - 0.5, 0.0) - 0.04 * sleep_debt_h + 0.35 * (social - 0.5) - 0.2 * max(hunger - 0.7, 0.0)
@@ -136,6 +137,7 @@ func step(dm: float) -> void:
 	var car: float = 7.0 * exp(-pow((since_wake - 0.5) / 0.45, 2.0)) if not asleep else 0.0
 	var diurnal = 4.0 + 10.0 * max(0.0, cos((h - 8.0) / 24.0 * TAU))
 	cortisol = lerp(cortisol, diurnal + car + 9.0 * chronic + 3.0 * stress, 0.05 * dm)
+	cortisol_expected = diurnal + car + 2.1          # what a calm, rested person would show at this time of day
 
 	if on_eva:
 		eva_suit_o2 = max(0.0, eva_suit_o2 - dm * (0.12 + 0.35 * activity))
@@ -160,13 +162,14 @@ func _sleep_step(dm: float) -> void:
 	elif cyc < 0.55: s = "N3" if cyc > 0.25 and cyc < 0.25 + 0.35 * (1.0 - night) else "N2"
 	elif cyc > 1.0 - (0.12 + 0.3 * night): s = "REM"
 	# disturbances: high CO2, stress, the wrong circadian time
-	var p_wake = 0.002 * dm * (1.0 + 4.0 * max(0.0, (co2_ppm - 3000.0) / 2000.0) + 3.0 * stress + (2.0 if circadian() > 0.3 else 0.0))
+	var p_wake = 0.002 * dm * (1.0 + 4.0 * max(0.0, (co2_ppm - 3000.0) / 2000.0) + 3.0 * stress + 3.0 * max(-valence, 0.0) + (2.0 if circadian() > 0.3 else 0.0))   # low mood = broken sleep
 	if rng.randf() < p_wake:
 		s = "Awake"; awakenings += 1
 	stage = s
 	if int(sleep_min / 5.0) >= hypnogram.size():
 		hypnogram.append(["Awake", "N1", "N2", "N3", "REM"].find(s))
 	if (sleep_pressure <= 0.02 and circadian() > -0.6 and sleep_min > 300.0) or (hour() >= 6.5 and hour() < 7.0 and sleep_min > 360.0): wake_up()
+	elif valence < -0.4 and hour() >= 4.5 and hour() < 6.5 and sleep_min > 300.0 and rng.randf() < 0.02 * dm: wake_up()   # early-morning waking, a classic sign of low mood
 
 func wake_up() -> void:
 	if not asleep: return

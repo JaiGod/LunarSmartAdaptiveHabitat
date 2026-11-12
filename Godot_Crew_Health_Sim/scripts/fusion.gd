@@ -11,10 +11,10 @@ extends RefCounted
 
 const DEVICES := ["Crew beacon (chest)", "Night wristband", "Cortisol patch", "Zone sensor pod", "Crew Health Station", "Smart sleep bunk", "EVA suit"]
 
-## One line per device: [name, available, reading text, stress vote (-1 calm … +1 stressed), fatigue vote, mood vote (−1 low … +1 good), weight]
+## One line per device: [name, available, reading text, stress vote (-1 calm … +1 stressed), fatigue vote, mood vote (-1 low … +1 good), weight]
 static func device_rows(a: Astro, checkin: Dictionary, in_shared_zone: bool) -> Array:
 	var rows = []
-	# 1 crew beacon: ECG → HR + HRV, skin conductance, location
+	# 1 crew beacon: ECG -> HR + HRV, skin conductance, location
 	if a.beacon_on:
 		var hrv_z: float = clamp((45.0 - a.hrv) / 25.0, -1.0, 1.0)
 		var eda_z: float = clamp((a.eda - 4.0) / 5.0, -1.0, 1.0)

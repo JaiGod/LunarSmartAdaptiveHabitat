@@ -3,14 +3,14 @@
 #  File    : scripts/main.gd
 #  Purpose : Builds the habitat module + lunar surface, the first-person player, every interaction,
 #            the daily task list and all HUD panels:
-#              Smart sleep bunk  → sleep simulation (stages, hypnogram, sleep score)
-#              Night wristband   → wear it so the night is tracked
-#              Crew Health Station → check-in: live ECG, blood pressure, SpO2, temperature
-#              Zone sensor pod   → mood detector (voice + face, shared zones only, consent switch)
-#              Cortisol patch    → stress hormone over 48 h, replace when expired
-#              Crew beacon       → chest HR/HRV/skin response, always on
-#              EVA suit          → spacewalk with suit heart-rate + blood-pressure detector
-#              TAB               → "How is the astronaut feeling?" fusion of all devices
+#              Smart sleep bunk  -> sleep simulation (stages, hypnogram, sleep score)
+#              Night wristband   -> wear it so the night is tracked
+#              Crew Health Station -> check-in: live ECG, blood pressure, SpO2, temperature
+#              Zone sensor pod   -> mood detector (voice + face, shared zones only, consent switch)
+#              Cortisol patch    -> stress hormone over 48 h, replace when expired
+#              Crew beacon       -> chest HR/HRV/skin response, always on
+#              EVA suit          -> spacewalk with suit heart-rate + blood-pressure detector
+#              TAB               -> "How is the astronaut feeling?" fusion of all devices
 #  © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.
 # ==============================================================================================
 extends Node3D
@@ -21,7 +21,7 @@ const SURFACE := Vector3(80, 0, 0)
 const G_MOON := 1.62
 
 var A = Astro.new()
-var AI: Ares                      # Project ARES rubric layer (sensors → conditions → tiers, limits, Board Q1–Q6)
+var AI: Ares                      # Project ARES rubric layer (sensors -> conditions -> tiers, limits, Board Q1–Q6)
 var ares_tab = "dash"
 ## Why each object exists: the line in the research proposal it answers. Nothing is in the base without one.
 const REQ = {
@@ -40,6 +40,7 @@ const REQ = {
 	"dust": ["Airlock / dust mitigation", "Lunar dust irritates lungs and eyes: clean the suit before it reaches the cabin (proposal: dust mitigation)"],
 	"hygiene": ["Hygiene", "Hygiene zone, private: no cameras or mics (proposal zoning + hard limit 6)"],
 	"hatch": ["Airlock", "Airlock between surface and habitat (proposal NASA functional zones)"],
+	"door": ["Crew Quarters", "Door light shows only free / resting, never mood (privacy: public lights never reveal how you feel)"],
 	"sample": ["EVA checkpoint", "EVA walk that drives suit heart rate and blood pressure (biomedical monitoring)"],
 }
 var used = {}
@@ -70,6 +71,9 @@ var bunk_light: OmniLight3D
 var led_mats: Array = []
 var warn_light: OmniLight3D
 var on_treadmill = false
+var door_mat: StandardMaterial3D
+var zones_seen = {}
+var thresh_text = ""
 
 # UI
 var ui: CanvasLayer
@@ -162,7 +166,7 @@ func _habitat() -> void:
 		Build.box(hab, Vector3(0.1, 0.22, 0.22), w0 + Vector3(cos(a), 0, sin(a)) * 0.05, Build.mat(Color(0.3, 0.32, 0.36), 0.5, 0.4), false, -a)
 	Build.cable_ring(hab, 3.4, H_MOD - 0.2, 0.0, TAU)
 
-	# ---- Crew quarters (private) at −x : smart sleep bunk, wristband dock, crew beacon dock ----
+	# ---- Crew quarters (private) at -x : smart sleep bunk, wristband dock, crew beacon dock ----
 	Build.label3d(hab, "CREW QUARTERS · private", Vector3(-7.2, 3.2, 0), 0.9, Color(1, 0.8, 0.5))
 	var bunk = Build.model(hab, "res://models/sleep_bunk.glb", 2.3, Vector3(-7.3, 0, 0), PI / 2)
 	_interact(bunk, "bunk", "Sleep in the smart bunk", Vector3(2.3, 1.2, 2.3))
@@ -176,9 +180,19 @@ func _habitat() -> void:
 	var beacon = Build.model(hab, "res://models/crew_beacon.glb", 0.3, Vector3(-6.2, 1.08, 2.05))
 	_interact(beacon, "beacon", "Crew beacon (chest) — wear / dock", Vector3(0.5, 0.4, 0.5))
 	Build.label3d(hab, "wristband · beacon", Vector3(-6.2, 1.55, 1.8), 0.5)
-	# wires: bunk sensor mat + dock → ceiling tray
+	# wires: bunk sensor mat + dock -> ceiling tray
 	Build.routed_cable(hab, [Vector3(-8.3, 0.35, -0.6), Vector3(-8.45, 0.35, -0.6), Vector3(-8.45, H_MOD - 0.3, -0.6)], 0.018, Color(0.15, 0.35, 0.85))
 	Build.routed_cable(hab, [Vector3(-6.2, 1.03, 2.3), Vector3(-6.2, 1.03, 2.6), Vector3(-8.4, 1.03, 2.6), Vector3(-8.45, H_MOD - 0.3, 2.6)], 0.012, Color(0.9, 0.9, 0.92))
+
+	# door status light at the quarters curtain: free / resting only — it never shows mood
+	var dpost = Build.box(hab, Vector3(0.12, 0.3, 0.12), Vector3(-5.45, 2.35, -1.45), Build.mat(Color(0.2, 0.22, 0.26), 0.5, 0.4))
+	door_mat = Build.mat(Color(0.3, 1.0, 0.5), 0.0, 0.4, 1.8).duplicate()
+	Build.sphere(dpost, 0.07, Vector3(0.0, 0.0, 0.07), door_mat)
+	_interact(dpost, "door", "Quarters door light (free / resting only — never mood)", Vector3(0.5, 0.5, 0.5))
+	Build.label3d(hab, "door light", Vector3(-5.45, 2.65, -1.45), 0.45)
+	# zone lighting (rubric D2): warm wardroom, cool 6500 K work corner, bright energising exercise corner
+	for zl in [[Vector3(0, 2.2, 0), Color(1.0, 0.78, 0.55), 0.9, 4.5], [Vector3(3.4, 2.6, -6.6), Color(0.78, 0.88, 1.0), 1.3, 3.5], [Vector3(-3.5, 2.9, -6.4), Color(0.95, 1.0, 0.95), 1.8, 3.5]]:
+		var zo = OmniLight3D.new(); zo.position = zl[0]; zo.light_color = zl[1]; zo.light_energy = zl[2]; zo.omni_range = zl[3]; hab.add_child(zo)
 
 	# ---- Medical bay (+z) : Crew Health Station ----
 	Build.label3d(hab, "MEDICAL · Crew Health Station", Vector3(0, 3.2, 7.2), 0.9)
@@ -202,7 +216,7 @@ func _habitat() -> void:
 	var pod = Build.model(hab, "res://models/zone_sensor_pod.glb", 0.55, Vector3(0, H_MOD - 0.7, 0))
 	_interact(pod, "pod", "Zone sensor pod — mood detector", Vector3(0.8, 0.8, 0.8))
 	Build.routed_cable(hab, [Vector3(0, H_MOD - 0.2, 0.0), Vector3(0, H_MOD - 0.2, 3.3)], 0.02, Color(0.2, 0.7, 0.35))
-	# crew console on the wall (−z side of wardroom)
+	# crew console on the wall (-z side of wardroom)
 	var con = Build.box(hab, Vector3(1.6, 1.0, 0.12), Vector3(3.5, 1.5, -7.6), Build.mat(Color(0.05, 0.08, 0.12), 0.3, 0.3), false, -0.4)
 	Build.box(hab, Vector3(1.45, 0.85, 0.02), Vector3(3.47, 1.5, -7.53), Build.mat(Color(0.15, 0.6, 0.95), 0.0, 0.3, 1.2), false, -0.4)
 	_interact(con, "console", "Crew console — meal, call home, work, CO2 drill", Vector3(1.7, 1.1, 0.5))
@@ -239,7 +253,7 @@ func _habitat() -> void:
 	Build.box(lp, Vector3(0.02, 0.22, 0.32), Vector3(0.03, 0, 0), Build.mat(Color(1.0, 0.75, 0.45), 0.0, 0.4, 1.4))
 	_interact(lp, "lights", "Light control: auto / focus / wind-down", Vector3(0.4, 0.4, 0.5))
 
-	# ---- Exercise corner (−z) : treadmill with harness ----
+	# ---- Exercise corner (-z) : treadmill with harness ----
 	Build.label3d(hab, "EXERCISE · treadmill", Vector3(-3.5, 3.0, -7.0), 0.8)
 	var tm_base = Build.box(hab, Vector3(0.9, 0.18, 2.0), Vector3(-3.5, 0.09, -6.8), Build.mat(Color(0.12, 0.12, 0.14), 0.3, 0.6), true, 0.4)
 	Build.box(hab, Vector3(0.75, 0.02, 1.8), Vector3(-3.5, 0.19, -6.8), Build.mat(Color(0.03, 0.03, 0.03)), false, 0.4)
@@ -387,7 +401,7 @@ func _process(dt: float) -> void:
 	if panel_kind == "station" and ecg_t < 6.0: rate = 0.3
 	if on_treadmill: rate = 15.0     # the 45-minute workout plays out in about 3 seconds
 	var dm = rate * dt
-	# step the body in ≤1-minute chunks so the model stays stable at high speed
+	# step the body in <=1-minute chunks so the model stays stable at high speed
 	var was_asleep = A.asleep
 	while dm > 0.0:
 		var s: float = min(dm, 1.0); A.step(s); AI.step(s, _in_shared_zone()); dm -= s
@@ -423,6 +437,15 @@ func _world_tick(dt: float) -> void:
 	bunk_light.light_energy = 0.15 if A.asleep else (0.8 if (h >= 20.0 or h < 6.0) else 0.3)
 	bunk_light.light_color = Color(1.0, 0.45, 0.2) if A.asleep else Color(1.0, 0.7, 0.45)
 	if A.on_eva and A.eva_suit_o2 <= 0.0: _end_eva(true)
+	var resting = A.asleep or (not A.on_eva and player.global_position.x < -5.2)
+	var dc = Color(1.0, 0.65, 0.15) if resting else Color(0.3, 1.0, 0.5)
+	door_mat.albedo_color = dc; door_mat.emission = dc
+	var pp = player.global_position
+	if not A.on_eva:
+		if pp.length() < 2.6: zones_seen["wardroom"] = true
+		elif Vector2(pp.x - 3.5, pp.z + 7.0).length() < 2.4: zones_seen["work"] = true
+		elif Vector2(pp.x + 3.5, pp.z + 6.6).length() < 2.4: zones_seen["exercise"] = true
+		if zones_seen.size() >= 3 and not AI.flags.has("zones"): AI.flag("zones"); A.note("Zone lighting: warm wardroom, cool 6500 K work corner, bright exercise corner")
 
 func _in_shared_zone() -> bool:
 	if A.on_eva: return false
@@ -472,6 +495,9 @@ func _use() -> void:
 			A.stress = max(0.0, A.stress - 0.12); AI.novelty = min(1.0, AI.novelty + 0.2); A.minute += 15.0
 			A.note("15-min VR nature break (forest + ocean)"); AI.note("Countermeasure used: VR nature break"); AI.flag("counter")
 		"hatch": _end_eva(false)
+		"door":
+			AI.flag("door")
+			_toast("Door light: %s. It only ever shows free (green) or resting (amber), never your mood or health." % ("RESTING" if A.asleep or player.global_position.x < -5.2 else "FREE"))
 		"sample":
 			var n: Node3D = looking_at.get_meta("node")
 			if n.visible:
@@ -484,7 +510,7 @@ func _after_offer() -> void:
 	case_running = false
 	for i in 120: A.step(1.0); AI.step(1.0, _in_shared_zone())     # two hours later
 	case_msg = AI.case_result(); _done("case")
-	_toast("Two hours later: " + case_msg + "  (P → Health cases for more)")
+	_toast("Two hours later: " + case_msg + "  (P -> Health cases for more)")
 
 func _leave_treadmill() -> void:
 	on_treadmill = false
@@ -538,7 +564,7 @@ func _new_day_tasks() -> void:
 		"band": ["Wear the night wristband before bed", A.wristband_on],
 		"sleep": ["Sleep 7+ hours in the smart bunk", false],
 		"journal": ["Write in the daily journal (crew console)", false],
-		"case": ["Play a health case (P → Health cases)", false],
+		"case": ["Play a health case (P -> Health cases)", false],
 		"ares": ["Open the ARES dashboard (P)", false],
 	}
 
@@ -665,7 +691,7 @@ func _build_panel() -> void:
 			_plot = Plot.new(); _plot.kind = "circumplex"; _plot.custom_minimum_size = Vector2(800, 220); panel_box.add_child(_plot)
 			_close_row(); _refresh_live_panel()
 		"pod":
-			_rt("[b][font_size=24][color=#7fd3ff]ZONE SENSOR POD · MOOD DETECTOR[/color][/font_size][/b]\n[color=#9fb0c4]Voice tone + facial expression → valence (happy to low) and arousal (calm to tense). Runs only in shared zones, processed on the pod; raw audio and video never leave it.[/color]")
+			_rt("[b][font_size=24][color=#7fd3ff]ZONE SENSOR POD · MOOD DETECTOR[/color][/font_size][/b]\n[color=#9fb0c4]Voice tone + facial expression -> valence (happy to low) and arousal (calm to tense). Runs only in shared zones, processed on the pod; raw audio and video never leave it.[/color]")
 			_live = _rt("")
 			_plot = Plot.new(); _plot.kind = "circumplex"; _plot.custom_minimum_size = Vector2(800, 240); panel_box.add_child(_plot)
 			var hb = HBoxContainer.new(); panel_box.add_child(hb)
@@ -688,7 +714,7 @@ func _build_panel() -> void:
 		"console":
 			_rt("[b][font_size=24][color=#7fd3ff]CREW CONSOLE[/color][/font_size][/b]\n[color=#9fb0c4]Things that change how you feel — watch the TAB screen before and after.[/color]")
 			var g = GridContainer.new(); g.columns = 2; panel_box.add_child(g)
-			for row in [["Crew meal with the crew (hunger to 0, mood +)", func(): A.eat(); AI.flag("counter")], ["Video call home (+25 min, mood ++, stress −)", func(): A.call_home()], ["Science work block (+2 h, stress +)", func(): A.work_block()], ["CO2 scrubber drill (CO2 spike)", func(): A.co2_spike()]]:
+			for row in [["Crew meal with the crew (hunger to 0, mood +)", func(): A.eat(); AI.flag("counter")], ["Video call home (+25 min, mood ++, stress -)", func(): A.call_home()], ["Science work block (+2 h, stress +)", func(): A.work_block()], ["CO2 scrubber drill (CO2 spike)", func(): A.co2_spike()]]:
 				var b = _btn(row[0], row[1]); b.custom_minimum_size = Vector2(390, 44); g.add_child(b)
 			_rt("[b]Daily journal[/b] [color=#9fb0c4](a few words on how today went; the language check runs here and the text never leaves the console)[/color]", 15)
 			var jr = HBoxContainer.new(); panel_box.add_child(jr)
@@ -751,7 +777,7 @@ func _bar(x: float) -> String:
 # =============================================================================================
 func _build_ares() -> void:
 	var tabs = HFlowContainer.new(); panel_box.add_child(tabs)
-	for tb in [["cases", "Health cases"], ["dash", "Dashboard"], ["trace", "Why it's here"], ["protocols", "Protocols"], ["habitat", "Habitat"], ["model", "Model"], ["report", "Report"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
+	for tb in [["cases", "Health cases"], ["dash", "Dashboard"], ["trace", "Why it's here"], ["protocols", "Protocols"], ["thresh", "Threshold check"], ["habitat", "Habitat"], ["model", "Model"], ["report", "Report"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
 		var b = _btn(tb[1], func(): ares_tab = tb[0]; ares_msg = ""; _build_panel()); b.toggle_mode = true; b.button_pressed = ares_tab == tb[0]; tabs.add_child(b)
 	AI.flag("crew" if ares_tab == "crew" else ares_tab)
 	match ares_tab:
@@ -794,9 +820,14 @@ func _build_ares() -> void:
 				for i in 9:
 					if Ares.W[c][i] > 0.0: ss.append("%s %d%%" % [Ares.SENSORS[i], int(Ares.W[c][i] * 100)])
 				t += "1 Detect: %s\n2 Persist: %s h above a tier\n3 Tier 1 (silent, logged, max 3/day): %s\n4 Tier 2 (offer, 'no' = 6 h cooldown): %s\n5 Tier 3: you are told first, then the CMO (Commander if the CMO is on EVA)\n6 Monitor: %s, check: %s\nEvidence: %s\n" % [", ".join(ss), str(Ares.PERSIST_H[c]), Ares.TIER1[c], Ares.TIER2[c], Ares.MONITOR[c], Ares.CHECK[c], Ares.EVIDENCE[c]]
+			t += "\n[b][color=#7fd3ff]Tier 3 escalation chain (response times)[/color][/b]\n1. You are told first, on your wrist and pod screen (at once)\n2. CMO must answer within 15 min\n3. No answer, or CMO on EVA: the Commander, within 15 min\n4. Still no answer after 30 min: the flight surgeon at mission control (with your consent, or at once if life is at risk)\nTier 2 offers wait for you; a 'no' starts a 6 h cooldown. Tier 1 is silent but shows in your data within 1 min.\n"
 			_rt(t, 14)
+		"thresh":
+			_rt("[b][font_size=22]D1 · Threshold check[/font_size][/b]\nRuns the same ARES code on many simulated 72-hour missions. Half have one real problem; the rest are healthy days with an evening workout and an EVA, which must not trigger offers.", 15)
+			panel_box.add_child(_btn("Run the threshold check (36 missions, takes a few seconds)", func(): thresh_text = Ares.threshold_text(Ares.threshold_check()); AI.flag("thresh"); _build_panel()))
+			if thresh_text != "": _rt(thresh_text + "\n\n[color=#9fb0c4]This is the game's simulated astronaut, not real people. Real thresholds would be tuned during a 14-day baseline in an analog mission (HI-SEAS / Mars-500 style).[/color]", 15)
 		"habitat":
-			_rt("[b][font_size=22]D2 · Habitat layout[/font_size][/b]\nModule: 18 m across, 4.2 m high ≈ 1,070 m³ = about 267 m³ per person for a crew of 4 (NASA minimum 20 m³, comfortable 120 m³). Green = shared (voice + face sensing allowed). Orange = private (door sensor only, wearables still work). Configuration %s." % ("B: second dining spot + acoustic screen" if AI.config_b else "A: one shared wardroom"), 15)
+			_rt("[b][font_size=22]D2 · Habitat layout[/font_size][/b]\nModule: 18 m across, 4.2 m high ~ 1,070 m³ = about 267 m³ per person for a crew of 4 (NASA minimum 20 m³, comfortable 120 m³). Green = shared (voice + face sensing allowed). Orange = private (door sensor only, wearables still work). Configuration %s." % ("B: second dining spot + acoustic screen" if AI.config_b else "A: one shared wardroom"), 15)
 			var pl = Plot.new(); pl.kind = "plan"; pl.v = 1.0 if AI.config_b else 0.0; pl.custom_minimum_size = Vector2(800, 380); panel_box.add_child(pl)
 		"crew":
 			var t = "[b][font_size=22]Your data (crew interface)[/font_size][/b]\nOnly you see this. The AI log lists every change it made, including silent ones.\n\n"
@@ -1090,6 +1121,16 @@ func _autotest() -> void:
 	if not AI.ai_on: AI.set_ai(true)
 	AI.paused_until = 0.0
 	for k in 9: AI.opted_out[k] = false
+	# 2b) new rubric features
+	var tr = Ares.threshold_check()
+	print("threshold: caught ", tr.caught, " of ", tr.tried, "  false offers ", tr.false2, "  t ", tr.t)
+	for c in 6:
+		if tr.caught[c] < tr.tried[c]: _bug("threshold check missed %s in %d of %d runs" % [Ares.CONDS[c], tr.tried[c] - tr.caught[c], tr.tried[c]])
+	if tr.false2 > 0: _bug("threshold check: %d unwanted offers on healthy days" % tr.false2)
+	if not AI.flags.has("door"): _bug("door light never used")
+	for zp in [Vector3(0.5, 0.1, 0.5), Vector3(3.5, 0.1, -6.2), Vector3(-2.2, 0.1, -5.6)]:
+		player.global_position = zp; await _frames(3); await get_tree().process_frame
+	if not AI.flags.has("zones"): _bug("zone lighting tour not detected")
 	# 3) each health case plays out to a result
 	for i in Ares.CASES.size():
 		ares_msg = AI.start_case(i); case_running = true; speed_i = 2; case_msg = ""

@@ -2,7 +2,7 @@
 #  PROJECT ARES · Crew Health Sim
 #  File    : scripts/ares.gd
 #  Purpose : The Project ARES rubric, running live in the game.
-#    D1  9 sensors → 6 conditions through the weight table; failed / opted-out sensors drop out and
+#    D1  9 sensors -> 6 conditions through the weight table; failed / opted-out sensors drop out and
 #        the remaining weights are re-normalised (graceful degradation). Exercise and EVA context
 #        cut HRV, skin response and voice to 25 % (Board Q1).
 #    D2  Spatial design: shared zones (voice + face allowed) vs private quarters (door sensor only);
@@ -21,10 +21,10 @@ extends RefCounted
 
 const SENSORS = ["Heart-rate variability", "Skin response (GSR)", "Sleep stages", "Voice tone", "Facial expression", "Movement / where you are", "Cortisol", "CO2 / air", "Task performance"]
 const SENSOR_DEVICE = ["Crew beacon", "Crew beacon", "Night wristband + bunk", "Zone sensor pod (shared zones)", "Zone sensor pod (shared zones)", "Crew beacon + door sensors", "Cortisol patch", "Zone sensor pod", "Crew console"]
-const THRESHOLD = ["HRV −25 % vs your baseline for 3 min", "> 3 skin-response peaks / min", "Sleep efficiency < 80 % or REM < 15 %", "Pitch variance −30 % (flat) or +40 % (tense)", "Sad / tense expressions 2σ above baseline", "Time alone +60 %, time with crew −50 %", "Morning cortisol 2σ high for 3 days", "CO2 above the zone limit", "Errors +20 % or task time +25 %"]
+const THRESHOLD = ["HRV -25 % vs your baseline for 3 min", "> 3 skin-response peaks / min", "Sleep efficiency < 80 % or REM < 15 %", "Pitch variance -30 % (flat) or +40 % (tense)", "Sad / tense expressions 2σ above baseline", "Time alone +60 %, time with crew -50 %", "Morning cortisol 2σ high for 3 days", "CO2 above the zone limit", "Errors +20 % or task time +25 %"]
 const MASS_KG = [0.03, 0.02, 0.03, 0.25, 0.35, 0.15, 0.01, 0.12, 0.0]     # per unit
 const POWER_W = [0.05, 0.05, 0.05, 2.5, 4.0, 1.2, 0.01, 0.8, 0.0]
-const FAILURE = ["Loose strap → gaps; exercise looks like stress", "Sweat saturates it; gets used to chronic stress", "Not worn → no data", "Noise or a mask → weak signal", "Low light → no detection", "Beacon battery flat", "Patch expires after 48 h", "Drifts, needs calibration", "Task mix changes → false trend"]
+const FAILURE = ["Loose strap -> gaps; exercise looks like stress", "Sweat saturates it; gets used to chronic stress", "Not worn -> no data", "Noise or a mask -> weak signal", "Low light -> no detection", "Beacon battery flat", "Patch expires after 48 h", "Drifts, needs calibration", "Task mix changes -> false trend"]
 const CONDS = ["Anxiety", "Depression", "Conflict", "Cognitive fatigue", "Autonomy loss", "Monotony"]
 # weight table W[condition][sensor]   HRV  GSR  Sleep Voice Face Motion Cort CO2 Task
 const W = [
@@ -90,7 +90,7 @@ const POS_WORDS = ["good", "great", "happy", "calm", "fine", "rested", "fun", "e
 const NEG_WORDS = ["tired", "sad", "alone", "lonely", "angry", "stressed", "anxious", "worried", "bored", "can't", "cant", "hate", "exhausted", "miss", "homesick", "scared", "nervous", "upset", "awful", "bad", "annoyed", "argue", "argued", "pointless", "hopeless", "sleep"]
 const MODELS = [["Logistic Regression", 0.82, 0.81, 0.52], ["Random Forest", 0.83, 0.83, 0.54], ["SVM (RBF)", 0.76, 0.74, 0.51]]
 
-## journal entry → sentiment (−1…1) + stress index → class: Neutral / Underlying issue / Suspected illness
+## journal entry -> sentiment (-1…1) + stress index -> class: Neutral / Underlying issue / Suspected illness
 func journal(text: String) -> Dictionary:
 	var words = text.to_lower().replace(",", " ").replace(".", " ").replace("!", " ").replace("?", " ").split(" ", false)
 	var pos = 0; var neg = 0
@@ -128,7 +128,7 @@ func _read_sensors(shared: bool) -> void:
 		clamp(-A.valence * 0.7 + max(A.arousal - 0.6, 0.0) + 0.6 * tension, 0.0, 1.0),
 		clamp(-A.valence * 0.8 + 0.4 * A.stress + 0.5 * tension, 0.0, 1.0),
 		clamp(0.7 * private_frac + 0.5 * (1.0 - A.social) + 0.5 * tension, 0.0, 1.0),
-		clamp((A.cortisol - 12.0) / 10.0 + 0.6 * A.chronic, 0.0, 1.0),
+		clamp((A.cortisol - A.cortisol_expected) / 3.0 + 2.0 * max(A.chronic - 0.15, 0.0), 0.0, 1.0),   # vs. the normal value for this time of day
 		clamp((A.co2_ppm - 2500.0) / 3000.0, 0.0, 1.0),
 		clamp(0.6 * A.sleep_pressure + 0.05 * A.sleep_debt_h + 0.3 * (1.0 - novelty), 0.0, 1.0),
 	]
@@ -146,8 +146,8 @@ func _read_sensors(shared: bool) -> void:
 
 func step(dm: float, shared: bool) -> void:
 	# slow background state
-	private_frac = lerp(private_frac, 0.0 if shared else 1.0, 0.002 * dm)
-	novelty = clamp(novelty - dm / (60.0 * 30.0), 0.0, 1.0)
+	if not A.asleep: private_frac = lerp(private_frac, 0.0 if shared else 1.0, 0.002 * dm)   # sleeping alone is not isolation
+	novelty = clamp(novelty - dm / (60.0 * 24.0 * 4.0) + (dm / 180.0 if A.on_eva else 0.0), 0.0, 1.0)   # routine wears in over days; an EVA is new
 	autonomy = clamp(autonomy + dm / (60.0 * 12.0), 0.0, 1.0)
 	tension = max(0.0, tension - dm / (60.0 * 18.0))
 	if A.day() != tier1_day: tier1_day = A.day(); tier1_today = 0
@@ -165,10 +165,11 @@ func step(dm: float, shared: bool) -> void:
 		if (c == 0 or c == 1) and not journal_last.is_empty(): raw = 0.8 * raw + 0.2 * lang_distress   # your own words (journal), with consent
 		if c == 4: raw = 0.5 * raw + 0.5 * (1.0 - autonomy)
 		if c == 5: raw = 0.5 * raw + 0.5 * (1.0 - novelty)
+		if A.asleep and (c == 2 or c == 4 or c == 5): continue      # no conflict, autonomy or monotony evidence while you sleep: hold the score
 		score[c] = lerp(score[c], raw, min(1.0, 0.08 * dm))
 	confidence = have / max(total, 0.001)
 	if not ai_on or A.minute < paused_until: return
-	if (A.minute - last_review_min) > 7.0 * 1440.0: pass   # review overdue → capped at Tier 1 below
+	if (A.minute - last_review_min) > 7.0 * 1440.0: pass   # review overdue -> capped at Tier 1 below
 	for c in 6: _tiers(c)
 
 # ---- D3: response protocol ------------------------------------------------------------------
@@ -204,7 +205,7 @@ func answer_offer(yes: bool) -> String:
 	if c < 0: return ""
 	if not yes:
 		cooldown_until[c] = A.minute + 6.0 * 60.0; autonomy = min(1.0, autonomy + 0.1)
-		note("You said no to: %s  → stopped, no new offer for 6 h; only a human may follow up." % TIER2[c]); flag("refused")
+		note("You said no to: %s  -> stopped, no new offer for 6 h; only a human may follow up." % TIER2[c]); flag("refused")
 		return "Okay. Stopped. No new offer for 6 hours."
 	note("You said yes to: " + TIER2[c]); flag("accepted"); autonomy = min(1.0, autonomy + 0.05)
 	match c:
@@ -258,7 +259,7 @@ func board(q: int) -> String:
 			return "Q6 — Tier 3 while the CMO is on a 4-hour EVA.\nThe person is told first. Then the escalation goes to the Commander, who has the medical checklist, and the CMO is radioed. Mission control is only told after the person knows. Watch the AI log for the Tier 3 line."
 	return ""
 
-# ---- Health cases: play the protocol end to end (detect → offer → your choice → result) ----------
+# ---- Health cases: play the protocol end to end (detect -> offer -> your choice -> result) ----------
 const CASES = [
 	["A rough night", "You slept 4.5 hours: CO2 was high and you were worried about tomorrow's EVA. Watch cognitive fatigue rise through the morning.", 3],
 	["Words at dinner", "You and a crewmate argued about the lab schedule. Less time together, a tense voice. The AI never takes sides.", 2],
@@ -323,11 +324,70 @@ func tabletop() -> String:
 		cmo_on_eva = h >= 30 and h < 34
 		for m in 6: A.step(10.0); step(10.0, true)
 		for c in 6: max_t[c] = max(max_t[c], tier[c])
-		if pending_offer >= 0: events.append("h%02d  offer: %s → %s" % [h, CONDS[pending_offer], "accepted" if h % 2 == 0 else "refused (6 h cooldown)"]); answer_offer(h % 2 == 0)
+		if pending_offer >= 0: events.append("h%02d  offer: %s -> %s" % [h, CONDS[pending_offer], "accepted" if h % 2 == 0 else "refused (6 h cooldown)"]); answer_offer(h % 2 == 0)
 	for c in 6: r += "%-18s highest tier %d\n" % [CONDS[c], max_t[c]]
 	r += "\nConfidence with the patch failed: %d %%\nHard-limit blocks during the run: %d\n\nEvents:\n%s" % [int(confidence * 100), blocked, "\n".join(events.slice(0, 12))]
 	A.minute = save[0]; A.stress = save[1]; A.valence = save[2]; A.patch_on = save[3]; tension = save[4]; cmo_on_eva = save[5]
 	return r
+
+# ---- D1 · threshold check: run the same AI on many simulated missions ---------------------------------
+## Each run is 72 h. Half the runs have one real problem (driven for 54 h from hour 6); the rest are healthy days
+## with a workout every evening and an EVA, which must NOT become offers (Q1).
+const TC_RUN_H = 72
+static func _drive(x: Ares, c: int) -> void:
+	match c:
+		0: x.A.stress = max(x.A.stress, 0.7); x.A.arousal = max(x.A.arousal, 0.9)
+		1: x.A.valence = min(x.A.valence, -0.6); x.A.social = min(x.A.social, 0.1); x.A.sleep_debt_h = max(x.A.sleep_debt_h, 2.0)
+		2: x.tension = max(x.tension, 0.85)
+		3: x.A.sleep_pressure = max(x.A.sleep_pressure, 0.8); x.A.co2_ppm = max(x.A.co2_ppm, 3500.0)
+		4: x.autonomy = min(x.autonomy, 0.1)
+		5: x.novelty = min(x.novelty, 0.05); x.A.social = min(x.A.social, 0.3)
+
+static func threshold_check(runs_per_cond := 4, healthy_runs := 12) -> Dictionary:
+	var caught = [0, 0, 0, 0, 0, 0]; var tried = [0, 0, 0, 0, 0, 0]; var t_catch = [[], [], [], [], [], []]
+	var false1 = 0; var false2 = 0; var crew_days = 0.0
+	var plan = []
+	for c in 6:
+		for r in runs_per_cond: plan.append(c)
+	for r in healthy_runs: plan.append(-1)
+	var seed = 11
+	for target in plan:
+		var a = Astro.new(); a.rng.seed = seed; seed += 7
+		a.last_sleep = {"hours": 7.4, "eff": 0.9, "deep": 1.3, "rem": 1.6, "wakes": 2, "score": 82, "tracked": true}
+		var x = Ares.new(a)
+		var start = a.minute; var hit = -1.0
+		var dt = 2.0
+		var steps = int(TC_RUN_H * 60 / dt)
+		for i in steps:
+			var h = (a.minute - start) / 60.0
+			if target >= 0 and h >= 6.0 and h < 60.0: _drive(x, target)
+			var hod = fmod(a.minute / 60.0, 24.0)
+			if absf(hod - 18.0) < 0.02: a.exercise()                    # workout every evening (context test)
+			a.on_eva = target < 0 and (h >= 26.0 and h < 29.0 or h >= 50.0 and h < 52.0)            # one EVA on healthy runs
+			if a.on_eva: a.activity = 0.7
+			if not a.asleep and hod >= 22.5: a.go_to_bed()
+			a.step(dt); x.step(dt, hod > 7.0 and hod < 22.0)
+			if x.pending_offer >= 0: x.answer_offer(false)
+			if target >= 0 and hit < 0.0 and x.tier[target] >= 1: hit = h - 6.0
+			if target < 0:
+				for c in 6:
+					if x.tier[c] >= 2: false2 += 1; x.tier[c] = 0; x.above_since[c] = -1.0
+		if target >= 0:
+			tried[target] += 1
+			if hit >= 0.0: caught[target] += 1; t_catch[target].append(hit)
+		else:
+			false1 += x.flags.has("tier1") as int
+		crew_days += TC_RUN_H / 24.0
+	return {"caught": caught, "tried": tried, "t": t_catch, "false1": false1, "false2": false2, "runs": plan.size(), "days": crew_days}
+
+static func threshold_text(r: Dictionary) -> String:
+	var t = "[table=4][cell][b]Condition[/b]  [/cell][cell][b]Caught[/b]  [/cell][cell][b]Median time to catch[/b]  [/cell][cell][b]Persistence rule[/b][/cell]"
+	for c in 6:
+		var ts: Array = r.t[c].duplicate(); ts.sort()
+		var med = ("%.1f h" % ts[ts.size() / 2]) if ts.size() else "-"
+		t += "[cell]%s  [/cell][cell]%d / %d  [/cell][cell]%s  [/cell][cell]%s h[/cell]" % [CONDS[c], r.caught[c], r.tried[c], med, str(PERSIST_H[c])]
+	t += "[/table]\n\nHealthy runs with a workout every evening and an EVA: [b]%d[/b] unwanted offers (Tier 2+), %d of %d runs had a silent Tier 1 change." % [r.false2, r.false1, r.runs - r.tried.reduce(func(acc, v): return acc + v, 0)]
+	return t
 
 # ---- rubric checklist --------------------------------------------------------------------------
 func rubric() -> Array:
@@ -335,20 +395,24 @@ func rubric() -> Array:
 		["SENSOR ARCHITECTURE (35)", ""],
 		["9 sensors mapped to 6 conditions with a weight table", "dash"],
 		["Thresholds for each sensor", "dash"],
+		["Thresholds tested on many simulated missions (Threshold check tab)", "thresh"],
 		["Failure modes + graceful degradation (dock the beacon, let the patch expire, Q4)", "q4"],
 		["Exercise / EVA context so effort is not anxiety (Q1)", "q1"],
 		["HABITAT SPATIAL DESIGN (35)", ""],
 		["Voice + face only in shared zones; quarters private (mood detector panel)", "pod"],
+		["Door light shows only free / resting, never mood (quarters door)", "door"],
+		["Each zone has its own light: warm wardroom, cool work, bright exercise", "zones"],
 		["Configuration A / B only with consent", "configb"],
 		["AI RESPONSE PROTOCOL (50)", ""],
 		["Tier 1 silent change, logged", "tier1"],
 		["Tier 2 offer you can refuse", "tier2"],
 		["A 'no' stops it (6 h cooldown)", "refused"],
 		["Tier 3: you are told first, then the CMO (Q6)", "q6"],
+		["Escalation chain with response times (Protocols tab)", "protocols"],
 		["ETHICS & LIMITS (40)", ""],
 		["8 hard limits, tested and blocked", "limit"],
 		["AI off switch undoes its changes (O)", "aioff"],
-		["Silent ≠ secret: your own log (Q3)", "q3"],
+		["Silent is not secret: your own log (Q3)", "q3"],
 		["Human review every 7 days", "review"],
 		["BOARD QUESTIONS", ""],
 		["Q2 two conditions at once", "q2"],
@@ -359,7 +423,7 @@ func rubric() -> Array:
 		["Sensor mass and power budget", "dash"],
 		["Play a health case end to end (Cases tab)", "case"],
 		["RESEARCH PROPOSAL", ""],
-		["Language mood check: daily journal → 3 classes (crew console)", "journal"],
+		["Language mood check: daily journal -> 3 classes (crew console)", "journal"],
 		["Model results + sensitivity test (Model tab)", "model"],
 		["Countermeasures: greenhouse plant care, VR nature break, adaptive light, group meal", "counter"],
 		["Individual + aggregate health report (Report tab)", "report"],
