@@ -271,16 +271,14 @@ namespace Hunch3
         /// as smart systems instead of adding duplicates — every cubic metre on the Moon is expensive.)
         public static readonly Spec[] Realistic =
         {
-            // audit (Docs/Audit): heart-rate + BP monitors folded into the health station; wall mood tracker, AI wristband,
-            // extra drone and extra console removed (each duplicated something that already answers the same proposal line)
-            new Spec("oxygen_tanks", "WP_Sto_In", true),
-            new Spec("ai_health_hub", "WP_N_C"), new Spec("hologram_companion", "WP_Up_Lounge"),
-            new Spec("emergency_mh_station", "WP_R_C|WP_G_C", true), new Spec("circadian_light", "WP_SQ1_Bed", false, .55f, 1f),
+            new Spec("heart_rate_monitor", "WP_H_NE|WP_H_W"), new Spec("bp_monitor", "WP_H_NE|WP_H_W", true), new Spec("oxygen_tanks", "WP_Sto_In", true),
+            new Spec("ai_health_hub", "WP_N_C"), new Spec("habitat_console", "WP_N_C"), new Spec("hologram_companion", "WP_Up_Lounge"),
+            new Spec("emergency_mh_station", "WP_R_C|WP_G_C", true), new Spec("mood_tracker", "WP_K_C|WP_R_C", true), 
+            new Spec("maintenance_drone", "WP_E_C"), new Spec("ai_wristband", "WP_SQ1_Health", false, .95f, 5f), new Spec("circadian_light", "WP_SQ1_Bed", false, .55f, 1f),
             // Crew Health Rounds (side mission): the six D1 health devices
             new Spec("health_station", "WP_H_W|WP_H_NE"), new Spec("zone_sensor_pod", "WP_K_C|WP_R_C|WP_N_C", true, 0, 1.6f),
             new Spec("crew_beacon", "WP_H_NE|WP_H_W", false, .95f, 3f), new Spec("cortisol_patch", "WP_H_W|WP_H_NE", false, .95f, 6f),
-            new Spec("sleep_wristband", "WP_SQ1_Health|WP_SQ1_Bed", false, .95f, 5f), // sleep bunk: the SQ1 sleep pod (smart_bed) does this job
-
+            new Spec("sleep_wristband", "WP_SQ1_Health|WP_SQ1_Bed", false, .95f, 5f), new Spec("sleep_bunk", "WP_SQ1_Bed|WP_Up_Lounge"),
         };
         /// existing habitat equipment turned into smart systems: renderer-name prefix → catalog entry (+ optional title)
         public static readonly (string prefix, string key, string title)[] Wraps =
@@ -291,7 +289,8 @@ namespace Hunch3
             ("H40_Medical_ExamCouch", "medical_scanner", "Medical Exam Couch & Scanner"), ("H45_CMO_Tier3_Alert", "ai_health_hub", "CMO Tier-3 Alert Console"),
             ("N31_Display_AI_PsychMonitoring", "ai_health_hub", "AI Psych-Monitoring Dashboard"), ("D63_VR_Headset_Dock", "sanctuary_pod", "VR Retreat"),
             ("D51_EarthView_Display_0", "earth_window", "Earth View Display"), ("D40_Treadmill", "exercise", "Treadmill"), ("D45_CycleErgometer", "exercise", "Cycle Ergometer"),
-            ("D48_ResistiveDevice", "exercise", "Resistive Exercise Device"), ("SQ1_SleepPod_Mattress", "smart_bed", "Your Sleep Pod"),
+            ("D48_ResistiveDevice", "exercise", "Resistive Exercise Device"), ("Q1_Bed_", "smart_bed", "Rest Pod 1 (yours)"), ("Q2_Bed_", "smart_bed", "Rest Pod 2"),
+            ("Q3_Bed_", "smart_bed", "Rest Pod 3"), ("Q4_Bed_", "smart_bed", "Rest Pod 4"), ("SQ1_SleepPod_Mattress", "smart_bed", "Your Sleep Pod"),
             ("SQ1_HealthBot_DockTray", "health_robot", "AI Health Robot"), ("R52_FamilyCallBooth", "family_call", "Family Call Booth"), ("E38_RobotArm", "maintenance_drone", "Maintenance Robot Arm"),
             ("A71_Airlock_ControlPanel", "airlock", "Airlock Control"), ("W01_MeetingTable", "wardroom", "Wardroom Table"),
         };

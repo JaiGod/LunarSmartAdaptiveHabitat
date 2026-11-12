@@ -30,7 +30,7 @@ namespace Hunch3
         static readonly OpsTask[] All =
         {
             T("mood_tracker", null, "Log how you feel", "the quarters hallway", "look at the Mood Tracker and press E (feeling good) or R (feeling low)", 25),
-            T("smart_bed", Key.F, "Check last night's sleep", "your sleep dome", "look at your bed and press F", 20),
+            T("smart_bed", Key.F, "Check last night's sleep", "your rest pod (upstairs)", "look at your bed and press F", 20),
             T("circadian_light", Key.E, "Set your wake-up light", "your quarters", "look at the circadian lamp and press E", 20),
             T("ai_wristband", Key.E, "Sync your wristband", "your quarters", "look at the wristband display and press E", 20),
             H("cook_eat", "Eat breakfast with the crew", "the Galley (upstairs)", "look at the food warmer and press E", 25),
@@ -57,13 +57,13 @@ namespace Hunch3
             H("team_meeting", "Hold the team meeting", "the Wardroom (upstairs)", "look at the meeting table and press E", 40),
             H("play_game", "Play a board game with the crew", "the Recreation commons", "look at the game table and press E", 25),
             T("family_call", Key.E, "Call home", "the Recreation commons", "look at the Family Call Booth and press E", 30),
-            H("sleep", "Go to bed (end of shift)", "your sleep dome", "look at your bed and press E", 40),
+            H("sleep", "Go to bed (end of shift)", "your rest pod (upstairs)", "look at your bed and press E", 40),
         };
         /// SIDE MISSION · Crew Health Rounds: visit the six D1 health devices, in any order
         static readonly (string key, string title)[] Rounds =
         {
             ("health_station", "Daily check-in at the Crew Health Station"), ("crew_beacon", "Read your chest crew beacon (HR + HRV)"),
-            ("sleep_wristband", "Download last night from the wristband"), ("smart_bed", "Check your sleep pod sensor (press F)"),
+            ("sleep_wristband", "Download last night from the wristband"), ("sleep_bunk", "Check the smart sleep bunk sensor"),
             ("cortisol_patch", "Fit a fresh cortisol patch"), ("zone_sensor_pod", "Mood check at a zone sensor pod"),
         };
         readonly HashSet<string> roundsDone = new HashSet<string>(); bool roundsBonus;
@@ -260,7 +260,7 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
             if (alertObj || !HUD.I) return; var cur = idx < tasks.Count ? tasks[idx] : null; if (cur == null) { if (HUD.I.NavLabel != null && HUD.I.NavLabel.StartsWith("TASK")) HUD.I.SetNavTarget("", ""); return; }
             Vector3 me = PlayerRig.I ? PlayerRig.I.FeetPosition : Vector3.zero; Transform target = null;
             if (cur.key != null) target = SmartObject.All.Where(o => o && o.key == cur.key).OrderBy(o => (o.transform.position - me).sqrMagnitude).Select(o => o.transform).FirstOrDefault();
-            else target = habs.Where(h => h && h.kind == cur.hab && (cur.hab != "sleep" || h.name.StartsWith("SQ1"))).OrderBy(h => (h.transform.position - me).sqrMagnitude).Select(h => h.transform).FirstOrDefault();
+            else target = habs.Where(h => h && h.kind == cur.hab && (cur.hab != "sleep" || h.name.StartsWith("Q1"))).OrderBy(h => (h.transform.position - me).sqrMagnitude).Select(h => h.transform).FirstOrDefault();
             var wp = target ? Nav.Nearest(target.GetComponent<Renderer>() ? target.GetComponent<Renderer>().bounds.center : target.position) : null;
             if (wp != null && onlyIfFar && Nav.wp.TryGetValue(wp, out var wt) && (wt.position - me).sqrMagnitude < 16f) return;      // already there: no repeated 'Arrived'
             if (wp != null && (string.IsNullOrEmpty(HUD.I.NavGoal) || (HUD.I.NavLabel ?? "").StartsWith("TASK") || (HUD.I.NavLabel ?? "").StartsWith("REPAIR"))) HUD.I.SetNavTarget(wp, "TASK: " + cur.title);

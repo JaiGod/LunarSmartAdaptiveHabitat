@@ -156,7 +156,6 @@ namespace Hunch3
             DynamicGI.UpdateEnvironment();
             foreach (var v in FindObjectsByType<UnityEngine.Rendering.Volume>(FindObjectsInactive.Include, FindObjectsSortMode.None)) { HLog.I("Render", $"disabling volume {v.name} (global={v.isGlobal})"); v.enabled = false; }
             Nav.Build();
-            gameObject.AddComponent<HabitatCleanup>();   // switch off duplicates that answer no proposal line (Docs/Audit)
             gameObject.AddComponent<Sim>();
             gameObject.AddComponent<HabitatEnvironment>();
             gameObject.AddComponent<PlayerRig>();
