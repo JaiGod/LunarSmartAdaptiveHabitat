@@ -155,19 +155,7 @@ namespace Hunch3
         void Update()
         {
             var pr = PlayerRig.I; SmartObject hit = null;
-            if (pr && pr.cam && !pr.isXR)
-            {
-                var origin = ThirdPersonView.Active ? ThirdPersonView.Eye : pr.cam.transform.position;
-                var hits = Physics.RaycastAll(new Ray(origin, pr.cam.transform.forward), 3.6f, ~0, QueryTriggerInteraction.Collide).OrderBy(h => h.distance);
-                foreach (var h in hits)
-                {
-                    if (h.collider.transform.IsChildOf(pr.transform) || h.collider.GetComponentInParent<CharacterController>()) continue;
-                    var so = h.collider.GetComponentInParent<SmartObject>();
-                    if (so) { hit = so; break; }
-                    if (h.collider.isTrigger) continue;          // zone volumes, open doorways etc. don't block your view
-                    break;                                         // a solid wall/object in front: nothing selected
-                }
-            }
+            if (pr && pr.cam && !pr.isXR) { Aim.Resolve(); hit = Aim.Smart; }      // shared aim: one target per frame
             if (SmartObject.Hover && SmartObject.Hover != hit) SmartObject.Hover.SetHighlight(false);
             SmartObject.Hover = hit; if (!hit) { diag = false; return; }
             hit.SetHighlight(true);

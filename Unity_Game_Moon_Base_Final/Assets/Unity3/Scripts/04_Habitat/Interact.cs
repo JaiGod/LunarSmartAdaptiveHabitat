@@ -252,6 +252,47 @@ namespace Hunch3
         }
     }
 
+    /// One aim for every interaction system, resolved once per frame. A thin centre ray was too fussy (you had to hit
+    /// a 3 cm switch exactly), so: 1) the centre ray, 2) if it misses, the nearest usable thing within a small cone
+    /// that you can actually see. Only ONE target wins (old-style interactable or smart system), so keys never clash.
+    public static class Aim
+    {
+        static int frame = -1; public static HabInteractable Hab; public static SmartObject Smart;
+        const float HabReach = 2.9f, SmartReach = 3.8f, Cone = 14f;
+        public static void Resolve()
+        {
+            if (frame == Time.frameCount) return; frame = Time.frameCount; Hab = null; Smart = null;
+            var pr = PlayerRig.I; if (!pr || !pr.cam || pr.isXR) return;
+            Vector3 o = ThirdPersonView.Active ? ThirdPersonView.Eye : pr.cam.transform.position, f = pr.cam.transform.forward;
+            // 1) straight ray: first thing you look at that isn't you or an empty trigger volume
+            foreach (var h in Physics.RaycastAll(new Ray(o, f), SmartReach, ~0, QueryTriggerInteraction.Collide).OrderBy(h => h.distance))
+            {
+                if (Mine(h.collider, pr)) continue;
+                var hi = h.distance <= HabReach ? h.collider.GetComponentInParent<HabInteractable>() : null;
+                var so = h.collider.GetComponentInParent<SmartObject>();
+                if (hi) { Hab = hi; return; }
+                if (so) { Smart = so; return; }
+                if (h.collider.isTrigger) continue;
+                break;
+            }
+            // 2) aim assist: the usable thing closest to the crosshair, inside a 14° cone, in clear view
+            float best = Cone;
+            foreach (var c in Physics.OverlapSphere(o, SmartReach, ~0, QueryTriggerInteraction.Collide))
+            {
+                if (Mine(c, pr)) continue;
+                var hi = c.GetComponentInParent<HabInteractable>(); var so = hi ? null : c.GetComponentInParent<SmartObject>();
+                if (!hi && !so) continue;
+                var b = c.bounds; Vector3 p = b.ClosestPoint(o + f * Vector3.Distance(o, b.center)); Vector3 to = p - o; float d = to.magnitude;
+                if (d < 0.05f || (hi && d > HabReach)) continue;
+                float ang = Vector3.Angle(f, to); if (ang >= best) continue;
+                if (Physics.Linecast(o, p - to.normalized * 0.05f, out var blk, ~0, QueryTriggerInteraction.Ignore) && blk.collider != c && !Mine(blk.collider, pr)
+                    && !(hi && blk.collider.GetComponentInParent<HabInteractable>() == hi) && !(so && blk.collider.GetComponentInParent<SmartObject>() == so)) continue;   // something solid in the way
+                best = ang; Hab = hi; Smart = so;
+            }
+        }
+        static bool Mine(Collider c, PlayerRig pr) => c.transform.IsChildOf(pr.transform) || c.GetComponentInParent<CharacterController>() || (pr.origin && c.transform.IsChildOf(pr.origin.transform));
+    }
+
     /// Desktop: look at an object & press E / left-click. Shows a prompt.
     public class DesktopInteractor : MonoBehaviour
     {
@@ -278,12 +319,10 @@ namespace Hunch3
             HabInteractable.Hover = null;
             if (!pr.isXR)
             {
-                var ray = new Ray(ThirdPersonView.Active ? ThirdPersonView.Eye : pr.cam.transform.position, pr.cam.transform.forward);   // third person: aim from your head, not the camera
-                if (Physics.Raycast(ray, out var hit, 2.6f, ~0, QueryTriggerInteraction.Collide))
-                {
-                    var hi = hit.collider.GetComponentInParent<HabInteractable>();
-                    if (hi) { HabInteractable.Hover = hi; HUD.I?.SetPrompt("E / click: " + hi.Prompt); if (Pressed()) hi.Activate(); return; }
-                }
+                Aim.Resolve();
+                var hi = Aim.Hab;
+                if (hi) { HabInteractable.Hover = hi; HUD.I?.SetPrompt("E / click: " + hi.Prompt); if (Pressed()) hi.Activate(); return; }
+                if (Aim.Smart) { var so = Aim.Smart; HUD.I?.SetPrompt((so.actions.Count > 0 ? "E: " + so.actions[0].label + "   " : "") + "TAB: diagnostics   hold right-click: scan"); return; }
             }
             HUD.I?.SetPrompt("");
         }
