@@ -244,7 +244,7 @@ namespace Hunch3
         class DTask { public string id, text, how; public Func<bool> done; public Action act; }
         readonly List<DTask> daily = new List<DTask>(); readonly HashSet<string> dFlags = new HashSet<string>(), dDone = new HashSet<string>();
         int dayIdx = -999; float dayStartH;
-        static bool NightNow { get { float h = SimClock.HourOfDay; return h >= 21.5f || h < 6.5f; } }
+        static bool NightNow { get { float h = SimClock.HourOfDay; return h >= 21.5f || h < 5f; } }      // from 05:00 it is morning: ENTER no longer sends you back to bed after you wake
         int Day => Mathf.FloorToInt((SimClock.hours - 7f) / 24f);
         static float CrewWell() { var e = Sim.I != null ? Sim.I.engine : null; return e == null ? 0 : e.crew.Where(c => c.id != 1).Average(c => c.Wellbeing); }
         int NeediestId() { var e = E; return e.crew.Where(c => c.id != 1).OrderBy(c => c.Wellbeing).First().id; }

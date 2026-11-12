@@ -425,7 +425,8 @@ func _world_tick(dt: float) -> void:
 	var c = Color(0.85, 0.92, 1.0)
 	if h >= 19.0 or h < 6.0: c = Color(1.0, 0.55, 0.25) if (h >= 21.0 or h < 6.0) else Color(1.0, 0.8, 0.55)
 	elif h < 7.0: c = Color(1.0, 0.75, 0.5)
-	if AI.ai_on and AI.tier[0] >= 1: c = Color(1.0, 0.72, 0.45)        # Tier 1 (anxiety): warm 2700 K
+	if AI.ai_on and AI.tier[1] >= 1 and h >= 7.0 and h < 9.0: c = Color(0.75, 0.88, 1.0) * 1.35     # Tier 1 (depression): bright morning light
+	elif AI.ai_on and AI.tier[0] >= 1: c = Color(1.0, 0.72, 0.45)        # Tier 1 (anxiety): warm 2700 K
 	elif AI.ai_on and AI.tier[5] >= 1: c = Color(0.55, 0.95, 0.85)     # Tier 1 (monotony): new colour scene
 	elif AI.ai_on and AI.tier[3] >= 1 and h >= 7.0 and h < 19.0: c = Color(0.8, 0.9, 1.0) * 1.15   # Tier 1 (fatigue): focus light
 	if light_mode == 1: c = Color(0.85, 0.92, 1.0) * 1.2
@@ -891,7 +892,7 @@ func _ares_dash() -> String:
 		var s: float = AI.score[c]
 		var col = "#5be38a" if s < Ares.T1 else ("#ffd166" if s < Ares.T2 else ("#ffa94d" if s < Ares.T3 else "#ff5a4a"))
 		t += "[cell]%s  [/cell][cell][color=%s]%s %.2f[/color]  [/cell][cell]Tier %d[/cell]" % [Ares.CONDS[c], col, "|".repeat(int(s * 30)), s, AI.tier[c]]
-	t += "[/table]"
+	t += "[/table]\n[b]Cabin changes by the AI now:[/b] " + AI.levers(A.hour())
 	if AI.pending_offer >= 0: t += "\n\n[color=#ffd166]Offer waiting: %s  (Y yes / N no)[/color]" % Ares.TIER2[AI.pending_offer]
 	return t
 

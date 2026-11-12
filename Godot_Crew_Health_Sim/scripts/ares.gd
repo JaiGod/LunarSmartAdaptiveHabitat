@@ -169,8 +169,24 @@ func step(dm: float, shared: bool) -> void:
 		score[c] = lerp(score[c], raw, min(1.0, 0.08 * dm))
 	confidence = have / max(total, 0.001)
 	if not ai_on or A.minute < paused_until: return
+	# Tier 1 levers that really change the cabin (only reversible ones: hard limit)
+	if tier[3] >= 1: A.co2_ppm = lerp(A.co2_ppm, 2000.0, 0.02 * dm)      # fatigue: ventilation boost, CO2 set-point down
+	if tier[0] >= 1: A.arousal = max(0.0, A.arousal - 0.002 * dm)        # anxiety: warm light + quieter fans calm you a little
 	if (A.minute - last_review_min) > 7.0 * 1440.0: pass   # review overdue -> capped at Tier 1 below
 	for c in 6: _tiers(c)
+
+## what the AI is doing to the cabin right now (shown on the dashboard)
+func levers(hour: float) -> String:
+	if not ai_on: return "AI off: everything back to normal"
+	if A.minute < paused_until: return "AI paused by you"
+	var l = []
+	if tier[0] >= 1: l.append("light 2700 K warm, fans quieter")
+	if tier[1] >= 1: l.append("bright blue-enriched light 07:00-09:00" + (" (on now)" if hour >= 7.0 and hour < 9.0 else ""))
+	if tier[2] >= 1: l.append("meal times staggered by 20 min")
+	if tier[3] >= 1: l.append("ventilation boost, CO2 set-point 2000 ppm, focus light")
+	if tier[4] >= 1: l.append("AI backed off: no automatic changes")
+	if tier[5] >= 1: l.append("new colour scene + Earth view")
+	return "normal (circadian light only)" if l.is_empty() else "; ".join(l)
 
 # ---- D3: response protocol ------------------------------------------------------------------
 func _tiers(c: int) -> void:
