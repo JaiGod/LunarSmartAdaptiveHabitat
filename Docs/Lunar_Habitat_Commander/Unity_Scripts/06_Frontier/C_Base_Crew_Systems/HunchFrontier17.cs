@@ -13,6 +13,7 @@
 // ================================================================================================
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -107,12 +108,103 @@ public partial class HunchFrontier
         Color[] c = { new Color(0.35f, 2.2f, 0.8f), new Color(2.2f, 1.7f, 0.3f), new Color(0.5f, 0.9f, 2.4f) };
         for (int s = 0; s < 3; s++) { var g = Prim(PrimitiveType.Cube, bed, at, new Vector3(0.9f, 0.035f, 0.035f), Glow(c[s])); g.name = "Recovery state light " + s; g.SetActive(s == 0); podLight[k, s] = g; }
     }
+    struct DormBed { public Vector3 c, axis; public float top, len, w; }
+    /// scans the dorm for bed surfaces: a 0.2 m grid of downward rays; flat cells 0.3–0.85 m (or 1.3–2.0 m: upper bunk)
+    /// above the floor are grouped, and groups that are bed-sized (1.6–2.6 m long, 0.6–1.4 m wide) are beds.
+    List<DormBed> FindDormBeds(Vector3 centre)
+    {
+        var found = new List<DormBed>(); Physics.SyncTransforms();
+        foreach (float R in new[] { 9f, 14f, 20f })
+        {
+            const float G = 0.2f; int n = Mathf.CeilToInt(R / G); var layer = new Dictionary<long, Vector3>[2] { new Dictionary<long, Vector3>(), new Dictionary<long, Vector3>() };
+            for (int ix = -n; ix <= n; ix++) for (int iz = -n; iz <= n; iz++)
+            {
+                Vector3 o = new Vector3(centre.x + ix * G, centre.y + 3.0f, centre.z + iz * G); if ((o - new Vector3(centre.x, o.y, centre.z)).sqrMagnitude > R * R) continue;
+                var hits = Physics.RaycastAll(o, Vector3.down, 4.5f, ~0, QueryTriggerInteraction.Ignore); if (hits.Length == 0) continue;
+                float floor = float.MaxValue; foreach (var h in hits) if (h.normal.y > 0.9f && Mathf.Abs(h.point.y - centre.y) < 0.7f) floor = Mathf.Min(floor, h.point.y); if (floor == float.MaxValue) continue;
+                foreach (var h in hits)
+                {
+                    if (h.normal.y < 0.85f) continue; float up = h.point.y - floor;
+                    int L = up > 0.3f && up < 0.85f ? 0 : up > 1.3f && up < 2.0f ? 1 : -1; if (L < 0) continue;
+                    long key = (long)(ix + 10000) * 100000 + (iz + 10000); if (!layer[L].ContainsKey(key) || layer[L][key].y < h.point.y) layer[L][key] = h.point;
+                }
+            }
+            for (int L = 0; L < 2; L++)
+            {
+                var left = new HashSet<long>(layer[L].Keys);
+                while (left.Count > 0)
+                {
+                    long s0 = left.First(); left.Remove(s0); var comp = new List<Vector3>(); var q = new Queue<long>(); q.Enqueue(s0);
+                    while (q.Count > 0) { long k0 = q.Dequeue(); var p0 = layer[L][k0]; comp.Add(p0); foreach (long nb in new[] { k0 + 1, k0 - 1, k0 + 100000, k0 - 100000 }) if (left.Contains(nb) && Mathf.Abs(layer[L][nb].y - p0.y) < 0.06f) { left.Remove(nb); q.Enqueue(nb); } }
+                    if (comp.Count < 25 || comp.Count > 110) continue;                       // 1–4.4 m² only
+                    Vector3 m = Vector3.zero; foreach (var p in comp) m += p; m /= comp.Count;
+                    float sxx = 0, szz = 0, sxz = 0; foreach (var p in comp) { float dx = p.x - m.x, dz = p.z - m.z; sxx += dx * dx; szz += dz * dz; sxz += dx * dz; }
+                    float ang = 0.5f * Mathf.Atan2(2f * sxz, sxx - szz); Vector3 ax = new Vector3(Mathf.Cos(ang), 0f, Mathf.Sin(ang)), side = new Vector3(-ax.z, 0f, ax.x);
+                    float a0 = 1e9f, a1 = -1e9f, b0 = 1e9f, b1 = -1e9f; foreach (var p in comp) { float u = Vector3.Dot(p - m, ax), v = Vector3.Dot(p - m, side); a0 = Mathf.Min(a0, u); a1 = Mathf.Max(a1, u); b0 = Mathf.Min(b0, v); b1 = Mathf.Max(b1, v); }
+                    float len = a1 - a0 + G, wid = b1 - b0 + G;
+                    if (len < 1.6f || len > 2.6f || wid < 0.6f || wid > 1.4f) continue;
+                    var c = m + ax * (a0 + a1) * 0.5f + side * (b0 + b1) * 0.5f;
+                    if (found.Any(f => (new Vector3(f.c.x, 0, f.c.z) - new Vector3(c.x, 0, c.z)).sqrMagnitude < 0.5f && Mathf.Abs(f.top - m.y) < 0.2f)) continue;
+                    found.Add(new DormBed { c = c, axis = ax, top = m.y, len = len, w = wid });
+                }
+            }
+            if (found.Count >= 4) break;
+        }
+        return found.OrderBy(b => (b.c - centre).sqrMagnitude).Take(4).ToList();
+    }
+
+    // Automatic sleep lighting (same rules as the realistic sim): the AI dims each pod to a deep-amber night light when its
+    // person falls asleep (no blue light → melatonin), runs a 45-minute sunrise before 06:00, and goes back to neutral white
+    // when they get up. Under-bed path LEDs stay on at 5 % so nobody trips at night. Red pulse = habitat alarm.
+    readonly Light[] podLamp = new Light[4]; readonly GameObject[] podUnder = new GameObject[4];
+    void SleepLeds(Transform bed, int k, float w, float len)
+    {
+        var lg = new GameObject("Pod sleep light " + (k + 1)); lg.transform.SetParent(bed, false); lg.transform.localPosition = new Vector3(0f, 1.3f, -len * 0.3f);
+        var l = lg.AddComponent<Light>(); l.type = LightType.Point; l.range = 2.2f; l.intensity = 0.6f; l.shadows = LightShadows.None; l.color = new Color(1f, 0.92f, 0.8f); podLamp[k] = l;
+        podUnder[k] = Prim(PrimitiveType.Cube, bed, new Vector3(0f, 0.04f, 0f), new Vector3(w * 0.9f, 0.015f, len * 0.9f), Glow(new Color(0.9f, 0.45f, 0.12f)));
+    }
+    void UpdateSleepLeds()
+    {
+        float h = sim.Hour; bool alarm = sim.stormActive || sim.leak;
+        for (int k = 0; k < 4; k++)
+        {
+            var l = podLamp[k]; if (!l) continue; bool asleep = k == 0 ? sleepMe : CrewAsleep(k);
+            Color c; float I;
+            if (alarm) { c = new Color(1f, 0.1f, 0.08f); I = 0.4f + 0.4f * Mathf.Abs(Mathf.Sin(Time.time * 3f)); }
+            else if (asleep && h >= 5.25f && h < 6f) { float dawn = (h - 5.25f) / 0.75f; c = Color.Lerp(new Color(1f, 0.32f, 0.1f), new Color(1f, 0.85f, 0.65f), dawn); I = Mathf.Lerp(0.05f, 0.9f, dawn); }   // sunrise
+            else if (asleep) { c = new Color(1f, 0.32f, 0.1f); I = 0.05f; }                                                     // deep-amber night light
+            else if (h >= 20f || h < 6f) { c = new Color(1f, 0.7f, 0.45f); I = 0.35f; }                                         // evening: warm, dim
+            else { c = new Color(1f, 0.95f, 0.88f); I = 0.6f; }
+            l.color = Color.Lerp(l.color, c, Time.deltaTime * 2f); l.intensity = Mathf.Lerp(l.intensity, I, Time.deltaTime * 2f);
+            if (podUnder[k]) podUnder[k].SetActive(asleep || h >= 20f || h < 6f || alarm);
+        }
+    }
     int PodStateOf(int k) { if (k >= sim.crew.Count) return 0; var c = sim.crew[k]; return c.stress > 55f ? 2 : (c.sleep < 55f ? 1 : 0); }
     static readonly Color[] SleepColour = { new Color(0.85f, 0.7f, 0.25f), new Color(0.25f, 0.55f, 0.85f), new Color(0.3f, 0.7f, 0.4f), new Color(0.75f, 0.35f, 0.35f) };
 
     void BuildSleep()
     {
         sleepZone = ZoneIndex("quarters"); if (sleepZone < 0) return; var z = game.zones[sleepZone];
+        // The base ALREADY has four beds in the centre dorm: use those (no extra beds). They are part of the baked
+        // dorm mesh, so they are found by shape: flat 2 m x 1 m surfaces at bed height.
+        var dorm = FindDormBeds(z.position);
+        if (dorm.Count > 0)
+        {
+            for (int k = 0; k < 4; k++)
+            {
+                var d = dorm[k % dorm.Count];
+                Transform bed = new GameObject("Sleep pod " + (k + 1) + " (dorm bed)").transform; bed.SetParent(root, false);
+                bed.position = new Vector3(d.c.x, d.top - 0.45f, d.c.z) + Vector3.up * (k >= dorm.Count ? 0.02f * k : 0f);
+                bed.rotation = Quaternion.LookRotation(d.axis, Vector3.up);
+                FacButton(bed, new Vector3(0f, 0.5f, 0f), new Vector3(d.w + 0.05f, 0.9f, d.len + 0.05f), Clear(new Color(1f, 1f, 1f, 0.02f)), 1500 + k);
+                var l = Label(bed, "", 0f, 0f, 0.5f, 2.0f, 0.4f, Color.white); l.transform.localPosition = new Vector3(0f, 1.25f, -d.len * 0.45f); mapLabels.Add(l); sleepZ[k] = l;
+                PodLights(bed, k, new Vector3(0f, 0.38f, -d.len * 0.5f - 0.01f));
+                SleepLeds(bed, k, d.w, d.len);
+                sleepBed[k] = bed;
+            }
+            sleepPlaced = "dorm beds: " + dorm.Count + " found (" + string.Join(" ", dorm.Select(b => b.c.ToString("F1"))) + ")";
+            game.crewPose = SleepPose; return;
+        }
         var frame = Lit(new Color(0.2f, 0.22f, 0.26f)); var white = Lit(new Color(0.9f, 0.91f, 0.93f)); var steel = Lit(new Color(0.72f, 0.74f, 0.79f));
         // one bedroom for the four of you: a small room with its own door and two double bunks. Nothing is placed where something already stands.
         Vector3 rp = Vector3.zero, rf = Vector3.forward; bool room = false; float W = 3.8f, D = 3.2f; Physics.SyncTransforms();
@@ -250,6 +342,7 @@ public partial class HunchFrontier
             else if (slept > 1f && (slept >= 9f || slept < 0f || (sim.Hour >= 6f && sim.Hour < 7f))) SleepMeEnd("It is morning.");
             sleepAlerts = Mathf.Min(sleepAlerts, sim.alerts.Count);
         }
+        UpdateSleepLeds();
         for (int k = 0; k < 4; k++)
         {
             if (!sleepZ[k]) continue; bool me = k == 0, asleep = me ? sleepMe : CrewAsleep(k);

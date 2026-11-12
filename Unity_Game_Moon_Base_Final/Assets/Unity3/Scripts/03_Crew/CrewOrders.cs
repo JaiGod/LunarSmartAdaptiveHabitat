@@ -227,7 +227,7 @@ namespace Hunch3
                     if (vis && pc)
                     {   // only for people you can actually see, 1.5–14 m away (no labels through walls or in your face)
                         Vector3 head = a.transform.position + Vector3.up * 1.7f, d = head - pc.transform.position; float dist = d.magnitude;
-                        vis = dist > 1.5f && dist < 14f && !Physics.RaycastAll(pc.transform.position, d / dist, dist - 0.3f, ~0, QueryTriggerInteraction.Ignore).Any(h => !h.transform.IsChildOf(a.transform) && !h.transform.IsChildOf(PlayerRig.I.transform));
+                        vis = dist > 1.5f && dist < (HUD.Clean ? 6f : 14f) && !Physics.RaycastAll(pc.transform.position, d / dist, dist - 0.3f, ~0, QueryTriggerInteraction.Ignore).Any(h => !h.transform.IsChildOf(a.transform) && !h.transform.IsChildOf(PlayerRig.I.transform));
                     }
                     tm.gameObject.SetActive(vis); if (!vis) continue;
                     tm.transform.position = a.transform.position + Vector3.up * 2.05f;
@@ -235,7 +235,7 @@ namespace Hunch3
                     bool job = CrewOrders.active.ContainsKey(a.crewId);
                     tm.color = job ? Color.Lerp(CrewOrders.Col[Mathf.Clamp(a.crewId, 0, 4)], Color.white, 0.35f) : CrewOrders.Col[Mathf.Clamp(a.crewId, 0, 4)];
                     string what = job ? CrewOrders.Status(a.crewId) : a.task; int paren = what.IndexOf(" ("); if (paren > 0) what = what.Substring(0, paren); if (what.Length > 26) what = what.Substring(0, 25) + "…";
-                    tm.text = Sim.I.engine.C(a.crewId).name.Split(' ').Last() + "\n<size=34>" + what + "</size>";
+                    tm.text = HUD.Clean && !job ? Sim.I.engine.C(a.crewId).name.Split(' ').Last() : Sim.I.engine.C(a.crewId).name.Split(' ').Last() + "\n<size=34>" + what + "</size>";
                 }
                 // walk up to a crewmate → one reminder how to give them a job
                 var p = PlayerRig.I; if (p && Time.time > nextNear)

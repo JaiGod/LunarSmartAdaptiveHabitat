@@ -32,6 +32,7 @@ public partial class HunchFrontier
 {
     Transform aresWorld; bool aresWorldOn = true; int aresTransitions;
     readonly List<Transform> aresSigns = new List<Transform>();
+    readonly List<Light> aresZoneLights = new List<Light>(); readonly List<Color> aresZoneCct = new List<Color>(); Material pathLed;
 
     static float AresCct(string type) => type == "communal" ? 2900f : type == "private" ? 2400f : type == "work" ? 6200f : type == "exercise" ? 5800f : type == "nature" ? 4800f : 4000f;
     static string AresTemp(string type) => type == "communal" ? "22 °C" : type == "private" ? "you choose 18–24 °C" : type == "work" ? "21 °C" : type == "exercise" ? "19 °C" : type == "nature" ? "23 °C · 55 % RH" : "average of both sides";
@@ -40,14 +41,14 @@ public partial class HunchFrontier
     void BuildAresWorld()
     {
         if (aresWorld) Destroy(aresWorld.gameObject);
-        aresWorld = new GameObject("ARES zones & sensors").transform; aresWorld.SetParent(aresRoot, false); aresSigns.Clear(); aresTransitions = 0;
+        aresWorld = new GameObject("ARES zones & sensors").transform; aresWorld.SetParent(aresRoot, false); aresSigns.Clear(); aresZoneLights.Clear(); aresZoneCct.Clear(); aresTransitions = 0; pathLed = Glow(new Color(0.25f, 0.55f, 1f));
         Material mCo2 = Glow(new Color(0.3f, 1f, 0.5f)), mMic = Glow(new Color(0.3f, 0.85f, 1f)), mCam = Glow(new Color(1f, 0.3f, 0.3f)), mDoor = Glow(new Color(1f, 0.85f, 0.3f)), mUwb = Glow(new Color(0.95f, 0.95f, 1f)), mBase = Glow(new Color(0.15f, 0.17f, 0.22f));
         foreach (var z in game.zones)
         {
             string type = AresTypeOf(z.id); var g = new GameObject("ARES " + z.id).transform; g.SetParent(aresWorld, false); g.position = z.position;
             // zone light (soft, no shadows — the base's own lights still do the work)
             var l = new GameObject("zone light").AddComponent<Light>(); l.transform.SetParent(g, false); l.transform.localPosition = Vector3.up * 2.3f;
-            l.type = LightType.Point; l.range = 6f; l.intensity = 0.55f; l.shadows = LightShadows.None; l.color = AR.AresHost.Cct(AresCct(type));
+            l.type = LightType.Point; l.range = 6f; l.intensity = 0.55f; l.shadows = LightShadows.None; l.color = AR.AresHost.Cct(AresCct(type)); aresZoneLights.Add(l); aresZoneCct.Add(l.color);
             // ceiling sensor cluster
             var s = new GameObject("sensors").transform; s.SetParent(g, false); s.localPosition = Vector3.up * 2.55f;
             Prim(PrimitiveType.Cylinder, s, Vector3.zero, new Vector3(0.34f, 0.015f, 0.34f), mBase);
@@ -60,7 +61,7 @@ public partial class HunchFrontier
             // sign
             var sign = new GameObject("sign").transform; sign.SetParent(g, false); sign.localPosition = Vector3.up * 3.0f;
             string sensors = shared ? "CO2 ×2 · UWB · mic array · camera (shared zone)" : "CO2 ×2 · UWB · door sensor only — NO camera, NO mic";
-            var t = Label(sign, "<b>" + AresNice(type) + "</b>\n<size=70%>" + Mathf.RoundToInt(AresCct(type)) + " K · " + AresTemp(type) + "\n" + sensors + "</size>", 0f, 0f, 1.4f, 4.2f, 1.1f, Color.Lerp(AR.AresHost.Cct(AresCct(type)), Color.white, 0.25f));
+            var t = Label(sign, "<b>" + AresNice(type) + "</b>", 0f, 0f, 0.9f, 4.2f, 0.5f, Color.Lerp(AR.AresHost.Cct(AresCct(type)), Color.white, 0.25f));
             t.outlineWidth = 0.2f; t.outlineColor = new Color32(0, 0, 0, 200);
             aresSigns.Add(sign);
         }
@@ -96,7 +97,7 @@ public partial class HunchFrontier
                     {
                         float f = nextDot / len; Vector3 p = Vector3.Lerp(p0, p1, (nextDot - walked) / Mathf.Max(seg, 0.001f));
                         Color col = Color.Lerp(AR.AresHost.Cct(AresCct(ta)), AR.AresHost.Cct(AresCct(tb)), f);
-                        var dot = Prim(PrimitiveType.Cube, tr, Vector3.zero, new Vector3(0.12f, 0.015f, 0.45f), Glow(col)); dot.transform.position = p + Vector3.up * 0.03f;
+                        var dot = Prim(PrimitiveType.Cube, tr, Vector3.zero, new Vector3(0.05f, 0.012f, 0.9f), pathLed); dot.transform.position = p + Vector3.up * 0.03f;
                         var dir = p1 - p0; dir.y = 0f; if (dir.sqrMagnitude > 0.001f) dot.transform.rotation = Quaternion.LookRotation(dir);
                         if (nextDot >= nextLight) { nextLight += 4f; var tl = new GameObject("blend light").AddComponent<Light>(); tl.transform.SetParent(tr, false); tl.transform.position = p + Vector3.up * 2.1f; tl.type = LightType.Point; tl.range = 3.2f; tl.intensity = 0.35f; tl.shadows = LightShadows.None; tl.color = col; }
                         nextDot += 1.2f;
@@ -113,7 +114,16 @@ public partial class HunchFrontier
         if (!transitionsBuilt && aresWorld && Time.frameCount % 30 == 0) try { BuildTransitions(); } catch (Exception e) { transitionsBuilt = true; Debug.LogWarning("[HUNCH] transitions: " + e.Message); }
         if (!aresWorld || !aresWorld.gameObject.activeSelf) return;
         var cam = Camera.main; if (!cam) return;
-        foreach (var s in aresSigns) if (s) { var d = s.position - cam.transform.position; d.y = 0f; if (d.sqrMagnitude > 0.01f) s.rotation = Quaternion.LookRotation(d); s.gameObject.SetActive(d.sqrMagnitude < 18f * 18f); }
+        foreach (var s in aresSigns) if (s) { var d = s.position - cam.transform.position; d.y = 0f; if (d.sqrMagnitude > 0.01f) s.rotation = Quaternion.LookRotation(d); s.gameObject.SetActive(d.sqrMagnitude < 9f * 9f); }   // a sign only when you are near it
+        // circadian zone lighting (same schedule as the realistic sim) + emergency red pulse; pathway LEDs blue → red in an alarm
+        bool alarm = sim.stormActive || sim.leak || sim.alerts.Any(a => a.type == "emergency" || a.type == "fire" || a.type == "breach");
+        float h = sim.Hour, pulse = 0.45f + 0.55f * Mathf.Abs(Mathf.Sin(Time.time * 3.2f)); Color cc; float lvl;
+        if (h >= 6f && h < 9f) { cc = Color.Lerp(new Color(1f, 0.62f, 0.38f), new Color(1f, 0.9f, 0.8f), (h - 6f) / 3f); lvl = 0.85f; }
+        else if (h >= 9f && h < 18f) { cc = new Color(1f, 0.98f, 0.95f); lvl = 1f; }
+        else if (h >= 18f && h < 22f) { cc = new Color(1f, 0.72f, 0.48f); lvl = 0.6f; }
+        else { cc = new Color(0.35f, 0.45f, 0.9f); lvl = 0.3f; }
+        for (int i = 0; i < aresZoneLights.Count; i++) { var zl = aresZoneLights[i]; if (!zl) continue; var want = alarm ? new Color(1f, 0.12f, 0.1f) : Color.Lerp(aresZoneCct[i], cc, 0.5f); zl.color = Color.Lerp(zl.color, want, Time.deltaTime * 2f); zl.intensity = alarm ? 0.9f * pulse : Mathf.Lerp(zl.intensity, 0.55f * lvl, Time.deltaTime); }
+        if (pathLed) { var pc = alarm ? new Color(1f, 0.12f, 0.1f) * pulse : new Color(0.25f, 0.55f, 1f) * (lvl < 0.5f ? 0.55f : 0.85f); pathLed.color = pc; if (pathLed.HasProperty("_BaseColor")) pathLed.SetColor("_BaseColor", pc); }
     }
 
     void AddAresWorldMenu()

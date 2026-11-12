@@ -162,7 +162,8 @@ namespace Hunch3
             gameObject.AddComponent<DesktopInteractor>();
             gameObject.AddComponent<SmartInteractor>(); SmartObject.All.Clear();   // wellness / medical / life-support systems
             gameObject.AddComponent<WellnessSpawner>();
-            gameObject.AddComponent<HabitatDressing>();     // function-first wall equipment, stowage, wardroom table refit
+            gameObject.AddComponent<HabitatDressing>();
+            gameObject.AddComponent<HabitatLEDs>();         // pathway / door / ladder / ceiling-channel / status LEDs, circadian + emergency     // function-first wall equipment, stowage, wardroom table refit
             gameObject.AddComponent<HabitatOps>();          // how-to-play card, daily ops tasks, repair alerts, rewards
             gameObject.AddComponent<HUD>();
             gameObject.AddComponent<CrewOrdersTicker>(); CrewOrders.active.Clear(); CrewOrders.history.Clear(); CrewOrders.done = 0; HealthCheck.last.Clear(); HealthCheck.scanned.Clear(); HealthCheck.at.Clear(); HealthCheck.lastId = -1; CrewOrders.asked.Clear();

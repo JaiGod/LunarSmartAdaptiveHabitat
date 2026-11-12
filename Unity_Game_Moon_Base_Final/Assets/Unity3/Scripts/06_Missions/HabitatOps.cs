@@ -62,7 +62,7 @@ namespace Hunch3
         List<OpsTask> tasks = new List<OpsTask>(); List<HabInteractable> habs = new List<HabInteractable>(); int idx; public int points, streak;
         SmartObject alertObj; float nextFault = 150f, alertSince; static readonly string[] Breakable = { "eclss_core", "oxygen_tanks", "greenhouse", "maintenance_drone", "heart_rate_monitor", "ai_health_hub", "exercise" };
 
-        bool vr; Image taskBg, alertBg, welcomeBg, cheerBg; Text taskText, alertText, welcomeText, cheerText; float cheerT = -1, welcomeUntil;
+        float renav; bool vr; Image taskBg, alertBg, welcomeBg, cheerBg; Text taskText, alertText, welcomeText, cheerText; float cheerT = -1, welcomeUntil;
         AudioSource sfx; AudioClip ding, alarm; ParticleSystem confetti;
 
         void Awake() { I = this; }
@@ -150,11 +150,25 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
             if (alertObj) alertText.text = $"<b><color=#FFB3B3>ALERT</color>  {alertObj.title}</b> {Mathf.RoundToInt(alertObj.integrity * 100)}%   ·   follow the arrow, " + (vr ? "point + <b><color=#FFD54F>trigger</color></b>" : "look + <b><color=#FFD54F>E</color></b>") + " to repair";
             // tasks panel
             var cur = idx < tasks.Count ? tasks[idx] : null;
+            // the route is ALWAYS shown: if anything cleared it (another mission, arrival elsewhere) it comes back
+            if (Time.time > renav) { renav = Time.time + 3f; if (HUD.I && string.IsNullOrEmpty(HUD.I.NavGoal)) { if (alertObj) { var w2 = Nav.Nearest(alertObj.transform.position); var fp = PlayerRig.I ? PlayerRig.I.FeetPosition : Vector3.zero; if (w2 != null && Nav.wp.ContainsKey(w2) && (Nav.wp[w2].position - fp).sqrMagnitude > 16f) HUD.I.SetNavTarget(w2, "REPAIR: " + alertObj.title); } else PointNav(true); } }
             bool compact = HUD.Clean && !vr;
             taskBg.rectTransform.anchoredPosition = new Vector2(16, compact ? -16 : vr ? -560 : -728);
-            taskBg.rectTransform.sizeDelta = new Vector2(compact ? 470 : 430, compact ? 84 : 200); taskText.rectTransform.sizeDelta = new Vector2(compact ? 450 : 408, compact ? 76 : 186);
-            if (compact) { taskText.text = cur == null ? "<b><color=#7CFC9A>OBJECTIVE</color></b>  all daily jobs done · " + points + " pts" :
-                $"<size=15><color=#7CFC9A><b>OBJECTIVE</b></color>  <color=#9FB3C8>{Mathf.Min(idx + 1, tasks.Count)}/{tasks.Count}  ·  {points} pts</color></size>\n<size=20><b>{cur.title}</b></size>  <size=15><color=#9FB3C8>+{cur.pts}</color></size>\n<size=16><color=#C9D6E8>{cur.room}: {(vr ? VrHow(cur.how) : cur.how)}</color></size>"; }
+            taskBg.rectTransform.sizeDelta = new Vector2(compact ? 470 : 430, compact ? 196 : 200); taskText.rectTransform.sizeDelta = new Vector2(compact ? 450 : 408, compact ? 188 : 186);
+            if (compact)
+            {
+                // always-on task list: the job you are on (with how to do it) + the next three
+                var sbl = new System.Text.StringBuilder();
+                sbl.Append($"<size=15><color=#7CFC9A><b>TASKS</b></color>  <color=#9FB3C8>{Mathf.Min(idx, tasks.Count)} of {tasks.Count} done  ·  {points} pts{(streak > 1 ? "  ·  streak " + streak : "")}</color></size>\n");
+                if (cur == null) sbl.Append("<b>All daily jobs done!</b>  Great shift, Commander.");
+                else
+                {
+                    sbl.Append($"<size=19><color=#FFD54F><b>> {cur.title}</b></color></size>  <size=15><color=#9FB3C8>+{cur.pts}</color></size>\n");
+                    sbl.Append($"<size=15><color=#C9D6E8>   {cur.room}: {(vr ? VrHow(cur.how) : cur.how)}</color></size>\n");
+                    for (int n = 1; n <= 3 && idx + n < tasks.Count; n++) { var t2 = tasks[idx + n]; sbl.Append($"<size=15><color=#8FA3B8>   {idx + n + 1}. {t2.title}  <color=#6F8398>· {t2.room}</color></color></size>\n"); }
+                }
+                taskText.text = sbl.ToString();
+            }
             else taskText.text = "<b><color=#7CFC9A>DAILY OPS</color></b>   <size=15><color=#9FB3C8>" + Mathf.Min(idx + 1, tasks.Count) + " of " + tasks.Count + "   ·   " + points + " pts" + (streak > 1 ? "   ·   streak " + streak : "") + "</color></size>\n" +
                 (cur == null ? "<b>All daily jobs done!</b>\nGreat shift, Commander. New jobs tomorrow." :
                 $"<size=21><b>{cur.title}</b></size>\n<color=#C9D6E8>1. Go to {cur.room} (follow the arrow)\n2. {Cap(vr ? VrHow(cur.how) : cur.how)}</color>\n<size=15><color=#9FB3C8>+{cur.pts} pts when done</color></size>");
@@ -191,13 +205,15 @@ The card below says what it is. <b>Trigger</b> = do it.  <b>Click the right stic
             idx++; streak++; points += t.pts; Cheer($"TASK COMPLETE!  {t.title}", t.pts); PointNav();
         }
 
-        void PointNav()
+        void PointNav() => PointNav(false);
+        void PointNav(bool onlyIfFar)
         {
             if (alertObj || !HUD.I) return; var cur = idx < tasks.Count ? tasks[idx] : null; if (cur == null) { if (HUD.I.NavLabel != null && HUD.I.NavLabel.StartsWith("TASK")) HUD.I.SetNavTarget("", ""); return; }
             Vector3 me = PlayerRig.I ? PlayerRig.I.FeetPosition : Vector3.zero; Transform target = null;
             if (cur.key != null) target = SmartObject.All.Where(o => o && o.key == cur.key).OrderBy(o => (o.transform.position - me).sqrMagnitude).Select(o => o.transform).FirstOrDefault();
             else target = habs.Where(h => h && h.kind == cur.hab && (cur.hab != "sleep" || h.name.StartsWith("Q1"))).OrderBy(h => (h.transform.position - me).sqrMagnitude).Select(h => h.transform).FirstOrDefault();
             var wp = target ? Nav.Nearest(target.GetComponent<Renderer>() ? target.GetComponent<Renderer>().bounds.center : target.position) : null;
+            if (wp != null && onlyIfFar && Nav.wp.TryGetValue(wp, out var wt) && (wt.position - me).sqrMagnitude < 16f) return;      // already there: no repeated 'Arrived'
             if (wp != null && (string.IsNullOrEmpty(HUD.I.NavGoal) || (HUD.I.NavLabel ?? "").StartsWith("TASK") || (HUD.I.NavLabel ?? "").StartsWith("REPAIR"))) HUD.I.SetNavTarget(wp, "TASK: " + cur.title);
         }
 

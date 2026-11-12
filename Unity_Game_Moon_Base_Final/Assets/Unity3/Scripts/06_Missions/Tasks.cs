@@ -651,7 +651,7 @@ namespace Hunch3
                 if (i != 1 && env) { var ag = CrewAgent.All.FirstOrDefault(a => a.crewId == i); var zz = ag ? env.ZoneAt(ag.transform.position) : null; if (zz != null) zn = zz.name; }
                 if (string.IsNullOrEmpty(zn) && c.onEVA) zn = "outside (EVA)";
                 string where = c.inPod && i != 1 ? "own quarters (private)" : string.IsNullOrEmpty(zn) ? "in a hallway" : zn.Replace("Private_", "").Replace("_", " ");
-                string doing = c.inPod && i != 1 ? "private time" : c.activity;
+                string doing = c.asleep ? "asleep in bed" : c.inPod && i != 1 ? "private time" : c.activity;
                 r.info.text = $"<color=#FF8A80>♥ {hr} bpm</color>   Sleep {c.sleepQ * 100:0}%   Energy {(1 - c.fatigue) * 100:0}%   <color=#B8C6DC>{where} · {doing}</color>";
                 Bar(r.bar1, physical);
                 if (CanSeeMood(e, c))

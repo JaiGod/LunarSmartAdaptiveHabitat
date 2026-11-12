@@ -82,7 +82,26 @@ namespace Hunch3
         public int crewId; public string task = "", goal = ""; public bool Exercising;
         public bool autopilotDriver;           // used by the player's autopilot
         List<Vector3> path = new List<Vector3>(); int pi; float wait;
-        public float speed = 1.1f; float bob;
+        public float speed = 1.1f; float bob; bool wasLying; Transform mattress, pillow; bool bedLooked;
+        /// lies the crew member on their own mattress (head on the pillow, face up). False if no bed is near the goal.
+        bool LieInBed()
+        {
+            if (!bedLooked)
+            {
+                bedLooked = true; Vector3 g = Nav.wp.TryGetValue(goal, out var gt) ? gt.position : transform.position;
+                mattress = Util.FindPrefix("Q").Where(t => t.name.EndsWith("_Bed_Mattress") && t.GetComponent<Renderer>()).OrderBy(t => (t.GetComponent<Renderer>().bounds.center - g).sqrMagnitude).FirstOrDefault();
+                if (mattress && (mattress.GetComponent<Renderer>().bounds.center - g).sqrMagnitude > 9f) mattress = null;
+                if (mattress) pillow = Util.Find(mattress.name.Replace("_Mattress", "_Pillow"));
+            }
+            if (!mattress) return false;
+            var b = mattress.GetComponent<Renderer>().bounds;
+            Vector3 dir = b.size.x > b.size.z ? Vector3.right : Vector3.forward;
+            if (pillow && Vector3.Dot(pillow.position - b.center, dir) < 0) dir = -dir;          // head toward the pillow
+            float len = Mathf.Max(b.size.x, b.size.z);
+            transform.position = new Vector3(b.center.x, b.max.y + 0.14f, b.center.z) - dir * (len * 0.5f - 0.12f);
+            transform.rotation = Quaternion.LookRotation(Vector3.up, dir);                         // face up, head toward the pillow
+            return true;
+        }
         CrewMember Me => Sim.I.engine.C(crewId);
         string lastSlot = "";
 
@@ -165,7 +184,7 @@ namespace Hunch3
             string slot = g + t;
             if (slot != lastSlot)
             {
-                lastSlot = slot; task = t; goal = g;
+                lastSlot = slot; task = t; goal = g; bedLooked = false;
                 path = Nav.Path(transform.position, g); pi = 0;
                 if (t.StartsWith("EVA")) Sim.I.engine.Log(crewId, "eva", $"{c.name} heading out: suitport don → seal → leak check → step off.");
             }
@@ -187,11 +206,16 @@ namespace Hunch3
                 }
             }
             // states
-            c.asleep = task == "sleeping"; c.inPod = (goal.Contains("_Bed") || goal.Contains("WP_SQ")) && arrived;
+            // asleep only once they are actually IN bed (walking there is 'heading to bed', not sleeping in a corridor)
+            c.asleep = task == "sleeping" && arrived; if (task == "sleeping" && !arrived) c.activity = "heading to bed";
+            c.inPod = (goal.Contains("_Bed") || goal.Contains("WP_SQ")) && arrived;
+            bool lying = c.asleep && LieInBed();
+            if (!lying && wasLying) { transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0); }   // got up
+            wasLying = lying;
             Exercising = task.StartsWith("exercise") && arrived; c.exercising = Exercising; if (Exercising) c.lastExerciseHour = SimClock.hours;
             c.onEVA = task.StartsWith("EVA") && arrived;
             // privacy: in their pod with door closed → hidden from others
-            foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = !(c.inPod) && !c.onEVA;
+            foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = (lying || !c.inPod) && !c.onEVA;   // asleep: you see them in their bed; awake private time: door closed
             // social contact & activities feed back into the latent state
             if (arrived && (task.Contains("meeting") || task.Contains("lunch") || task.Contains("dinner") || task.Contains("free time"))) { c.lastSocialHour = SimClock.hours; c.mood += 0.0004f * GameState.timeScale * Time.deltaTime; }
             if (arrived && task.Contains("greenhouse")) { c.mood += 0.0006f * GameState.timeScale * Time.deltaTime; }
