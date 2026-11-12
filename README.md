@@ -4,9 +4,9 @@
 >
 > ⬇️ **[Download both complete habitat designs](Downloads/Lunar_Habitat_Complete_Designs.zip)** (realistic + sci-fi, .fbx + floor plans, 53 MB).
 >
-> 💻 **[Code highlights](Docs/Code_Highlights/README.md)**: the 12 most important pieces of code in both games, as screenshots with plain-English explanations ([web version](https://jaigod.github.io/ares-site/code.html)).
+> 💻 **[Code highlights](Docs/Code_Highlights/README.md)**: the 12 most important pieces of code in both games, as screenshots with plain-English explanations.
 >
-> 🌐 **[Project website](https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj)**: 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://jaigod.github.io/ares-site/#floorplan).
+> 🌐 **[Project website](https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj)**: 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj).
 >
 > 🛰️ **[3D model library](https://claude.ai/artifact/BMs8Ea9epbjhnYAMEk7w2D)**: spin every model in the browser, with what each one does to keep the crew safe, including the new health-monitoring hardware (heart-rate chest beacon, sleep wristband, cortisol patch, sensor pods, Crew Health Station, smart sleep bunk) designed in Blender ([source](Models/Health_Monitoring/)).
 >
@@ -14,7 +14,7 @@
 >
 > 🖨️ **[STL to 3D print: realistic habitat, bases only](3D_Print_Kits/Realistic_Bases_Only/)**: core, four tunnels, five ring nodes and the airlock, 1:320 (about 20 × 14 cm). No sleeping pods, shields, tower or vehicles.
 >
-> 🏆 **[Rubric & what we did well](https://jaigod.github.io/ares-site/rubric.html)**: our 200/200 + 20/20 bonus self-assessment, with the evidence for each line.
+> 🏆 **[Rubric & what we did well](rubric.html)**: our 200/200 + 20/20 bonus self-assessment, with the evidence for each line.
 
 
 <p align="center">
@@ -27,7 +27,7 @@
 <a href="https://play.unity.com/en/games/3a71c85f-445e-4048-9ed1-7d68a42f1ff5/lunar-smart-adaptive-habitat"><img src="https://img.shields.io/badge/%E2%96%B6%20%20GAME%201%20ON-Unity%20Play-000000?style=for-the-badge&logo=unity&logoColor=white" height="48" alt="Play Game 1 on Unity Play"></a>
 <a href="https://play.unity.com/en/games/4b4f2ef7-1ba6-4d1e-b5b3-435a0b63396f/lunar-habitat-commander"><img src="https://img.shields.io/badge/%E2%96%B6%20%20GAME%202%20ON-Unity%20Play-000000?style=for-the-badge&logo=unity&logoColor=white" height="48" alt="Play Game 2 on Unity Play"></a>
 </p>
-<p align="center"><b>Both games run in the browser:</b> no download, works in Chrome or Edge on any PC, including school computers · <a href="https://jaigod.github.io/ares-site/"><b>Project home page</b></a></p>
+<p align="center"><b>All three games run in the browser:</b> no download, works in Chrome or Edge on any PC, including school computers · <a href="https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj"><b>Project home page</b></a></p>
 
 
 **AI Psychological Monitoring for Positive Crew Mental Health** · Project ARES · 4-person lunar habitat · 2 Unity games (VR + desktop) · every 3D model · 3D-printable model kits · presentation, research, proposal and rubric deliverables
@@ -60,7 +60,7 @@
 | [`Docs/ARES_Deliverables.md`](Docs/ARES_Deliverables.md) | D1–D4 deliverables exported from the running game (sensor matrix, zones, 9-stage flowcharts, ethics) |
 | [`Docs/Research_and_Proposal/`](Docs/Research_and_Proposal/) | The design proposal and the research paper (PDF) |
 | [`Docs/Rubric/`](Docs/Rubric/) | Blender + Unity rubric checklists, rubric task list, 72-hour tabletop simulation report |
-| [`Docs/Crew_Health_System/`](Docs/Crew_Health_System/) | The Crew Health System web dashboard ([open it](https://jaigod.github.io/ares-site/Docs/Crew_Health_System/)) |
+| [`Docs/Crew_Health_System/`](Docs/Crew_Health_System/) | The Crew Health System web dashboard |
 | [`Docs/Data/`](Docs/Data/) | Habitat model data spreadsheets |
 | [`Docs/Lunar_Habitat_Model_Comparison.pptx`](Docs/Lunar_Habitat_Model_Comparison.pptx) | Model comparison deck |
 | [`Docs/Lunar_Habitat_Commander/`](Docs/Lunar_Habitat_Commander/) | Game 2 README, store page text and screenshots |
