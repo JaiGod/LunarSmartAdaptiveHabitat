@@ -190,7 +190,7 @@ namespace Hunch3.EditorTools
             R($"colliders {cols} · interactables {inter} · lights {lights} · teleport floors {tele}");
             // Real NASA 3D models (NASA 3D Resources, public domain) replace the hand-built placeholders outside
             NasaModels(hab);
-            R($"ceiling lights mounted flush: {global::HunchCeilingSnap.Snap(true, false)}");      // panels never hang in mid-air under a curved roof
+            R($"ceiling lights mounted flush: {HunchCeilingSnap.Snap(true, false)}");      // panels never hang in mid-air under a curved roof
             // Hologram map for the command table: a separate, NON-static copy built here in the editor.
             // (Instantiating the static-batched habitat at runtime drew full-size teal ghosts of every module over the whole base.)
             {

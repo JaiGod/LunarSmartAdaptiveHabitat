@@ -429,7 +429,7 @@ namespace Hunch3
             // breadcrumbs: only the next ~9 m glow, with a soft pulse running toward the goal
             var feet = pr.FeetPosition;
             foreach (var c in crumbs) if (c && c.transform != waypoint) { float dd = (c.transform.position - feet).sqrMagnitude; bool on = dd < 81f && dd > 0.3f; if (c.activeSelf != on) c.SetActive(on); }
-            if (crumbMat) { bool safeRoute = Hazards.I && Hazards.I.Active; var col = safeRoute ? new Color(0.3f, 1f, 0.45f, 0.5f + 0.25f * Mathf.Sin(Time.time * 4f)) : new Color(0.35f, 0.9f, 1f, 0.35f + 0.2f * Mathf.Sin(Time.time * 4f));   // alarm: GREEN = safe route to the muster point crumbMat.color = col; if (crumbMat.HasProperty("_BaseColor")) crumbMat.SetColor("_BaseColor", col); }
+            if (crumbMat) { bool safeRoute = Hazards.I && Hazards.I.Active; var col = safeRoute ? new Color(0.3f, 1f, 0.45f, 0.5f + 0.25f * Mathf.Sin(Time.time * 4f)) : new Color(0.35f, 0.9f, 1f, 0.35f + 0.2f * Mathf.Sin(Time.time * 4f));      /* alarm: GREEN = safe route to the muster point */ crumbMat.color = col; if (crumbMat.HasProperty("_BaseColor")) crumbMat.SetColor("_BaseColor", col); }
             if (waypoint) { waypoint.GetChild(0).Rotate(0, 90f * Time.deltaTime, 0, Space.World); var wpp = waypoint.position; wpp.y = goal.y + 1.9f + 0.06f * Mathf.Sin(Time.time * 2f); waypoint.position = wpp; }
             navText.text = $"➜ <b>{navLabel}</b>  {dist:0} m" + (Mathf.Abs(goal.y - pr.FeetPosition.y) > 1.5f ? "  (use the ladder)" : "");
             if (dist < 1.2f) { Toast($"Arrived: {navLabel}"); SetNavTarget("", ""); }
