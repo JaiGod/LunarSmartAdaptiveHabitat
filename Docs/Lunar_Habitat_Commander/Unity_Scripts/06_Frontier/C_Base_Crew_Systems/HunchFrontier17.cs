@@ -108,6 +108,22 @@ public partial class HunchFrontier
         Color[] c = { new Color(0.35f, 2.2f, 0.8f), new Color(2.2f, 1.7f, 0.3f), new Color(0.5f, 0.9f, 2.4f) };
         for (int s = 0; s < 3; s++) { var g = Prim(PrimitiveType.Cube, bed, at, new Vector3(0.9f, 0.035f, 0.035f), Glow(c[s])); g.name = "Recovery state light " + s; g.SetActive(s == 0); podLight[k, s] = g; }
     }
+    /// debug (HunchBridge: invoke HunchFrontier.DumpSleepPods) → HunchBridge/sleep_probe.txt: where the 4 sleep pods ended up
+    public static void DumpSleepPods()
+    {
+        var f = FindFirstObjectByType<HunchFrontier>(); var sb = new StringBuilder();
+        if (!f) sb.Append("no HunchFrontier (not playing?)");
+        else { sb.AppendLine("placed: " + f.sleepPlaced); for (int k = 0; k < 4; k++) sb.AppendLine(k + ": " + (f.sleepBed[k] ? f.sleepBed[k].name + " @ " + f.sleepBed[k].position.ToString("F2") + " fwd " + f.sleepBed[k].forward.ToString("F2") : "none") + "  lamp " + (f.podLamp[k] ? f.podLamp[k].color.ToString() + " I=" + f.podLamp[k].intensity.ToString("F2") : "-")); }
+        System.IO.File.WriteAllText(System.IO.Path.Combine("HunchBridge", "sleep_probe.txt"), sb.ToString());
+    }
+    static int viewPod = -1;
+    /// debug: stand 2.2 m from the next sleep pod and look at it (for a screenshot)
+    public static void ViewNextPod()
+    {
+        var f = FindFirstObjectByType<HunchFrontier>(); if (!f) return; viewPod = (viewPod + 1) % 4; var b = f.sleepBed[viewPod]; if (!b) return;
+        f.game.flyMode = false; Vector3 side = b.right; Vector3 at = b.position + side * 2.2f + Vector3.up * 0.05f;
+        f.TeleportTo(at, Quaternion.LookRotation(-side).eulerAngles.y); f.Face(b.position + Vector3.up * 0.7f);
+    }
     struct DormBed { public Vector3 c, axis; public float top, len, w; }
     /// scans the dorm for bed surfaces: a 0.2 m grid of downward rays; flat cells 0.3–0.85 m (or 1.3–2.0 m: upper bunk)
     /// above the floor are grouped, and groups that are bed-sized (1.6–2.6 m long, 0.6–1.4 m wide) are beds.
