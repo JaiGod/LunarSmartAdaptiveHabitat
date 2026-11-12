@@ -304,7 +304,13 @@ namespace Hunch3
         {
             if (inCharge == null) return false;
             if (inChargeStep == 0) { inChargeStep = 1; var e = E; foreach (var c in e.crew.Where(c => c.id != 1)) HealthCheck.at[c.id] = SimClock.hours; HUD.I?.Toast("You checked the crew: " + string.Join(", ", e.crew.Where(c => c.id != 1).Select(c => c.name.Split(' ').Last() + " " + CrewOrders.Energy(c.id))) + ". Everyone is safe."); e.Log(1, "night", "Commander checked every crewmate after the night-watch stop. All safe."); }
-            else { inCharge = null; if (Hazards.I && Hazards.I.Active) { HUD.I?.Toast("The alarm is still on — follow the arrow to the muster point first."); return true; } Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep(); }
+            else
+            {
+                inCharge = null; if (Hazards.I && Hazards.I.Active) { HUD.I?.Toast("The alarm is still on — follow the arrow to the muster point first."); return true; }
+                // mission 5's last step is "allow the AI again, then sleep": ENTER does both, so the mission can finish
+                if (InMission && CurMission != null && CurMission.name.StartsWith("Bedtime") && AIAuthority.Blocked) AIAuthority.Allow();
+                Go("WP_SQ1_Bed"); SleepSystem.I?.BeginSleep();
+            }
             return true;
         }
         void DailyDo() { var t = DailyCur; if (t == null) { HUD.I?.Toast("Today's wellness list is done. Free time — explore, or press Shift+J for the rubric checklist."); return; } try { t.act(); } catch (Exception ex) { HUD.I?.Toast("Couldn't do that automatically: " + ex.Message); } }
