@@ -21,6 +21,9 @@ const SURFACE := Vector3(80, 0, 0)
 const G_MOON := 1.62
 
 var A = Astro.new()
+var AI: Ares                      # Project ARES rubric layer (sensors → conditions → tiers, limits, Board Q1–Q6)
+var ares_tab = "dash"
+var ares_msg = ""
 var checkin = {}                 # last health-station check-in
 var checkins_today = 0
 var speeds = [1.0, 5.0, 20.0]    # sim minutes per real second (awake)
@@ -60,6 +63,7 @@ var ecg_t = 0.0
 var sleep_fast = false
 
 func _ready() -> void:
+	AI = Ares.new(A)
 	randomize()
 	_env()
 	_habitat()
@@ -209,6 +213,9 @@ func _surface() -> void:
 	var s = Node3D.new(); s.name = "Surface"; add_child(s); s.position = SURFACE
 	var reg = Build.mat(Color(0.47, 0.46, 0.44), 0.0, 1.0)
 	var g = Build.box(s, Vector3(120, 0.2, 120), Vector3(0, -0.1, 0), reg, true)
+	for side in [Vector3(60, 0, 0), Vector3(-60, 0, 0), Vector3(0, 0, 60), Vector3(0, 0, -60)]:      # invisible edge so you can't walk off the map
+		var wall = Node3D.new(); s.add_child(wall); wall.position = side + Vector3(0, 3, 0)
+		Build.collider(wall, Vector3(1, 6, 120) if side.x != 0 else Vector3(120, 6, 1))
 	var rng = RandomNumberGenerator.new(); rng.seed = 7
 	for i in 70:
 		var p = Vector3(rng.randf_range(-50, 50), 0, rng.randf_range(-50, 50))
@@ -267,6 +274,11 @@ func _unhandled_input(e: InputEvent) -> void:
 			KEY_TAB: _toggle_panel("feel")
 			KEY_H: _toggle_panel("help")
 			KEY_J: _toggle_panel("tasks")
+			KEY_P: ares_tab = "dash"; _toggle_panel("ares")
+			KEY_R: ares_tab = "rubric"; _toggle_panel("ares")
+			KEY_O: AI.set_ai(not AI.ai_on); _toast("ARES AI " + ("ON" if AI.ai_on else "OFF — everything it changed is undone. Press O to turn it back on."))
+			KEY_Y: if AI.pending_offer >= 0: _toast(AI.answer_offer(true))
+			KEY_N: if AI.pending_offer >= 0: _toast(AI.answer_offer(false))
 			KEY_ESCAPE:
 				if panel_kind != "": _close_panel()
 				else: Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -295,6 +307,11 @@ func _physics_process(dt: float) -> void:
 	dir = dir.normalized() * sp
 	player.velocity.x = lerp(player.velocity.x, dir.x, 0.2); player.velocity.z = lerp(player.velocity.z, dir.z, 0.2)
 	player.move_and_slide()
+	# never fall out of the world: back to a safe spot
+	if player.global_position.y < -6.0:
+		player.velocity = Vector3.ZERO
+		player.global_position = (SURFACE + Vector3(-7.5, 0.5, 0)) if A.on_eva else Vector3(-1.5, 0.5, 3.5)
+		_toast("Whoa — back on solid ground.")
 	if A.on_eva:
 		var moving = Vector2(player.velocity.x, player.velocity.z).length()
 		A.activity = lerp(A.activity, 0.15 + 0.12 * moving + (0.25 if run and moving > 1 else 0.0), 0.05)
@@ -314,13 +331,13 @@ func _process(dt: float) -> void:
 	var dm = rate * dt
 	# step the body in ≤1-minute chunks so the model stays stable at high speed
 	while dm > 0.0:
-		var s: float = min(dm, 1.0); A.step(s); dm -= s
+		var s: float = min(dm, 1.0); A.step(s); AI.step(s, _in_shared_zone()); dm -= s
 	if A.day() != task_day: _new_day_tasks()
 	if not A.asleep and on_treadmill and A.exercising <= 0.0:
 		_leave_treadmill(); _done("exercise"); _toast("Workout done — stress down, mood up.")
 	_world_tick(dt)
 	_hud_tick()
-	if panel_kind == "feel" or panel_kind == "pod": _refresh_live_panel()
+	if panel_kind == "feel" or panel_kind == "pod" or (panel_kind == "ares" and ares_tab == "dash"): _refresh_live_panel()
 	if panel_kind == "station": ecg_t += dt; _refresh_live_panel()
 
 func _world_tick(dt: float) -> void:
@@ -329,6 +346,9 @@ func _world_tick(dt: float) -> void:
 	var c = Color(0.85, 0.92, 1.0)
 	if h >= 19.0 or h < 6.0: c = Color(1.0, 0.55, 0.25) if (h >= 21.0 or h < 6.0) else Color(1.0, 0.8, 0.55)
 	elif h < 7.0: c = Color(1.0, 0.75, 0.5)
+	if AI.ai_on and AI.tier[0] >= 1: c = Color(1.0, 0.72, 0.45)        # Tier 1 (anxiety): warm 2700 K
+	elif AI.ai_on and AI.tier[5] >= 1: c = Color(0.55, 0.95, 0.85)     # Tier 1 (monotony): new colour scene
+	elif AI.ai_on and AI.tier[3] >= 1 and h >= 7.0 and h < 19.0: c = Color(0.8, 0.9, 1.0) * 1.15   # Tier 1 (fatigue): focus light
 	var alarm = A.co2_ppm > 4000.0
 	for m in led_mats: m.emission = m.emission.lerp(c, 0.05); m.albedo_color = m.emission
 	warn_light.light_energy = (0.8 + 0.8 * sin(Time.get_ticks_msec() * 0.008)) if alarm else 0.0
@@ -421,6 +441,7 @@ func _new_day_tasks() -> void:
 		"patch": ["Keep a cortisol patch on", A.patch_on and A.patch_hours_left() > 6],
 		"band": ["Wear the night wristband before bed", A.wristband_on],
 		"sleep": ["Sleep 7+ hours in the smart bunk", false],
+		"ares": ["Open the ARES dashboard (P)", false],
 	}
 
 # =============================================================================================
@@ -444,7 +465,7 @@ func _ui() -> void:
 	hud_log.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM; hud_log.add_theme_font_size_override("font_size", 13); hud_log.add_theme_color_override("font_color", Color(0.75, 0.8, 0.88)); root.add_child(hud_log)
 	var keys = Label.new(); keys.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT); keys.position = Vector2(-640, -30); keys.size = Vector2(630, 24)
 	keys.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; keys.add_theme_font_size_override("font_size", 13); keys.add_theme_color_override("font_color", Color(0.6, 0.7, 0.8))
-	keys.text = "WASD move · mouse look · E use · TAB how you feel · J tasks · H help · [ ] time speed · Esc mouse"; root.add_child(keys)
+	keys.text = "WASD move · E use · TAB how you feel · P ARES · R rubric · O AI off · J tasks · H help · [ ] speed"; root.add_child(keys)
 	# EVA suit HUD
 	hud_eva = PanelContainer.new(); hud_eva.set_anchors_preset(Control.PRESET_CENTER_LEFT); hud_eva.position = Vector2(16, -60); hud_eva.size = Vector2(330, 200)
 	hud_eva_text = RichTextLabel.new(); hud_eva_text.bbcode_enabled = true; hud_eva_text.fit_content = true; hud_eva_text.custom_minimum_size = Vector2(310, 0); hud_eva.add_child(hud_eva_text)
@@ -488,6 +509,7 @@ func _hud_tick() -> void:
 	if _toast_t > 0.0: _toast_t -= get_process_delta_time()
 	elif looking_at != null: hud_prompt.text = "E  " + str(looking_at.get_meta("prompt"))
 	elif A.asleep: hud_prompt.text = "Asleep · %s · F speed up · SPACE wake up" % A.stage
+	elif AI.pending_offer >= 0: hud_prompt.text = "AI offer: %s   Y yes · N no" % Ares.TIER2[AI.pending_offer]
 	else: hud_prompt.text = ""
 	hud_log.text = "\n".join(A.events.slice(0, 6))
 	hud_eva.visible = A.on_eva
@@ -503,7 +525,8 @@ func _toggle_panel(k: String) -> void:
 func _open_panel(k: String) -> void:
 	panel_kind = k; panel.visible = true; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if k == "feel": _done("feel")
-	if k == "pod" and _in_shared_zone(): _done("mood")
+	if k == "pod" and _in_shared_zone(): _done("mood"); AI.flag("pod")
+	if k == "ares": _done("ares")
 	_build_panel()
 
 func _close_panel() -> void:
@@ -531,8 +554,9 @@ func _build_panel() -> void:
 	_clear(); _live = null; _plot = null
 	match panel_kind:
 		"help":
-			_rt("[b][font_size=26][color=#7fd3ff]CREW HEALTH SIM[/color][/font_size][/b]\n[color=#9fb0c4]Project ARES · NASA HUNCH · Lunar Smart Adaptive Habitat[/color]\n\nYou are a crew member on the Moon. Six health devices watch over you — your job is to live a healthy mission day and learn how the habitat tells [b]how you feel[/b].\n\n[b]Bunk[/b] (crew quarters) — sleep; the sim runs fast and records sleep stages (light, deep, REM). Wear the [b]night wristband[/b] first for a full report.\n[b]Crew Health Station[/b] (medical) — daily check-in: live ECG, blood pressure, SpO2, temperature.\n[b]Zone sensor pod[/b] (wardroom ceiling) — mood detector from voice + face. Only works in shared zones; processing stays on the device.\n[b]Cortisol patch[/b] (table) — stress hormone, lasts 48 h.\n[b]Crew beacon[/b] — chest sensor: heart rate, HRV, skin response.\n[b]EVA suit[/b] (airlock) — go outside; the suit's heart-rate + blood-pressure detector shows on your helmet HUD.\n[b]Treadmill[/b] and [b]crew console[/b] — exercise, meals, calls home, work blocks, CO2 drill.\n\n[b]TAB[/b] opens the fusion screen: every device's evidence combined into one read-out with a confidence score.\n\nWASD move · mouse look (click to capture) · E use · Shift run · Space jump (lunar gravity) · [ ] time speed · J tasks · H help\n\n[color=#9fb0c4]© 2026 Jaineil R. — with thanks to Angel C. and Farhan K.[/color]")
+			_rt("[b][font_size=26][color=#7fd3ff]CREW HEALTH SIM[/color][/font_size][/b]\n[color=#9fb0c4]Project ARES · NASA HUNCH[/color]\n\nOne day on a lunar base. Six health devices and the ARES AI estimate how you feel. Everything in the Project ARES rubric can be tried here.\n\n[b]Bunk[/b] (quarters): sleep. Wear the [b]night wristband[/b] first.\n[b]Crew Health Station[/b] (medical): ECG, blood pressure, SpO2, temperature.\n[b]Zone sensor pod[/b] (wardroom): voice and face mood estimate, shared zones only.\n[b]Cortisol patch[/b] (table): lasts 48 h.\n[b]Crew beacon[/b] (shelf): heart rate, HRV, skin response.\n[b]EVA suit[/b] (airlock): suit heart rate and blood pressure outside.\n[b]Treadmill, crew console[/b]: exercise, meals, calls, work, CO2 drill.\n\n[b]TAB[/b] how you feel · [b]P[/b] ARES dashboard (sensors, conditions, tiers, limits, Board Q1–Q6, tabletop, your data) · [b]R[/b] rubric checklist · [b]O[/b] AI off · [b]Y / N[/b] answer an AI offer\n\nWASD move · mouse look · E use · Shift run · Space jump · [ ] time speed · J tasks\n\n[color=#9fb0c4]© 2026 Jaineil R. — with thanks to Angel C. and Farhan K.[/color]")
 			_close_row()
+		"ares": _build_ares()
 		"tasks":
 			var t = "[b][font_size=22]Mission day %d tasks[/font_size][/b]\n\n" % A.day()
 			for k in tasks: t += ("[color=#5be38a]DONE[/color]  " if tasks[k][1] else "TO DO  ") + tasks[k][0] + "\n"
@@ -573,6 +597,8 @@ func _build_panel() -> void:
 func _refresh_live_panel() -> void:
 	if _live == null: return
 	match panel_kind:
+		"ares":
+			if ares_tab == "dash": _live.text = _ares_dash()
 		"feel":
 			var fz = Fusion.assess(A, checkin, _in_shared_zone())
 			var t = "[font_size=30][b][color=#%s]%s[/color][/b][/font_size]   confidence [b]%d%%[/b] · %d of %d devices agree\n%s\n[color=#9fb0c4]Suggestion:[/color] %s\n\n" % [fz.color.to_html(false), fz.label, int(fz.confidence * 100), fz.agree, fz.voters, fz.sentence, fz.advice]
@@ -613,6 +639,80 @@ func _bar(x: float) -> String:
 	var n = int(round((x + 1.0) * 5.0)); n = clamp(n, 0, 10)
 	var col = "#5be38a" if x < -0.1 else ("#ffd166" if x < 0.35 else "#ff6a5a")
 	return "[color=%s]%s[/color][color=#334]%s[/color]" % [col, "|".repeat(n * 2), "|".repeat((10 - n) * 2)]
+
+# =============================================================================================
+#  ARES panel: dashboard · your data · Board Q1–Q6 · hard limits · tabletop · rubric
+# =============================================================================================
+func _build_ares() -> void:
+	var tabs = HBoxContainer.new(); panel_box.add_child(tabs)
+	for tb in [["dash", "Dashboard"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
+		var b = _btn(tb[1], func(): ares_tab = tb[0]; ares_msg = ""; _build_panel()); b.toggle_mode = true; b.button_pressed = ares_tab == tb[0]; tabs.add_child(b)
+	AI.flag("crew" if ares_tab == "crew" else ares_tab)
+	match ares_tab:
+		"dash":
+			_live = _rt(_ares_dash(), 15)
+		"crew":
+			var t = "[b][font_size=22]Your data (crew interface)[/font_size][/b]\nOnly you see this. The AI log lists every change it made, including silent ones.\n\n"
+			t += "AI: [b]%s[/b]%s   ·   tell me about silent changes: [b]%s[/b]   ·   Configuration %s\n\n" % ["ON" if AI.ai_on else "OFF", "  (paused)" if A.minute < AI.paused_until else "", "on" if AI.tell_me_silent else "off", "B" if AI.config_b else "A"]
+			t += "[b]Your AI log[/b]\n" + ("\n".join(AI.entries.slice(0, 14)) if AI.entries.size() else "(nothing yet)")
+			_rt(t, 15)
+			var g = GridContainer.new(); g.columns = 3; panel_box.add_child(g)
+			g.add_child(_btn("AI off / on (O)", func(): AI.set_ai(not AI.ai_on); _build_panel()))
+			g.add_child(_btn("Pause support 24 h", func(): AI.pause_24h(); _build_panel()))
+			g.add_child(_btn("Tell me about silent changes", func(): AI.tell_me_silent = not AI.tell_me_silent; _build_panel()))
+			g.add_child(_btn("Configuration A / B (consent)", func(): AI.config_b = not AI.config_b; AI.note("You switched to Configuration " + ("B" if AI.config_b else "A")); AI.flag("configb"); _build_panel()))
+			g.add_child(_btn("Human system review", func(): AI.review(); _build_panel()))
+			g.add_child(_btn("Delete my log", func(): AI.entries.clear(); AI.note("You deleted your log"); _build_panel()))
+			_rt("[b]Sensors you can switch off[/b] (heart rate and CO2 stay on for physical safety)", 15)
+			var g2 = GridContainer.new(); g2.columns = 3; panel_box.add_child(g2)
+			for i in 9:
+				var ii = i
+				var b2 = _btn("%s: %s" % [Ares.SENSORS[i], "OFF" if AI.opted_out[i] else "on"], func(): AI.opted_out[ii] = not AI.opted_out[ii]; AI.note(("Switched off " if AI.opted_out[ii] else "Switched on ") + Ares.SENSORS[ii]); _build_panel())
+				b2.disabled = not Ares.OPT_OUT_ALLOWED[i]; g2.add_child(b2)
+		"board":
+			_rt("[b][font_size=22]Agency Review Board questions[/font_size][/b]\nEach button sets up the situation in the game and shows what the design does.", 15)
+			var g = GridContainer.new(); g.columns = 3; panel_box.add_child(g)
+			for q in range(1, 7):
+				var qq = q
+				g.add_child(_btn("Q%d%s" % [q, "  (done)" if AI.flags.has("q%d" % q) else ""], func(): ares_msg = AI.board(qq); _build_panel()))
+			if ares_msg != "": _rt(ares_msg, 16)
+		"limits":
+			var t = "[b][font_size=22]8 hard limits (enforced in code)[/font_size][/b]\nPress Test: the AI tries to break the limit and is blocked. Blocked so far: [b]%d[/b]\n" % AI.blocked
+			_rt(t, 15)
+			for i in 8:
+				var ii = i
+				var hb = HBoxContainer.new(); panel_box.add_child(hb)
+				hb.add_child(_btn("Test", func(): ares_msg = AI.test_limit(ii); _build_panel()))
+				var l = Label.new(); l.text = "%d. %s" % [i + 1, Ares.HARD_LIMITS[i]]; l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size = Vector2(700, 0); hb.add_child(l)
+			if ares_msg != "": _rt("[color=#ff8a7a]" + ares_msg + "[/color]", 15)
+		"tabletop":
+			_rt("[b][font_size=22]Bonus A · 72-hour tabletop[/font_size][/b]\nRuns 72 hours fast with anxiety and conflict at once, a failed cortisol patch and the CMO on EVA. Your game state is put back afterwards.", 15)
+			panel_box.add_child(_btn("Run the 72-hour tabletop", func(): ares_msg = AI.tabletop(); _build_panel()))
+			if ares_msg != "": _rt(ares_msg, 14)
+		"rubric":
+			var t = "[b][font_size=22]Project ARES rubric in this game[/font_size][/b]\nTicks appear when you try each part.\n\n"
+			var got = 0; var all = 0
+			for row in AI.rubric():
+				if row[1] == "": t += "\n[b][color=#7fd3ff]%s[/color][/b]\n" % row[0]; continue
+				all += 1; var ok = AI.flags.has(row[1])
+				if ok: got += 1
+				t += ("[color=#5be38a]DONE[/color]  " if ok else "[color=#6f8398]to do[/color]  ") + row[0] + "\n"
+			_rt("%s\n[b]%d / %d tried[/b]" % [t, got, all], 15)
+	_close_row()
+
+func _ares_dash() -> String:
+	var t = "[b][font_size=20]ARES dashboard[/font_size][/b]   AI [b]%s[/b] · confidence [b]%d%%[/b]%s\n\n" % ["ON" if AI.ai_on else "OFF", int(AI.confidence * 100), "  (under 50%: Tier 1 only)" if AI.confidence < 0.5 else ""]
+	t += "[b]D1 · 9 sensors[/b]\n[table=4]"
+	for i in 9:
+		t += "[cell]%s  [/cell][cell][color=%s]%s[/color]  [/cell][cell]%s  [/cell][cell][color=#9fb0c4]%s[/color][/cell]" % [Ares.SENSORS[i], "#5be38a" if AI.sensor_ok[i] else "#ff8a7a", ("%.2f" % AI.sensor_val[i]) if AI.sensor_ok[i] else "off", Ares.SENSOR_DEVICE[i], AI.sensor_why[i] if AI.sensor_why[i] != "" else Ares.THRESHOLD[i]]
+	t += "[/table]\n\n[b]D2/D3 · 6 conditions[/b]   tiers at 0.35 / 0.55 / 0.75\n[table=3]"
+	for c in 6:
+		var s: float = AI.score[c]
+		var col = "#5be38a" if s < Ares.T1 else ("#ffd166" if s < Ares.T2 else ("#ffa94d" if s < Ares.T3 else "#ff5a4a"))
+		t += "[cell]%s  [/cell][cell][color=%s]%s %.2f[/color]  [/cell][cell]Tier %d[/cell]" % [Ares.CONDS[c], col, "|".repeat(int(s * 30)), s, AI.tier[c]]
+	t += "[/table]"
+	if AI.pending_offer >= 0: t += "\n\n[color=#ffd166]Offer waiting: %s  (Y yes / N no)[/color]" % Ares.TIER2[AI.pending_offer]
+	return t
 
 # =============================================================================================
 #  small 2D plots: ECG trace, hypnogram, mood circumplex
@@ -675,6 +775,11 @@ class Plot extends Control:
 # =============================================================================================
 #  automated screenshots for the README (godot … -- --shots=<dir>)
 # =============================================================================================
+func _shot_ares() -> void:
+	_close_panel(); A.stress = 0.6; A.valence = -0.3
+	for i in 240: A.step(1.0); AI.step(1.0, true)
+	ares_tab = "dash"; _open_panel("ares")
+
 func _shot_report() -> void:
 	for i in 470: A.step(1.0)
 	_wake()
@@ -692,6 +797,10 @@ func _shots(dir: String) -> void:
 		["eva2", func(): yaw = deg_to_rad(-150); pitch = -0.05],
 		["sleep", func(): _end_eva(false); A.wristband_on = true; A.minute = 22 * 60.0; _sleep(); sleep_fast = true],
 		["report", _shot_report],
+		["ares_dash", _shot_ares],
+		["ares_board", func(): ares_tab = "board"; ares_msg = AI.board(2); _build_panel()],
+		["ares_limits", func(): ares_tab = "limits"; ares_msg = AI.test_limit(5); _build_panel()],
+		["ares_rubric", func(): ares_tab = "rubric"; _build_panel()],
 	]
 	DirAccess.make_dir_recursive_absolute(dir)
 	for step in plan:
