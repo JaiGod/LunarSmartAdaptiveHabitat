@@ -229,14 +229,36 @@ namespace Hunch3
             g.AddComponent<Rigidbody>().mass = 0.2f; g.AddComponent<XRGrabInteractable>();
             HUD.I?.Toast("Spare part printed (ECLSS fan bracket). Grab it!");
         }
-        GameObject held;
+        /// the one item you are carrying (desktop). E or G drops it wherever you are looking — no need to aim at it.
+        public static HabInteractable Held;
         void Pickup()
         {
-            if (PlayerRig.I && !PlayerRig.I.isXR)
-            {
-                if (held == null) { held = gameObject; var rb = GetComponent<Rigidbody>(); if (rb) rb.isKinematic = true; transform.SetParent(PlayerRig.I.cam.transform, true); transform.localPosition = new Vector3(0.25f, -0.25f, 0.6f); HUD.I?.Toast("Carrying item (1/6 g: feels ~6x lighter). E again to drop."); }
-                else { transform.SetParent(null, true); var rb = GetComponent<Rigidbody>(); if (rb) rb.isKinematic = false; held = null; }
+            if (!PlayerRig.I || PlayerRig.I.isXR) return;
+            if (Held == this) { DropHeld(); return; }
+            if (Held != null) DropHeld();                                   // swap: put the old one down first
+            Held = this;
+            foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false;   // so it never blocks your aim or the door
+            var rb = GetComponent<Rigidbody>(); if (rb) rb.isKinematic = true;
+            transform.SetParent(PlayerRig.I.cam.transform, true); transform.localPosition = new Vector3(0.25f, -0.25f, 0.6f);
+            HUD.I?.Toast("Carrying " + name.Replace("_", " ") + ". E or G to put it down.");
+        }
+        public static void DropHeld()
+        {
+            var h = Held; if (h == null) return; Held = null;
+            var cam = PlayerRig.I ? PlayerRig.I.cam.transform : null;
+            h.transform.SetParent(null, true);
+            if (cam)
+            {   // set it down about a metre in front of you, on whatever is below (floor, table, shelf)
+                Vector3 p = cam.position + Vector3.ProjectOnPlane(cam.forward, Vector3.up).normalized * 0.9f;
+                bool bf = Physics.queriesHitBackfaces; Physics.queriesHitBackfaces = true;
+                if (Physics.Raycast(p, Vector3.down, out var hit, 3f, ~0, QueryTriggerInteraction.Ignore)) p = hit.point + Vector3.up * 0.05f;
+                Physics.queriesHitBackfaces = bf;
+                h.transform.position = p; h.transform.rotation = Quaternion.Euler(0, cam.eulerAngles.y, 0);
             }
+            foreach (var c in h.GetComponentsInChildren<Collider>(true)) c.enabled = true;
+            var rb = h.GetComponent<Rigidbody>(); if (!rb) { rb = h.gameObject.AddComponent<Rigidbody>(); rb.mass = 5f; }
+            rb.isKinematic = false; rb.useGravity = true;
+            HUD.I?.Toast("Put down.");
         }
         void Airlock(PlayerRig pr)
         {
@@ -318,6 +340,13 @@ namespace Hunch3
                 return;
             }
             HabInteractable.Hover = null;
+            if (!pr.isXR && HabInteractable.Held != null)
+            {   // carrying something: E / G / right-click always drops it, wherever you aim
+                var kb = Keyboard.current;
+                HUD.I?.SetPrompt("Carrying: E or G to put it down");
+                if ((kb != null && (kb.eKey.wasPressedThisFrame || kb.gKey.wasPressedThisFrame))) HabInteractable.DropHeld();
+                return;
+            }
             if (!pr.isXR)
             {
                 Aim.Resolve();

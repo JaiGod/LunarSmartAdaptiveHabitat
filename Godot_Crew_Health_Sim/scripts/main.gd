@@ -37,21 +37,18 @@ const REQ = {
 	"vr": ["Countermeasure", "VR for relaxation (proposal §5d countermeasures)"],
 	"treadmill": ["Exercise", "Exercise countermeasure; bone and mood in 1/6 g (proposal §5d)"],
 	"suit": ["Airlock", "EVA with suit biomedical monitoring (proposal: biomedical monitoring)"],
-	"dust": ["Airlock / dust mitigation", "Dust mitigation at the airlock (proposal: zoning for dust mitigation)"],
-	"eclss": ["ECLSS", "Air revitalization, water recovery, O2 generation on a smart dashboard (proposal §5c)"],
+	"dust": ["Airlock / dust mitigation", "Lunar dust irritates lungs and eyes: clean the suit before it reaches the cabin (proposal: dust mitigation)"],
 	"hygiene": ["Hygiene", "Hygiene zone, private: no cameras or mics (proposal zoning + hard limit 6)"],
-	"storage": ["Storage", "Logistics/storage + 3D printing of spare parts (proposal §1C automated maintenance)"],
-	"robot": ["Maintenance", "Robotic inspection + predictive maintenance (proposal §1C, §2A)"],
 	"hatch": ["Airlock", "Airlock between surface and habitat (proposal NASA functional zones)"],
-	"sample": ["EVA work", "Surface science task that drives suit workload (EVA biomedical data)"],
+	"sample": ["EVA checkpoint", "EVA walk that drives suit heart rate and blood pressure (biomedical monitoring)"],
 }
 var used = {}
 var light_mode = 0                 # 0 auto circadian · 1 focus 6500 K · 2 wind-down 1800 K
 var suit_dust = 0.0
 var cabin_dust = 0.0
-var robot: Node3D
-var robot_t = 0.0
 var ares_msg = ""
+var case_running = false
+var case_msg = ""
 var checkin = {}                 # last health-station check-in
 var checkins_today = 0
 var speeds = [1.0, 5.0, 20.0]    # sim minutes per real second (awake)
@@ -227,27 +224,10 @@ func _habitat() -> void:
 	Build.box(vrd, Vector3(0.3, 0.06, 0.02), Vector3(0, 0.6, -0.11), Build.mat(Color(0.3, 0.6, 1.0), 0.0, 0.3, 1.5))
 	_interact(vrd, "vr", "VR nature break (countermeasure)", Vector3(0.9, 1.3, 0.7))
 
-	# ---- ECLSS rack (life support): the AI reads it, only humans change it (hard limit 3) ----
-	Build.label3d(hab, "ECLSS · air + water", Vector3(7.0, 2.9, -4.6), 0.7, Color(0.6, 0.9, 1.0))
-	var ec = Build.box(hab, Vector3(1.4, 2.2, 0.7), Vector3(7.0, 1.1, -4.6), Build.mat(Color(0.82, 0.84, 0.86), 0.4, 0.4), true, -0.55)
-	for k in 4: Build.box(ec, Vector3(1.2, 0.02, 0.02), Vector3(0, -0.7 + 0.45 * k, -0.36), Build.mat(Color(0.3, 0.9, 0.5) if k != 1 else Color(0.3, 0.7, 1.0), 0.0, 0.5, 1.5))
-	_interact(ec, "eclss", "ECLSS rack: air, water, O2 (open the Building tab)", Vector3(1.5, 2.3, 0.9))
-	Build.routed_cable(hab, [Vector3(7.3, 2.2, -4.9), Vector3(7.6, H_MOD - 0.45, -5.2)], 0.03, Color(0.55, 0.58, 0.62))
 	# ---- Hygiene (private, no sensors) ----
 	Build.label3d(hab, "HYGIENE · private", Vector3(-5.6, 2.7, -5.4), 0.7, Color(1, 0.8, 0.5))
 	var hy = Build.box(hab, Vector3(1.3, 2.2, 1.3), Vector3(-5.6, 1.1, -5.4), Build.mat(Color(0.88, 0.9, 0.92), 0.1, 0.6), true, 0.6)
 	_interact(hy, "hygiene", "Hygiene stall (private: no sensors)", Vector3(1.4, 2.3, 1.4))
-	# ---- Storage + 3D printer (spare parts) ----
-	Build.label3d(hab, "STORAGE · 3D printer", Vector3(0.0, 2.6, -8.1), 0.7)
-	var st = Build.box(hab, Vector3(1.6, 1.8, 0.6), Vector3(0.0, 0.9, -8.2), Build.mat(Color(0.6, 0.62, 0.66), 0.5, 0.4), true)
-	for k in 3: Build.box(st, Vector3(1.5, 0.03, 0.55), Vector3(0, -0.6 + 0.5 * k, 0), Build.mat(Color(0.4, 0.42, 0.45), 0.5, 0.4))
-	Build.box(st, Vector3(0.5, 0.45, 0.45), Vector3(0.45, 0.2, 0.0), Build.mat(Color(0.15, 0.16, 0.2), 0.3, 0.4))
-	_interact(st, "storage", "Storage + 3D printer: print a spare part", Vector3(1.7, 1.9, 0.8))
-	# ---- Maintenance robot (patrols the ring) ----
-	robot = Node3D.new(); hab.add_child(robot)
-	Build.cyl(robot, 0.28, 0.25, Vector3(0, 0.2, 0), Build.mat(Color(0.9, 0.9, 0.92), 0.3, 0.4))
-	Build.sphere(robot, 0.12, Vector3(0, 0.42, 0.12), Build.mat(Color(0.3, 0.8, 1.0), 0.0, 0.4, 1.2))
-	_interact(robot, "robot", "Maintenance robot: inspection report", Vector3(0.7, 0.7, 0.7))
 	# ---- Dust station in the airlock ----
 	var du = Build.box(hab, Vector3(0.6, 1.6, 0.4), Vector3(8.2, 0.8, 1.2), Build.mat(Color(0.95, 0.6, 0.15), 0.3, 0.5), true)
 	Build.label3d(hab, "DUST STATION", Vector3(8.2, 1.9, 1.2), 0.6, Color(1, 0.75, 0.4))
@@ -315,7 +295,7 @@ func _surface() -> void:
 	# geology samples to collect
 	for p in [Vector3(12, 0.25, 8), Vector3(18, 0.25, -10), Vector3(-2, 0.25, 16)]:
 		var smp = Build.sphere(s, 0.28, p, Build.mat(Color(0.95, 0.75, 0.3), 0.3, 0.4, 0.9))
-		_interact(smp, "sample", "Collect rock sample", Vector3(0.8, 0.8, 0.8)); sample_nodes.append(smp)
+		_interact(smp, "sample", "EVA checkpoint (suit logs HR + BP)", Vector3(0.8, 0.8, 0.8)); sample_nodes.append(smp)
 		var beam = Build.cyl(s, 0.03, 4.0, p + Vector3(0, 2.0, 0), Build.mat(Color(1.0, 0.8, 0.3, 0.5), 0.0, 0.5, 1.5))
 		smp.set_meta("beam", beam)
 	# Earth low on the horizon
@@ -350,11 +330,11 @@ func _unhandled_input(e: InputEvent) -> void:
 			KEY_TAB: _toggle_panel("feel")
 			KEY_H: _toggle_panel("help")
 			KEY_J: _toggle_panel("tasks")
-			KEY_P: ares_tab = "dash"; _toggle_panel("ares")
+			KEY_P: ares_tab = "cases"; _toggle_panel("ares")
 			KEY_R: ares_tab = "rubric"; _toggle_panel("ares")
 			KEY_O: AI.set_ai(not AI.ai_on); _toast("ARES AI " + ("ON" if AI.ai_on else "OFF — everything it changed is undone. Press O to turn it back on."))
-			KEY_Y: if AI.pending_offer >= 0: _toast(AI.answer_offer(true))
-			KEY_N: if AI.pending_offer >= 0: _toast(AI.answer_offer(false))
+			KEY_Y: if AI.pending_offer >= 0: _toast(AI.answer_offer(true)); _after_offer()
+			KEY_N: if AI.pending_offer >= 0: _toast(AI.answer_offer(false)); _after_offer()
 			KEY_ESCAPE:
 				if panel_kind != "": _close_panel()
 				else: Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -409,6 +389,11 @@ func _process(dt: float) -> void:
 	while dm > 0.0:
 		var s: float = min(dm, 1.0); A.step(s); AI.step(s, _in_shared_zone()); dm -= s
 	if A.day() != task_day: _new_day_tasks()
+	if case_running and AI.case_i == 4 and AI.tier.max() >= 3:
+		speed_i = 0; case_running = false; AI.pending_offer = -1; case_msg = AI.case_result(); _done("case")
+		_toast("Tier 3: you were told first, then the Commander (the CMO is outside). " + case_msg)
+	elif case_running and AI.case_i != 4 and AI.pending_offer >= 0:
+		speed_i = 0
 	if not A.asleep and on_treadmill and A.exercising <= 0.0:
 		_leave_treadmill(); _done("exercise"); _toast("Workout done — stress down, mood up.")
 	_world_tick(dt)
@@ -428,8 +413,6 @@ func _world_tick(dt: float) -> void:
 	if light_mode == 1: c = Color(0.85, 0.92, 1.0) * 1.2
 	elif light_mode == 2: c = Color(1.0, 0.5, 0.22)
 	if suit_dust > 0.0 and not A.on_eva: cabin_dust = min(1.0, cabin_dust + dt * 0.004)
-	robot_t += dt * 0.12
-	if robot: robot.position = Vector3(cos(robot_t) * 5.3, 0, sin(robot_t) * 5.3); robot.rotation.y = -robot_t
 	var alarm = A.co2_ppm > 4000.0
 	for m in led_mats: m.emission = m.emission.lerp(c, 0.05); m.albedo_color = m.emission
 	warn_light.light_energy = (0.8 + 0.8 * sin(Time.get_ticks_msec() * 0.008)) if alarm else 0.0
@@ -472,12 +455,7 @@ func _use() -> void:
 			A.exercise(); on_treadmill = true
 			_toast("Running on the treadmill… (press E, Space or WASD to stop early)")
 		"suit": _start_eva()
-		"eclss": ares_tab = "building"; _open_panel("ares")
 		"hygiene": A.stress = max(0.0, A.stress - 0.03); A.minute += 10.0; A.note("Hygiene: private, no sensors in here (hard limit 6)")
-		"storage":
-			A.minute += 30.0; A.note("Printed a spare CO2-filter frame (3D printer, regolith-free polymer)"); A.co2_ppm = min(A.co2_ppm, 2400.0); AI.flag("building")
-		"robot":
-			_toast("Robot inspection: CO2 filter 11 days left · O2 cell 140 days · cabin dust %d%% · treadmill belt 40 days" % int(cabin_dust * 100)); AI.flag("building")
 		"dust":
 			suit_dust = 0.0; cabin_dust *= 0.3; A.note("Suit brushed and vacuumed: dust kept out of the cabin"); AI.flag("dust")
 		"lights":
@@ -494,8 +472,15 @@ func _use() -> void:
 			var n: Node3D = looking_at.get_meta("node")
 			if n.visible:
 				n.visible = false; (n.get_meta("beam") as Node3D).visible = false; looking_at.get_parent().remove_child(looking_at)
-				samples += 1; A.note("rock sample %d/3 bagged" % samples); A.activity = min(1.0, A.activity + 0.2)
-				if samples >= 3: _done("eva"); _toast("All 3 samples collected — head back to the airlock.")
+				samples += 1; A.note("EVA checkpoint %d/3: HR %d, BP %d/%d logged" % [samples, A.hr, A.bp_sys, A.bp_dia]); A.activity = min(1.0, A.activity + 0.2)
+				if samples >= 3: _done("eva"); _toast("All 3 checkpoints done. Head back to the airlock.")
+
+func _after_offer() -> void:
+	if not case_running: return
+	case_running = false
+	for i in 120: A.step(1.0); AI.step(1.0, _in_shared_zone())     # two hours later
+	case_msg = AI.case_result(); _done("case")
+	_toast("Two hours later: " + case_msg + "  (P → Health cases for more)")
 
 func _leave_treadmill() -> void:
 	on_treadmill = false
@@ -517,7 +502,7 @@ func _start_eva() -> void:
 	A.on_eva = true; A.eva_suit_o2 = 100.0; samples = 0
 	for n in sample_nodes: n.visible = true; (n.get_meta("beam") as Node3D).visible = true
 	player.global_position = SURFACE + Vector3(-7.5, 0.3, 0); yaw = deg_to_rad(-90)
-	A.note("EVA start — suit HR + BP detector online"); _toast("You're outside. Collect the 3 glowing rock samples. Keep heart rate under 150.")
+	A.note("EVA start — suit HR + BP detector online"); _toast("You're outside. Walk to the 3 glowing checkpoints. The suit tracks your heart rate and blood pressure; keep HR under 150.")
 
 func _end_eva(forced: bool) -> void:
 	if not A.on_eva: return
@@ -537,11 +522,12 @@ func _new_day_tasks() -> void:
 		"feel": ["Check how you feel (TAB fusion screen)", false],
 		"mood": ["Talk near the zone sensor pod (mood detector)", false],
 		"exercise": ["Exercise 45 min on the treadmill", false],
-		"eva": ["EVA: collect 3 rock samples (suit HR + BP)", false],
+		"eva": ["EVA walk: 3 checkpoints, HR under 150 (suit biomed)", false],
 		"patch": ["Keep a cortisol patch on", A.patch_on and A.patch_hours_left() > 6],
 		"band": ["Wear the night wristband before bed", A.wristband_on],
 		"sleep": ["Sleep 7+ hours in the smart bunk", false],
 		"journal": ["Write in the daily journal (crew console)", false],
+		"case": ["Play a health case (P → Health cases)", false],
 		"ares": ["Open the ARES dashboard (P)", false],
 	}
 
@@ -616,7 +602,7 @@ func _hud_tick() -> void:
 	hud_eva.visible = A.on_eva
 	if A.on_eva:
 		var hrc = "#5be38a" if A.hr < 130 else ("#ffb74d" if A.hr < 150 else "#ff5a4a")
-		hud_eva_text.text = "[b][color=#ffa94d]EVA SUIT · biomed[/color][/b]\n[color=%s]HR %d bpm[/color]   BP [b]%d/%d[/b] mmHg\nSpO2 %d%%   resp %d /min\nO2 tank [b]%d%%[/b]   helmet CO2 %.1f mmHg\nsuit %.1f °C   metabolic %d W\nsamples %d / 3%s" % [hrc, A.hr, A.bp_sys, A.bp_dia, A.spo2, A.rr, A.eva_suit_o2, A.eva_suit_co2, A.eva_suit_temp, int(100 + 450 * A.activity), samples, "\n[color=#ff5a4a]HR HIGH — slow down[/color]" if A.hr > 150 else ""]
+		hud_eva_text.text = "[b][color=#ffa94d]EVA SUIT · biomed[/color][/b]\n[color=%s]HR %d bpm[/color]   BP [b]%d/%d[/b] mmHg\nSpO2 %d%%   resp %d /min\nO2 tank [b]%d%%[/b]   helmet CO2 %.1f mmHg\nsuit %.1f °C   metabolic %d W\ncheckpoints %d / 3%s" % [hrc, A.hr, A.bp_sys, A.bp_dia, A.spo2, A.rr, A.eva_suit_o2, A.eva_suit_co2, A.eva_suit_temp, int(100 + 450 * A.activity), samples, "\n[color=#ff5a4a]HR HIGH — slow down[/color]" if A.hr > 150 else ""]
 
 # ---- panels ----------------------------------------------------------------------------------
 func _toggle_panel(k: String) -> void:
@@ -655,7 +641,7 @@ func _build_panel() -> void:
 	_clear(); _live = null; _plot = null
 	match panel_kind:
 		"help":
-			_rt("[b][font_size=26][color=#7fd3ff]CREW HEALTH SIM[/color][/font_size][/b]\n[color=#9fb0c4]Project ARES · NASA HUNCH[/color]\n\nOne day on a lunar base. Six health devices and the ARES AI estimate how you feel. Everything in the Project ARES rubric can be tried here.\n\n[b]Bunk[/b] (quarters): sleep. Wear the [b]night wristband[/b] first.\n[b]Crew Health Station[/b] (medical): ECG, blood pressure, SpO2, temperature.\n[b]Zone sensor pod[/b] (wardroom): voice and face mood estimate, shared zones only.\n[b]Cortisol patch[/b] (table): lasts 48 h.\n[b]Crew beacon[/b] (shelf): heart rate, HRV, skin response.\n[b]EVA suit[/b] (airlock): suit heart rate and blood pressure outside.\n[b]Treadmill, crew console[/b]: exercise, meals, calls, work, CO2 drill.\n\n[b]TAB[/b] how you feel · [b]P[/b] ARES dashboard (sensors, conditions, tiers, limits, Board Q1–Q6, tabletop, your data) · [b]R[/b] rubric checklist · [b]O[/b] AI off · [b]Y / N[/b] answer an AI offer\n\nWASD move · mouse look · E use · Shift run · Space jump · [ ] time speed · J tasks\n\n[color=#9fb0c4]© 2026 Jaineil R. — with thanks to Angel C. and Farhan K.[/color]")
+			_rt("[b][font_size=26][color=#7fd3ff]CREW HEALTH SIM[/color][/font_size][/b]\n[color=#9fb0c4]Project ARES · NASA HUNCH[/color]\n\nOne day on a lunar base. Six health devices and the ARES AI estimate how you feel. Everything in the Project ARES rubric can be tried here.\n\n[b]Bunk[/b] (quarters): sleep. Wear the [b]night wristband[/b] first.\n[b]Crew Health Station[/b] (medical): ECG, blood pressure, SpO2, temperature.\n[b]Zone sensor pod[/b] (wardroom): voice and face mood estimate, shared zones only.\n[b]Cortisol patch[/b] (table): lasts 48 h.\n[b]Crew beacon[/b] (shelf): heart rate, HRV, skin response.\n[b]EVA suit[/b] (airlock): suit heart rate and blood pressure outside.\n[b]Treadmill, crew console[/b]: exercise, meals, calls, work, CO2 drill.\n\n[b]TAB[/b] how you feel · [b]P[/b] ARES panel: health cases, sensors, conditions, tiers, limits, Board Q1–Q6, tabletop, your data · [b]R[/b] rubric checklist · [b]O[/b] AI off · [b]Y / N[/b] answer an AI offer\n\nWASD move · mouse look · E use · Shift run · Space jump · [ ] time speed · J tasks\n\n[color=#9fb0c4]© 2026 Jaineil R. — with thanks to Angel C. and Farhan K.[/color]")
 			_close_row()
 		"ares": _build_ares()
 		"tasks":
@@ -754,30 +740,25 @@ func _bar(x: float) -> String:
 # =============================================================================================
 func _build_ares() -> void:
 	var tabs = HFlowContainer.new(); panel_box.add_child(tabs)
-	for tb in [["trace", "Why it's here"], ["dash", "Dashboard"], ["protocols", "Protocols"], ["habitat", "Habitat"], ["building", "Building"], ["model", "Model"], ["report", "Report"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
+	for tb in [["cases", "Health cases"], ["dash", "Dashboard"], ["trace", "Why it's here"], ["protocols", "Protocols"], ["habitat", "Habitat"], ["model", "Model"], ["report", "Report"], ["crew", "Your data"], ["board", "Board Q1–Q6"], ["limits", "Hard limits"], ["tabletop", "Tabletop"], ["rubric", "Rubric"]]:
 		var b = _btn(tb[1], func(): ares_tab = tb[0]; ares_msg = ""; _build_panel()); b.toggle_mode = true; b.button_pressed = ares_tab == tb[0]; tabs.add_child(b)
 	AI.flag("crew" if ares_tab == "crew" else ares_tab)
 	match ares_tab:
 		"dash":
 			_live = _rt(_ares_dash(), 15)
+		"cases":
+			_rt("[b][font_size=22]Health cases[/font_size][/b]\nEach case sets up a real crew-health problem. Time runs fast until the AI notices. Then [b]you[/b] decide: Y to accept its offer, N to refuse.\n", 15)
+			for i in Ares.CASES.size():
+				var ii = i
+				var hb = HBoxContainer.new(); panel_box.add_child(hb)
+				hb.add_child(_btn("Play", func(): ares_msg = AI.start_case(ii); case_running = true; speed_i = 2; _close_panel(); _toast(ares_msg)))
+				var l = Label.new(); l.text = "%s: %s" % [Ares.CASES[i][0], Ares.CASES[i][1]]; l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size = Vector2(700, 0); hb.add_child(l)
+			if case_msg != "": _rt("[color=#5be38a]Last result: " + case_msg + "[/color]", 15)
 		"trace":
 			var t = "[b][font_size=22]Why each object is here[/font_size][/b]\nEvery object in the base answers a line in the research proposal. Nothing is decoration. Ticks show what you have used.\n\n[table=3]"
 			for k in REQ:
 				t += "[cell]%s  [/cell][cell][b]%s[/b]  [/cell][cell]%s[/cell]" % ["[color=#5be38a]used[/color]" if used.has(k) else "[color=#6f8398]-[/color]", REQ[k][0], REQ[k][1]]
 			_rt(t + "[/table]", 14)
-		"building":
-			var o2 = 20.9 - max(0.0, (A.co2_ppm - 2400.0) / 4000.0)
-			var t = "[b][font_size=22]Smart building (ECLSS, power, maintenance)[/font_size][/b]\n\n"
-			t += "[b]Air[/b]  O2 %.1f %% · CO2 %d ppm (limit 2,500 ppm normal, 5,000 alarm) · temp 22.5 °C · humidity 45 %%\n" % [o2, A.co2_ppm]
-			t += "[b]Water recovery[/b]  98 %% (urine + humidity condensate) · tank 1,840 L\n"
-			t += "[b]Power[/b]  solar towers %d kW (south-pole rim) · fission backup 10 kW · battery 86 %%\n" % (18 if A.hour() > 6.0 and A.hour() < 20.0 else 6)
-			t += "[b]Dust[/b]  suit %s · cabin dust %d %% %s\n" % ["dusty, use the dust station" if suit_dust > 0.0 else "clean", int(cabin_dust * 100), "(rising: affects air filters)" if cabin_dust > 0.2 else ""]
-			t += "[b]Greenhouse[/b]  ~0.3 kg O2 and 0.4 kg food per day · plant care counts as a countermeasure\n"
-			t += "[b]Maintenance (predicted)[/b]  CO2 scrubber filter: 11 days · O2 generator cell: 140 days · treadmill belt: 40 days\n"
-			t += "[b]Spares[/b]  3D printer ready: filter frame, hose clamp, fan blade\n\n"
-			t += "[color=#9fb0c4]Hard limit 3: the AI can read all of this but can never change air, power or hatch settings. A human does.[/color]"
-			_rt(t, 15)
-			panel_box.add_child(_btn("Run the CO2 scrubber check (human task)", func(): A.co2_ppm = 2400.0; A.note("You checked the scrubber: CO2 back to normal"); AI.flag("building"); _build_panel()))
 		"model":
 			var t = "[b][font_size=22]Mood models (research proposal §3)[/font_size][/b]\nTrained on public mood datasets (DAIC, eRisk) to sort people into 3 classes: Neutral, Underlying issue, Suspected illness.\n\n[table=4][cell][b]Model[/b]  [/cell][cell][b]Accuracy[/b]  [/cell][cell][b]F1[/b]  [/cell][cell][b]Accuracy after +0.3 sentiment shift[/b][/cell]"
 			for m in Ares.MODELS: t += "[cell]%s  [/cell][cell]%.2f  [/cell][cell]%.2f  [/cell][cell]%.2f[/cell]" % [m[0], m[1], m[2], m[3]]
@@ -947,6 +928,13 @@ class Plot extends Control:
 # =============================================================================================
 #  automated screenshots for the README (godot … -- --shots=<dir>)
 # =============================================================================================
+func _shot_case() -> void:
+	_close_panel(); player.global_position = Vector3(1.5, 0.1, 2.0); yaw = deg_to_rad(200); pitch = 0.0
+	AI.start_case(1); case_running = true
+	for i in 300:
+		A.step(1.0); AI.step(1.0, true)
+		if AI.pending_offer >= 0: break
+
 func _shot_ares() -> void:
 	_close_panel(); A.stress = 0.6; A.valence = -0.3
 	for i in 240: A.step(1.0); AI.step(1.0, true)
@@ -978,6 +966,8 @@ func _shots(dir: String) -> void:
 		["ares_trace", func(): ares_tab = "trace"; _build_panel()],
 		["overview", func(): _close_panel(); player.global_position = Vector3(-2.0, 0.1, -2.0); yaw = deg_to_rad(-45); pitch = -0.2],
 		["ares_rubric", func(): ares_tab = "rubric"; _build_panel()],
+		["ares_cases", func(): ares_tab = "cases"; _build_panel()],
+		["case_offer", _shot_case],
 	]
 	DirAccess.make_dir_recursive_absolute(dir)
 	for step in plan:

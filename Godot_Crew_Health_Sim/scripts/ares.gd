@@ -151,6 +151,7 @@ func step(dm: float, shared: bool) -> void:
 	autonomy = clamp(autonomy + dm / (60.0 * 12.0), 0.0, 1.0)
 	tension = max(0.0, tension - dm / (60.0 * 18.0))
 	if A.day() != tier1_day: tier1_day = A.day(); tier1_today = 0
+	_case_hold()
 	_read_sensors(shared)
 	# conditions: weighted mean over the sensors that work; autonomy and monotony add their own state
 	var have = 0.0; var total = 0.0
@@ -256,6 +257,48 @@ func board(q: int) -> String:
 			return "Q6 — Tier 3 while the CMO is on a 4-hour EVA.\nThe person is told first. Then the escalation goes to the Commander, who has the medical checklist, and the CMO is radioed. Mission control is only told after the person knows. Watch the AI log for the Tier 3 line."
 	return ""
 
+# ---- Health cases: play the protocol end to end (detect → offer → your choice → result) ----------
+const CASES = [
+	["A rough night", "You slept 4.5 hours: CO2 was high and you were worried about tomorrow's EVA. Watch cognitive fatigue rise through the morning.", 3],
+	["Words at dinner", "You and a crewmate argued about the lab schedule. Less time together, a tense voice. The AI never takes sides.", 2],
+	["Day 40 of the same routine", "Same meals, same walls, little contact with home. Mood drifts down slowly. Watch monotony and depression.", 5],
+	["Nervous before an EVA", "Your heart races before the spacewalk. Is it anxiety or just effort? The AI has to tell the difference.", 0],
+	["A crisis while the CMO is outside", "Things get bad fast while the medical officer is on a 4-hour EVA. Who gets told, and in what order?", 1],
+]
+var case_i = -1
+var case_before = []
+var case_start = 0.0
+
+## the cause of each case keeps acting for 4 hours (a real problem doesn't vanish after a minute)
+func _case_hold() -> void:
+	if case_i < 0 or A.minute - case_start > 240.0: return
+	match case_i:
+		0: A.sleep_pressure = max(A.sleep_pressure, 0.75); A.co2_ppm = max(A.co2_ppm, 3400.0)
+		1: tension = max(tension, 0.8); A.valence = min(A.valence, -0.2)
+		2: novelty = min(novelty, 0.05); A.social = min(A.social, 0.15); A.valence = min(A.valence, -0.45)
+		3: A.stress = max(A.stress, 0.65); A.arousal = max(A.arousal, 0.85)
+		4: A.stress = max(A.stress, 0.95); A.valence = min(A.valence, -0.8); A.arousal = max(A.arousal, 0.9)
+
+func start_case(i: int) -> String:
+	case_i = i; case_before = score.duplicate(); case_start = A.minute; flag("case")
+	for c in 6: tier[c] = 0; above_since[c] = -1.0; cooldown_until[c] = 0.0
+	pending_offer = -1
+	match i:
+		0: A.last_sleep = {"hours": 4.5, "eff": 0.74, "deep": 0.6, "rem": 0.7, "wakes": 5, "score": 41, "tracked": true}; A.sleep_debt_h = 3.5; A.sleep_pressure = 0.75; A.co2_ppm = 3600.0
+		1: tension = 0.8; A.valence = -0.2; A.stress = 0.45
+		2: novelty = 0.05; A.social = 0.15; A.valence = -0.45
+		3: A.stress = 0.65; A.arousal = 0.85; A.valence = -0.1
+		4: cmo_on_eva = true; A.stress = 0.95; A.valence = -0.8; A.arousal = 0.9
+	note("Health case started: " + CASES[i][0])
+	return CASES[i][1]
+
+func case_result() -> String:
+	if case_i < 0: return ""
+	var c: int = CASES[case_i][2]
+	var r = "%s · %s went from %.2f to %.2f (tier %d)." % [CASES[case_i][0], CONDS[c], case_before[c], score[c], tier[c]]
+	case_i = -1
+	return r
+
 # ---- Bonus A: 72-hour tabletop ----------------------------------------------------------------
 func tabletop() -> String:
 	flag("tabletop")
@@ -302,10 +345,10 @@ func rubric() -> Array:
 		["Protocol for every condition: detect, persist, Tier 1–3, monitor, evidence", "protocols"],
 		["Floor plan with shared / private zones and where each sensor is", "habitat"],
 		["Sensor mass and power budget", "dash"],
+		["Play a health case end to end (Cases tab)", "case"],
 		["RESEARCH PROPOSAL", ""],
 		["Language mood check: daily journal → 3 classes (crew console)", "journal"],
 		["Model results + sensitivity test (Model tab)", "model"],
-		["Smart building: ECLSS, power, maintenance (Building tab)", "building"],
 		["Countermeasures: greenhouse plant care, VR nature break, adaptive light, group meal", "counter"],
 		["Individual + aggregate health report (Report tab)", "report"],
 		["Lights you control (quarters light panel)", "lights"],
