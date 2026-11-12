@@ -178,6 +178,7 @@ func _tiers(c: int) -> void:
 	elif score[c] >= T2: t = 2
 	elif score[c] >= T1: t = 1
 	if confidence < 0.5 or (A.minute - last_review_min) > 7.0 * 1440.0: t = min(t, 1)
+	if case_i >= 0 and c != CASES[case_i][2]: t = min(t, 1)     # during a health case only that case's condition asks you anything
 	if t == 0: above_since[c] = -1.0; tier[c] = 0; return
 	if above_since[c] < 0.0: above_since[c] = A.minute
 	if (A.minute - above_since[c]) / 60.0 < PERSIST_H[c]: return      # must persist before acting
@@ -263,7 +264,7 @@ const CASES = [
 	["Words at dinner", "You and a crewmate argued about the lab schedule. Less time together, a tense voice. The AI never takes sides.", 2],
 	["Day 40 of the same routine", "Same meals, same walls, little contact with home. Mood drifts down slowly. Watch monotony and depression.", 5],
 	["Nervous before an EVA", "Your heart races before the spacewalk. Is it anxiety or just effort? The AI has to tell the difference.", 0],
-	["A crisis while the CMO is outside", "Things get bad fast while the medical officer is on a 4-hour EVA. Who gets told, and in what order?", 1],
+	["A crisis while the CMO is outside", "Panic hits fast while the medical officer is on a 4-hour EVA. Who gets told, and in what order?", 0],
 ]
 var case_i = -1
 var case_before = []
@@ -281,16 +282,27 @@ func _case_hold() -> void:
 
 func start_case(i: int) -> String:
 	case_i = i; case_before = score.duplicate(); case_start = A.minute; flag("case")
-	for c in 6: tier[c] = 0; above_since[c] = -1.0; cooldown_until[c] = 0.0
+	for c in 6: tier[c] = 0; above_since[c] = -1.0; cooldown_until[c] = 0.0; score[c] = 0.15
 	pending_offer = -1
+	# start every case from an ordinary day, so only this case's problem shows up
+	A.stress = 0.25; A.valence = 0.2; A.arousal = 0.4; A.social = 0.6; A.co2_ppm = 2400.0; A.sleep_pressure = 0.3; A.sleep_debt_h = 0.5
+	tension = 0.0; novelty = 0.7; autonomy = 0.8; cmo_on_eva = false
+	case_before = score.duplicate()
 	match i:
 		0: A.last_sleep = {"hours": 4.5, "eff": 0.74, "deep": 0.6, "rem": 0.7, "wakes": 5, "score": 41, "tracked": true}; A.sleep_debt_h = 3.5; A.sleep_pressure = 0.75; A.co2_ppm = 3600.0
 		1: tension = 0.8; A.valence = -0.2; A.stress = 0.45
 		2: novelty = 0.05; A.social = 0.15; A.valence = -0.45
 		3: A.stress = 0.65; A.arousal = 0.85; A.valence = -0.1
 		4: cmo_on_eva = true; A.stress = 0.95; A.valence = -0.8; A.arousal = 0.9
+	last_review_min = A.minute      # cases start right after a human system review
 	note("Health case started: " + CASES[i][0])
-	return CASES[i][1]
+	var off = 0
+	for k in 9:
+		if opted_out[k]: off += 1
+	var warn = ""
+	if not ai_on: warn = "  (ARES is OFF: press O so it can notice.)"
+	elif off >= 4: warn = "  (You switched off %d sensors, so ARES may stay at Tier 1.)" % off
+	return CASES[i][1] + warn
 
 func case_result() -> String:
 	if case_i < 0: return ""

@@ -100,6 +100,8 @@ func _ready() -> void:
 	_open_panel("help")
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--shots="): _shots(a.substr(8))
+		if a == "--autotest": _autotest()
+		if a.begins_with("--hero="): _hero(a.substr(7))
 
 # =============================================================================================
 #  WORLD
@@ -386,10 +388,12 @@ func _process(dt: float) -> void:
 	if on_treadmill: rate = 15.0     # the 45-minute workout plays out in about 3 seconds
 	var dm = rate * dt
 	# step the body in ≤1-minute chunks so the model stays stable at high speed
+	var was_asleep = A.asleep
 	while dm > 0.0:
 		var s: float = min(dm, 1.0); A.step(s); AI.step(s, _in_shared_zone()); dm -= s
+	if was_asleep and not A.asleep: _after_wake()     # the body clock woke you: stand up + sleep report
 	if A.day() != task_day: _new_day_tasks()
-	if case_running and AI.case_i == 4 and AI.tier.max() >= 3:
+	if case_running and AI.case_i == 4 and AI.tier[Ares.CASES[4][2]] >= 3:
 		speed_i = 0; case_running = false; AI.pending_offer = -1; case_msg = AI.case_result(); _done("case")
 		_toast("Tier 3: you were told first, then the Commander (the CMO is outside). " + case_msg)
 	elif case_running and AI.case_i != 4 and AI.pending_offer >= 0:
@@ -471,7 +475,7 @@ func _use() -> void:
 		"sample":
 			var n: Node3D = looking_at.get_meta("node")
 			if n.visible:
-				n.visible = false; (n.get_meta("beam") as Node3D).visible = false; looking_at.get_parent().remove_child(looking_at)
+				n.visible = false; (n.get_meta("beam") as Node3D).visible = false; (looking_at as CollisionObject3D).collision_layer = 0
 				samples += 1; A.note("EVA checkpoint %d/3: HR %d, BP %d/%d logged" % [samples, A.hr, A.bp_sys, A.bp_dia]); A.activity = min(1.0, A.activity + 0.2)
 				if samples >= 3: _done("eva"); _toast("All 3 checkpoints done. Head back to the airlock.")
 
@@ -492,7 +496,11 @@ func _sleep() -> void:
 	if not A.wristband_on: _toast("Asleep without the wristband — only the bunk's mattress sensor is tracking.")
 
 func _wake() -> void:
-	A.wake_up(); player.global_position = Vector3(-5.0, 0.2, 0); pitch = 0
+	A.wake_up(); _after_wake()
+
+func _after_wake() -> void:
+	sleep_fast = false; player.velocity = Vector3.ZERO
+	player.global_position = Vector3(-5.0, 0.2, 0); pitch = 0
 	if A.last_sleep.hours >= 7.0: _done("sleep")
 	_open_panel("sleep")
 
@@ -500,7 +508,10 @@ func _start_eva() -> void:
 	if A.asleep: return
 	if A.hour() < 6.0 or A.hour() > 20.0: _toast("EVAs are planned in daylight shifts (06:00–20:00)."); return
 	A.on_eva = true; A.eva_suit_o2 = 100.0; samples = 0
-	for n in sample_nodes: n.visible = true; (n.get_meta("beam") as Node3D).visible = true
+	for n in sample_nodes:
+		n.visible = true; (n.get_meta("beam") as Node3D).visible = true
+		for c in n.get_children():
+			if c is CollisionObject3D: c.collision_layer = 1
 	player.global_position = SURFACE + Vector3(-7.5, 0.3, 0); yaw = deg_to_rad(-90)
 	A.note("EVA start — suit HR + BP detector online"); _toast("You're outside. Walk to the 3 glowing checkpoints. The suit tracks your heart rate and blood pressure; keep HR under 150.")
 
@@ -976,4 +987,187 @@ func _shots(dir: String) -> void:
 		var img = get_viewport().get_texture().get_image()
 		img.save_png(dir + "/" + step[0] + ".png")
 		print("shot ", step[0])
+	get_tree().quit()
+
+# =============================================================================================
+#  autoplay test (godot … -- --autotest): plays the whole game like a person and prints BUG lines
+# =============================================================================================
+var _bugs = 0
+func _bug(t: String) -> void: _bugs += 1; print("BUG: ", t)
+func _frames(n: int) -> void:
+	for i in n: await get_tree().physics_frame
+
+func _all_targets() -> Array:
+	var out = []
+	var st = [self]
+	while st.size():
+		var n = st.pop_back()
+		for c in n.get_children(): st.append(c)
+		if n is StaticBody3D and n.has_meta("id"): out.append(n)
+	return out
+
+## stand somewhere sensible, look at the thing, press E for real (ray + collider), return whether it was targeted
+func _aim_use(sb: StaticBody3D, press := true) -> bool:
+	var tgt: Vector3 = sb.global_transform * ((sb.get_child(0) as CollisionShape3D).position)
+	var base = SURFACE if tgt.x > 40.0 else Vector3.ZERO
+	var flat = Vector3(tgt.x - base.x, 0, tgt.z - base.z)
+	var away = -flat.normalized() if flat.length() > 0.5 else Vector3(1, 0, 0)
+	if base != Vector3.ZERO: away = Vector3(-1, 0, 0)
+	for d in [1.5, 1.1, 2.0, 2.6]:
+		for rot in [0.0, 0.6, -0.6, 1.2, -1.2]:
+			var stand = tgt + away.rotated(Vector3.UP, rot) * d; stand.y = 0.1 + base.y
+			player.global_position = stand; player.velocity = Vector3.ZERO
+			var eye = stand + Vector3(0, 1.62, 0); var v = tgt - eye
+			yaw = atan2(-v.x, -v.z); pitch = atan2(v.y, Vector2(v.x, v.z).length())
+			await _frames(3)
+			if looking_at == sb:
+				if press: _use()
+				return true
+	return false
+
+func _press_all_buttons(skip: Array = []) -> void:
+	var btns = []
+	var st = [panel_box]
+	while st.size():
+		var n = st.pop_back()
+		for c in n.get_children(): st.append(c)
+		if n is Button and not n.disabled and not skip.has(n.text): btns.append(n.text)
+	return
+
+func _autotest() -> void:
+	print("AUTOTEST start")
+	await _frames(5)
+	_close_panel()
+	A.minute = 7 * 60.0 + 30.0
+	# 1) every object in the habitat can be targeted and used
+	var ids_seen = {}
+	for sb in _all_targets():
+		var id = str(sb.get_meta("id"))
+		if id in ["sample", "hatch", "bunk", "suit"]: continue
+		var ok = await _aim_use(sb)
+		ids_seen[id] = ok
+		if not ok: _bug("can't aim at '%s' at %s" % [id, str(sb.global_position)])
+		if panel_kind != "":
+			if panel_kind == "station":
+				for i in 60: await get_tree().process_frame
+				ecg_t = 7.0; await get_tree().process_frame
+				if checkin.is_empty(): _bug("station check-in did not save")
+			if panel_kind == "console":
+				for c in panel_box.get_children():
+					if c is GridContainer:
+						for b in c.get_children(): (b as Button).pressed.emit()
+						break
+			_close_panel()
+		if on_treadmill:
+			for i in 400:
+				await get_tree().process_frame
+				if not on_treadmill: break
+			if on_treadmill: _bug("treadmill never finished")
+			if player.global_position.distance_to(Vector3(-3.5, 0, -6.8)) < 0.6: _bug("left treadmill inside its frame")
+	print("used: ", ids_seen)
+	if A.beacon_on == false: A.beacon_on = true
+	# 2) every panel + every ARES tab builds and its buttons work
+	for k in ["help", "tasks", "feel", "pod", "station", "console"]:
+		_open_panel(k); await get_tree().process_frame; _close_panel()
+	for tb in ["cases", "dash", "trace", "protocols", "habitat", "model", "report", "crew", "board", "limits", "tabletop", "rubric"]:
+		ares_tab = tb; _open_panel("ares"); await get_tree().process_frame
+		if tb in ["board", "limits", "crew", "tabletop"]:
+			var names = []
+			var st = [panel_box]
+			while st.size():
+				var n = st.pop_back()
+				for c in n.get_children(): st.append(c)
+				if n is Button and not n.disabled and n.get_parent() is not HFlowContainer and not n.text.begins_with("Close"): names.append(n.text)
+			for nm in names:
+				var found = null
+				var st2 = [panel_box]
+				while st2.size():
+					var n = st2.pop_back()
+					for c in n.get_children(): st2.append(c)
+					if n is Button and n.text == nm and not n.is_queued_for_deletion(): found = n
+				if found: found.pressed.emit(); await get_tree().process_frame
+		_close_panel()
+	if not AI.ai_on: AI.set_ai(true)
+	AI.paused_until = 0.0
+	for k in 9: AI.opted_out[k] = false
+	# 3) each health case plays out to a result
+	for i in Ares.CASES.size():
+		ares_msg = AI.start_case(i); case_running = true; speed_i = 2; case_msg = ""
+		var t0 = Time.get_ticks_msec()
+		var steps = 0
+		while case_running and steps < 2000:
+			A.step(1.0); AI.step(1.0, true); steps += 1
+			if i == 4 and AI.tier[Ares.CASES[4][2]] >= 3: case_running = false; case_msg = AI.case_result()
+			elif i != 4 and AI.pending_offer >= 0:
+				if AI.pending_offer != Ares.CASES[i][2]: _bug("case %d: the offer was about %s, not %s" % [i, Ares.CONDS[AI.pending_offer], Ares.CONDS[Ares.CASES[i][2]]])
+				AI.answer_offer(i % 2 == 0); _after_offer()
+		if case_running: _bug("case %d (%s) never triggered in %d sim-min" % [i, Ares.CASES[i][0], steps]); case_running = false
+		else:
+			print("case ", i, " ok after ", steps, " min: ", case_msg.left(110))
+			if not ("tier 0" in case_msg) and false: pass
+			if "(tier 0)" in case_msg: _bug("case %d ended but its own condition never left tier 0" % i)
+	speed_i = 0
+	# 4) EVA twice: checkpoints must be collectable both times
+	for run in 2:
+		A.minute = A.day() * 1440.0 + 10 * 60.0
+		_start_eva()
+		if not A.on_eva: _bug("EVA didn't start"); break
+		await _frames(5)
+		var got = 0
+		for smp in sample_nodes:
+			for c in smp.get_children():
+				if c is StaticBody3D and await _aim_use(c): got += 1
+		if samples != 3: _bug("EVA run %d: collected %d/3 checkpoints (aimed %d)" % [run + 1, samples, got])
+		var hatch = null
+		for sb in _all_targets(): if sb.get_meta("id") == "hatch": hatch = sb
+		if not await _aim_use(hatch): _bug("can't reach the airlock hatch")
+		if A.on_eva: _bug("hatch didn't end the EVA"); _end_eva(false)
+		await _frames(10)
+		if player.global_position.y < -1: _bug("fell through the floor after EVA")
+	# 5) fall off the surface edge -> respawn
+	_start_eva(); player.global_position = SURFACE + Vector3(0, -7, 0); await _frames(3)
+	if player.global_position.y < -6: _bug("no respawn after falling")
+	_end_eva(false)
+	# 6) sleep: bunk at night, let the body clock wake you, you must be standing again with a report
+	A.minute = A.day() * 1440.0 + 22 * 60.0 + 30.0; A.wristband_on = true
+	var bunk = null
+	for sb in _all_targets(): if sb.get_meta("id") == "bunk": bunk = sb
+	if not await _aim_use(bunk): _bug("can't aim at the bunk")
+	if not A.asleep: _bug("bunk did not start sleep")
+	sleep_fast = true
+	var fr = 0
+	while A.asleep and fr < 3000: await get_tree().process_frame; fr += 1
+	if A.asleep: _bug("never woke up")
+	if panel_kind != "sleep": _bug("no sleep report after waking up on your own")
+	if player.global_position.x < -6.0: _bug("still lying in the bunk after waking")
+	print("slept: ", A.last_sleep)
+	_close_panel()
+	# 7) new day resets tasks; run a few days quickly for numerical blow-ups
+	var d0 = A.day()
+	for i in 3 * 1440: A.step(1.0); AI.step(1.0, i % 3 == 0)
+	await get_tree().process_frame
+	if task_day != A.day(): _bug("tasks not reset on a new day")
+	for v in [A.hr, A.hrv, A.bp_sys, A.spo2, A.stress, A.valence, A.co2_ppm]:
+		if is_nan(float(v)) or is_inf(float(v)): _bug("NaN/inf in body model")
+	for c in 6:
+		if is_nan(AI.score[c]): _bug("NaN in ARES score")
+	print("AUTOTEST done, bugs=", _bugs)
+	get_tree().quit()
+
+## website card pictures: wide views of the habitat with no panels
+func _hero(dir: String) -> void:
+	DirAccess.make_dir_recursive_absolute(dir)
+	_close_panel(); ui.visible = false; cam.fov = 82
+	var views = [
+		["hero_wide", 13 * 60.0, Vector3(4.0, 0.1, -6.2), 150.0, -0.15],
+		["hero_night", 22 * 60.0, Vector3(4.0, 0.1, -6.2), 150.0, -0.15],
+		["hero_suit", 13 * 60.0, Vector3(3.0, 0.1, 2.2), -70.0, -0.12],
+		["hero_eva", 13 * 60.0, SURFACE + Vector3(4.0, 0.1, 6.0), -120.0, 0.02],
+	]
+	for v in views:
+		A.minute = v[1]; player.global_position = v[2]; yaw = deg_to_rad(v[3]); pitch = v[4]
+		if v[0] == "hero_eva": A.on_eva = true
+		for i in 160: await get_tree().process_frame
+		get_viewport().get_texture().get_image().save_png(dir + "/" + v[0] + ".png")
+		print("hero ", v[0])
 	get_tree().quit()

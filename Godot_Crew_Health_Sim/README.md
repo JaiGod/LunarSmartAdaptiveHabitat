@@ -36,7 +36,7 @@ The habitat itself has:
 | D4 ethics | Hard limits tab (8 limits, Test buttons). O = AI off switch. Your data tab: log, pause, sensor opt-out, delete |
 | Board Q1–Q6 | Board tab: each question sets up the situation in the game |
 | Bonus A / B | Tabletop tab (72-hour run) · Your data tab (crew interface) |
-| Research proposal | Daily journal language check (crew console) · Model tab (LR / RF / SVM results, sensitivity test) · Building tab (ECLSS, power, maintenance) · Report tab · greenhouse and VR countermeasures |
+| Research proposal | Daily journal language check (crew console) · Model tab (LR / RF / SVM results, sensitivity test) · Habitat tab (zones and why each one is there) · Report tab · greenhouse and VR countermeasures |
 
 ## The body model (`scripts/astro.gd`)
 
