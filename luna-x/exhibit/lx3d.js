@@ -13,7 +13,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-import { createCosmos, brainWaves } from './cosmos.js?v=2';
+import { createCosmos, brainWaves } from './cosmos.js?v=3';
 
 const C = window.EXHIBIT;
 const $ = (s, r = document) => r.querySelector(s);

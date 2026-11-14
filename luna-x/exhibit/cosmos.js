@@ -52,7 +52,7 @@ const auraFS = `varying vec2 vU; uniform float uT; uniform float uO; uniform vec
 void main(){ vec2 p=vU; float x=abs(p.x-0.5)*2.0; float flame=fbm(vec3(p.x*5.0, p.y*3.0 - uT*2.6, uT*0.4));
   float shape = (1.0 - smoothstep(0.55-0.35*p.y, 1.0-0.3*p.y, x + (flame-0.5)*0.6)) * smoothstep(0.0,0.12,p.y) * (1.0 - smoothstep(0.75,1.0,p.y+flame*0.25));
   float core = (1.0 - smoothstep(0.0, 0.55, x)) * 0.5; vec3 c = mix(uC, vec3(1.0,0.98,0.85), core + flame*0.4);
-  float a = shape*(0.35+0.65*flame)*uO; gl_FragColor = vec4(c*a*1.6, a); }`;
+  float edge = smoothstep(0.15, 0.7, x); float a = shape*(0.25+0.75*flame)*uO*(0.35+0.65*edge); gl_FragColor = vec4(c*a*1.1, a); }`;
 
 // ---------------------------------------------------------------- the module
 export function createCosmos(scene, opts = {}) {
@@ -138,8 +138,8 @@ export function createCosmos(scene, opts = {}) {
     // power surge
     if (surgeT >= 0) {
       surgeT += dt; const k = surgeT; const env = Math.min(1, k / 0.35) * (k < 5 ? 1 : Math.max(0, 1 - (k - 5) / 1.2));
-      const { c, h, r } = surgeBox; auraMat.uniforms.uT.value = T; auraMat.uniforms.uO.value = env * 0.95;
-      auras.forEach((a) => { a.position.set(c.x, h * 0.62, c.z); a.scale.set(r * 2.9 * (1 + 0.04 * Math.sin(T * 30)), h * 1.55, 1); a.lookAt(camera.position.x, a.position.y, camera.position.z); });
+      const { c, h, r } = surgeBox; auraMat.uniforms.uT.value = T; auraMat.uniforms.uO.value = env * 0.6;
+      auras.forEach((a) => { a.position.set(c.x, h * 0.62, c.z); a.scale.set(r * 3.4 * (1 + 0.04 * Math.sin(T * 30)), h * 1.5, 1); a.lookAt(camera.position.x, a.position.y, camera.position.z); });
       auras[1].rotateY(1.05); auras[2].rotateY(-1.05);
       // sparkles rise in the aura
       for (let i = 0; i < N; i++) { if (sl[i] <= 0 && env > 0.1 && Math.random() < 0.08) { const an = rand(0, 6.28), rr = rand(0.2, 1.1) * r; sp[i * 3] = c.x + Math.cos(an) * rr; sp[i * 3 + 1] = rand(0, h * 0.4); sp[i * 3 + 2] = c.z + Math.sin(an) * rr;
