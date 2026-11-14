@@ -17,7 +17,6 @@
     '  input[type=checkbox],input[type=radio]{width:22px !important;height:22px !important}',
     '  select,input[type=text],input:not([type]){font-size:16px}',            /* stops iOS zooming into fields */
     '}',
-    'canvas{max-width:100%}',
     '@media (hover:none){.only-hover{display:none}}',
     '.ares-game-note{position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#141a21;color:#e2e8ee;border:1px solid #ffc94d;border-radius:8px;padding:12px 14px;font:15px/1.45 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5)}',
     '.ares-game-note b{color:#ffd76e}.ares-game-note button{float:right;margin-left:10px;background:#ffc94d;color:#1a1200;border:0;border-radius:4px;font-weight:700;padding:6px 12px;cursor:pointer}'
