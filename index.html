@@ -447,6 +447,16 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
 }
 @media (min-width:821px) and (max-width:1560px){:root{--nav:140px}}
 nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:150}nav a:nth-child(15){--h:30}nav a:nth-child(16){--h:45}
+
+/* brochure block in #mission */
+.brochure-wrap{display:block!important;margin-top:28px}
+.brochure{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:center;padding:26px;border-radius:18px}
+.brochure h2{font-size:30px;margin:6px 0 10px}.brochure p{color:#c9d3e8;line-height:1.55;max-width:46ch}
+.br-pages{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-decoration:none}
+.br-pages img{width:100%;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.45);transition:transform .25s}
+.br-pages:hover img:first-child{transform:rotate(-1.5deg) translateY(-3px)}.br-pages:hover img:last-child{transform:rotate(1.5deg) translateY(-3px)}
+@media(max-width:900px){.brochure{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.br-pages img{transition:none}}
 </style>
 </head>
 <body>
@@ -508,7 +518,7 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
         <a class="btn" href="voice-log/">🎙 Astronaut Voice Log</a>
         <a class="btn" href="luna-x/exhibit/">◉ 3D Exhibition Hall</a><a class="btn" href="luna-x/">🧑‍🚀 LUNA-X helmet · glove · boot · suit</a>
         <a class="btn" href="luna-x/#downloads">⬇ LUNA-X downloads</a>
-        <a class="btn" href="rubric.html">🏆 Rubric report</a>
+        <a class="btn" href="#brochure">📄 Brochure</a><a class="btn" href="rubric.html">🏆 Rubric report</a>
         <a class="btn" href="code.html">💻 Code highlights</a>
         <a class="btn" href="models.html" target="_blank" rel="noopener">🛰 3D model library</a>
         <a class="btn" href="Downloads/Lunar_Habitat_Complete_Designs.zip" download>⬇ 3D designs</a>
@@ -529,6 +539,23 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
       <div class="hud b">HAB P <b>70.3 kPa</b> · CO₂ <b>538 ppm</b></div>
       <div class="hud c">GRAVITY <b>1.62 m/s²</b></div>
       <div class="drag-hint">DRAG TO SPIN THE MOON · RED = OUR SITE</div>
+    </div>
+  </div>
+  <div class="wrap brochure-wrap">
+    <div class="glass brochure reveal" id="brochure">
+      <div class="br-text">
+        <div class="kicker">Print-ready tri-fold · letter size · 2 sides</div>
+        <h2>Our brochure</h2>
+        <p>The whole project on one folded sheet: the problem, our AI and the 8 rules it can never break, the LUNA-X wearables, our games and the team. Print it double-sided and fold in thirds.</p>
+        <div class="cta" style="margin-top:14px">
+          <a class="btn go" href="Docs/Brochure/Project_ARES_Brochure.pdf" target="_blank" rel="noopener"><span class="ar">▶</span> Open the brochure</a>
+          <a class="btn" href="Docs/Brochure/Project_ARES_Brochure.pdf" download>⬇ Download PDF</a>
+        </div>
+      </div>
+      <a class="br-pages" href="Docs/Brochure/Project_ARES_Brochure.pdf" target="_blank" rel="noopener" aria-label="Open the brochure PDF">
+        <img src="Docs/Brochure/preview-1.jpg" alt="Brochure outside: front cover with the LUNA-X suit, how we built it, and our games and team" loading="lazy">
+        <img src="Docs/Brochure/preview-2.jpg" alt="Brochure inside: the problem, the AI and its rules, and the LUNA-X wearables" loading="lazy">
+      </a>
     </div>
   </div>
 </section>
