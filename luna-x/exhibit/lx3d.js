@@ -12,6 +12,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
 const C = window.EXHIBIT;
 const $ = (s, r = document) => r.querySelector(s);
@@ -117,6 +118,10 @@ scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; scene.
 const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.02, 400); camera.position.set(0, 1.1, 4.2);
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
+// guard: one NaN/inf pixel (bad normals on tiny parts) would be smeared over the whole frame by bloom
+composer.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+  fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec4 c = texture2D(tDiffuse, vUv); if (!(c.r == c.r) || !(c.g == c.g) || !(c.b == c.b) || !(c.a == c.a)) c = vec4(0.0,0.0,0.0,1.0); gl_FragColor = clamp(c, 0.0, 60.0); }' }));
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), C.bloom ?? 0.42, 0.4, C.bloomThreshold ?? 0.92); composer.addPass(bloom);
 composer.addPass(new OutputPass());
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -199,6 +204,9 @@ loader.load(C.model, (g) => {
   root.traverse((o) => {
     if (!o.isMesh || !o.visible) return;
     o.castShadow = true; o.receiveShadow = true; meshes.push(o);
+    const nAttr = o.geometry.attributes.normal;
+    if (!nAttr) o.geometry.computeVertexNormals();
+    else { let bad = false; for (let i = 0; i < nAttr.count; i++) { const x = nAttr.getX(i), y = nAttr.getY(i), z = nAttr.getZ(i), l = x * x + y * y + z * z; if (!(l > 1e-8) || !isFinite(l)) { bad = true; break; } } if (bad) { o.geometry.computeVertexNormals(); const N2 = o.geometry.attributes.normal; for (let i = 0; i < N2.count; i++) { const l = N2.getX(i) ** 2 + N2.getY(i) ** 2 + N2.getZ(i) ** 2; if (!(l > 1e-8) || !isFinite(l)) N2.setXYZ(i, 0, 1, 0); } N2.needsUpdate = true; } }
     const chain = nameChain(o);
     const mats = Array.isArray(o.material) ? o.material : [o.material];
     mats.forEach((m) => {
