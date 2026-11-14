@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luna · AI Crew Companion · Project ARES</title>
+<meta name="description" content="Luna, a mood-aware AI companion for astronauts in a lunar habitat. Webcam expression reading (on your device only), jokes, messages from Earth, and a human always in the loop. NASA HUNCH Project ARES.">
+<meta name="theme-color" content="#050816">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050816;--cyan:#38BDF8;--pink:#F472B6;--ok:#34D399;--amber:#FBBF24;--red:#F87171;--mut:#93A4C8;--line:rgba(56,189,248,.22);--glass:rgba(10,20,48,.7)}
+*{box-sizing:border-box;margin:0}body{background:radial-gradient(60% 50% at 80% 0%,rgba(244,114,182,.16),transparent 70%),radial-gradient(50% 40% at 0% 60%,rgba(29,78,216,.25),transparent 70%),var(--void);color:#E6F1FF;font:15px/1.55 Inter,system-ui,sans-serif;min-height:100vh}
+a{color:var(--cyan)}button{font:inherit;cursor:pointer}
+header{display:flex;align-items:center;gap:14px;padding:14px 4vw;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header .b{font:800 15px Orbitron;letter-spacing:.08em}header nav{margin-left:auto;display:flex;gap:16px;font-size:14px}header nav a{color:var(--mut);text-decoration:none}
+.wrap{max-width:1200px;margin:0 auto;padding:20px 4vw 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px}
+@media(max-width:880px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:16px;backdrop-filter:blur(10px)}
+h1{font:800 clamp(22px,3.4vw,34px)/1.1 Orbitron;margin:4px 0 6px}.kick{font:500 11px 'JetBrains Mono';letter-spacing:.2em;color:var(--cyan);text-transform:uppercase}
+.sub{color:var(--mut);font-size:14px}
+.cam{position:relative;aspect-ratio:4/3;border-radius:14px;overflow:hidden;background:#000;border:1px solid var(--line)}
+.cam video,.cam canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.cam .off{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--mut);padding:20px}
+.cam .badge{position:absolute;left:10px;top:10px;font:500 11px 'JetBrains Mono';background:rgba(5,8,22,.75);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{border:1px solid rgba(90,184,255,.45);background:rgba(8,16,40,.75);color:#E6F1FF;border-radius:999px;padding:9px 14px;font-weight:600;font-size:13.5px}
+.btn:hover{border-color:var(--cyan)}.btn.pri{background:linear-gradient(135deg,#be185d,#7c3aed);border-color:transparent}.btn.on{border-color:var(--ok);color:var(--ok)}
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.m{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:10px}
+.m b{font:600 11px 'JetBrains Mono';letter-spacing:.12em;color:var(--mut)}.m .bar{height:8px;border-radius:5px;background:rgba(255,255,255,.07);margin-top:8px;overflow:hidden}.m .bar i{display:block;height:100%;width:0;transition:width .4s}
+.state{margin-top:10px;font:500 12px 'JetBrains Mono';color:var(--mut)}.state b{color:#fff}
+.chat{display:flex;flex-direction:column;height:min(640px,78vh)}
+.log{flex:1;overflow:auto;padding:6px 2px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:84%;padding:9px 13px;border-radius:14px;white-space:pre-wrap}
+.msg.ai{background:rgba(124,58,237,.18);border:1px solid rgba(167,139,250,.35);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.me{background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.35);align-self:flex-end;border-bottom-right-radius:4px}
+.msg.sys{align-self:center;font:500 11.5px 'JetBrains Mono';color:var(--amber);background:rgba(251,191,36,.08);border:1px dashed rgba(251,191,36,.4)}
+.msg.alert{align-self:stretch;max-width:none;color:#fecaca;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.5);font-size:13.5px}
+form{display:flex;gap:8px;margin-top:10px}input,textarea{flex:1;background:rgba(5,8,22,.8);border:1px solid var(--line);border-radius:12px;color:#fff;padding:11px 13px;font:inherit}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.quick button{font-size:12.5px;padding:6px 11px}
+details{margin-top:12px}summary{cursor:pointer;font-weight:600}
+.earth-list{font-size:13px;color:var(--mut);margin-top:8px}
+footer{text-align:center;color:var(--mut);font-size:12.5px;padding:24px;border-top:1px solid var(--line)}
+.note{font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.5}
+</style></head><body>
+<header><span class="b">☾ LUNA · CREW COMPANION</span><span class="kick">SIM-06 · NASA HUNCH Project ARES</span>
+<nav><a href="../">← Mission Control</a><a href="Luna_Companion_Python.zip" download>⬇ Python program</a></nav></header>
+<div class="wrap">
+  <section class="card">
+    <div class="kick">Mood-aware AI companion</div><h1>Hi, I'm Luna.</h1>
+    <p class="sub">I keep astronauts company on long lunar missions. I notice when someone might need a lift and offer a joke, a message from home or just someone to talk to. When it's serious, I make sure a real person checks in.</p>
+    <div class="cam" style="margin-top:12px"><video id="vid" playsinline muted></video><canvas id="ov"></canvas>
+      <div class="off" id="camOff"><div>📷 Camera is off<br><span style="font-size:13px">Turn it on to let Luna read expressions.<br>Video never leaves your device.</span></div></div>
+      <div class="badge" id="who">practice mode</div></div>
+    <div class="row"><button class="btn pri" id="bCam" type="button">📷 Turn camera on</button><button class="btn" id="bPriv" type="button">🙈 Privacy</button><button class="btn" id="bVoice" type="button">🔊 Voice on</button><button class="btn" id="bMic" type="button">🎙 Talk</button></div>
+    <div class="meters"><div class="m"><b>POSITIVE SIGNAL</b><div class="bar"><i id="mp" style="background:var(--ok)"></i></div></div><div class="m"><b>LOW-MOOD SIGNAL</b><div class="bar"><i id="mn" style="background:var(--pink)"></i></div></div></div>
+    <div class="state">Reading: <b id="lab">—</b> · samples <b id="smp">0</b> · engine <b id="eng">off</b></div>
+    <div class="row"><span class="sub" style="align-self:center">No camera? Practice:</span><button class="btn" data-mood="low" type="button">😔 Low</button><button class="btn" data-mood="neutral" type="button">😐 Neutral</button><button class="btn" data-mood="happy" type="button">😄 Happy</button></div>
+    <details><summary>✉ Messages from Earth</summary>
+      <form id="fEarth" style="flex-wrap:wrap"><input id="eFrom" placeholder="From (e.g. Mom)" style="flex:0 1 140px" required><input id="eText" placeholder="Message" required><button class="btn" type="submit">Add</button></form>
+      <div class="earth-list" id="eList"></div></details>
+    <details><summary>👤 Teach Luna my face</summary>
+      <form id="fEnroll"><input id="nName" placeholder="Your name" required><button class="btn" type="submit">Enroll (5 s)</button></form>
+      <p class="note">Luna stores a small face-shape signature in this browser only, so it can greet you by name. Clear it any time with the Privacy button (long-press to forget everyone).</p></details>
+    <p class="note">Honest by design: a facial expression is only a weak hint about how someone feels. Luna never tells you how you feel and never diagnoses; it offers and asks. It supports the crew and never replaces the mission psychologist.</p>
+  </section>
+  <section class="card chat">
+    <div class="kick">Conversation</div>
+    <div class="log" id="log"></div>
+    <div class="quick"><button class="btn" data-q="/joke" type="button">😂 Tell me a joke</button><button class="btn" data-q="/earth" type="button">🌍 Message from Earth</button><button class="btn" data-q="I'm tired" type="button">I'm tired</button><button class="btn" data-q="I miss home" type="button">I miss home</button><button class="btn" data-q="Today was great!" type="button">Today was great!</button></div>
+    <form id="fChat"><input id="inp" placeholder="Type to Luna…" autocomplete="off"><button class="btn pri" type="submit">Send</button></form>
+  </section>
+</div>
+<footer>Luna · AI Crew Companion · SIM-06 · NASA HUNCH Project ARES · © 2026 Jaineil R. · with Angel C. and Farhan K.</footer>
+<script type="module">
+const $=s=>document.querySelector(s);
+// ---------------------------------------------------------------- content
+const JOKES=["I tried to start a band on the Moon. Great acoustics in the habitat, but the crowd outside? No atmosphere.","Why did the astronaut break up with the Moon? It kept going through phases.","I asked mission control for a joke about gravity. They said I wouldn't take it lightly. Up here, I take everything lightly.","What's an astronaut's favourite key on the keyboard? The space bar. Mine's the escape key, but they disabled it.","How do you organise a party on the Moon? You planet. Then you realise nobody can come because it's a 3-day trip.","The Sun skipped college. Said it already had millions of degrees.","Why don't astronauts tell secrets in space? Too many satellites listening.","I'd tell you a joke about the vacuum outside, but it sucks.","Why is the Moon so broke? It spends its last quarter every month.","Saturn has a ring, Jupiter has a red spot, and I have a coffee stain on my flight suit. We all have our features.","Why did the photon skip airport security? It was travelling light.","What do you call a tick on the Moon? A luna-tick. Don't worry, the airlock filters them out.","Why did the astronaut bring a ladder to the Moon? Heard the real estate prices were sky high.","I'm reading a book about anti-gravity. I can't put it down. Up here that's literally true, it just floats.","An astronaut walks into the habitat cafe. 'One ice cream, please.' 'Sure, what flavour?' 'Freeze-dried, obviously.'","Why can't you trust atoms? They make up everything. Including this habitat.","Black holes are like my sock drawer. Things go in. Nothing comes out.","Why did the rover get a promotion? It was outstanding in its field.","How does the solar system hold up its trousers? With an asteroid belt.","My plants in the greenhouse started telling jokes. Mostly corny ones.","Knock knock. Who's there? Orbit. Orbit who? Orbit-ter open the airlock, it's cold out here.","I told the habitat AI a chemistry joke. No reaction. Then I realised it was a noble gas joke.","What's the Moon's favourite TV show? Earth's Got Talent.","Neil Armstrong took one small step. I took one small step into the greenhouse and stepped on a tomato.","Why did the satellite go to therapy? It had trouble letting go of old orbits.","Space jokes are the best. They're out of this world, but they never land.","How do astronauts keep dinner warm? A heat shield. Also a microwave, but that's less dramatic.","Why does the Moon never feel lonely? It's always surrounded by stars, and it's got us now."];
+const HAPPY=["That smile is contagious. What's got you in a good mood?","Good energy in here today. Want to play two truths and a lie? You go first.","If you could beam one thing up from Earth right now, what would it be?","What's something you're looking forward to this week?","You seem in a great mood. What's been the best part of your day so far?"];
+const AMBIENT=["Quick check-in: have you eaten and had some water recently?","Random question: what food from home would you bring up here if you could?","What's one thing you want to get done today?","Want a fun space fact, or would you rather just chat?"];
+const FACTS=["A day on the Moon, sunrise to sunrise, lasts about 29.5 Earth days.","Footprints on the Moon can last millions of years because there's no wind.","Moon dust is so sharp it wore through layers of Apollo spacesuit boots.","You'd weigh about one sixth as much here. A 60 kg person feels like 10 kg."];
+const CRISIS=/\b(kill myself|suicid\w*|want to die|end it all|hurt myself|self[- ]?harm|no reason to live|don'?t want to be here)\b/i;
+const deck=(a)=>{let p=[];return()=>{if(!p.length){p=[...a];for(let i=p.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[p[i],p[j]]=[p[j],p[i]];}}return p.pop();};};
+const joke=deck(JOKES), happy=deck(HAPPY), amb=deck(AMBIENT), fact=deck(FACTS);
+// ---------------------------------------------------------------- storage
+const LS={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let earth=LS.get('luna-earth',[{from:'Mission Control',text:'The whole team is proud of you. The view from up there is the best in the solar system.',read:false}]);
+function drawEarth(){ $('#eList').innerHTML=earth.map(m=>`<div>• <b>${esc(m.from)}</b>: ${esc(m.text)} ${m.read?'<i>(delivered)</i>':''}</div>`).join('')||'No messages yet.'; }
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function nextEarth(){ if(!earth.length) return null; const u=earth.find(m=>!m.read)||earth[Math.random()*earth.length|0]; u.read=true; LS.set('luna-earth',earth); drawEarth(); return u; }
+$('#fEarth').onsubmit=e=>{e.preventDefault(); earth.push({from:$('#eFrom').value.trim(),text:$('#eText').value.trim(),read:false}); LS.set('luna-earth',earth); $('#eText').value=''; drawEarth(); sys('Saved. Luna will deliver it at a good moment.');};
+drawEarth();
+// ---------------------------------------------------------------- voice
+let voiceOn=LS.get('luna-voice',true); const vb=$('#bVoice'); const setV=()=>{vb.textContent=voiceOn?'🔊 Voice on':'🔇 Voice off'; vb.classList.toggle('on',voiceOn);}; setV();
+vb.onclick=()=>{voiceOn=!voiceOn; LS.set('luna-voice',voiceOn); setV(); if(!voiceOn) speechSynthesis.cancel();};
+function speak(t){ if(!voiceOn||!('speechSynthesis' in window)) return; const u=new SpeechSynthesisUtterance(t); const v=speechSynthesis.getVoices().find(v=>/female|zira|samantha|aria|jenny|google uk english female/i.test(v.name))||null; if(v) u.voice=v; u.rate=1.02; u.pitch=1.05; speechSynthesis.speak(u); }
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition; const mic=$('#bMic');
+if(!SR) mic.style.display='none'; else mic.onclick=()=>{ const r=new SR(); r.lang='en-US'; r.interimResults=false; mic.classList.add('on'); mic.textContent='🎙 Listening…'; r.onresult=e=>{ const t=e.results[0][0].transcript; user(t); }; r.onend=()=>{mic.classList.remove('on'); mic.textContent='🎙 Talk';}; r.start(); };
+// ---------------------------------------------------------------- chat
+const log=$('#log');
+function add(cls,t){ const d=document.createElement('div'); d.className='msg '+cls; d.textContent=t; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+const ai=t=>{add('ai',t); speak(t);}, sys=t=>add('sys',t);
+let crew='Crew', askEsc=false, lowTimes=[], toggle=0, lastLow=-1e9, lastHappy=-1e9, lastAmb=performance.now()/1000;
+function alertHuman(reason){ add('alert','⚠ ALERT → mission psychologist: '+crew+' · '+reason+' · '+new Date().toLocaleTimeString()); }
+function reply(text){
+  const t=text.toLowerCase();
+  if(CRISIS.test(text)){ alertHuman('CRISIS language in conversation. A human should check in now.'); return "I'm really glad you told me, and I'm taking it seriously. I'm alerting the mission psychologist right now so a real person reaches out. Are you safe right now? If you're in the US and in danger, call or text 988 right away."; }
+  if(askEsc){ if(/^(yes|yeah|yep|sure|ok|okay|please)\b/.test(t)){askEsc=false; alertHuman('Crew agreed to notify the mission psychologist (repeated low mood).'); return "Okay, I've let them know. Reaching out was a good move. I'm still here.";}
+    if(/^(no|nah|nope|not now)\b/.test(t)){askEsc=false; return "That's okay. The offer stands whenever you want it. What would help right now?";} }
+  if(/^\/?joke\b|joke/.test(t)) return joke();
+  if(/^\/?earth\b|message from (home|earth)/.test(t)){ const m=nextEarth(); return m?`A message from ${m.from}: "${m.text}"`:'No messages from Earth yet. Add one under "Messages from Earth".'; }
+  if(/\bfact\b/.test(t)) return 'Space fact: '+fact();
+  if(/\b(tired|sleep|exhausted|insomnia)\b/.test(t)) return "Rest matters a lot up here. How many hours did you get last night? I can dim the pod lights early tonight if that helps.";
+  if(/\b(miss|home|family|mom|dad|friend|earth)\b/.test(t)) return "Missing home makes sense. Who's the first person you'd call if the line were open right now?";
+  if(/\b(sad|down|lonely|stressed|anxious|worried|bad|upset|hate)\b/.test(t)) return "I'm sorry it feels heavy right now. Want to talk it through, hear a joke, or get a message from Earth?";
+  if(/\b(great|good|happy|awesome|excited|fun|amazing|love)\b/.test(t)) return "Love that. Tell me more about what made it good.";
+  if(/\b(hi|hello|hey)\b/.test(t)) return `Hey ${crew==='Crew'?'there':crew}! How's your day going so far?`;
+  if(mood==='low') return "I'm listening. Take your time.";
+  return ["Tell me more about that.","That's interesting. What do you think about it?","I'm all ears. What else is on your mind?"][Math.random()*3|0];
+}
+function user(t){ if(!t.trim()) return; add('me',t); setTimeout(()=>ai(reply(t)),350); }
+$('#fChat').onsubmit=e=>{e.preventDefault(); const t=$('#inp').value; $('#inp').value=''; user(t);};
+document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>user(b.dataset.q));
+// ---------------------------------------------------------------- mood → companion actions (same rules as companion.py)
+let mood=null, cand=null, candSince=0, sim=null, hist=[];
+const LOW=0.45, HAP=0.35, STABLE=4, COOL_LOW=60, COOL_HAPPY=45, AMB=150;
+function tick(){
+  const now=performance.now()/1000;
+  let pos=0,neg=0,n=hist.length;
+  if(sim){ ({low:[0.05,0.8],happy:[0.7,0.05],neutral:[0.1,0.1]})[sim].forEach((v,i)=>i?neg=v:pos=v); n=99; }
+  else if(n){ pos=hist.reduce((a,h)=>a+h.p,0)/n; neg=hist.reduce((a,h)=>a+h.n,0)/n; }
+  $('#mp').style.width=(pos*100)+'%'; $('#mn').style.width=(neg*100)+'%'; $('#smp').textContent=n;
+  const label = n<10?null: neg>=LOW?'low': pos>=HAP?'happy':'neutral';
+  $('#lab').textContent=label||'warming up'; mood=label;
+  if(label!==cand){cand=label; candSince=now; return;}
+  if(!label||now-candSince<STABLE) return;
+  if(label==='low'&&now-lastLow>=COOL_LOW){ lastLow=lastAmb=now; lowTimes=lowTimes.filter(x=>now-x<3600).concat(now);
+    const m=(toggle++%2===0)?nextEarth():null; ai(`${crew==='Crew'?'Hey':'Hey '+crew}, just checking in on you. `+(m?`A message from ${m.from}: "${m.text}"`:joke())); setTimeout(()=>ai("I'm here if you want to talk. What's on your mind?"),900);
+    if(lowTimes.length>=3&&!askEsc){ askEsc=true; setTimeout(()=>ai("I've noticed you've seemed down a few times lately. Would you like me to let the mission psychologist know so they can check in? Say yes or no."),1800); } }
+  else if(label==='happy'&&now-lastHappy>=COOL_HAPPY){ lastHappy=lastAmb=now; ai(`${crew==='Crew'?'Hey':'Hey '+crew}! `+happy()); }
+  else if(now-lastAmb>=AMB){ lastAmb=now; ai(amb()); }
+}
+setInterval(tick,1000);
+document.querySelectorAll('[data-mood]').forEach(b=>b.onclick=()=>{ sim=b.dataset.mood; sys('Practice mode: mood set to '+sim); $('#who').textContent='practice mode · '+sim; });
+// ---------------------------------------------------------------- camera: MediaPipe FaceLandmarker (runs on this device)
+let lm=null, stream=null, running=false, privacy=false, base=[], enrolling=null;
+let crewDB=LS.get('luna-faces',{});
+const SIG=[33,133,362,263,1,4,61,291,152,10,234,454,105,334,168,6,197,2,98,327];
+function signature(p){ const iod=Math.hypot(p[33].x-p[263].x,p[33].y-p[263].y)+1e-6; const d=[]; for(let i=0;i<SIG.length;i++)for(let j=i+1;j<SIG.length;j++){const a=p[SIG[i]],b=p[SIG[j]];d.push(Math.hypot(a.x-b.x,a.y-b.y)/iod);} const m=d.reduce((a,b)=>a+b)/d.length, s=Math.sqrt(d.reduce((a,b)=>a+(b-m)**2,0)/d.length)+1e-6; return d.map(x=>(x-m)/s); }
+function whoIs(sig){ let best='Crew',bd=1e9; for(const [n,list] of Object.entries(crewDB)) for(const v of list){ let s=0; for(let i=0;i<v.length;i++) s+=(v[i]-sig[i])**2; const d=Math.sqrt(s/v.length); if(d<bd){bd=d;best=n;} } return bd<0.38?best:'Crew'; }
+async function startCam(){
+  $('#eng').textContent='loading…';
+  try{
+    const V=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
+    const fs=await V.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+    lm=await V.FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',delegate:'GPU'},outputFaceBlendshapes:true,runningMode:'VIDEO',numFaces:1});
+    stream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
+    const v=$('#vid'); v.srcObject=stream; await v.play(); $('#camOff').style.display='none'; running=true; sim=null; $('#eng').textContent='MediaPipe (on device)';
+    $('#bCam').textContent='📷 Camera off'; loop();
+  }catch(err){ $('#eng').textContent='off'; sys('Camera could not start ('+(err.message||err)+'). Use practice mode instead.'); }
+}
+function stopCam(){ running=false; stream?.getTracks().forEach(t=>t.stop()); stream=null; $('#camOff').style.display=''; $('#bCam').textContent='📷 Turn camera on'; $('#eng').textContent='off'; hist=[]; }
+$('#bCam').onclick=()=>running?stopCam():startCam();
+$('#bPriv').onclick=()=>{ privacy=!privacy; $('#bPriv').classList.toggle('on',privacy); $('#bPriv').textContent=privacy?'🙈 Privacy ON':'🙈 Privacy'; if(privacy){ stopCam(); hist=[]; sys('Privacy on: camera off, readings cleared.'); } };
+let pressT; $('#bPriv').onpointerdown=()=>{pressT=setTimeout(()=>{crewDB={}; LS.set('luna-faces',crewDB); sys('Forgot every enrolled face.');},1200)}; $('#bPriv').onpointerup=()=>clearTimeout(pressT);
+$('#fEnroll').onsubmit=e=>{e.preventDefault(); if(!running){sys('Turn the camera on first.');return;} enrolling={name:$('#nName').value.trim(),sigs:[],until:performance.now()+5000}; sys('Enrolling '+enrolling.name+': look at the camera and turn your head a little…');};
+const ov=$('#ov'), g=ov.getContext('2d');
+function loop(){
+  if(!running) return;
+  const v=$('#vid'); if(v.readyState>=2){
+    const r=lm.detectForVideo(v,performance.now()); ov.width=v.videoWidth; ov.height=v.videoHeight; g.clearRect(0,0,ov.width,ov.height);
+    const p=r.faceLandmarks?.[0];
+    if(p){
+      const bs=Object.fromEntries((r.faceBlendshapes?.[0]?.categories||[]).map(c=>[c.categoryName,c.score]));
+      let sp=((bs.mouthSmileLeft||0)+(bs.mouthSmileRight||0))/2;
+      let sn=0.45*((bs.mouthFrownLeft||0)+(bs.mouthFrownRight||0))/2+0.35*((bs.browDownLeft||0)+(bs.browDownRight||0))/2+0.35*(bs.browInnerUp||0)+0.15*((bs.mouthPressLeft||0)+(bs.mouthPressRight||0))/2;
+      if(base.length<60) base.push([sp,sn]); const b0=base.map(x=>x[0]).sort((a,b)=>a-b)[base.length>>1], b1=base.map(x=>x[1]).sort((a,b)=>a-b)[base.length>>1];
+      let P=Math.min(1,Math.max(0,(sp-b0*0.7)*1.6)), Nn=Math.min(1,Math.max(0,(sn-b1*0.8)*2.2)); if(P>0.5) Nn*=0.4;
+      const now=performance.now()/1000; hist.push({t:now,p:P,n:Nn}); while(hist.length&&now-hist[0].t>20) hist.shift();
+      const sig=signature(p);
+      if(enrolling){ enrolling.sigs.push(sig); if(performance.now()>enrolling.until){ crewDB[enrolling.name]=(crewDB[enrolling.name]||[]).concat(enrolling.sigs.filter((_,i)=>i%3===0)).slice(-60); LS.set('luna-faces',crewDB); sys('Enrolled '+enrolling.name+' ('+enrolling.sigs.length+' frames). Stored in this browser only.'); enrolling=null; } }
+      const name=whoIs(sig); if(name!==crew){ crew=name; if(name!=='Crew') ai('Hey '+name+'! Good to see you.'); }
+      $('#who').textContent=(crew==='Crew'?'unknown crew member':crew)+' · '+(P>0.5?'smiling':Nn>0.45?'low signal':'neutral');
+      // draw a soft HUD box
+      let x0=1,y0=1,x1=0,y1=0; for(const q of p){x0=Math.min(x0,q.x);y0=Math.min(y0,q.y);x1=Math.max(x1,q.x);y1=Math.max(y1,q.y);}
+      g.strokeStyle=P>0.5?'#34D399':Nn>0.45?'#F472B6':'#38BDF8'; g.lineWidth=3; g.strokeRect(x0*ov.width,y0*ov.height,(x1-x0)*ov.width,(y1-y0)*ov.height);
+      g.fillStyle=g.strokeStyle; for(const i of [33,263,61,291,1,152,105,334]) { g.beginPath(); g.arc(p[i].x*ov.width,p[i].y*ov.height,3,0,7); g.fill(); }
+    } else $('#who').textContent='no face in view';
+  }
+  requestAnimationFrame(loop);
+}
+// ---------------------------------------------------------------- hello
+setTimeout(()=>{ ai("Hi, I'm Luna. I'm here whenever you want to talk."); sys('Tip: turn the camera on, or try the practice mood buttons. Everything runs in your browser.'); },500);
+</script>
+</body></html>
