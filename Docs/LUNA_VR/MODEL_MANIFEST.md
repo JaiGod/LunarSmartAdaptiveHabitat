@@ -54,3 +54,21 @@ Every model above is also built as a native Blender scene, generated from this g
 - Shared screens show only habitat data and anonymous crew data.
 - Your own readings appear only on your pod desk, the kiosk and your wrist panel.
 - Pods and hygiene carry a visible "no cameras · no microphones" label.
+
+
+## Round 3 objects (every object does something)
+
+| Object | NASA / rubric purpose | What using it does |
+|---|---|---|
+| AI OFF switch (Ops) | Human override of automation; hard limits (ARES §6.2) | LUNA stops, undoes its changes; only a human re-enables it |
+| Floor plan A/B selector (Ops) | ARES D2: conflict-protocol configuration | Partition down, two dining points, second lit route |
+| Safety drill alarm + muster ring (Medical) | Emergency procedures; storm shelter | Crew muster in the shelter; time logged |
+| AI dashboard + review board screens (Ops) | ARES D1, D5; Bonus A tabletop | Sensor health, break a sensor, hard-limit test, Q1–Q6, D1–D6, rubric |
+| CMO console (Medical) | Tier 3 escalation, person told first (hard limit 4) | Tier 3 cases and the backup chain (Q6) |
+| Room control panels (5 rooms) | ARES §5.2 environmental levers + crew override | Light, soundscape, temperature, scent for that room |
+| Medication cabinet | Hard limit 3: AI never touches medication | Locked to the medical officer; LUNA can't open it |
+| Exam bed self check, storm-shelter kit | Crew health monitoring; SPE sheltering | Vitals to your own record; kit check |
+| Coffee machine, water station, food warmer | Food system; comfort scents (ARES §5.2) | Coffee break, water from recovery, meal |
+| Bookshelf, wardroom meeting terminal | Sensory monotony; social cohesion | Read a chapter; call a team meeting |
+| Pod switch "LUNA may adjust my pod", music, photo | Private retreat: AI only on invitation (rubric U4.2); Earth connection | Invite LUNA in or not; playlist; photo from home |
+| Shower, O₂ generator, spare parts, EVA tools, irrigation pump | ECLSS water/O₂ loop; logistics; EVA; plant growth | Water use, live O₂/water readings, parts count, tool check, racks watered |

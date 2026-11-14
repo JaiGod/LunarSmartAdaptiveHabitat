@@ -60,6 +60,7 @@ var selene_said_high = false
 var twin_rooms = []               # [{"mat","key"}]
 var twin_pucks = []
 var twin_t = 0.0
+var r3: R3                        # round 3: every object does something + the earlier HUNCH games' features
 
 func _ready() -> void:
 	randomize()
@@ -72,6 +73,7 @@ func _ready() -> void:
 	hab.build(sim)
 	for i in range(1, 4):
 		var a = Avatar.new(); a.setup(i); add_child(a); avatars.append(a)
+	r3 = R3.new(); r3.name = "R3"; add_child(r3); r3.setup(self)
 	player = Player.new(); player.name = "Player"; add_child(player)
 	player.pointer_clicked.connect(_on_click)
 	_spawn_in_pod()
@@ -94,6 +96,8 @@ func _ready() -> void:
 		if arg.begins_with("--shots="): _shots.call_deferred(arg.substr(8))
 		if arg.begins_with("--autoplay="): _autoplay.call_deferred(arg.substr(11))
 		if arg == "--selenetest": _selenetest.call_deferred()
+		if arg == "--r3test": r3.selftest.call_deferred()
+		if arg.begins_with("--r3shots="): r3.shots.call_deferred(arg.substr(10))
 
 # =====================================================================================================
 #  world: sky, Sun, Earth, ambient
@@ -273,6 +277,7 @@ func _process(dt: float) -> void:
 		_objectives()
 		_refresh_hud()
 	_prompt()
+	r3.tick(dt)
 	var hs = player.hit
 	if hs.get("kind", "") == "screen":
 		if hs.node.id == "twin": flags["twin"] = true
@@ -418,6 +423,8 @@ func _meal_time() -> bool:
 	return (h >= 7.0 and h < 8.25) or (h >= 12.0 and h < 13.25) or (h >= 18.5 and h < 19.75)
 
 func label_for(it: Dictionary) -> String:
+	var l3 = r3.label(it)
+	if l3 != "": return l3
 	var id: String = it.id
 	var H = sim.hab
 	if id.begins_with("rack_"):
@@ -455,6 +462,7 @@ func _on_click(hit: Dictionary) -> void:
 	if hit.get("kind", "") != "inter": return
 	var it = hit.node
 	var id: String = it.id
+	if r3.use(it): return
 	var H = sim.hab
 	if id.begins_with("rack_"):
 		var k = int(id.substr(5))
@@ -589,7 +597,7 @@ func _messages(dt: float) -> void:
 		var m = sim.messages[seen_msgs]; seen_msgs += 1
 		_toast(m.text, m.kind)
 	# LUNA asks you something
-	if asking.is_empty() and state == "play":
+	if asking.is_empty() and state == "play" and r3.card.is_empty():
 		var a = sim.next_ask()
 		if not a.is_empty() and activity.is_empty():
 			asking = a; show_why = false
@@ -610,6 +618,7 @@ func _toast(text: String, kind := "luna") -> void:
 
 func _answer(yes: bool) -> void:
 	if asking.is_empty(): return
+	r3.on_answer(yes)
 	var a = asking
 	asking = {}
 	sim.player_reply(a, yes)
@@ -656,6 +665,9 @@ func _show_popup() -> void:
 				var t = "%s: %s" % [e[0], ("%.2f" % e[1]) if e[1] >= 0.0 else e[3]]
 				v.add_child(UI.lbl("· " + t + "   (weight %.2f)" % e[2], 18, UI.INK))
 			v.add_child(UI.lbl("Confidence %d%%. Saying no starts a 6-hour cool-down; LUNA never overrides a refusal." % int(asking.conf * 100.0), 18, UI.MUT, true))
+	elif not r3.card.is_empty():
+		r3.build_card(v)
+		if not msg.is_empty(): v.add_child(UI.lbl(msg.text, 16, UI.MUT, true))
 	elif not msg.is_empty():
 		var head = {"alert": "ALERT", "t3": "LUNA · human support", "info": "Habitat", "luna": "LUNA"}.get(msg.kind, "LUNA")
 		v.add_child(UI.lbl(head, 20, UI.BAD if msg.kind == "alert" else UI.ACC))
@@ -670,8 +682,11 @@ func _show_popup() -> void:
 		popup_scr.look_at(player.cam.global_position, Vector3.UP); popup_scr.rotate_object_local(Vector3.UP, PI)
 	elif not asking.is_empty():
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if not popup_scr: r3.fit_popup()
 
 func _hide_popup() -> void:
+	if not r3.card.is_empty() and state == "play":
+		msg = {}; _show_popup(); return
 	popup_ctl.visible = false
 	if popup_scr: popup_scr.visible = false
 	msg = {}
@@ -680,6 +695,7 @@ func _hide_popup() -> void:
 
 func _unhandled_key_input(e: InputEvent) -> void:
 	if not (e is InputEventKey and e.pressed and not e.echo): return
+	if r3.key(e.keycode): return
 	match e.keycode:
 		KEY_Y: if not asking.is_empty(): _answer(true)
 		KEY_N: if not asking.is_empty(): _answer(false)
@@ -718,6 +734,7 @@ func _refresh_hud() -> void:
 	var spd = "fast-forward ▶▶" if ff else ("time-lapse" if not activity.is_empty() else "")
 	if state == "sleep": spd = "asleep…"
 	hud_v.add_child(UI.lbl("Day %d of 3 · %s  %s" % [sim.day(), sim.clock(), spd], 24, UI.ACC))
+	if sim.luna.off: hud_v.add_child(UI.lbl("LUNA OFF · a human switches it back on (Ops, or O)", 18, UI.BAD, true))
 	if outside:
 		hud_v.add_child(UI.lbl("EVA · suit O₂ %.1f h · arrays %d%% dusty" % [8.0 - (sim.now - eva_t) / 60.0, int(sim.hab.dust_panels * 100.0)], 18, UI.WARN))
 	if not activity.is_empty():
@@ -736,6 +753,13 @@ func _refresh_hud() -> void:
 		r2.add_child(UI.btn("Fast-forward" if not ff else "Normal speed", func(): ff = not ff, 0.12, 18))
 		r2.add_child(UI.btn("Voice " + ("on" if voice else "off"), func(): voice = not voice, 0.6, 18))
 		hud_v.add_child(r2)
+		var r3b = UI.hbox(6)
+		r3b.add_child(UI.btn("Guide me", func(): r3.guide(false), 0.12, 18))
+		r3b.add_child(UI.btn("Rubric", func(): r3.show_rubric(), 0.6, 18))
+		r3b.add_child(UI.btn("AI OFF" if not sim.luna.off else "LUNA on", func(): r3.use({"id": "ai_switch"}), 0.0, 18))
+		hud_v.add_child(r3b)
+	else:
+		hud_v.add_child(UI.lbl("G guide me · I check on someone · J rubric · K all keys", 14, UI.MUT))
 
 func _prompt() -> void:
 	if player.vr:
@@ -775,6 +799,7 @@ func _objectives() -> void:
 	if not sim.player_offer.is_empty(): list.append({"text": "LUNA offer you accepted: %s" % D.OFFERS[sim.player_offer.id].name, "done": false})
 	if d == 3: list.append({"text": "Final dinner, then the mission report at 20:30", "done": false})
 	else: list.append({"text": "Go to bed in your pod after 21:00", "done": false})
+	r3.objectives(list)
 	objectives = list
 
 # =====================================================================================================

@@ -26,6 +26,29 @@ Every day you can also check in at the mood kiosk, eat with the crew, tend crops
 - **EVA Prep Bay** (airlock): before any EVA, check the suit's consumables and LUNA's read on your fatigue, stress and sleep. LUNA advises go or wait; you decide.
 - **Earth Connection Corner** (social hub): sit by the live Earth window and read or answer messages from home.
 
+## Round 3: every object does something
+
+Everything you can use has a glowing ring: **cyan** = press or touch, **green** = grab, sit or use, **amber** = a crewmate you can check on. Point at it and the prompt says what it does (in VR the label floats beside it). This round also brings back the realistic features of the team's earlier NASA HUNCH games, Unity 3 (*Moon_Base_Final*) and *Lunar Habitat Commander*. The aliens, portals and weapons stay out.
+
+| Feature | Where | Rubric |
+|---|---|---|
+| **Check on a crewmate.** They choose whether to share. Then you see their readings with the sensor each one comes from, the six condition bars, and a **Help** button that suggests the activity that fits | walk up to them, or press **I** | D1, D3, D4 (consent) |
+| **AI OFF switch.** LUNA stops, undoes every change it made, and keeps only its safety sensing. Only a human turns it back on | Ops governance wall, **O**, wrist | D4 hard limits, human override |
+| **Night watch.** On night 2 the hardware watchdog catches LUNA breaking a bedtime rule, switches it off and wakes you | your pod | D4 |
+| **AI dashboard.** Sensor health and mass/power budget, confidence, anonymous tier counts. Break a sensor (graceful degradation, Q4) or test any of the 8 hard limits | Ops | D1, D4 |
+| **Review board.** Q1–Q6 run live, D1–D6 pages, rubric checklist, 72-hour tabletop (Bonus A) | Ops, **J** | D5, Bonus A |
+| **Team meeting.** The crew comes to the table and makes one-tap team choices | wardroom table | D3 |
+| **Safety drill.** Klaxon, and everyone musters in the storm shelter. The time goes in the log | Ops alarm button | D3 |
+| **Floor plan A/B.** The conflict protocol: two dining points and a second lit route | Ops selector, **C** | D2 |
+| **Room controls.** Light, sound (rain, forest, ocean, café), temperature and scent. LUNA leaves the room alone until you hand it back | social hub, greenhouse, Ops, exercise, medical | D3 levers, D4 override |
+| **CMO console.** Tier 3 cases (the person is told first) and the escalation chain when the medical officer is on EVA (Q6) | Medical | D3 |
+| **Crew interface.** Your read, opting out of sensors, pausing LUNA for you, exporting or deleting your own log | pod desk → **My data** | Bonus B |
+| **Daily wellness tasks**, **zone cards** (each room's ARES zone, light and allowed sensors), **guide me** (a gold path to your next step, **G**; to your bed, **B**) | everywhere | D2, D5 |
+
+New things to use: coffee machine, water station, food warmer, bookshelf, team-meeting terminal, shower, self-check exam bed, the locked medication cabinet (hard limit 3), the storm-shelter kit and muster point, the O₂ generator, spare parts, EVA tools, the greenhouse irrigation pump, your pod's "LUNA may adjust my pod" switch, music and photo from home.
+
+Test it headless: `godot --headless -- --r3test` presses every new control through the real handlers. To take screenshots of every new object, run `godot -- --r3shots=<dir>`.
+
 ## SELENE link (real face + voice sensing)
 
 LUNA VR can use SELENE, the team's face + voice wellness app, as a live sensor.
@@ -44,6 +67,8 @@ No SELENE or camera? Run `python selene_bridge.py --demo` (or `--demo --stress 0
 | Look / turn | mouse | head, right stick snap-turn |
 | Use things, click screens | click or E | trigger |
 | Answer LUNA | Y / N / H (why?) | A = yes, B = no, or point and click |
+| Guide me · bed path · check in | G · B · I | wrist panel: Guide me |
+| AI OFF · floor plan A/B · rubric · zone card · all keys | O · C · J · Z · K | wrist panel: AI OFF, Rubric |
 | Fast-forward | F | Y button / wrist panel |
 
 ## Build

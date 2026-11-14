@@ -20,6 +20,13 @@ static func make(id: String, g) -> SUI:
 		"family": return FamilyUI.new(g)
 		"plan": return PlanUI.new(g)
 		"dock": return DockUI.new(g)
+	if id in ["dashboard", "board", "cmo"] or id.begins_with("room_"):
+		var R = load("res://scripts/r3_ui.gd")
+		match id:
+			"dashboard": return R.DashUI.new(g)
+			"board": return R.BoardUI.new(g)
+			"cmo": return R.CmoUI.new(g)
+		return R.RoomUI.new(g, id.substr(5))
 	return null
 
 class SUI extends RefCounted:
@@ -75,7 +82,7 @@ class PodUI extends SUI:
 		return "%s|%s|%s|%s|%s|%d|%s|%s" % [tab, cr.smart_alarm, cr.dawn_light, cr.pod_invite, cr.tell_me, sim().day(), sim().player_offer.get("id", ""), sim().pod_manual]
 	func build() -> void:
 		var tabs = UI.hbox(8)
-		for t in [["sleep", "Last night"], ["pod", "My pod"], ["home", "Call home"]]:
+		for t in [["sleep", "Last night"], ["pod", "My pod"], ["data", "My data"], ["home", "Call home"]]:
 			var tt = t[0]
 			tabs.add_child(UI.btn(t[1], func(): tab = tt; refresh(true), 0.6 if tab == tt else 0.62, 20))
 		body.add_child(tabs)
@@ -109,6 +116,8 @@ class PodUI extends SUI:
 				r3.add_child(UI.btn("LUNA may adjust my pod: " + ("yes" if cr.pod_invite else "no"), func(): cr.pod_invite = not cr.pod_invite; refresh(true), 0.75, 18))
 				r3.add_child(UI.btn("Tell me every change: " + ("yes" if cr.tell_me else "no"), func(): cr.tell_me = not cr.tell_me; refresh(true), 0.45, 18))
 				body.add_child(r3)
+			"data":
+				load("res://scripts/r3_ui.gd").my_data(self)
 			"home":
 				var off = sim().player_offer
 				if not off.is_empty() and off.id == "earthcall":
