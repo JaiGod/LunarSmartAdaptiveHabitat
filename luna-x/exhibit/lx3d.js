@@ -210,6 +210,7 @@ loader.load(C.model, (g) => {
     const chain = nameChain(o);
     const mats = Array.isArray(o.material) ? o.material : [o.material];
     mats.forEach((m) => {
+      if (m.anisotropy) { m.anisotropy = 0; m.anisotropyMap = null; m.needsUpdate = true; } // anisotropy without tangents renders NaN
       const em = m.emissive && (m.emissive.r + m.emissive.g + m.emissive.b) > 0.02;
       if (em && !m.userData.lx) {
         m.userData.lx = { c: m.emissive.clone(), i: m.emissiveIntensity || 1, cyc: reCycle ? reCycle.test(m.name) || reCycle.test(chain) : false, beat: reBeat ? reBeat.test(m.name) || reBeat.test(chain) : false, ph: Math.random() * 6.28 };
