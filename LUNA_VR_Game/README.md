@@ -49,6 +49,27 @@ New things to use: coffee machine, water station, food warmer, bookshelf, team-m
 
 Test it headless: `godot --headless -- --r3test` presses every new control through the real handlers. To take screenshots of every new object, run `godot -- --r3shots=<dir>`.
 
+## Realism pass
+
+Realism comes first. Anything that looked good but had no engineering job was redesigned or removed. Everything you can use now states:
+
+- what it does
+- why it is aboard (NASA practice, the ARES brief or our research proposal)
+- its upkeep
+- its resource cost (power, water, mass, consumables)
+- its honest limits
+
+The prompt shows the resource line. Press **X** for the full card. This follows the brief's §7 rule that every sensor and actuator must be justified in mass, power and mission value.
+
+- **No dust storms.** The Moon has no weather. Dust comes from lander plumes, rover traffic, EVA boots and electrostatic lofting at the terminator.
+- **E-readers, not paper books.** Each one is 0.3 kg, and every kilogram costs about $1M to land.
+- **A 3 L shower.** That is about what Skylab used per shower.
+- **An espresso machine.** One like it, the ISSpresso, flew in 2015.
+- **A 3D printer in the maintenance bay**, as in our research proposal. It prints non-structural spare parts from recycled plastic, and the feedstock runs out.
+- **The Earth view is a virtual window.** The habitat sits under regolith shielding, so it is a display fed by a mast camera.
+
+**Known gap:** the 3D floor plan is about 700 m², several times the size of real analogs. CHAPEA is about 158 m² for 4 crew. A compact two-deck layout is the next step.
+
 ## SELENE link (real face + voice sensing)
 
 LUNA VR can use SELENE, the team's face + voice wellness app, as a live sensor.

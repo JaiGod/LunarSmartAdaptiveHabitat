@@ -13,7 +13,7 @@ const COL_TOUCH = Color("#33d6ff")      # press / touch (same colour language as
 const COL_GRIP = Color("#8affb0")       # grab / pull / sit / lie
 const COL_PEOPLE = Color("#ffc46b")     # a crewmate you can check on
 const TOUCH_IDS = ["dock", "ai_switch", "config_switch", "drill_alarm", "meeting", "galley_water", "coffee", "pod_ai_switch",
-	"pod_music", "gh_irrigation", "o2_gen", "exam_bed", "parts_shelf", "shelter_kit", "med_cabinet"]
+	"pod_music", "gh_irrigation", "o2_gen", "exam_bed", "parts_shelf", "shelter_kit", "med_cabinet", "printer"]
 
 ## ARES zone types (brief §4.1) + what each room's sensors may see
 const ZONE_INFO = {
@@ -91,7 +91,68 @@ var pod_toggle: Node3D
 var music: AudioStreamPlayer3D
 var tabletop = {}                 # {"sim": Sim, "run": bool, "report": Dictionary}
 var hl_next = 0
+var feedstock = 6.0                # kg of recycled-plastic printer feedstock
 var snd = {}
+
+
+## every usable thing: what it does, why it is aboard, upkeep, what it costs to run, and its honest limits
+## (ARES brief §7: "every sensor and actuator must be justified in mass, power and mission-critical value")
+const SPECS = {
+	"bed": ["Smart bed: mattress BCG strip reads sleep stages, no camera", "Sleep loss is a top spaceflight risk (NASA HRP)", "Strip self-test nightly; mattress cover washed weekly", "4 kg sensor + bed · 3 W", "Can't tell sleep from lying still for long; stages are estimates"],
+	"cabinet": ["Personal hydroponics: herbs + strawberries", "Plant care helps mood (Veggie on the ISS)", "Top up nutrient water weekly; clean pump filter monthly", "18 W grow light · 0.3 L water/day", "A few herbs, not food supply"],
+	"seat": ["Wardroom seat at the shared table", "Shared meals are a cohesion lever (ARES §5.2)", "Wipe down after meals", "2 kg (fold-down seat)", "4 seats: the whole crew, no guests"],
+	"sofa": ["Lounge seating facing the hub display", "Leisure space for the communal zone (ARES §4.1)", "Fabric covers changed monthly", "12 kg modular foam", "Movie nights only when the comms link is free"],
+	"galley": ["Food warmer (conduction heating, like the ISS)", "Hot meals matter for morale and routine", "Descale + clean weekly", "0.6 kW while heating", "Heats pouches and cans; no open-flame cooking"],
+	"galley_water": ["Potable water dispenser", "Drinking water from the recovery loop", "Filter swap every 90 days; iodine/silver check weekly", "≈ 2.5 L per person per day", "Tank capacity; recovery is ~98 %, not 100 %"],
+	"coffee": ["Espresso machine (the ISSpresso flew in 2015)", "Comfort ritual and a scent lever (coffee, ARES §5.2)", "Capsule bin emptied daily; descale monthly", "1.1 kW for 40 s · 30 mL water · one capsule", "Capsules are resupply mass: ~1 per person per day"],
+	"meeting": ["Wardroom meeting terminal", "Team meetings rebuild cohesion; LUNA never takes sides", "Software only", "6 W tablet", "Works only when people choose to come"],
+	"books": ["Crew e-readers (not paper books)", "Novelty against sensory monotony at 0.3 kg each", "Charge weekly; library uplinked from Earth", "4 × 0.3 kg · 2 W charging", "New books only arrive on the comms uplink"],
+	"ai_switch": ["Hard-wired AI OFF switch", "Human override of automation (ARES §6.2 hard limits)", "Tested every weekly human review", "0.4 kg · no power (cuts LUNA's actuator relays)", "LUNA keeps sensing for life safety; it just can't act"],
+	"config_switch": ["Floor plan A/B selector (partition + route lights)", "Conflict protocol layout (ARES D2, config B)", "Partition track cleaned monthly", "35 kg folding partition · 40 W motor while moving", "Only splits the wardroom; it can't make more room"],
+	"drill_alarm": ["Safety drill alarm + beacon", "Crew must reach the storm shelter in time for a solar particle event", "Drill once a week; beacon test daily", "0.6 kg · 5 W standby", "A drill, not the real warning (that comes from Earth / space weather)"],
+	"exam_bed": ["Exam bed with vitals monitor", "Crew health monitoring (NASA-STD-3001 Vol. 1)", "Calibrate BP cuff monthly", "25 kg · 40 W monitor", "Self check only; diagnosis is the medical officer's"],
+	"med_cabinet": ["Medication cabinet, locked to the medical officer", "Hard limit 3: the AI never touches medication", "Inventory + expiry check weekly", "8 kg + medicines", "Fixed stock until resupply; some drugs degrade in radiation"],
+	"shelter_kit": ["Storm-shelter kit for 72 h", "Solar particle events need shielded shelter (water wall)", "Checked monthly; food rotated every 6 months", "40 kg (water, food, meds, dosimeters)", "72 h for 4 crew; longer events need the galley"],
+	"pod_ai_switch": ["'LUNA may adjust my pod' switch", "Private retreat: AI only on invitation (ARES §4.1)", "None", "0.1 kg · switch input", "Life-safety alarms still work in the pod"],
+	"pod_music": ["Personal speaker: your pre-mission playlist", "Personal music scheduling (ARES §5.2 audio)", "None", "0.4 kg · 3 W", "Music library fixed until the next uplink"],
+	"photo": ["Photo from home", "Earth connection against isolation", "None", "0.1 kg (your personal allowance)", "It's a photo: calls home need a comms window"],
+	"shower": ["Shower (Skylab-style, closed stall)", "Hygiene for long stays; Skylab used about 3 L a shower", "Drain filter cleaned daily; fan filter weekly", "3 L water · 0.8 kW heater for 5 min", "Water is recycled ~98 %, so showers are short and rationed"],
+	"sink": ["Hand-wash sink", "Hygiene; wash water is reclaimed", "Filter swap monthly", "0.5 L per wash", "No running tap: metered flow"],
+	"o2_gen": ["O2 generator (electrolysis) + water recovery rack", "Life support: O2 and water loop (ISS OGS / WRS)", "Cell stack inspection every 6 months; filters monthly", "≈ 1.2 kW · 1 kg water → 0.9 kg O2", "Needs power: in a shadow period O2 comes from tanks"],
+	"cartridge": ["CO2 sorbent cartridge (4-bed molecular sieve)", "CO2 above ~1,000 ppm slows thinking", "Swap when saturated (about every 30 days)", "6 kg spare cartridge", "One spare at a time; a fault needs a person or the robot"],
+	"parts_shelf": ["Spare parts", "Repairs without resupply", "Inventory weekly", "Each part 0.5–3 kg of launch mass", "Resupply only on day 90"],
+	"printer": ["3D printer (recycled-plastic feedstock)", "Prints spare parts on site (proposal: maintenance bay)", "Nozzle + bed cleaned every print; enclosure filter monthly", "120 W for ~3 h · 0.4 kg feedstock per part", "Brackets, knobs, clips only: nothing pressure-rated or structural"],
+	"eva_tools": ["EVA tool rack", "Dust removal, sampling, tethers for EVA", "Brushes replaced when worn; tethers inspected every EVA", "9 kg", "Tools wear fast in abrasive regolith"],
+	"gh_irrigation": ["Nutrient tank + irrigation pump (NFT)", "Food and O2 support; tending treats low mood", "Check pH/EC daily; pump filter weekly", "45 W pump · water mostly recirculated", "A small fraction of food; most food is shipped"],
+	"gh_bench": ["Bench among the plants", "Biophilic space (nature + growth bay)", "None", "6 kg", "Plants need light and power first"],
+	"desk": ["Analyst desk with two displays", "Work + mission bay workstation", "Wipe screens; dust filter monthly", "90 W", "Task speed here is a fatigue signal"],
+	"treadmill": ["Treadmill with load harness (like the ISS T2)", "Exercise against bone and muscle loss", "Belt inspected weekly; harness monthly", "250 W", "Harness needed: at 1/6 g you'd bounce off the belt"],
+	"bike": ["Cycle ergometer with scenic display (like CEVIS)", "Aerobic exercise; scenic rides fight monotony", "Chain/belt check monthly", "60 W display", "Scenery is a display, not a window"],
+	"rig": ["Resistance rig (like the ISS ARED)", "Strength training: low gravity weakens muscle", "Vacuum cylinders checked monthly", "300 kg on Earth (launch mass!) · 0 W", "Heaviest item in the bay; can't be moved"],
+	"recovery_chair": ["VR recovery chair", "Nature scenes for stress relief (proposal: virtual views)", "Headset lens cleaning, foam liners swapped", "15 kg · 30 W", "A break, not therapy"],
+	"suitport": ["Suitport: climb into a docked suit", "Less gas loss, prep time and dust than an airlock (NASA suitports)", "Seal inspection every use; suits serviced between EVAs", "≈ 0.4 kg O2 per EVA hour per person", "One person per port; suits stay outside in the dust and radiation"],
+	"suitport_return": ["Suitport (from outside)", "Return path for EVA", "Seal inspection every use", "-", "Docking takes time; dust still clings"],
+	"boot_brush": ["Boot brush station", "Apollo dust got everywhere: remove it before it enters", "Bristles replaced monthly", "2 kg", "Removes the coarse dust; fines need the curtain + HEPA"],
+	"dock": ["Wellness Dock: posture, heart rate, Reaction Self Test", "Fatigue check like the ISS Reaction Self Test", "Camera calibration monthly", "40 kg · 120 W while scanning", "Only when you choose to take it"],
+	"earth_window": ["Earth-view display fed by the mast camera", "Virtual window (the habitat sits under regolith shielding)", "Camera lens cleaned on EVA", "60 W", "Earth dips below the horizon at times (libration)"],
+}
+
+func spec_line(it: Dictionary) -> String:
+	var sp = _spec(it.id)
+	if sp.is_empty(): return ""
+	return "\nUses %s  ·  X: specs" % sp[3]
+
+func _spec(id: String) -> Array:
+	if id.begins_with("rack_"): return ["Greenhouse rack (NFT channels, red/blue LEDs)", "Food, O2 and CO2 uptake; behavioural activation", "Clean channels weekly; LED panels yearly", "0.4 kW lights · 2 L water/day", "Crops take weeks; blight can wipe a rack"]
+	if id.begins_with("array_"): return ["Vertical solar array", "Main power at the south pole (low Sun, near-constant light)", "Brush dust after plumes; tracking motor check monthly", "makes ≈ 18 kW", "Shadow periods and dust cut output"]
+	if id.begins_with("crew_"): return ["Wellness + comm beacon (worn)", "Location for safety (UWB) and comms", "Charge nightly", "0.05 kg · 0.2 W", "Shows where, never how someone feels"]
+	return SPECS.get(id, [])
+
+func show_spec(it: Dictionary) -> void:
+	var sp = _spec(it.id)
+	if sp.is_empty(): return
+	show_card({"title": sp[0], "lines": [["Why it's aboard: " + sp[1], UI.INK], ["Upkeep: " + sp[2], UI.INK], ["Resources: " + sp[3], UI.INK],
+		["Limits: " + sp[4], UI.WARN]], "buttons": [["Close", func(): close_card(), 0.62]]})
 
 # =====================================================================================================
 #  setup
@@ -223,20 +284,15 @@ func _galley_and_hub() -> void:
 		_mesh(tn, _boxm(Vector3(0.26, 0.16, 0.012)), Vector3(0, 0.86, 0.02), _glow(Color(0.2, 0.55, 0.9), 0.9), Vector3(-0.45, 0, 0))
 		var a = hab.add_inter("meeting", tn.global_position + Vector3(0, 0.86, 0), Vector3(0.45, 0.28, 0.4), "", Callable(), "communal")
 		a.reparent(tn)
-	# bookshelf (things to read)
-	var bp = Vector3(16 * C + 0.3, 0, 8 * C - 0.2)
-	m.box(bp + Vector3(0, 0.85, 0), Vector3(1.0, 1.7, 0.3), Mats.wood(), 0.0, true)
-	var rng = RandomNumberGenerator.new(); rng.seed = 7
-	for sh in 4:
-		var y = 0.2 + sh * 0.4
-		m.box(bp + Vector3(0, y, -0.02), Vector3(0.94, 0.02, 0.27), Mats.wood())
-		var xx = -0.44
-		while xx < 0.4:
-			var w = rng.randf_range(0.03, 0.07); var hh = rng.randf_range(0.2, 0.3)
-			m.box(bp + Vector3(xx + w * 0.5, y + 0.01 + hh * 0.5, -0.05), Vector3(w, hh, 0.2), Mats.stripe(Color.from_hsv(rng.randf(), 0.45, 0.7)))
-			xx += w + 0.005
-	_label("Books from home · read a chapter", bp + Vector3(0, 1.82, -0.16), PI, 18)
-	hab.add_inter("books", bp + Vector3(0, 1.0, -0.2), Vector3(1.0, 1.4, 0.26), "", Callable(), "communal")
+	# crew e-reader dock (paper books cost launch mass: about $1M per kg to the lunar surface)
+	var bp = Vector3(16 * C + 0.3, 0, 8 * C - 0.08)
+	m.box(bp + Vector3(0, 1.25, 0), Vector3(0.9, 0.42, 0.06), Mats.white_plastic())
+	for k in 4:
+		m.box(bp + Vector3(-0.32 + k * 0.213, 1.27, -0.04), Vector3(0.15, 0.22, 0.012), Mats.black())
+		m.box(bp + Vector3(-0.32 + k * 0.213, 1.28, -0.047), Vector3(0.13, 0.17, 0.002), Mats.glow(Color(0.85, 0.85, 0.8), 0.25))
+		m.box(bp + Vector3(-0.32 + k * 0.213, 1.12, -0.035), Vector3(0.05, 0.01, 0.01), Mats.glow(Color(0.3, 1.0, 0.5), 1.2))
+	_label("Crew e-readers · 0.3 kg each instead of a shelf of paper", bp + Vector3(0, 1.53, -0.04), PI, 16)
+	hab.add_inter("books", bp + Vector3(0, 1.25, -0.12), Vector3(0.9, 0.45, 0.14), "", Callable(), "communal")
 	m.commit(world, "r3_hub")
 
 func _pod_and_hygiene() -> void:
@@ -266,6 +322,16 @@ func _service_rooms() -> void:
 	hab.add_inter("o2_gen", b + Vector3(0, 1.0, 0.62), Vector3(0.9, 0.9, 0.24), "", Callable(), "eclss")
 	# storage: spare parts
 	hab.add_inter("parts_shelf", Vector3(11 * C + 0.62, 1.0, 15.5 * C), Vector3(0.22, 1.3, 0.9), "", Callable(), "storage")
+	# maintenance bay: 3D printer for spare parts (recycled-plastic feedstock)
+	var pp = Vector3(14 * C - 0.4, 0, 14.5 * C + 0.2)
+	m.box(pp + Vector3(0, 0.4, 0), Vector3(0.6, 0.8, 0.75), Mats.grey_plastic(), 0.0, true)
+	m.box(pp + Vector3(0, 1.05, 0), Vector3(0.5, 0.5, 0.55), Mats.white_plastic())
+	m.box(pp + Vector3(-0.252, 1.05, 0), Vector3(0.01, 0.38, 0.42), Mats.glass())
+	m.box(pp + Vector3(-0.255, 1.3, 0.18), Vector3(0.01, 0.06, 0.1), Mats.glow(Color(0.3, 0.8, 1.0), 0.8))
+	_label("3D printer · spare parts from recycled plastic\n(brackets, knobs, clips: nothing pressure-rated)", pp + Vector3(-0.26, 1.48, 0), -PI / 2.0, 14)
+	hab.add_inter("printer", pp + Vector3(-0.2, 1.0, 0), Vector3(0.2, 0.6, 0.6), "", Callable(), "storage")
+	var pc = Vector2i(13, 14)
+	sim.hab.blocked[pc] = true; sim.hab.astar.set_point_disabled(sim.hab._id(pc), true)
 	# airlock: EVA tool rack
 	hab.add_inter("eva_tools", Vector3(1 * C + 0.32, 1.1, 8.6), Vector3(0.36, 1.2, 1.0), "", Callable(), "airlock")
 	# greenhouse: nutrient tank + irrigation pump
@@ -391,7 +457,7 @@ func _markers() -> void:
 		mk.s.global_position = mk.base + Vector3(0, 0.02 * sin(t * 2.0 + mk.base.z), 0)
 		mk.lab.visible = hovered and g.player.vr
 		if hovered and g.player.vr:
-			var txt = g.label_for(it)
+			var txt = g.label_for(it) + spec_line(it).replace("  ·  X: specs", "")
 			if mk.lab.text != txt: mk.lab.text = txt
 
 func _ring(col: Color) -> ImageTexture:
@@ -439,9 +505,9 @@ func label(it: Dictionary) -> String:
 	match id:
 		"galley": return "Heat a meal at the food warmer (snack + drink)"
 		"galley_water": return "Fill your bottle: potable water from the recycler"
-		"coffee": return "Make a coffee (the smell of home)"
+		"coffee": return "Make an espresso (ISSpresso-style machine)"
 		"meeting": return ("Team meeting: everyone's on the way" if not meeting.is_empty() else "Call a team meeting at the wardroom table")
-		"books": return "Read a chapter of a book from home (20 min)"
+		"books": return "Take an e-reader: read a chapter (20 min)"
 		"ai_switch": return "AI OFF switch: switch LUNA %s" % ("back ON (human decision)" if sim.luna.off else "OFF (it stops and undoes everything)")
 		"config_switch": return "Floor plan: switch to %s" % ("A (nominal)" if sim.hab.config_b else "B (conflict protocol)")
 		"drill_alarm": return ("Drill running: get to the storm shelter" if not drill.is_empty() else "Start a safety drill (muster in the storm shelter)")
@@ -449,11 +515,12 @@ func label(it: Dictionary) -> String:
 		"med_cabinet": return "Medication cabinet (locked: only the medical officer opens it)"
 		"shelter_kit": return "Storm-shelter kit · 72 h (check it)"
 		"pod_ai_switch": return "LUNA may adjust my pod: %s → switch to %s" % ["yes" if sim.me().pod_invite else "no", "no" if sim.me().pod_invite else "yes"]
-		"shower": return "Take a 5-minute shower (6 L, recycled)"
+		"shower": return "Take a short shower (3 L, Skylab-style, recycled)"
 		"pod_music": return ("Stop the music" if music.playing else "Play your pre-mission playlist (personal music)")
 		"photo": return "Look at the photo from home"
 		"o2_gen": return "Check the O₂ generator and water recovery"
 		"parts_shelf": return "Count the spare parts"
+		"printer": return "Print a spare part (3 h · 0.4 kg feedstock · %.1f kg left)" % feedstock
 		"eva_tools": return "Check the EVA tools (brush pole, sample bags, tethers)"
 		"gh_irrigation": return "Run the irrigation pump (water every rack)"
 	return ""
@@ -500,12 +567,19 @@ func use(it: Dictionary) -> bool:
 			g.start_activity("photo", "Looking at the photo from home", 3.0, "pod", {"fx": {"connection": 0.1, "mood": 0.03}}, true, func():
 				g._toast("Your family at the beach, the summer before launch. 384,000 km away, 1.3 light-seconds."))
 		"shower":
-			sim.hab.water = max(0.0, sim.hab.water - 6.0)
+			sim.hab.water = max(0.0, sim.hab.water - 3.0)
 			g.start_activity("shower", "Showering", 5.0, "hygiene", {"fx": {"stress": -0.08, "mood": 0.03}}, true, func():
-				g._toast("Shower done: 6 L, and 98 % of it goes back through water recovery.", "info"))
+				g._toast("Shower done: 3 L (Skylab used about the same), and ~98 % goes back through water recovery.", "info"))
 		"o2_gen":
 			var H = sim.hab
 			g._toast("O₂ generator: cabin O₂ %.1f %% · CO₂ %d ppm. Water recovery: %.0f L in the tank, 98 %% recovered." % [H.o2, int(H.co2), H.water], "info")
+		"printer":
+			if feedstock < 0.4: g._toast("Out of feedstock: recycle packaging first (or wait for resupply).", "info")
+			else:
+				feedstock -= 0.4
+				g.start_activity("print", "Printing a bracket", 180.0, "work", {}, true, func():
+					sim.hab.parts += 1
+					g._toast("Printed: one bracket (non-structural). Spare parts now %d. Feedstock left %.1f kg." % [sim.hab.parts, feedstock], "info"))
 		"parts_shelf":
 			g._toast("Spare parts: %d left. Next resupply on day 90, so every repair counts." % sim.hab.parts, "info")
 		"eva_tools":
@@ -872,10 +946,14 @@ func key(k: int) -> bool:
 		KEY_B: guide(true); return true
 		KEY_J: show_rubric(); return true
 		KEY_Z: show_zone(zone_now); return true
+		KEY_X:
+			var h = g.player.hit
+			if h.get("kind", "") == "inter": show_spec(h.node)
+			return true
 		KEY_K:
 			show_card({"title": "Keys", "lines": [["WASD move · mouse look · E / click use · F fast-forward · Y / N / H answer LUNA", UI.INK],
 				["G guide me to my next step · B path to my bed · I check on the crewmate next to you", UI.INK],
-				["O AI OFF switch · C floor plan A/B · J rubric checklist · Z zone card · K this list · V LUNA voice", UI.INK]],
+				["O AI OFF switch · C floor plan A/B · J rubric checklist · Z zone card · X specs of what you point at · K this list · V voice", UI.INK]],
 				"buttons": [["Close", func(): close_card(), 0.62]]})
 			return true
 	return false
@@ -1071,7 +1149,7 @@ func selftest() -> void:
 	g._start_desktop()
 	while g.state != "play": await get_tree().process_frame
 	var ids = ["galley", "galley_water", "coffee", "books", "exam_bed", "med_cabinet", "shelter_kit", "pod_ai_switch", "pod_music", "photo",
-		"shower", "o2_gen", "parts_shelf", "eva_tools", "gh_irrigation", "config_switch", "config_switch", "meeting"]
+		"shower", "o2_gen", "parts_shelf", "printer", "eva_tools", "gh_irrigation", "config_switch", "config_switch", "meeting"]
 	for id in ids:
 		var it = null
 		for x in hab.inters: if x.id == id: it = x
@@ -1150,6 +1228,8 @@ func shots(dir: String) -> void:
 		["r3_09_greenhouse", Vector3(30.6, 0, 4.95), PI / 2.0, -0.18],
 		["r3_10_exercise", Vector3(29.55, 0, 15.6), 0.0, -0.08],
 		["r3_11_cmo", Vector3(5.6, 0, 16.6), -PI / 2.0, -0.05],
+		["r3_15_printer", Vector3(15.6, 0, 18.3), -PI / 2.0, -0.2],
+		["r3_16_ereaders", Vector3(20.3, 0, 8.4), PI, -0.12],
 	]
 	for v in views:
 		g.player.place(v[1], v[2]); g.player.pitch = v[3]; g.player.cam.rotation.x = v[3]

@@ -450,7 +450,7 @@ func label_for(it: Dictionary) -> String:
 		"recovery_chair": return "Sit in the VR recovery chair"
 		"sink": return "Wash up"
 		"suitport": return "Climb into your suit through the suitport (EVA)" if g_eva_ready() else "Suitport (run the EVA prep check first)"
-		"earth_window": return "Sit by the Earth window (20 min)"
+		"earth_window": return "Sit by the Earth-view display (live south-pole camera, 20 min)"
 		"dock": return "Wellness Dock: posture, heart rate, Reaction Self Test"
 		"suitport_return": return "Back in through the suitport"
 		"boot_brush": return "Brush the dust off your boots"
@@ -629,7 +629,7 @@ func _answer(yes: bool) -> void:
 				sim.complete_player_offer("breathing"); _offer_effect("breathing"))
 		elif a.offer == "chat":
 			sim.complete_player_offer("chat")
-			sim.say("Thanks for talking. You've had a heavy day: the dust storm alarm, a lot on your plate. That's a normal reaction, not a failure. Want me to keep the hub warm tonight?")
+			sim.say("Thanks for talking. You've had a heavy day: the lander-plume dust alert, a lot on your plate. That's a normal reaction, not a failure. Want me to keep the hub warm tonight?")
 	_hide_popup()
 
 func _build_popup() -> void:
@@ -767,7 +767,7 @@ func _prompt() -> void:
 	var hit = player.hit
 	cross.modulate = Color(0.5, 0.9, 1.0) if not hit.is_empty() else Color(1, 1, 1, 0.6)
 	if hit.get("kind", "") == "inter" and state == "play":
-		prompt.text = "[E / click]  " + label_for(hit.node)
+		prompt.text = "[E / click]  " + label_for(hit.node) + r3.spec_line(hit.node)
 	elif hit.get("kind", "") == "screen": prompt.text = ""
 	else: prompt.text = ""
 

@@ -224,14 +224,14 @@ func _director() -> void:
 			choose(e, e.rec)
 	# --- day 1 ---
 	if _once("v_dust", 1, 10.5):
-		dust_event(2.5, "Cargo lander touchdown 2 km away: plume dust storm.")
+		dust_event(2.5, "Cargo lander touchdown 2 km away: plume ejecta on the arrays.")
 		me().stress = min(1.0, me().stress + 0.42)
-		_vev("v_dust", "Dust storm: lander plume", "A cargo lander has touched down 2 km away. Its plume throws regolith in long ballistic arcs (no air on the Moon to slow it). It is settling on the solar arrays right now: every 10% of dust costs about 0.9 kW.",
+		_vev("v_dust", "Lander plume: dust on the arrays", "A cargo lander has touched down 2 km away. Its plume throws regolith in long ballistic arcs (no air on the Moon to slow it). It is settling on the solar arrays right now: every 10% of dust costs about 0.9 kW.",
 			[["Switch on the electrodynamic dust shield (0.8 kW until it settles)", "Dust shield on.", "Arrays stay ~90% clean. Costs 0.8 kW for ~3 h; battery dips about 2%."],
-			 ["Send the six-legged robot to brush the arrays after the storm (1 spare part)", "Robot booked for the arrays.", "Arrays dusty for ~4 h, then clean. One spare part used."],
-			 ["I'll go out on EVA after the storm and clean the nearest array", "You'll clean the arrays on EVA.", "Hands-on: about 30 min outside. Dust comes back in with you: run the airlock cleaning."],
+			 ["Send the six-legged robot to brush the arrays once the ejecta settles (1 spare part)", "Robot booked for the arrays.", "Arrays dusty for ~4 h, then clean. One spare part used."],
+			 ["I'll go out on EVA once the ejecta settles and clean the nearest array", "You'll clean the arrays on EVA.", "Hands-on: about 30 min outside. Dust comes back in with you: run the airlock cleaning."],
 			 ["Do nothing for now", "Arrays left dusty.", "Solar output down by up to a third until someone cleans them."]], 0, 60.0)
-		say("Dust storm alarm. Nobody is outside, the hatches are sealed. Decision needed at the Ops console when you're ready.", "alert")
+		say("Lander plume dust alert. Nobody is outside, the hatches are sealed. Decision needed at the Ops console when you're ready.", "alert")
 	if _once("v_sam", 1, 20.5):
 		push[3] = {"mood": -1.15, "until": now + 12.0 * 1440.0}
 		crew[3].connection = max(0.0, crew[3].connection - 0.25)

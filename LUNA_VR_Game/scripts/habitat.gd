@@ -509,7 +509,7 @@ func _athlete(parent: Node3D, p: Vector3) -> void:
 	m.box(Vector3(1.55, deck_y + 0.1, 0), Vector3(0.1, 0.8, 0.1), Mats.metal())
 	m.box(Vector3(1.55, deck_y - 0.35, 0), Vector3(0.5, 0.12, 0.2), Mats.caution())     # electrostatic brush head
 	m.commit(n, "athlete", true)
-	var l = Label3D.new(); l.text = "Six-legged repair robot\ncleans the arrays after dust storms"; l.font_size = 40; l.pixel_size = 0.008
+	var l = Label3D.new(); l.text = "ATHLETE-style six-limbed rover\ninspects and brushes the arrays after lander plumes"; l.font_size = 40; l.pixel_size = 0.008
 	l.position = Vector3(0, deck_y + 2.6, 0); l.billboard = BaseMaterial3D.BILLBOARD_ENABLED; n.add_child(l)
 	dyn["athlete"] = n
 

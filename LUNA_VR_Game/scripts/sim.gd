@@ -448,13 +448,13 @@ func _director() -> void:
 		evas.append({"crew": [0, 2], "start": now + 90.0, "end": now + 90.0 + 210.0, "why": "geology traverse"})
 		_ev("eva1", "Day 4 · First EVA", "Maya and Ana go outside at 09:30 for a 3.5-hour geology traverse. EVA is hard physical work: heart rate and skin conductance will spike.\n\nBoard question Q1: how does LUNA avoid calling that anxiety?", [["Noted", ""]])
 	if _once("lander", 8, 13.0):
-		dust_event(3.0, "Cargo lander touchdown 2 km away: plume dust storm.")
-		_ev("lander", "Day 8 · Dust storm", "A cargo lander touches down 2 km away. Its plume blasts regolith across the site. With no air on the Moon the dust flies in ballistic arcs and settles on everything, including the solar arrays.\n\nDusty arrays make less power until they are cleaned.", [["Switch on the electrodynamic dust shield (0.8 kW)", "Dust shield on."], ["Send the robot to brush the arrays after the storm (1 part)", "Robot will clean the arrays."], ["Do nothing for now", "Arrays dusty."]], 0)
+		dust_event(3.0, "Cargo lander touchdown 2 km away: plume ejecta on the arrays.")
+		_ev("lander", "Day 8 · Lander plume", "A cargo lander touches down 2 km away. Its plume blasts regolith across the site. With no air on the Moon the dust flies in ballistic arcs and settles on everything, including the solar arrays.\n\nDusty arrays make less power until they are cleaned.", [["Switch on the electrodynamic dust shield (0.8 kW)", "Dust shield on."], ["Send the robot to brush the arrays after the storm (1 part)", "Robot will clean the arrays."], ["Do nothing for now", "Arrays dusty."]], 0)
 	if _once("terminator", 29, 6.0):
-		dust_event(20.0, "Electrostatic dust storm at local sunrise.")
-		_ev("terminator", "Day 29 · Electrostatic dust storm", "At local sunrise, sunlight charges the regolith and fine dust lifts and drifts for most of the day. It coats the arrays and works into the airlock seals.", [["Dust shield on until it passes", "Dust shield on."], ["Robot cleaning afterwards (1 part)", "Robot booked."], ["Do nothing", "Arrays dusty."]], 0)
+		dust_event(20.0, "Electrostatic dust lofting at local sunrise (terminator).")
+		_ev("terminator", "Day 29 · Electrostatic dust lofting", "At local sunrise, sunlight charges the regolith and fine dust lifts and drifts for most of the day. It coats the arrays and works into the airlock seals.", [["Dust shield on until it passes", "Dust shield on."], ["Robot cleaning afterwards (1 part)", "Robot booked."], ["Do nothing", "Arrays dusty."]], 0)
 	if _once("rover", 57, 11.0):
-		dust_event(2.0, "Rover traverse kicked up a dust storm near the arrays.")
+		dust_event(2.0, "Rover traverse threw dust onto the arrays.")
 	if _once("pump", 10, 23.4):
 		sleep_noise = 0.03; sleep_noise_until = now + 360.0
 		_ev("pump", "Day 10 · Pump noise at night", "A water-recovery pump has started to vibrate. It is loud enough to wake people in the quarters.", [["Send the robot now (quiet in 1 h, 1 spare part)", "The robot fixed the pump mount."], ["Leave it until morning (6 h of noise)", "The crew slept badly."]])
