@@ -664,7 +664,7 @@ func earth_corner() -> void:
 #  Why needed: this room is where the whole project is visible: sensing -> AI -> human decisions.
 # =====================================================================================================
 func wellness_center() -> void:
-	# 3D twin plinth: a 1:30 model of the habitat on a slow turntable
+	# 3D twin plinth: a 1:30 model of the habitat, fixed and lined up with the real rooms
 	var pp = Vector3(16.5 * C, 0, 14.5 * C)
 	mb.cyl(pp + Vector3(0, 0.45, 0), 0.62, 0.9, Mats.white_plastic(), 24)
 	mb.cyl(pp + Vector3(0, 0.92, 0), 0.72, 0.04, Mats.dark_metal(), 32)

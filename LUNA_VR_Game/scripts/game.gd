@@ -98,6 +98,7 @@ func _ready() -> void:
 		if arg == "--selenetest": _selenetest.call_deferred()
 		if arg == "--r3test": r3.selftest.call_deferred()
 		if arg == "--r3auto": r3.autotest.call_deferred()
+		if arg == "--r3audit": r3.audit.call_deferred()
 		if arg.begins_with("--r3scene="): r3.scene_test.call_deferred(arg.substr(10))
 		if arg.begins_with("--r3play="): r3.autotest.call_deferred(arg.substr(9))
 		if arg.begins_with("--r3shots="): r3.shots.call_deferred(arg.substr(10))
@@ -389,7 +390,8 @@ func _wake_up() -> void:
 	if not flags.get("napping", false):
 		flags["last_night"] = n.duplicate(); flags["last_hyp"] = cr.hyp.duplicate()
 	if not flags.get("napping", false):
-		sim.say("Good morning. You slept %.1f hours with %d wake-ups, and I woke you from %s. The pod light rose like a sunrise first. Details on your desk screen." % [n.hours, n.wakes, how])
+		var wk = "no wake-ups" if n.wakes == 0 else ("%d brief wake-ups (normal; most people don't remember them)" % n.wakes if n.wakes <= 12 else "%d wake-ups, more than usual" % n.wakes)
+		sim.say("Good morning. You slept %.1f hours, %s. I woke you from %s, after a slow sunrise light. Details on your desk screen." % [n.hours, wk, how])
 	else:
 		sim.say("Nap over. You should feel a little sharper now.")
 	sim.player_act = "idle"
@@ -1075,7 +1077,7 @@ func _update_twin3d(dt: float) -> void:
 	if twin_rooms.is_empty(): return
 	var tw: Node3D = hab.dyn["twin3d"]
 	var spin = tw.get_node("spin")
-	spin.rotation.y += dt * 0.12
+	spin.rotation.y = 0.0          # fixed, lined up with the real habitat (a spinning model only looks busy)
 	var c = Vector3(18.1, 0, 11.9)
 	for i in 4:
 		var wp: Vector3

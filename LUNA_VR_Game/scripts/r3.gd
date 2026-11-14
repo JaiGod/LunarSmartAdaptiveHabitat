@@ -139,6 +139,7 @@ const SPECS = {
 	"med_cabinet": ["Medicine cabinet", "Medicines. Doctor only.", "Check dates weekly", "8 kg", "LUNA can never open it"],
 	"shelter_kit": ["Shelter kit", "Supplies for 3 days in the shelter", "Check monthly", "40 kg", "3 days for 4 people"],
 	"pod_ai_switch": ["Pod switch", "Lets LUNA into your pod, or not", "None", "Tiny", "Alarms still work"],
+	"safety": ["Fire extinguisher + breathing mask", "Put out a fire; breathe if the air turns bad", "Check the gauge and seal monthly", "6 kg (water mist) + 1 kg mask", "Mask gives about 15 min of oxygen"],
 	"pod_music": ["Speaker", "Your music", "None", "3 W", "New songs come by radio"],
 	"photo": ["Family photo", "A reminder of home", "None", "0.1 kg", "Calls need comms time"],
 	"shower": ["Shower", "Get clean", "Clean the drain daily", "3 L water, 0.8 kW", "Short showers only"],
@@ -193,6 +194,7 @@ func setup(game) -> void:
 	_room_panels()
 	_night_strips()
 	_pod_panel()
+	_safety_stations()
 	_crew_areas()
 	_sounds()
 	zone_lab = Label3D.new(); zone_lab.font_size = 34; zone_lab.pixel_size = 0.001; zone_lab.outline_size = 9
@@ -282,7 +284,7 @@ func _medical() -> void:
 	_label("CMO console · Tier 3 cases", p + Vector3(-0.01, 0.31, 0), -PI / 2.0, 18)
 	# muster point (storm shelter)
 	var mp = Vector3(4.4, 0.012, 20.0)
-	m.torus(mp, 0.62, 0.7, Mats.glow(Color(0.3, 1.0, 0.5), 1.2, "muster_ring"))
+	m.torus(mp, 0.62, 0.7, Mats.caution())          # painted safety floor marking (not a light)
 	var ml = _label("MUSTER POINT\nstorm shelter", mp + Vector3(0, 0.005, 0), 0.0, 40, Color(0.2, 0.6, 0.3))
 	ml.rotation = Vector3(-PI / 2.0, 0, 0)
 	hab.add_inter("exam_bed", Vector3(4.375, 0.75, 15.625), Vector3(1.9, 0.5, 0.8), "", Callable(), "medical")
@@ -311,6 +313,14 @@ func _galley_and_hub() -> void:
 		_mesh(tn, _boxm(Vector3(0.26, 0.16, 0.012)), Vector3(0, 0.86, 0.02), _glow(Color(0.2, 0.55, 0.9), 0.9), Vector3(-0.45, 0, 0))
 		var a = hab.add_inter("meeting", tn.global_position + Vector3(0, 0.86, 0), Vector3(0.45, 0.28, 0.4), "", Callable(), "communal")
 		a.reparent(tn)
+		# lived-in: each crew member's own named cup on the table (reused all mission: no disposables)
+		var cups = [["CDR", Color(0.2, 0.45, 0.85)], ["LEO", Color(0.85, 0.3, 0.25)], ["ANA", Color(0.25, 0.65, 0.4)], ["SAM", Color(0.9, 0.65, 0.15)]]
+		var spots = [Vector3(-0.7, 0, 0.55), Vector3(0.75, 0, 0.5), Vector3(-0.6, 0, -0.6), Vector3(0.65, 0, -0.55)]
+		for k in 4:
+			var cm = StandardMaterial3D.new(); cm.albedo_color = cups[k][1]; cm.roughness = 0.5
+			_mesh(tn, _cylm(0.04, 0.1, 0.045), spots[k] + Vector3(0, 0.815, 0), cm)
+			var cl = _label(cups[k][0], Vector3.ZERO, 0.0, 10, Color(1, 1, 1))
+			cl.reparent(tn, false); cl.position = spots[k] + Vector3(0, 0.82, 0.046); cl.rotation = Vector3.ZERO
 	# crew e-reader dock (paper books cost launch mass: about $1M per kg to the lunar surface)
 	var bp = Vector3(16 * C + 0.3, 0, 8 * C - 0.08)
 	m.box(bp + Vector3(0, 1.25, 0), Vector3(0.9, 0.42, 0.06), Mats.white_plastic())
@@ -452,6 +462,9 @@ func tick(dt: float) -> void:
 			for k in path_nodes.size():
 				path_nodes[k].scale = Vector3.ONE * (0.8 + 0.25 * sin(t * 4.0 - k * 0.6))
 	if g.state == "sleep": zone_t = 0.0; zone_lab.visible = false
+	# the HUD fades while you sleep (a bright panel in a dark room is the last thing you want)
+	if g.hud: g.hud.modulate.a = move_toward(g.hud.modulate.a, 0.25 if g.state == "sleep" else 1.0, dt * 2.0)
+	if g.cross: g.cross.visible = g.state != "sleep"
 	if zone_t > 0.0:
 		zone_t -= dt
 		zone_lab.modulate.a = clamp(zone_t / 1.2, 0.0, 1.0)
@@ -544,7 +557,8 @@ func label(it: Dictionary) -> String:
 		if cr.asleep: return "%s is asleep" % cr.name.split(" ")[0]
 		return "Ask %s how they are" % cr.name.split(" ")[0]
 	match id:
-		"galley": return "Heat a meal"
+		"galley": return "Heat a snack (food warmer, 8 min)"
+		"safety": return "Check the fire extinguisher and breathing mask"
 		"galley_water": return "Get water"
 		"coffee": return "Make coffee"
 		"meeting": return ("Meeting: crew on the way" if not meeting.is_empty() else "Call a team meeting")
@@ -605,9 +619,15 @@ func use(it: Dictionary) -> bool:
 		"pod_ai_switch":
 			var cr = sim.me(); cr.pod_invite = not cr.pod_invite; g.play("switch")
 			g._toast(("LUNA can now help in your pod." if cr.pod_invite else "LUNA stays out of your pod."), "info")
+		"safety":
+			g.play("click")
+			var ok_m = "Gauge in the green, pin and seal intact. Mask sealed, 15 min of oxygen."
+			g._toast("Safety station checked: " + ok_m + " Fire? Grab both, warn the crew, turn off power to that rack.", "info")
 		"pod_music":
-			if music.playing: music.stop()
-			elif snd.has("music"): music.stream = snd["music"]; music.play()
+			if music.playing: music.stop(); g._toast("Pod speaker off.", "info")
+			elif snd.has("music"):
+				music.stream = snd["music"]; music.play()
+				g._toast("Pod speaker on. Only your pod hears it (the door seals sound).", "info")
 		"photo":
 			g.start_activity("photo", "Looking at the photo from home", 3.0, "pod", {"fx": {"connection": 0.1, "mood": 0.03}}, true, func():
 				g._toast("Your family at the beach. Home is 384,000 km away."))
@@ -1783,6 +1803,14 @@ func scene_test(arg: String) -> void:
 	var dir = arg.split(":")[0]; var which = arg.split(":")[1] if ":" in arg else "night"
 	g._start_desktop()
 	while g.state != "play": await get_tree().process_frame
+	if which == "safety":
+		var k = 0
+		for it in hab.inters:
+			if it.id != "safety": continue
+			_demo_spot(it.area.global_position)
+			for j in 8: await get_tree().process_frame
+			g._save_shot("%s/safety_%02d_%s.png" % [dir, k, it.room]); k += 1
+		get_tree().quit(); return
 	if which == "demo":
 		start_demo()
 		for k in DEMO.size():
@@ -1809,3 +1837,83 @@ func scene_test(arg: String) -> void:
 			if which == "night" and sim.day() == 2 and sim.hour() > 6.6: break
 	print("R3SCENE %s shots=%d" % [which, n])
 	get_tree().quit()
+
+# --r3audit: click every kind of usable thing once and print what happened (does it do something meaningful?)
+func audit() -> void:
+	g._start_desktop()
+	while g.state != "play": await get_tree().process_frame
+	var seen = {}
+	for it in hab.inters.duplicate():
+		var base = it.id.split("_")[0] if it.id.begins_with("rack_") or it.id.begins_with("array_") or it.id.begins_with("crew_") or it.id.begins_with("room_") else it.id
+		if seen.has(base): continue
+		seen[base] = true
+		if it.id in ["suitport", "drill_alarm", "ai_switch", "bed"]: print("AUDIT %-16s | %s | (skipped: changes game state)" % [it.id, g.label_for(it)]); continue
+		var lab = g.label_for(it)
+		g.msg = {}; close_card()
+		g._on_click({"kind": "inter", "node": it})
+		await get_tree().process_frame
+		var out = ""
+		if not card.is_empty(): out = "CARD " + card.get("title", "")
+		elif not g.activity.is_empty(): out = "ACTIVITY " + g.activity.label
+		elif not g.msg.is_empty(): out = "MSG " + g.msg.text.substr(0, 90)
+		else: out = "NOTHING VISIBLE"
+		print("AUDIT %-16s | %s | %s" % [it.id, lab, out])
+		if not g.activity.is_empty(): g._end_activity(true)
+		close_card()
+		if g.state != "play": g.state = "play"
+	get_tree().quit()
+
+# =====================================================================================================
+#  safety stations: a fire extinguisher + a breathing mask beside every room's hatch, as on the ISS
+#  (water-mist extinguisher, ~15 min oxygen mask), a smoke detector on the ceiling. You can check them.
+# =====================================================================================================
+const SAFETY_ROOMS = ["communal", "greenhouse", "medical", "eclss", "work", "exercise", "quarters", "airlock", "storage", "hygiene"]
+
+func _safety_stations() -> void:
+	var H = sim.hab
+	var used = []
+	for room in SAFETY_ROOMS:
+		if not D.ROOMS.has(room): continue
+		var r = D.ROOMS[room].rect
+		var best = null; var bd = 1e9
+		for x in range(r[0], r[0] + r[2]):
+			for y in range(r[1], r[1] + r[3]):
+				var c = Vector2i(x, y)
+				if not H.region.has(c) or H.blocked.has(c): continue
+				if room == "quarters" and H.zone_of(c).begins_with("pod"): continue     # in the shared hall, not in someone's pod
+				for dir in [Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)]:
+					var out = c + dir
+					var inside_rect = out.x >= r[0] and out.x < r[0] + r[2] and out.y >= r[1] and out.y < r[1] + r[3]
+					if inside_rect: continue                      # we want a wall cell
+					if H.region.has(out): continue                 # that's an opening, not a wall
+					# near a hatch: a neighbour along the wall leads out of the room
+					var side = Vector2i(dir.y, dir.x)
+					var dd = 99.0
+					for k in [1, 2, -1, -2]:
+						var n = c + side * k
+						var n_out = n + dir
+						if H.region.has(n_out) and not (n_out.x >= r[0] and n_out.x < r[0] + r[2] and n_out.y >= r[1] and n_out.y < r[1] + r[3]): dd = min(dd, absf(k))
+					var p = Habitat.cpos(c) + Vector3(dir.x, 0, dir.y) * (C * 0.5 - 0.1)
+					var clash = false
+					for it in hab.inters:
+						if is_instance_valid(it.area) and Vector2(it.area.global_position.x - p.x, it.area.global_position.z - p.z).length() < 0.9: clash = true
+					for sc in hab.screens:
+						if Vector2(sc.global_position.x - p.x, sc.global_position.z - p.z).length() < 0.8: clash = true
+					if clash: continue
+					var score = dd + (0.0 if dd < 3 else 5.0)
+					if score < bd: bd = score; best = [p, dir]
+		if best == null: continue
+		var p: Vector3 = best[0]; var dir: Vector2i = best[1]
+		var n = Vector3(-dir.x, 0, -dir.y)                    # into the room
+		var yaw = atan2(n.x, n.z)
+		var st = Node3D.new(); st.position = p; st.rotation.y = yaw; world.add_child(st)
+		_mesh(st, _boxm(Vector3(0.42, 0.62, 0.03)), Vector3(0, 1.05, 0.0), Mats.white_plastic())                 # backing plate
+		_mesh(st, _cylm(0.07, 0.46), Vector3(-0.1, 0.98, 0.09), Mats.red())                                      # water-mist extinguisher
+		_mesh(st, _cylm(0.02, 0.06), Vector3(-0.1, 1.24, 0.09), Mats.dark_metal())
+		_mesh(st, _boxm(Vector3(0.05, 0.03, 0.03)), Vector3(-0.07, 1.27, 0.09), Mats.black())
+		_mesh(st, _boxm(Vector3(0.16, 0.22, 0.1)), Vector3(0.11, 1.0, 0.07), Mats.caution())                      # breathing mask pouch
+		_mesh(st, _boxm(Vector3(0.42, 0.05, 0.035)), Vector3(0, 1.39, 0.005), Mats.red())                         # red header strip
+		var lab = _label("FIRE · MASK", Vector3.ZERO, 0.0, 16, Color(1, 1, 1))
+		lab.reparent(st, false); lab.position = Vector3(0, 1.39, 0.03); lab.rotation = Vector3.ZERO
+		_mesh(world, _cylm(0.06, 0.025), Vector3(p.x + n.x * 0.6, 2.4, p.z + n.z * 0.6), Mats.white_plastic())  # smoke detector
+		hab.add_inter("safety", p + n * 0.12 + Vector3(0, 1.05, 0), Vector3(0.45, 0.65, 0.25), "", Callable(), room)

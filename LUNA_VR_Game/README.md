@@ -58,6 +58,7 @@ The whole habitat follows the crew:
 - **Sleep:** clicking your bed always means sleep: the whole night after 20:00, a 25-minute nap in the day. The main lights go off and your pod goes fully dark (its screens too, and the grow lights follow a 16 h on / 8 h off cycle). Dim purple path lights come on near the floor, and the music stops. You hear only the air vents, or silence if you choose it. Messages that can wait are held until morning.
 - **When everyone is asleep**, the shared rooms switch to night mode to save power.
 - **Emergency** (drill, solar particle event): the lights flash red and the music stops.
+- **Safety stations** beside the hatches of eight rooms: a water-mist fire extinguisher and a breathing mask (about 15 minutes of oxygen), with a smoke detector overhead, like on the ISS. Click one to check it. The storm-shelter muster point is a painted floor marking.
 - **Status lights mean one thing everywhere:** green working, blue standby, yellow warning, red emergency, purple night. Nothing glows just to look cool.
 
 The panel by your pillow sets your pod's light (auto, off, dim, warm, bright), the temperature (18–24 °C; 18–20 °C helps you fall asleep), and the sleep sound. On desktop you watch your pod go dark from your bed, and in the morning the dawn light rises.
