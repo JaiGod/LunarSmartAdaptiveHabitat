@@ -36,16 +36,12 @@
       }
     }
   }
-  function bigCanvas() {
-    var c = d.querySelectorAll('canvas'), A = innerWidth * innerHeight;
-    for (var i = 0; i < c.length; i++) { var r = c[i].getBoundingClientRect(); if (r.width * r.height > A * 0.4) return true; }
-    return false;
-  }
+  function hasGL() { return !!d.querySelector('canvas,model-viewer,iframe,video,#unity-container'); }
   function tvScale() {
-    // 4K TVs and huge monitors at 100% scale: enlarge the whole page. Skipped on full-screen 3D/game pages,
-    // where zoom would break pointer picking; those already fill the screen.
-    if (root.dataset.tv === 'off') return;
-    var z = innerWidth >= 2400 && !bigCanvas() ? Math.min(2.2, innerWidth / 1600) : 1;
+    // 4K TVs and huge monitors: enlarge plain text pages only. Any page with a canvas, 3D viewer, video or
+    // embedded game is left alone, because CSS zoom breaks WebGL sizing and pointer picking.
+    if (root.dataset.tv === 'off' || hasGL()) { root.style.zoom = ''; return; }
+    var z = innerWidth >= 2400 ? Math.min(2.2, innerWidth / 1600) : 1;
     root.style.zoom = z === 1 ? '' : String(z.toFixed(2));
   }
   function gameNote() {
@@ -60,6 +56,7 @@
     d.body.appendChild(n);
   }
   function run() { textFloor(); tvScale(); gameNote(); setTimeout(textFloor, 2500); }
+  addEventListener('load', tvScale);
   if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', run); else run();
   var t; addEventListener('resize', function () { clearTimeout(t); t = setTimeout(tvScale, 200); });
 })();
