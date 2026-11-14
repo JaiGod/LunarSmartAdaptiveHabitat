@@ -90,7 +90,24 @@ The prompt shows the resource line. Press **X** for the info card: job, uses, ca
 - **A 3D printer in the maintenance bay**, as in our research proposal. It prints non-structural spare parts from recycled plastic, and the feedstock runs out.
 - **The Earth view is a virtual window.** The habitat sits under regolith shielding, so it is a display fed by a mast camera.
 
-**Known gap:** the 3D floor plan is about 700 m², several times the size of real analogs. CHAPEA is about 158 m² for 4 crew. A compact two-deck layout is the next step.
+**Compact layout (done).** The habitat used to be about 720 m² of floor for 4 crew, with 127 m² of empty corridor. It is now about **270 m²** (173 cells of 1.25 m):
+
+| Room | Size | What's in it |
+|---|---|---|
+| Crew pods ×4 | 2.5 × 2.5 m each | bed with kit drawers, desk + sleep station, wall-mounted plant cabinet, light/temperature/AC panel |
+| Galley + wardroom | 7.5 × 5 m | galley counter, table for 4, sofa facing one shared Earth-view/film display, family message desk, Floor plan B partition |
+| Ops (Wellness Operations Center) | 7.5 × 5 m | emergency console, 3 shared desks, twin table, 1:30 3D twin, LUNA computer rack, governance wall with the AI OFF switch |
+| Greenhouse | 3.75 × 5 m | 8 racks along the two long walls, 2.6 m aisle |
+| Exercise bay | 6.25 × 5 m | treadmill, bike, resistance rig, Wellness Dock |
+| Medical + storm shelter, life support, airlock | 3.75 × 5 m each | water walls, exam bed, shelter seats · CO₂ and O₂ racks facing one aisle · two suitports, dust curtain |
+| Hygiene, storage | 2.5 × 5 m each | shower, toilet, sink · stowage bags, spares, 3D printer, robot dock |
+| Corridor | 1.25 m wide | the only passage, like a hatch-width tunnel |
+
+How it compares:
+- **CHAPEA's Mars Dune Alpha** is 1,700 sq ft (about 158 m²) for 4 crew. We are larger mainly because of the greenhouse, the storm shelter and the airlock.
+- **NASA's minimum net habitable volume** is 25 m³ per person for long missions. By our own rough estimate (about 2.8 m average ceiling, half the volume left after furniture), each person gets about 90 m³.
+- **ISS crew quarters** are only about 2.1 m³ each. NASA notes that longer surface missions need larger quarters, so our pods are 2.5 × 2.5 m.
+- Sleeping crewmates now lie in their own beds instead of on the floor.
 
 ## SELENE link (real face + voice sensing)
 

@@ -79,7 +79,7 @@ func _build_nav() -> void:
 					for i in 4:
 						if D.pod_rect(i).has_point(Vector2i(x, y)): id = "pod%d" % i
 				region[Vector2i(x, y)] = id
-	region[Vector2i(0, 4)] = "outside"
+	region[D.OUTSIDE] = "outside"
 	for c in region:
 		astar.add_point(_id(c), Vector2(c))
 	var links = {}

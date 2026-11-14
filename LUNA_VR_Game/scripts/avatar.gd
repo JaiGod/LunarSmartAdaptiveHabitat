@@ -58,6 +58,8 @@ func pose(cr: Crew, world_pos: Vector3, dt: float) -> void:
 	elif cr.act_face == "up": yaw_target = PI
 	elif cr.act_face == "down": yaw_target = 0.0
 	elif cr.act_face == "side": yaw_target = -PI / 2.0 if cr.flip else PI / 2.0
+	elif cr.act_face == "west": yaw_target = -PI / 2.0
+	elif cr.act_face == "east": yaw_target = PI / 2.0
 	position = world_pos
 	rotation.y = lerp_angle(rotation.y, yaw_target, min(1.0, dt * 8.0))
 	var walking = speed > 0.05 and cr.walking()

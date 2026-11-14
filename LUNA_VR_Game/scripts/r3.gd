@@ -213,6 +213,9 @@ func _glow(col: Color, e := 1.5) -> StandardMaterial3D:
 func _mesh(parent: Node3D, mesh: Mesh, pos: Vector3, mat: Material, rot := Vector3.ZERO) -> MeshInstance3D:
 	var mi = MeshInstance3D.new(); mi.mesh = mesh; mi.material_override = mat; mi.position = pos; mi.rotation = rot
 	parent.add_child(mi)
+	if MB.occ_log != null:
+		var bb: AABB = mi.global_transform * mesh.get_aabb()
+		MB.occ_log.append(["r3", bb.position.x, bb.position.y, bb.position.z, bb.end.x, bb.end.y, bb.end.z])
 	return mi
 
 func _boxm(s: Vector3) -> BoxMesh:
@@ -237,16 +240,16 @@ func _screen_frame(m: MB, pos: Vector3, yaw: float, w: float, h: float) -> void:
 ## the governance wall in Ops (west wall): humans stay in charge of LUNA
 func _governance_wall() -> void:
 	var m = MB.new()
-	var x = 14 * C + 0.06
-	_label("HUMANS STAY IN CHARGE · LUNA governance", Vector3(x + 0.01, 2.2, 17.4), PI / 2.0, 30, Color(0.12, 0.2, 0.36), 0.004)
-	for s in [["dashboard", 15.75], ["board", 16.95]]:
+	var x = 9 * C + 0.06
+	_label("HUMANS STAY IN CHARGE · LUNA governance", Vector3(x + 0.01, 2.25, 10.1), PI / 2.0, 30, Color(0.12, 0.2, 0.36), 0.004)
+	for s in [["dashboard", 8.95], ["board", 10.05]]:
 		var p = Vector3(x + 0.02, 1.55, s[1])
 		_screen_frame(m, p, PI / 2.0, 0.9, 0.56)
 		hab.add_screen(s[0], p, PI / 2.0, Vector2(0.9, 0.56), Vector2i(900, 560), null)
-	_label("AI dashboard", Vector3(x + 0.01, 1.9, 15.75), PI / 2.0, 18)
-	_label("Review board", Vector3(x + 0.01, 1.9, 16.95), PI / 2.0, 18)
-	# AI OFF switch: hard-wired, beside LUNA's computer rack
-	var sp = Vector3(x, 1.3, 19.65)
+	_label("AI dashboard", Vector3(x + 0.01, 1.9, 8.95), PI / 2.0, 18)
+	_label("Review board", Vector3(x + 0.01, 1.9, 10.05), PI / 2.0, 18)
+	# AI OFF switch: hard-wired to LUNA's computer rack, on the governance wall
+	var sp = Vector3(x, 1.3, 10.85)
 	m.box(sp + Vector3(0.0, 0, 0), Vector3(0.03, 0.46, 0.36), Mats.caution())
 	m.box(sp + Vector3(0.04, 0, 0), Vector3(0.07, 0.36, 0.26), Mats.red())
 	lever = Node3D.new(); lever.position = sp + Vector3(0.09, 0.0, 0.0); world.add_child(lever)
@@ -257,7 +260,7 @@ func _governance_wall() -> void:
 	_label("AI OFF SWITCH\nhard-wired · only a\nhuman turns it back on", sp + Vector3(0.05, -0.36, 0), PI / 2.0, 14)
 	hab.add_inter("ai_switch", sp + Vector3(0.1, 0.02, 0), Vector3(0.22, 0.5, 0.4), "", Callable(), "work")
 	# floor plan A / B selector
-	var cp = Vector3(x, 1.3, 18.9)
+	var cp = Vector3(x, 1.3, 11.45)
 	m.box(cp + Vector3(0.02, 0, 0), Vector3(0.05, 0.3, 0.3), Mats.white_plastic())
 	knob = Node3D.new(); knob.position = cp + Vector3(0.06, 0, 0); world.add_child(knob)
 	_mesh(knob, _cylm(0.06, 0.04), Vector3(0.02, 0, 0), Mats.handrail(), Vector3(0, 0, PI / 2.0))
@@ -266,7 +269,7 @@ func _governance_wall() -> void:
 	_label("FLOOR PLAN\nA nominal · B conflict", cp + Vector3(0.05, -0.24, 0), PI / 2.0, 14)
 	hab.add_inter("config_switch", cp + Vector3(0.09, 0, 0), Vector3(0.18, 0.36, 0.36), "", Callable(), "work")
 	# safety drill alarm (mushroom button + beacon)
-	var dp = Vector3(x, 1.3, 18.2)
+	var dp = Vector3(x, 1.45, 12.05)
 	m.box(dp + Vector3(0.02, 0, 0), Vector3(0.05, 0.28, 0.28), Mats.caution())
 	m.cyl(dp + Vector3(0.07, 0, 0), 0.07, 0.05, Mats.red(), 18, -1.0, Basis(Vector3.FORWARD, PI / 2.0))
 	beacon_mat = _glow(Color(1.0, 0.55, 0.1), 0.2)
@@ -278,23 +281,23 @@ func _governance_wall() -> void:
 func _medical() -> void:
 	var m = MB.new()
 	# CMO console on the east wall (Tier 3 cases only; the person is always told first)
-	var p = Vector3(6 * C - 0.08, 1.45, 16.6)
-	_screen_frame(m, p, -PI / 2.0, 0.62, 0.42)
-	hab.add_screen("cmo", p, -PI / 2.0, Vector2(0.62, 0.42), Vector2i(620, 420), null)
-	_label("CMO console · Tier 3 cases", p + Vector3(-0.01, 0.31, 0), -PI / 2.0, 18)
+	var p = Vector3(1 * C + 0.62, 1.45, 6 * C + 0.08)
+	_screen_frame(m, p, 0.0, 0.62, 0.42)
+	hab.add_screen("cmo", p, 0.0, Vector2(0.62, 0.42), Vector2i(620, 420), null)
+	_label("CMO console · Tier 3 cases", p + Vector3(0, 0.31, 0.01), 0.0, 18)
 	# muster point (storm shelter)
-	var mp = Vector3(4.4, 0.012, 20.0)
+	var mp = Vector3(3.1, 0.012, 10.9)
 	m.torus(mp, 0.62, 0.7, Mats.caution())          # painted safety floor marking (not a light)
 	var ml = _label("MUSTER POINT\nstorm shelter", mp + Vector3(0, 0.005, 0), 0.0, 40, Color(0.2, 0.6, 0.3))
 	ml.rotation = Vector3(-PI / 2.0, 0, 0)
-	hab.add_inter("exam_bed", Vector3(4.375, 0.75, 15.625), Vector3(1.9, 0.5, 0.8), "", Callable(), "medical")
-	hab.add_inter("med_cabinet", Vector3(6 * C - 0.52, 1.15, 11 * C + 0.5), Vector3(0.14, 1.2, 0.8), "", Callable(), "medical")
-	hab.add_inter("shelter_kit", Vector3(6 * C - 0.4, 0.35, 18 * C - 1.2), Vector3(0.62, 0.62, 0.52), "", Callable(), "medical")
+	hab.add_inter("exam_bed", Vector3(4 * C - 0.5, 0.75, 6 * C + 1.55), Vector3(0.8, 0.5, 1.9), "", Callable(), "medical")
+	hab.add_inter("med_cabinet", Vector3(4 * C - 0.55, 1.15, 6 * C + 0.52), Vector3(0.8, 1.2, 0.14), "", Callable(), "medical")
+	hab.add_inter("shelter_kit", Vector3(4 * C - 0.35, 0.35, 10 * C - 1.2), Vector3(0.62, 0.62, 0.52), "", Callable(), "medical")
 	m.commit(world, "r3_medical")
 
 func _galley_and_hub() -> void:
 	var m = MB.new()
-	var x0 = 15 * C; var z0 = 1 * C
+	var x0 = 14 * C; var z0 = 1 * C
 	# the old "galley" target becomes the food warmer; the water and coffee get their own
 	for it in hab.inters:
 		if it.id == "galley":
@@ -315,14 +318,14 @@ func _galley_and_hub() -> void:
 		a.reparent(tn)
 		# lived-in: each crew member's own named cup on the table (reused all mission: no disposables)
 		var cups = [["CDR", Color(0.2, 0.45, 0.85)], ["LEO", Color(0.85, 0.3, 0.25)], ["ANA", Color(0.25, 0.65, 0.4)], ["SAM", Color(0.9, 0.65, 0.15)]]
-		var spots = [Vector3(-0.7, 0, 0.55), Vector3(0.75, 0, 0.5), Vector3(-0.6, 0, -0.6), Vector3(0.65, 0, -0.55)]
+		var spots = [Vector3(-0.62, 0, -0.62), Vector3(-0.62, 0, 0.62), Vector3(0.62, 0, -0.62), Vector3(0.62, 0, 0.62)]
 		for k in 4:
 			var cm = StandardMaterial3D.new(); cm.albedo_color = cups[k][1]; cm.roughness = 0.5
 			_mesh(tn, _cylm(0.04, 0.1, 0.045), spots[k] + Vector3(0, 0.815, 0), cm)
 			var cl = _label(cups[k][0], Vector3.ZERO, 0.0, 10, Color(1, 1, 1))
 			cl.reparent(tn, false); cl.position = spots[k] + Vector3(0, 0.82, 0.046); cl.rotation = Vector3.ZERO
 	# crew e-reader dock (paper books cost launch mass: about $1M per kg to the lunar surface)
-	var bp = Vector3(16 * C + 0.3, 0, 8 * C - 0.08)
+	var bp = Vector3(14 * C + 0.62, 0, 5 * C - 0.08)
 	m.box(bp + Vector3(0, 1.25, 0), Vector3(0.9, 0.42, 0.06), Mats.white_plastic())
 	for k in 4:
 		m.box(bp + Vector3(-0.32 + k * 0.213, 1.27, -0.04), Vector3(0.15, 0.22, 0.012), Mats.black())
@@ -335,19 +338,19 @@ func _galley_and_hub() -> void:
 func _pod_and_hygiene() -> void:
 	var m = MB.new()
 	# pod 1 (yours): "LUNA may adjust my pod" switch by the door (rubric U4.2), music
-	var sp = Vector3(8 * C - 0.3, 1.3, 6 * C - 0.06)
+	var sp = Vector3(7 * C - 0.3, 1.3, 4 * C - 0.06)
 	m.box(sp, Vector3(0.14, 0.2, 0.03), Mats.white_plastic())
 	pod_toggle = Node3D.new(); pod_toggle.position = sp + Vector3(0, 0, -0.03); world.add_child(pod_toggle)
 	_mesh(pod_toggle, _boxm(Vector3(0.05, 0.09, 0.03)), Vector3(0, 0.0, 0), Mats.handrail())
 	_label("LUNA may adjust my pod", sp + Vector3(0, 0.16, -0.02), PI, 14)
 	hab.add_inter("pod_ai_switch", sp + Vector3(0, 0, -0.08), Vector3(0.3, 0.32, 0.16), "", Callable(), "pod0")
-	var mp = Vector3(9 * C - 0.27, 0.76, 1 * C + 0.27)
+	var mp = Vector3(8 * C - 0.27, 0.76, 2 * C + 0.27)
 	m.cyl(mp + Vector3(0, 0.07, 0), 0.05, 0.14, Mats.black(), 18)
 	m.cyl(mp + Vector3(0, 0.142, 0), 0.042, 0.004, Mats.glow(Color(0.3, 0.8, 1.0), 0.8, "speaker_ring"), 18)
 	music = AudioStreamPlayer3D.new(); music.position = mp + Vector3(0, 0.1, 0); music.unit_size = 3.0; music.volume_db = -8.0
 	world.add_child(music)
 	hab.add_inter("pod_music", mp + Vector3(0, 0.09, 0.02), Vector3(0.18, 0.22, 0.18), "", Callable(), "pod0")
-	hab.add_inter("photo", Vector3(7 * C + 0.14, 1.75, 1 * C + 2.6), Vector3(0.12, 0.32, 0.4), "", Callable(), "pod0")
+	hab.add_inter("photo", Vector3(6 * C + 0.14, 1.75, 2 * C + 2.05), Vector3(0.12, 0.32, 0.4), "", Callable(), "pod0")
 	# shower
 	hab.add_inter("shower", Vector3(4 * C + 0.6, 1.1, 1 * C + 0.62), Vector3(1.05, 1.5, 1.05), "", Callable(), "hygiene")
 	m.commit(world, "r3_pod")
@@ -355,37 +358,35 @@ func _pod_and_hygiene() -> void:
 func _service_rooms() -> void:
 	var m = MB.new()
 	# life support: O2 generator + water recovery rack
-	var b = Vector3(10.0 * C, 0, 13.0 * C)
-	hab.add_inter("o2_gen", b + Vector3(0, 1.0, 0.62), Vector3(0.9, 0.9, 0.24), "", Callable(), "eclss")
+	var b = Vector3(7 * C - 0.5, 0, 6 * C + 1.85)
+	hab.add_inter("o2_gen", b + Vector3(-0.62, 1.0, 0), Vector3(0.24, 0.9, 0.9), "", Callable(), "eclss")
 	# storage: spare parts
-	hab.add_inter("parts_shelf", Vector3(11 * C + 0.62, 1.0, 15.5 * C), Vector3(0.22, 1.3, 0.9), "", Callable(), "storage")
+	hab.add_inter("parts_shelf", Vector3(7 * C + 0.62, 1.0, 6 * C + 3.2), Vector3(0.22, 1.3, 0.9), "", Callable(), "storage")
 	# maintenance bay: 3D printer for spare parts (recycled-plastic feedstock)
-	var pp = Vector3(14 * C - 0.4, 0, 14.5 * C + 0.2)
+	var pp = Vector3(7 * C + 0.4, 0, 10 * C - 0.75)
 	m.box(pp + Vector3(0, 0.4, 0), Vector3(0.6, 0.8, 0.75), Mats.grey_plastic(), 0.0, true)
 	m.box(pp + Vector3(0, 1.05, 0), Vector3(0.5, 0.5, 0.55), Mats.white_plastic())
-	m.box(pp + Vector3(-0.252, 1.05, 0), Vector3(0.01, 0.38, 0.42), Mats.glass())
-	m.box(pp + Vector3(-0.255, 1.3, 0.18), Vector3(0.01, 0.06, 0.1), Mats.glow(Color(0.3, 0.8, 1.0), 0.8))
-	_label("3D printer · spare parts from recycled plastic\n(brackets, knobs, clips: nothing pressure-rated)", pp + Vector3(-0.26, 1.48, 0), -PI / 2.0, 14)
-	hab.add_inter("printer", pp + Vector3(-0.2, 1.0, 0), Vector3(0.2, 0.6, 0.6), "", Callable(), "storage")
-	var pc = Vector2i(13, 14)
-	sim.hab.blocked[pc] = true; sim.hab.astar.set_point_disabled(sim.hab._id(pc), true)
+	m.box(pp + Vector3(0.252, 1.05, 0), Vector3(0.01, 0.38, 0.42), Mats.glass())
+	m.box(pp + Vector3(0.255, 1.3, 0.18), Vector3(0.01, 0.06, 0.1), Mats.glow(Color(0.3, 0.8, 1.0), 0.8))
+	_label("3D printer · spare parts from recycled plastic\n(brackets, knobs, clips: nothing pressure-rated)", pp + Vector3(0.26, 1.48, 0), PI / 2.0, 14)
+	hab.add_inter("printer", pp + Vector3(0.2, 1.0, 0), Vector3(0.2, 0.6, 0.6), "", Callable(), "storage")
 	# airlock: EVA tool rack
-	hab.add_inter("eva_tools", Vector3(1 * C + 0.32, 1.1, 8.6), Vector3(0.36, 1.2, 1.0), "", Callable(), "airlock")
+	hab.add_inter("eva_tools", Vector3(1 * C + 0.32, 1.1, 1 * C + 3.15), Vector3(0.36, 1.2, 0.95), "", Callable(), "airlock")
 	# greenhouse: nutrient tank + irrigation pump
-	var gp = Vector3(23 * C + 0.18, 0, 4.95)
-	m.box(gp + Vector3(0, 0.35, 0), Vector3(0.32, 0.7, 0.62), Mats.white_plastic(), 0.0, true)
-	m.box(gp + Vector3(0.165, 0.38, 0), Vector3(0.01, 0.5, 0.06), Mats.water())
-	m.cyl(gp + Vector3(0.05, 0.86, -0.15), 0.07, 0.3, Mats.grey_plastic(), 14)
-	m.box(gp + Vector3(0.17, 1.15, 0.12), Vector3(0.02, 0.2, 0.26), Mats.dark_metal())
-	m.box(gp + Vector3(0.182, 1.15, 0.12), Vector3(0.005, 0.15, 0.2), Mats.glow(Color(0.3, 0.9, 0.5), 0.8))
-	_label("Nutrient tank · irrigation pump", gp + Vector3(0.17, 1.4, 0), PI / 2.0, 16)
-	hab.add_inter("gh_irrigation", gp + Vector3(0.12, 0.8, 0), Vector3(0.3, 1.0, 0.7), "", Callable(), "greenhouse")
+	var gp = Vector3(20 * C + 1.5, 0, 1 * C + 0.2)          # north wall of the greenhouse aisle
+	m.box(gp + Vector3(0, 0.35, 0), Vector3(0.62, 0.7, 0.32), Mats.white_plastic(), 0.0, true)
+	m.box(gp + Vector3(0, 0.38, 0.165), Vector3(0.06, 0.5, 0.01), Mats.water())
+	m.cyl(gp + Vector3(-0.15, 0.86, 0.05), 0.07, 0.3, Mats.grey_plastic(), 14)
+	m.box(gp + Vector3(0.12, 1.15, 0.17), Vector3(0.26, 0.2, 0.02), Mats.dark_metal())
+	m.box(gp + Vector3(0.12, 1.15, 0.182), Vector3(0.2, 0.15, 0.005), Mats.glow(Color(0.3, 0.9, 0.5), 0.8))
+	_label("Nutrient tank · irrigation pump", gp + Vector3(0, 1.4, 0.17), 0.0, 16)
+	hab.add_inter("gh_irrigation", gp + Vector3(0, 0.8, 0.12), Vector3(0.7, 1.0, 0.3), "", Callable(), "greenhouse")
 	m.commit(world, "r3_service")
 
 ## room controls: light, sound, temperature and scent for a shared room (a crew override LUNA respects)
-const PANELS = [["communal", Vector3(18 * C - 0.45, 1.4, 8 * C - 0.08), PI], ["greenhouse", Vector3(26 * C + 0.45, 1.4, 8 * C - 0.08), PI],
-	["work", Vector3(14 * C + 0.08, 1.4, 14.55), PI / 2.0], ["exercise", Vector3(24 * C - 0.45, 1.4, 11 * C + 0.08), 0.0],
-	["medical", Vector3(4 * C + 0.45, 1.4, 11 * C + 0.08), 0.0]]
+const PANELS = [["communal", Vector3(17 * C + 0.4, 1.4, 5 * C - 0.08), PI], ["greenhouse", Vector3(22 * C + 0.33, 1.4, 5 * C - 0.08), PI],
+	["work", Vector3(11 * C + 0.75, 1.4, 6 * C + 0.08), 0.0], ["exercise", Vector3(19 * C + 0.75, 1.4, 6 * C + 0.08), 0.0],
+	["medical", Vector3(4 * C - 0.08, 1.4, 8 * C + 0.6), -PI / 2.0]]
 
 func _room_panels() -> void:
 	var m = MB.new()
@@ -757,7 +758,7 @@ func _night_watch_fire() -> void:
 	cr.wake(sim.now)
 	sim.player_act = "idle"
 	g.state = "play"; g.player.frozen = false
-	g.player.place(Vector3(9.95, 0.05, 3.25), 0.0)
+	g.player.place(Vector3(8.9, 0.05, 4.4), 0.0)
 	on_wake()
 	var tw = g.create_tween(); tw.tween_method(g.set_fade, 1.0, 0.0, 2.0)
 	g.play("alert")
@@ -780,7 +781,7 @@ func start_drill() -> void:
 		sim._do(cr, "drill", D.SPOTS["shelter%d" % cr.i], sim.now + 40.0, {"free": true})
 	sim.luna._log(sim.now, -1, "info", "Commander started a safety drill: muster in the storm shelter (Medical).")
 	g._toast("DRILL! Everyone go to Medical. Follow the gold path.", "alert")
-	_guide_to(Vector2i(3, 16))
+	_guide_to(Vector2i(2, 8))
 
 func _drill() -> void:
 	if drill.is_empty(): return
@@ -956,23 +957,23 @@ func show_zone(room: String) -> void:
 # =====================================================================================================
 func next_target() -> Array:
 	var H = sim.hab
-	if not drill.is_empty(): return [Vector2i(3, 16), "the storm shelter (drill)"]
-	if H.flare_until > sim.now: return [Vector2i(3, 15), "Medical: shelter now"]
-	if sim.luna.off: return [Vector2i(14, 15), "the AI OFF switch in Ops"]
-	if not sim.pending.is_empty(): return [Vector2i(18, 15), "the Ops console: a decision is waiting"]
-	if sim.fired.get("swap_task", false): return [Vector2i(7, 14), "the CO₂ cartridge (life support)"]
-	if sim.fired.get("eva_task", false): return [Vector2i(2, 3), "the suitports (airlock)"]
-	if g._meal_time() and g.flags.get("meal_%d" % sim.day(), 0) == 0: return [Vector2i(17, 2), "the wardroom table: eat with the crew"]
-	if not sim.my_checkins.any(func(c): return c.day == sim.day()): return [Vector2i(9, 7), "the mood kiosk (quarters hall)"]
+	if not drill.is_empty(): return [Vector2i(2, 8), "the storm shelter (drill)"]
+	if H.flare_until > sim.now: return [Vector2i(2, 8), "Medical: shelter now"]
+	if sim.luna.off: return [Vector2i(9, 8), "the AI OFF switch in Ops"]
+	if not sim.pending.is_empty(): return [Vector2i(10, 7), "the Ops console: a decision is waiting"]
+	if sim.fired.get("swap_task", false): return [Vector2i(5, 7), "the CO₂ cartridge (life support)"]
+	if sim.fired.get("eva_task", false): return [Vector2i(2, 2), "the suitports (airlock)"]
+	if g._meal_time() and g.flags.get("meal_%d" % sim.day(), 0) == 0: return [Vector2i(14, 2), "the wardroom table: eat with the crew"]
+	if not sim.my_checkins.any(func(c): return c.day == sim.day()): return [Vector2i(7, 4), "the mood kiosk (quarters hall)"]
 	if _tasks().checked == 0:
 		for cr in sim.crew:
 			if cr.i != 0 and not cr.asleep and not cr.outside: return [cr.cell, "%s: check on them" % cr.name.split(" ")[0]]
-	if not g.flags.get("exercise_%d" % sim.day(), false): return [Vector2i(24, 14), "the exercise bay"]
-	if sim.hour() >= 20.5 or sim.hour() < 5.0: return [Vector2i(7, 3), "your bed"]
+	if not g.flags.get("exercise_%d" % sim.day(), false): return [Vector2i(17, 8), "the exercise bay"]
+	if sim.hour() >= 20.5 or sim.hour() < 5.0: return [Vector2i(6, 3), "your bed"]
 	return [Vector2i(18, 4), "the social hub"]
 
 func guide(bed := false) -> void:
-	var tg = [Vector2i(7, 3), "your bed"] if bed else next_target()
+	var tg = [Vector2i(6, 3), "your bed"] if bed else next_target()
 	_guide_to(tg[0])
 	g._toast("Follow the gold path: %s." % tg[1], "info")
 
@@ -1186,7 +1187,7 @@ func board_demo(k: int) -> void:
 			show_card({"title": "Q1 · a hard workout is not anxiety", "lines": [["Right now: %s." % who, UI.INK],
 				["LUNA knows from the UWB beacon (exercise bay) and the machine itself that this is exercise, so heart rate and skin response count for nothing until 60 minutes afterwards. Anxiety estimates now: %s." % ", ".join(PackedStringArray([0, 1, 2, 3].map(func(i): return "%.2f" % L.est[i][0]))), UI.MUT],
 				["Try it: exercise yourself and watch your own read on the pod desk stay calm.", UI.OK]],
-				"buttons": [["Guide me to the exercise bay", func(): close_card(); _guide_to(Vector2i(24, 14)), 0.4], ["Close", func(): close_card(), 0.62]]})
+				"buttons": [["Guide me to the exercise bay", func(): close_card(); _guide_to(Vector2i(17, 8)), 0.4], ["Close", func(): close_card(), 0.62]]})
 		1:
 			show_card({"title": "Q2 · two problems at once", "lines": [["Depression for one person and a Tier 2 conflict between two others run as separate protocols at the same time. Zones are assigned so the levers don't fight: plan B splits the wardroom.", UI.INK]],
 				"buttons": [["Switch to plan %s" % ("A" if sim.hab.config_b else "B"), func(): toggle_config(); close_card(), 0.4], ["Close", func(): close_card(), 0.62]]})
@@ -1202,7 +1203,7 @@ func board_demo(k: int) -> void:
 				"buttons": [["Break it now", func(): close_card(); break_sensor(), 0.02], ["Close", func(): close_card(), 0.62]]})
 		4:
 			show_card({"title": "Q5 · why no permanent opt-out of everything?", "lines": [["Anyone can switch off any mood sensor, pause LUNA, or export and delete their data. Life-safety vitals (a heart-rate alarm) stay on for everyone and are never used to read mood: that's the safety floor.", UI.INK]],
-				"buttons": [["Guide me to my pod desk (My data)", func(): close_card(); _guide_to(Vector2i(8, 2)), 0.4], ["Close", func(): close_card(), 0.62]]})
+				"buttons": [["Guide me to my pod desk (My data)", func(): close_card(); _guide_to(Vector2i(7, 3)), 0.4], ["Close", func(): close_card(), 0.62]]})
 		5:
 			var cmo = sim.crew[D.CMO]
 			show_card({"title": "Q6 · Tier 3 while the medical officer is on EVA", "lines": [
@@ -1240,7 +1241,7 @@ func selftest() -> void:
 		if card.has("buttons"): card.buttons[0][1].call()
 		close_card()
 	start_drill()
-	sim.player_cell = Vector2i(3, 15)
+	sim.player_cell = Vector2i(2, 8)
 	for k in 60:
 		sim._minute(); _drill()
 		if drill.is_empty(): break
@@ -1257,7 +1258,7 @@ func selftest() -> void:
 	set_luna_off(true, "self-test"); for k in 30: sim._minute()
 	set_luna_off(false, "self-test")
 	_night_watch_fire(); close_card(); set_luna_off(false, "self-test")
-	_guide_to(Vector2i(24, 14)); print("R3TEST path cells=", path_nodes.size()); _clear_path()
+	_guide_to(Vector2i(17, 8)); print("R3TEST path cells=", path_nodes.size()); _clear_path()
 	for kk in [KEY_I, KEY_C, KEY_C, KEY_G, KEY_B, KEY_J, KEY_Z, KEY_K]:
 		key(kk); close_card()
 	start_tabletop()
@@ -1288,21 +1289,21 @@ func shots(dir: String) -> void:
 	g.set_fade(0.0)
 	sim.advance(200.0)
 	var views = [
-		["r3_01_governance", Vector3(20.2, 0, 17.3), PI / 2.0, -0.08],
-		["r3_02_ai_switch", Vector3(18.35, 0, 19.65), PI / 2.0, -0.36],
-		["r3_03_room_panel", Vector3(22.05, 0, 8.75), PI, -0.2],
-		["r3_04_coffee", Vector3(20.87, 0, 2.75), 0.0, -0.4],
-		["r3_05_hub", Vector3(27.2, 0, 2.6), 2.36, -0.12],
-		["r3_06_medical", Vector3(2.6, 0, 14.6), -2.08, -0.12],
-		["r3_07_pod_switch", Vector3(9.9, 0, 5.6), PI, -0.12],
-		["r3_08_pod_desk", Vector3(10.95, 0, 2.55), 0.0, -0.55],
-		["r3_09_greenhouse", Vector3(30.6, 0, 4.95), PI / 2.0, -0.18],
-		["r3_10_exercise", Vector3(29.55, 0, 15.6), 0.0, -0.08],
-		["r3_11_cmo", Vector3(5.6, 0, 16.6), -PI / 2.0, -0.05],
-		["r3_15_printer", Vector3(15.6, 0, 18.3), -PI / 2.0, -0.2],
-		["r3_16_ereaders", Vector3(20.3, 0, 8.4), PI, -0.12],
-		["r3_17_podpanel", Vector3(9.75, 0, 1.9), PI / 2.0, -0.18],
-		["r3_18_ac", Vector3(9.4, 0, 4.6), PI, 0.3],
+		["r3_01_governance", Vector3(13.4, 0, 10.0), PI / 2.0, -0.08],
+		["r3_02_ai_switch", Vector3(12.2, 0, 10.85), PI / 2.0, -0.36],
+		["r3_03_room_panel", Vector3(21.65, 0, 5.0), PI, -0.2],
+		["r3_04_coffee", Vector3(19.6, 0, 2.4), 0.0, -0.4],
+		["r3_05_hub", Vector3(24.2, 0, 5.6), 1.16, -0.12],
+		["r3_06_medical", Vector3(3.1, 0, 8.2), 2.74, -0.12],
+		["r3_07_pod_switch", Vector3(8.45, 0, 3.9), PI, -0.12],
+		["r3_08_pod_desk", Vector3(9.38, 0, 3.7), 0.0, -0.55],
+		["r3_09_greenhouse", Vector3(26.875, 0, 5.8), 0.0, -0.18],
+		["r3_10_exercise", Vector3(19.4, 0, 12.0), -0.72, -0.08],
+		["r3_11_cmo", Vector3(1.875, 0, 8.9), 0.0, -0.05],
+		["r3_15_printer", Vector3(10.5, 0, 11.0), 2.08, -0.2],
+		["r3_16_ereaders", Vector3(18.12, 0, 4.9), PI, -0.12],
+		["r3_17_podpanel", Vector3(8.9, 0, 3.12), PI / 2.0, -0.18],
+		["r3_18_ac", Vector3(8.6, 0, 3.3), PI, 0.3],
 	]
 	for v in views:
 		g.player.place(v[1], v[2]); g.player.pitch = v[3]; g.player.cam.rotation.x = v[3]
@@ -1340,17 +1341,18 @@ func fit_popup() -> void:
 func _night_strips() -> void:
 	# dim red path lights at floor level along the corridor (keep night vision, guide to the shelter)
 	strip_mat = _glow(Color(1.0, 0.12, 0.08), 0.0)
-	for z in [8 * C + 0.08, 11 * C - 0.08]:
-		var mi = MeshInstance3D.new(); mi.mesh = _boxm(Vector3(26 * C, 0.02, 0.03)); mi.material_override = strip_mat
-		mi.position = Vector3(14.5 * C, 0.12, z); world.add_child(mi)
+	var cw = hab.world_rect("corridor")
+	for z in [cw.position.y + 0.08, cw.end.y - 0.08]:
+		var mi = MeshInstance3D.new(); mi.mesh = _boxm(Vector3(cw.size.x - 0.4, 0.02, 0.03)); mi.material_override = strip_mat
+		mi.position = Vector3(cw.get_center().x, 0.12, z); world.add_child(mi)
 
 func _pod_panel() -> void:
 	var m = MB.new()
-	var p = Vector3(7 * C + 0.11, 1.32, 1 * C + 0.62)
+	var p = Vector3(6 * C + 0.11, 1.32, 2 * C + 0.62)
 	_screen_frame(m, p, PI / 2.0, 0.6, 0.42)
 	hab.add_screen("pod_room", p, PI / 2.0, Vector2(0.6, 0.42), Vector2i(900, 630), null)
 	# air conditioner (heat goes out through the habitat's radiators; on the Moon there is no outside air)
-	var ac = Vector3(7 * C + 0.75, 2.12, 6 * C - 0.15)
+	var ac = Vector3(6 * C + 0.75, 2.12, 4 * C - 0.15)
 	m.box(ac, Vector3(0.75, 0.24, 0.2), Mats.white_plastic())
 	m.box(ac + Vector3(0, -0.08, -0.101), Vector3(0.65, 0.05, 0.01), Mats.black())
 	ac_mat = _glow(Color(0.3, 1.0, 0.5), 1.0)
@@ -1453,7 +1455,7 @@ func on_sleep() -> void:
 	if pod_temp >= 18 and pod_temp <= 20: sim.me().stress = max(0.0, sim.me().stress - 0.04)   # cool room helps sleep onset
 	if not g.player.vr:
 		# lie in your bed and watch the room go dark (and the dawn light rise in the morning)
-		g.player.place(Vector3(7 * C + 0.56, 0.0, 1 * C + 0.5), PI)
+		g.player.place(Vector3(6 * C + 0.56, 0.0, 2 * C + 0.5), PI)
 		g.player.pitch = 1.15; g.player.cam.rotation.x = 1.15; g.player.cam.position.y = 0.72
 
 func on_wake() -> void:
@@ -1499,6 +1501,8 @@ func _pick(id: String):
 			for av in g.avatars:
 				if av.visible and Vector2(av.global_position.x - ap.x, av.global_position.z - ap.z).length() < 0.7: taken = true
 		var dd = ap.distance_to(pp) + (50.0 if taken else 0.0)
+		if id == "seat" and auto:
+			dd = ap.distance_to(Habitat.cpos(D.SPOTS["meal0"][0], ap.y))     # the Commander's own place at the table
 		if dd < bd: bd = dd; best = it
 	return best
 
@@ -1508,11 +1512,17 @@ func _cell_for(id: String) -> Vector2i:
 	if best == null: return Vector2i(-1, -1)
 	var c = Habitat.to_cell(best.area.global_position)
 	if H.region.has(c) and not H.blocked.has(c): return c
+	# nearest free cell in the same room (never the other side of a wall)
+	var zone = H.zone_of(c) if H.region.has(c) else str(best.room)
+	var pick = c; var pd = 1e9
 	for r in [1, 2]:
 		for dx in range(-r, r + 1):
 			for dy in range(-r, r + 1):
 				var n = c + Vector2i(dx, dy)
-				if H.region.has(n) and not H.blocked.has(n): return n
+				if not H.region.has(n) or H.blocked.has(n) or H.zone_of(n) != zone: continue
+				var dd = Vector2(dx, dy).length()
+				if dd < pd: pd = dd; pick = n
+		if pd < 1e9: return pick
 	return c
 
 ## stand ~1.6 m in front of a point and look at it
@@ -1545,9 +1555,9 @@ func _goal(id: String) -> Dictionary:
 
 func _auto_goal() -> Dictionary:
 	var H = sim.hab; var h = sim.hour(); var d = sim.day()
-	if not drill.is_empty(): return {"cell": Vector2i(3, 16), "do": ""}
-	if H.flare_until > sim.now: return {"cell": Vector2i(3, 15), "do": ""}
-	if not sim.pending.is_empty(): return {"cell": Vector2i(18, 15), "do": "decide"}
+	if not drill.is_empty(): return {"cell": Vector2i(2, 8), "do": ""}
+	if H.flare_until > sim.now: return {"cell": Vector2i(2, 8), "do": ""}
+	if not sim.pending.is_empty(): return {"cell": Vector2i(10, 7), "do": "decide"}
 	if sim.fired.get("swap_task", false): return _goal("cartridge")
 	if h >= 21.5 or h < 5.5: return _goal("bed")
 	var meal = "%d:meal%d" % [d, int(h / 6.0)]
@@ -1563,7 +1573,7 @@ func _auto_goal() -> Dictionary:
 		var ag = _screen_goal("airlock", "")
 		if not ag.is_empty(): ag["do"] = "clean"; return ag
 	if d == 1 and not g.flags.get("twin", false) and h > 8.5:
-		var tg = _spot_goal(Vector3(20.625, 0.95, 18.125)); tg["do"] = "twin"; return tg
+		var tg = _spot_goal(Vector3(15.625, 0.95, 10.625)); tg["do"] = "twin"; return tg
 	if d == 2 and g.flags.get("sleep_read", -1) != d:
 		var sg = _screen_goal("pod_desk", "pod0")
 		if not sg.is_empty(): sg["do"] = "sleep_read"; return sg
@@ -1667,16 +1677,16 @@ func _auto_act() -> void:
 #  demonstration (T): a guided tour of the whole project, one station at a time
 # =====================================================================================================
 const DEMO = [
-	[Vector3(10.6, 0, 6.6), 0.0, -0.12, "1 · Your pod", "Private room. Smart bed tracks sleep with no camera. Light, temperature and AC are yours to set."],
-	[Vector3(12.2, 0, 8.8), PI / 2.0, -0.05, "2 · Mood check-in", "Once a day, rate how you feel. Private unless you share it."],
-	[Vector3(27.8, 0, 9.3), 0.64, -0.1, "3 · Social hub", "Shared meals, team meetings, movie nights. Warm light pulls the crew together."],
-	[Vector3(31.9, 0, 9.6), 0.0, -0.25, "4 · Greenhouse", "Grows food and cleans the air. Tending plants lifts mood."],
-	[Vector3(20.2, 0, 17.3), PI / 2.0, -0.08, "5 · Humans in charge", "AI OFF switch, AI dashboard and review board. LUNA advises; people decide. AI OFF also stops the autopilot."],
-	[Vector3(22.5, 0, 20.4), PI, -0.25, "6 · Ops console", "Every big decision happens here. The ring on the table is the habitat status light: green OK, yellow warning, red emergency."],
-	[Vector3(29.6, 0, 19.4), -2.1, -0.12, "7 · Wellness Dock", "1-minute health scan and the ISS reaction test. You choose to take it."],
-	[Vector3(5.6, 0, 15.6), 2.21, -0.1, "8 · Medical + storm shelter", "Water walls block solar radiation. Drills muster here. Tier 3 cases go to the doctor."],
-	[Vector3(3.1, 0, 4.4), 0.0, -0.05, "9 · Airlock + suitports", "Suits stay outside so moon dust does too. Check yourself and the suit before every EVA."],
-	[Vector3(10.6, 0, 19.6), 0.0, -0.05, "10 · Life support", "Makes oxygen, removes CO2, recycles 98 % of the water."],
+	[Vector3(9.5, 0, 4.75), 0.45, -0.2, "1 · Your pod", "Private 2.5 × 2.5 m room (CHAPEA-sized). Smart bed tracks sleep with no camera. Light, temperature and AC are yours to set."],
+	[Vector3(9.6, 0, 5.62), PI / 2.0, -0.05, "2 · Mood check-in", "Once a day, rate how you feel. Private unless you share it."],
+	[Vector3(24.2, 0, 5.6), 1.16, -0.1, "3 · Social hub", "Shared meals, team meetings, movie nights. Warm light pulls the crew together."],
+	[Vector3(26.875, 0, 5.8), 0.0, -0.12, "4 · Greenhouse", "Grows food and cleans the air. Tending plants lifts mood."],
+	[Vector3(13.4, 0, 10.0), PI / 2.0, -0.08, "5 · Humans in charge", "AI OFF switch, AI dashboard and review board. LUNA advises; people decide. AI OFF also stops the autopilot."],
+	[Vector3(15.0, 0, 9.0), 0.4, -0.25, "6 · Ops console", "Every big decision happens here. The ring on the 3D twin is the habitat status light: green OK, yellow warning, red emergency."],
+	[Vector3(23.1, 0, 9.6), 2.54, -0.15, "7 · Wellness Dock", "1-minute health scan and the ISS reaction test. You choose to take it."],
+	[Vector3(3.1, 0, 8.2), 2.74, -0.1, "8 · Medical + storm shelter", "Water walls block solar radiation. Drills muster here. Tier 3 cases go to the doctor."],
+	[Vector3(2.6, 0, 3.4), 0.0, -0.05, "9 · Airlock + suitports", "Suits stay outside so moon dust does too. Check yourself and the suit before every EVA."],
+	[Vector3(6.875, 0, 11.6), 0.0, -0.05, "10 · Life support", "Makes oxygen, removes CO2, recycles 98 % of the water."],
 ]
 
 func start_demo() -> void:
@@ -1685,7 +1695,7 @@ func start_demo() -> void:
 	demo_i = 0; demo_t = 0.0; _demo_show()
 
 ## stations with a "look at" point: stand ~2 m away on a free floor cell in the same room, face it
-const DEMO_LOOK = {5: Vector3(20.625, 0.95, 18.125), 6: "dock"}
+const DEMO_LOOK = {5: Vector3(15.625, 0.95, 10.625)}
 
 func _demo_spot(t: Vector3) -> bool:
 	var H = sim.hab
@@ -1822,19 +1832,24 @@ func _seat_me() -> void:
 	if g.player.vr or last_used.is_empty() or not is_instance_valid(last_used.get("area")): return
 	var sp = last_used.area.global_position
 	# exercise and desk work: stand on the belt / sit on the bike or desk chair, facing the display
-	var fixed = {"treadmill": [Vector3(0, 0.25, 0.1), 0.0, Player.EYE], "bike": [Vector3(0, 0.0, 0.3), 0.0, 1.35], "desk": [Vector3(0, -0.9, 0.3), 0.0, 1.2]}
+	var fixed = {"treadmill": [Vector3(0, 0.25, 0.1), 0.0, Player.EYE], "bike": [Vector3(0, 0.0, 0.3), 0.0, 1.35], "desk": [Vector3(0, 0.0, -0.25), PI, 1.2]}
 	if fixed.has(last_used.id) and a in ["ex", "bike", "work"]:
 		var f = fixed[last_used.id]
 		g.player.place(Vector3(sp.x, 0.0, sp.z) + f[0], f[1])
 		g.player.pitch = -0.1; g.player.cam.rotation.x = -0.1; g.player.cam.position.y = f[2]
 		return
 	if not (a in ["meal", "table", "sofa"] and last_used.id in ["seat", "sofa"]): return
+	if last_used.id == "seat":
+		# everyone has a usual place at the table; yours is the north-west seat (the crew keep theirs free)
+		var mine = Habitat.cpos(D.SPOTS["meal0"][0], 0.0); var bd2 = 1e9
+		for it in hab.inters:
+			if it.id == "seat" and is_instance_valid(it.area):
+				var d2 = Vector2(it.area.global_position.x - mine.x, it.area.global_position.z - mine.z).length()
+				if d2 < bd2: bd2 = d2; sp = it.area.global_position
 	var look = Vector3.ZERO; var n = 0
 	if last_used.id == "seat":
-		for it in hab.inters:          # the middle of the seats around this table
-			if it.id == "seat" and is_instance_valid(it.area) and it.area.global_position.distance_to(sp) < 2.6:
-				look += it.area.global_position; n += 1
-		look /= max(n, 1)
+		var tn: Node3D = hab.dyn.get("hub_table", null)          # face the middle of the wardroom table
+		look = tn.global_position if tn else sp
 	else:
 		var bd = 1e9
 		for sc in hab.screens:
@@ -1851,6 +1866,20 @@ func scene_test(arg: String) -> void:
 	var dir = arg.split(":")[0]; var which = arg.split(":")[1] if ":" in arg else "night"
 	g._start_desktop()
 	while g.state != "play": await get_tree().process_frame
+	if which == "sit":
+		while sim.hour() < 12.3: sim._minute()
+		var k = 0
+		for id in ["desk", "seat", "bike", "treadmill", "sofa"]:
+			var it = _pick(id)
+			if it == null: continue
+			g.player.place(it.area.global_position - Vector3(0, it.area.global_position.y, 0) + Vector3(0.6, 0, 0.6), 0.0)
+			g._on_click({"kind": "inter", "node": it})
+			for j in 12: await get_tree().process_frame
+			g._save_shot("%s/sit_%02d_%s.png" % [dir, k, id]); k += 1
+			if not g.activity.is_empty(): g._end_activity(true)
+			close_card()
+			for j in 4: await get_tree().process_frame
+		get_tree().quit(); return
 	if which == "safety":
 		var k = 0
 		for it in hab.inters:
@@ -1915,44 +1944,22 @@ func audit() -> void:
 #  safety stations: a fire extinguisher + a breathing mask beside every room's hatch, as on the ISS
 #  (water-mist extinguisher, ~15 min oxygen mask), a smoke detector on the ceiling. You can check them.
 # =====================================================================================================
-const SAFETY_ROOMS = ["communal", "greenhouse", "medical", "eclss", "work", "exercise", "quarters", "airlock", "storage", "hygiene"]
+## one station per module, mounted by the hatch like on the ISS: [room, wall point (floor level), direction into the room]
+const SAFETY = [
+	["airlock", Vector3(1.875, 0, 6.25), Vector2i(0, -1)], ["hygiene", Vector3(5.6, 0, 6.25), Vector2i(0, -1)],
+	["quarters", Vector3(13.125, 0, 6.25), Vector2i(0, -1)], ["communal", Vector3(17.5, 0, 5.6), Vector2i(1, 0)],
+	["corridor", Vector3(25.6, 0, 6.25), Vector2i(0, 1)], ["corridor", Vector3(13.75, 0, 7.5), Vector2i(0, -1)],
+	["medical", Vector3(5.0, 0, 11.7), Vector2i(-1, 0)], ["eclss", Vector3(5.625, 0, 7.5), Vector2i(0, 1)],
+	["storage", Vector3(11.25, 0, 8.4), Vector2i(-1, 0)], ["work", Vector3(11.25, 0, 8.0), Vector2i(1, 0)],
+	["exercise", Vector3(18.75, 0, 9.6), Vector2i(1, 0)],
+]
 
 func _safety_stations() -> void:
-	var H = sim.hab
-	var used = []
-	for room in SAFETY_ROOMS:
-		if not D.ROOMS.has(room): continue
-		var r = D.ROOMS[room].rect
-		var best = null; var bd = 1e9
-		for x in range(r[0], r[0] + r[2]):
-			for y in range(r[1], r[1] + r[3]):
-				var c = Vector2i(x, y)
-				if not H.region.has(c) or H.blocked.has(c): continue
-				if room == "quarters" and H.zone_of(c).begins_with("pod"): continue     # in the shared hall, not in someone's pod
-				for dir in [Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)]:
-					var out = c + dir
-					var inside_rect = out.x >= r[0] and out.x < r[0] + r[2] and out.y >= r[1] and out.y < r[1] + r[3]
-					if inside_rect: continue                      # we want a wall cell
-					if H.region.has(out): continue                 # that's an opening, not a wall
-					# near a hatch: a neighbour along the wall leads out of the room
-					var side = Vector2i(dir.y, dir.x)
-					var dd = 99.0
-					for k in [1, 2, -1, -2]:
-						var n = c + side * k
-						var n_out = n + dir
-						if H.region.has(n_out) and not (n_out.x >= r[0] and n_out.x < r[0] + r[2] and n_out.y >= r[1] and n_out.y < r[1] + r[3]): dd = min(dd, absf(k))
-					var p = Habitat.cpos(c) + Vector3(dir.x, 0, dir.y) * (C * 0.5 - 0.1)
-					var clash = false
-					for it in hab.inters:
-						if is_instance_valid(it.area) and Vector2(it.area.global_position.x - p.x, it.area.global_position.z - p.z).length() < 0.9: clash = true
-					for sc in hab.screens:
-						if Vector2(sc.global_position.x - p.x, sc.global_position.z - p.z).length() < 0.8: clash = true
-					if clash: continue
-					var score = dd + (0.0 if dd < 3 else 5.0)
-					if score < bd: bd = score; best = [p, dir]
-		if best == null: continue
-		var p: Vector3 = best[0]; var dir: Vector2i = best[1]
-		var n = Vector3(-dir.x, 0, -dir.y)                    # into the room
+	for sdef in SAFETY:
+		var room: String = sdef[0]
+		var nd: Vector2i = sdef[2]
+		var p: Vector3 = sdef[1] + Vector3(nd.x, 0, nd.y) * 0.04
+		var n = Vector3(nd.x, 0, nd.y)                       # into the room
 		var yaw = atan2(n.x, n.z)
 		var st = Node3D.new(); st.position = p; st.rotation.y = yaw; world.add_child(st)
 		_mesh(st, _boxm(Vector3(0.42, 0.62, 0.03)), Vector3(0, 1.05, 0.0), Mats.white_plastic())                 # backing plate
@@ -1965,3 +1972,30 @@ func _safety_stations() -> void:
 		lab.reparent(st, false); lab.position = Vector3(0, 1.39, 0.03); lab.rotation = Vector3.ZERO
 		_mesh(world, _cylm(0.06, 0.025), Vector3(p.x + n.x * 0.6, 2.4, p.z + n.z * 0.6), Mats.white_plastic())  # smoke detector
 		hab.add_inter("safety", p + n * 0.12 + Vector3(0, 1.05, 0), Vector3(0.45, 0.65, 0.25), "", Callable(), room)
+
+# --r3plan=file.png : top-down orthographic plan of the whole habitat (camera below the ceiling)
+func plan_shot(path: String) -> void:
+	g._start_desktop()
+	while g.state != "play": await get_tree().process_frame
+	g.hud.visible = false
+	g.msg = {}; g.msg_t = 0.0; g._hide_popup()
+	var cam = Camera3D.new(); cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	var W = D.MAP_W * C; var Hh = D.MAP_H * C
+	cam.keep_aspect = Camera3D.KEEP_WIDTH; cam.size = W + 1.0; cam.near = 0.05; cam.far = 4.0
+	world.add_child(cam)
+	cam.global_position = Vector3(W / 2.0, 2.25, Hh / 2.0); cam.rotation = Vector3(-PI / 2.0, 0, 0)
+	cam.current = true
+	for k in 20: await get_tree().process_frame
+	get_viewport().get_texture().get_image().save_png(path)
+	get_tree().quit()
+
+# --r3occ=file.json : dump furniture footprints (for the compact-layout tool)
+func occ_dump(path: String) -> void:
+	var out = {"prims": MB.occ_log, "inters": [], "screens": [], "labels": []}
+	for it in hab.inters:
+		if is_instance_valid(it.area):
+			var p = it.area.global_position; out.inters.append([it.id, p.x, p.y, p.z])
+	for sc in hab.screens:
+		var p = sc.global_position; out.screens.append([sc.id, p.x, p.y, p.z])
+	var f = FileAccess.open(path, FileAccess.WRITE); f.store_string(JSON.stringify(out))
+	get_tree().quit()

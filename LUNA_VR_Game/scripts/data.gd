@@ -146,75 +146,77 @@ const COMMANDER = 0
 # ---- habitat rooms (adjacency order from the research proposal) ---------------------------------------
 ## Airlock → Hygiene → Crew Quarters → Galley → Workstations → Storage → Life Support → Medical
 ## rect = global tiles [x, y, w, h]; doors = [room cell, corridor cell]
-const MAP_W = 29
-const MAP_H = 19
+const MAP_W = 24
+const MAP_H = 11
+## the cargo hatch in the airlock's west wall, and the outside cell it opens onto
+const HATCH = Vector2i(1, 2)
+const OUTSIDE = Vector2i(0, 2)
 const ROOMS = {
-	"airlock": {"name": "Airlock", "rect": [1, 1, 3, 7], "floor": "floor_airlock", "shared": false, "zone": "Airlock + dust lock",
+	"airlock": {"name": "Airlock", "rect": [1, 1, 3, 4], "floor": "floor_airlock", "shared": false, "zone": "Airlock + dust lock",
 		"purpose": "Dual airlock, suit storage, dust removal. Next to hygiene so regolith is washed off before anyone reaches living space."},
-	"hygiene": {"name": "Hygiene", "rect": [4, 1, 3, 7], "floor": "floor_hygiene", "shared": false, "zone": "Hygiene",
+	"hygiene": {"name": "Hygiene", "rect": [4, 1, 2, 4], "floor": "floor_hygiene", "shared": false, "zone": "Hygiene",
 		"purpose": "Shower and toilet. No voice or camera sensors, ever. Beside the airlock for dust control."},
-	"quarters": {"name": "Crew quarters", "rect": [7, 1, 8, 7], "floor": "floor_quarters", "shared": false, "zone": "Private retreat ×4",
-		"purpose": "Four lockable pods, 2.1 × 2.1 m each. LUNA watches the door, not the room: no cameras or microphones inside. The occupant sets light, temperature and sound."},
-	"communal": {"name": "Galley + wardroom", "rect": [15, 1, 8, 7], "floor": "floor_galley", "shared": true, "zone": "Communal zone",
+	"quarters": {"name": "Crew quarters", "rect": [6, 2, 8, 3], "floor": "floor_quarters", "shared": false, "zone": "Private retreat ×4",
+		"purpose": "Four lockable pods, 2.5 × 2.5 m each (about the size of a CHAPEA crew room). LUNA watches the door, not the room: no cameras or microphones inside. The occupant sets light, temperature and sound."},
+	"communal": {"name": "Galley + wardroom", "rect": [14, 1, 6, 4], "floor": "floor_galley", "shared": true, "zone": "Communal zone",
 		"purpose": "Shared meals, conversation, group activities. Warm 2700–3000 K light draws the crew together. First target for social reconnection."},
-	"greenhouse": {"name": "Greenhouse", "rect": [23, 1, 5, 7], "floor": "floor_greenhouse", "shared": true, "zone": "Nature + growth bay",
+	"greenhouse": {"name": "Greenhouse", "rect": [20, 1, 3, 4], "floor": "floor_greenhouse", "shared": true, "zone": "Nature + growth bay",
 		"purpose": "Food, O₂ and CO₂ uptake for the ECLSS. Red/blue grow light. Tending is prescribed as behavioural activation for low mood."},
-	"corridor": {"name": "Transition corridor", "rect": [1, 8, 27, 3], "floor": "floor_corridor", "shared": true, "zone": "Transition corridor",
+	"corridor": {"name": "Transition corridor", "rect": [1, 5, 22, 1], "floor": "floor_corridor", "shared": true, "zone": "Transition corridor",
 		"purpose": "Light and temperature shift gradually between zones, so walking from work to rest feels like arriving somewhere different."},
-	"medical": {"name": "Medical + storm shelter", "rect": [1, 11, 5, 7], "floor": "floor_medical", "shared": false, "zone": "Medical",
+	"medical": {"name": "Medical + storm shelter", "rect": [1, 6, 3, 4], "floor": "floor_medical", "shared": false, "zone": "Medical",
 		"purpose": "Exam bed, medical officer's station. Water-wall shielding makes it the solar-flare storm shelter. Near quarters and the airlock for fast emergency response."},
-	"eclss": {"name": "Life support (ECLSS)", "rect": [6, 11, 5, 7], "floor": "floor_eclss", "shared": false, "zone": "Life support",
+	"eclss": {"name": "Life support (ECLSS)", "rect": [4, 6, 3, 4], "floor": "floor_eclss", "shared": false, "zone": "Life support",
 		"purpose": "CO₂ scrubber, oxygen generator, water recovery. Noisy machines are kept away from the quarters."},
-	"storage": {"name": "Storage", "rect": [11, 11, 3, 7], "floor": "floor_storage", "shared": false, "zone": "Storage",
+	"storage": {"name": "Storage", "rect": [7, 6, 2, 4], "floor": "floor_storage", "shared": false, "zone": "Storage",
 		"purpose": "Spare parts, food, cortisol patches. The maintenance robot docks here."},
-	"work": {"name": "Work + mission bay", "rect": [14, 11, 8, 7], "floor": "floor_work", "shared": true, "zone": "Work + mission bay",
+	"work": {"name": "Work + mission bay", "rect": [9, 6, 6, 4], "floor": "floor_work", "shared": true, "zone": "Work + mission bay",
 		"purpose": "Cool 6000–6500 K light, faster airflow, strict CO₂ control. Task speed is a fatigue signal here."},
-	"exercise": {"name": "Exercise bay", "rect": [22, 11, 6, 7], "floor": "floor_exercise", "shared": true, "zone": "Exercise bay",
+	"exercise": {"name": "Exercise bay", "rect": [15, 6, 5, 4], "floor": "floor_exercise", "shared": true, "zone": "Exercise bay",
 		"purpose": "Energising light and audio switch on when someone enters. Earth views on the displays. Movement treats low mood, conflict and fatigue."},
 }
 const ROOM_ORDER = ["airlock", "hygiene", "quarters", "communal", "greenhouse", "corridor", "medical", "eclss", "storage", "work", "exercise"]
 const DOORS = [
-	[Vector2i(2, 7), Vector2i(2, 8)], [Vector2i(5, 7), Vector2i(5, 8)], [Vector2i(10, 7), Vector2i(10, 8)], [Vector2i(11, 7), Vector2i(11, 8)],
-	[Vector2i(18, 7), Vector2i(18, 8)], [Vector2i(19, 7), Vector2i(19, 8)], [Vector2i(25, 7), Vector2i(25, 8)],
-	[Vector2i(3, 11), Vector2i(3, 10)], [Vector2i(8, 11), Vector2i(8, 10)], [Vector2i(12, 11), Vector2i(12, 10)],
-	[Vector2i(17, 11), Vector2i(17, 10)], [Vector2i(18, 11), Vector2i(18, 10)], [Vector2i(24, 11), Vector2i(24, 10)],
-	[Vector2i(1, 4), Vector2i(0, 4)],
+	[Vector2i(2, 4), Vector2i(2, 5)], [Vector2i(5, 4), Vector2i(5, 5)], [Vector2i(8, 4), Vector2i(8, 5)], [Vector2i(12, 4), Vector2i(12, 5)],
+	[Vector2i(15, 4), Vector2i(15, 5)], [Vector2i(16, 4), Vector2i(16, 5)], [Vector2i(21, 4), Vector2i(21, 5)],
+	[Vector2i(2, 6), Vector2i(2, 5)], [Vector2i(5, 6), Vector2i(5, 5)], [Vector2i(8, 6), Vector2i(8, 5)],
+	[Vector2i(12, 6), Vector2i(12, 5)], [Vector2i(13, 6), Vector2i(13, 5)], [Vector2i(15, 6), Vector2i(15, 5)],
+	[HATCH, OUTSIDE],
 ]
-## private pods inside the quarters: pod i = cols 7+2i..8+2i, rows 1..5, door to the quarters hall at row 6
-static func pod_rect(i: int) -> Rect2i: return Rect2i(7 + 2 * i, 1, 2, 5)
-static func pod_door(i: int) -> Array: return [Vector2i(8 + 2 * i, 5), Vector2i(8 + 2 * i, 6)]
+## private pods inside the quarters: pod i = cols 6+2i..7+2i, rows 2..3 (2.5 × 2.5 m, CHAPEA-sized),
+## door to the quarters hall (row 4) on the east half of the south wall
+static func pod_rect(i: int) -> Rect2i: return Rect2i(6 + 2 * i, 2, 2, 2)
+static func pod_door(i: int) -> Array: return [Vector2i(7 + 2 * i, 3), Vector2i(7 + 2 * i, 4)]
 
 ## activity spots: [cell, facing]; the crew member stands or sits on that cell
 const SPOTS = {
-	"meal0": [Vector2i(17, 2), "down"], "meal1": [Vector2i(18, 2), "down"], "meal2": [Vector2i(17, 5), "up"], "meal3": [Vector2i(18, 5), "up"],
-	"sofa0": [Vector2i(20, 6), "up"], "sofa1": [Vector2i(21, 6), "up"], "galley": [Vector2i(16, 2), "up"], "lounge2": [Vector2i(22, 4), "side"],
-	"work0": [Vector2i(15, 13), "up"], "work1": [Vector2i(17, 13), "up"], "work2": [Vector2i(19, 13), "up"], "work3": [Vector2i(21, 13), "up"],
-	"console": [Vector2i(17, 16), "down"], "dpc0": [Vector2i(16, 16), "down"], "dpc1": [Vector2i(17, 16), "down"], "dpc2": [Vector2i(18, 16), "down"], "dpc3": [Vector2i(19, 16), "down"],
-	"treadmill": [Vector2i(23, 14), "up"], "bike": [Vector2i(25, 13), "up"], "ared": [Vector2i(27, 14), "up"],
-	"gh0": [Vector2i(23, 3), "up"], "gh1": [Vector2i(24, 3), "up"], "gh2": [Vector2i(26, 3), "up"], "gh3": [Vector2i(27, 3), "up"],
-	"gh4": [Vector2i(23, 6), "up"], "gh5": [Vector2i(24, 6), "up"], "gh6": [Vector2i(26, 6), "up"], "gh7": [Vector2i(27, 6), "up"],
-	"shower": [Vector2i(4, 1), "down"], "toilet": [Vector2i(6, 2), "up"], "sink": [Vector2i(5, 3), "up"],
-	"suit": [Vector2i(2, 3), "up"], "hatch": [Vector2i(1, 4), "side"],
-	"medbed": [Vector2i(2, 13), "down"], "cmo": [Vector2i(4, 13), "up"], "shelter0": [Vector2i(2, 16), "up"], "shelter1": [Vector2i(3, 16), "up"], "shelter2": [Vector2i(4, 16), "up"], "shelter3": [Vector2i(5, 16), "up"],
-	"eclss0": [Vector2i(7, 14), "up"], "eclss1": [Vector2i(9, 14), "up"], "storage": [Vector2i(12, 14), "up"],
+	"meal0": [Vector2i(14, 2), "east"], "meal1": [Vector2i(14, 3), "east"], "meal2": [Vector2i(17, 2), "west"], "meal3": [Vector2i(17, 3), "west"],
+	"sofa0": [Vector2i(18, 2), "east"], "sofa1": [Vector2i(18, 3), "east"], "galley": [Vector2i(15, 1), "up"], "lounge2": [Vector2i(19, 1), "up"],
+	"work0": [Vector2i(10, 9), "down"], "work1": [Vector2i(11, 9), "down"], "work2": [Vector2i(12, 9), "down"], "work3": [Vector2i(12, 7), "up"],
+	"console": [Vector2i(10, 7), "up"], "dpc0": [Vector2i(9, 7), "up"], "dpc1": [Vector2i(10, 7), "up"], "dpc2": [Vector2i(11, 7), "up"], "dpc3": [Vector2i(12, 7), "up"],
+	"treadmill": [Vector2i(16, 7), "up"], "bike": [Vector2i(17, 7), "up"], "ared": [Vector2i(19, 7), "up"],
+	"gh0": [Vector2i(21, 1), "west"], "gh1": [Vector2i(21, 2), "west"], "gh2": [Vector2i(21, 3), "west"], "gh3": [Vector2i(21, 4), "west"],
+	"gh4": [Vector2i(21, 1), "east"], "gh5": [Vector2i(21, 2), "east"], "gh6": [Vector2i(21, 3), "east"], "gh7": [Vector2i(21, 4), "east"],
+	"shower": [Vector2i(4, 1), "down"], "toilet": [Vector2i(5, 1), "up"], "sink": [Vector2i(4, 3), "west"],
+	"suit": [Vector2i(2, 2), "up"], "hatch": [HATCH, "west"],
+	"medbed": [Vector2i(2, 7), "east"], "cmo": [Vector2i(1, 6), "up"], "shelter0": [Vector2i(1, 9), "down"], "shelter1": [Vector2i(2, 9), "down"], "shelter2": [Vector2i(3, 9), "down"], "shelter3": [Vector2i(2, 8), "down"],
+	"eclss0": [Vector2i(5, 7), "west"], "eclss1": [Vector2i(5, 8), "east"], "storage": [Vector2i(8, 8), "west"],
 }
 ## cells covered by furniture (crew walk around them)
 const BLOCK = [
-	Vector2i(1, 1), Vector2i(3, 1), Vector2i(6, 1),
-	Vector2i(15, 1), Vector2i(16, 1), Vector2i(17, 3), Vector2i(18, 3), Vector2i(17, 4), Vector2i(18, 4),
-	Vector2i(23, 2), Vector2i(24, 2), Vector2i(26, 2), Vector2i(27, 2), Vector2i(23, 5), Vector2i(24, 5), Vector2i(26, 5), Vector2i(27, 5),
-	Vector2i(15, 12), Vector2i(17, 12), Vector2i(19, 12), Vector2i(21, 12), Vector2i(17, 17), Vector2i(18, 17),
-	Vector2i(23, 13), Vector2i(27, 13),
-	Vector2i(2, 12), Vector2i(3, 12), Vector2i(4, 12),
-	Vector2i(6, 12), Vector2i(6, 13), Vector2i(7, 12), Vector2i(7, 13), Vector2i(9, 12), Vector2i(9, 13), Vector2i(10, 12), Vector2i(10, 13),
-	Vector2i(11, 12), Vector2i(13, 12), Vector2i(11, 16), Vector2i(13, 16), Vector2i(11, 15),
-	# LUNA VR furniture
-	Vector2i(18, 14), Vector2i(19, 14), Vector2i(14, 16), Vector2i(14, 17), Vector2i(1, 14), Vector2i(7, 17), Vector2i(8, 17), Vector2i(9, 17), Vector2i(16, 14),
+	Vector2i(16, 2), Vector2i(16, 3),                                                         # wardroom table
+	Vector2i(20, 1), Vector2i(20, 2), Vector2i(20, 3), Vector2i(20, 4), Vector2i(22, 1), Vector2i(22, 2), Vector2i(22, 3), Vector2i(22, 4),   # greenhouse racks
+	Vector2i(3, 6), Vector2i(3, 7), Vector2i(1, 8),                                           # exam bed, recovery chair
+	Vector2i(4, 7), Vector2i(6, 7),                                                           # ECLSS racks
+	Vector2i(7, 6), Vector2i(7, 7), Vector2i(7, 8), Vector2i(7, 9),                           # stowage, spares, printer
+	Vector2i(11, 8), Vector2i(12, 8), Vector2i(14, 6), Vector2i(14, 7), Vector2i(14, 9),       # twin table, compute rack, planning, 3D twin
+	Vector2i(16, 6), Vector2i(19, 6),                                                         # treadmill + rig front ends
+	Vector2i(6, 4),                                                                           # check-in booth
 ]
-static func bed_spot(i: int) -> Array: return [Vector2i(7 + 2 * i, 3), "up"]
-static func bed_cells(i: int) -> Array: return [Vector2i(7 + 2 * i, 1), Vector2i(7 + 2 * i, 2)]
-static func pod_spot(i: int) -> Array: return [Vector2i(8 + 2 * i, 2), "up"]
-static func pod_desk(i: int) -> Vector2i: return Vector2i(8 + 2 * i, 1)
+static func bed_spot(i: int) -> Array: return [Vector2i(6 + 2 * i, 3), "up"]
+static func bed_cells(i: int) -> Array: return [Vector2i(6 + 2 * i, 2), Vector2i(6 + 2 * i, 3)]
+static func pod_spot(i: int) -> Array: return [Vector2i(7 + 2 * i, 3), "up"]
+static func pod_desk(i: int) -> Vector2i: return Vector2i(7 + 2 * i, 2)
 
 # ---- ethics: hard limits (brief §6.2) and the board (brief §11) --------------------------------------
 const HARD_LIMITS = [

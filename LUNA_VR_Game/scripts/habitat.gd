@@ -59,7 +59,7 @@ func light_key_of(r: String) -> String:
 func build(s: VRSim) -> void:
 	sim = s
 	region = s.hab.region.duplicate()
-	region.erase(Vector2i(0, 4))
+	region.erase(D.OUTSIDE)
 	static_root = Node3D.new(); static_root.name = "Static"; add_child(static_root)
 	mb.chunk = 6.25
 	_floors_and_ceilings()
@@ -149,7 +149,7 @@ func _walls_and_doors() -> void:
 		var ra = region[c]
 		# west + north outer walls
 		var w = c + Vector2i(-1, 0)
-		if not region.has(w): edges.append({"o": "v", "k": c.x, "s": c.y, "a": "", "b": ra, "door": false, "hatch": c == Vector2i(1, 4)})
+		if not region.has(w): edges.append({"o": "v", "k": c.x, "s": c.y, "a": "", "b": ra, "door": false, "hatch": c == D.HATCH})
 		var n = c + Vector2i(0, -1)
 		if not region.has(n): edges.append({"o": "h", "k": c.y, "s": c.x, "a": "", "b": ra, "door": false})
 		# east + south (interior or outer)
@@ -406,7 +406,7 @@ func _exterior() -> void:
 	var ex = Node3D.new(); ex.name = "Outside"; add_child(ex)
 	var m = MB.new()
 	# ground (just under the habitat floor) + far crater rims
-	m.box(Vector3(18, -0.12, 10), Vector3(900, 0.2, 900), Mats.regolith(), 0.0, true)
+	m.box(Vector3(15, -0.12, 7), Vector3(900, 0.2, 900), Mats.regolith(), 0.0, true)
 	var rng = RandomNumberGenerator.new(); rng.seed = 21
 	for k in 26:
 		var a = rng.randf() * TAU; var d = rng.randf_range(260.0, 520.0)
@@ -422,14 +422,14 @@ func _exterior() -> void:
 		var rr = rng.randf_range(2.0, 6.0)
 		m.torus(p, rr, rr + 1.4, Mats.regolith(), Basis.from_scale(Vector3(1, 0.12, 1)))
 	# roof and berms of regolith bags (radiation + micrometeoroid shielding)
-	var x0 = 1 * CELL; var x1 = 28 * CELL; var z0 = 1 * CELL; var z1 = 18 * CELL
+	var x0 = 1 * CELL; var x1 = (D.MAP_W - 1) * CELL; var z0 = 1 * CELL; var z1 = (D.MAP_H - 1) * CELL
 	m.box(Vector3((x0 + x1) / 2, 3.65, (z0 + z1) / 2), Vector3(x1 - x0 + 0.6, 0.6, z1 - z0 + 0.6), Mats.bags())
 	var gw = world_rect("greenhouse")
 	m.sphere(Vector3(gw.get_center().x, 3.9, gw.get_center().y), 3.4, Mats.bags(), 18, 9, Vector3.ONE, 1.9)
 	for seg in [[x0, z0, x1, z0, 0], [x0, z1, x1, z1, 1], [x1, z0, x1, z1, 2], [x0, z0, x0, z1, 3]]:
 		var pieces = []
 		if seg[4] == 0: pieces = [[5.4, x1]]                     # north: gap for the suitport porch
-		elif seg[4] == 3: pieces = [[z0, 4.8], [6.5, z1]]          # west: gap for the cargo hatch
+		elif seg[4] == 3: pieces = [[z0, D.HATCH.y * CELL - 0.2], [(D.HATCH.y + 1) * CELL + 0.2, z1]]          # west: gap for the cargo hatch
 		elif seg[4] == 1 or seg[4] == 2: pieces = [[x0, x1] if seg[4] == 1 else [z0, z1]]
 		for pc in pieces:
 			var L = pc[1] - pc[0]; var mid = (pc[0] + pc[1]) * 0.5

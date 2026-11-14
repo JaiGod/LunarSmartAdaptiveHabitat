@@ -337,7 +337,7 @@ class TwinUI extends SUI:
 
 class TwinMap extends Control:
 	var ui
-	func _sc() -> float: return min(size.x / (29.0 * 1.0), size.y / 19.0)
+	func _sc() -> float: return min(size.x / float(D.MAP_W), size.y / float(D.MAP_H))
 	func _gui_input(e: InputEvent) -> void:
 		if e is InputEventMouseButton and e.pressed:
 			var s = _sc(); var c = Vector2i(int(e.position.x / s), int(e.position.y / s))

@@ -69,6 +69,8 @@ func _ready() -> void:
 	if dv: ThemeDB.fallback_font.fallbacks = [dv]
 	sim = VRSim.new()
 	_environment()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--r3occ="): MB.occ_log = []
 	hab = Habitat.new(); hab.name = "Habitat"; add_child(hab)
 	hab.build(sim)
 	for i in range(1, 4):
@@ -99,6 +101,8 @@ func _ready() -> void:
 		if arg == "--r3test": r3.selftest.call_deferred()
 		if arg == "--r3auto": r3.autotest.call_deferred()
 		if arg == "--r3audit": r3.audit.call_deferred()
+		if arg.begins_with("--r3occ="): r3.occ_dump.call_deferred(arg.substr(8))
+		if arg.begins_with("--r3plan="): r3.plan_shot.call_deferred(arg.substr(9))
 		if arg.begins_with("--r3scene="): r3.scene_test.call_deferred(arg.substr(10))
 		if arg.begins_with("--r3play="): r3.autotest.call_deferred(arg.substr(9))
 		if arg.begins_with("--r3shots="): r3.shots.call_deferred(arg.substr(10))
@@ -134,7 +138,7 @@ func _environment() -> void:
 	add_child(sund)
 
 func _spawn_in_pod() -> void:
-	player.place(Vector3(9.95, 0.05, 3.25), 0.0)
+	player.place(Vector3(8.9, 0.05, 4.4), 0.0)
 
 func _fade_and_scene() -> void:
 	fade = MeshInstance3D.new(); var fm = SphereMesh.new(); fm.radius = 0.3; fm.height = 0.6; fm.radial_segments = 16; fm.rings = 8; fade.mesh = fm
@@ -251,7 +255,7 @@ func _process(dt: float) -> void:
 	if state == "play" and not asking.is_empty(): scale = min(scale, 1.0)
 	# where you are, for the engine
 	if outside:
-		sim.player_outside = true; sim.player_cell = Vector2i(0, 4)
+		sim.player_outside = true; sim.player_cell = D.OUTSIDE
 	else:
 		sim.player_outside = false
 		var c = Habitat.to_cell(player.global_position)
@@ -294,6 +298,11 @@ func _sync_world(dt: float) -> void:
 		var cr: Crew = sim.crew[a.i]
 		var p2 = cr.prev.lerp(cr.pos, clamp(sim.acc, 0.0, 1.0))
 		var wp = Vector3(p2.x / 16.0 * Habitat.CELL, 0, p2.y / 16.0 * Habitat.CELL)
+		if (cr.asleep or cr.act_id == "nap") and sim.hab.zone_of(cr.cell) == "pod%d" % cr.i:
+			# lying in their own bed: head on the pillow at the north end, not on the floor by the door
+			var pr = D.pod_rect(cr.i)
+			wp = Vector3(pr.position.x * Habitat.CELL + 0.56, 0, pr.position.y * Habitat.CELL + 2.15)   # feet at the foot end
+			cr.act_face = "down"                                                                          # yaw 0: head points north
 		a.pose(cr, wp, dt)
 		actors.append(wp)
 	hab.sync(dt, actors)
@@ -380,7 +389,7 @@ func _wake_up() -> void:
 	state = "play"
 	flags.erase("intro")
 	player.frozen = false
-	player.place(Vector3(9.95, 0.05, 3.25), 0.0)
+	player.place(Vector3(8.9, 0.05, 4.4), 0.0)
 	r3.on_wake()
 	var cr = sim.me()
 	play("alarm")
@@ -891,15 +900,15 @@ func _shots(dir: String) -> void:
 	set_fade(0.0)
 	sim.advance(150.0)
 	var views = [
-		["01_pod", Vector3(10.6, 0, 6.6), 0.0, -0.12], ["02_kiosk", Vector3(12.2, 0, 8.8), PI / 2.0, -0.05],
-		["03_hub", Vector3(27.8, 0, 9.3), 0.64, -0.1], ["04_greenhouse", Vector3(31.9, 0, 9.6), 0.0, 0.32],
-		["05_ops", Vector3(20.6, 0, 20.0), -0.35, -0.05], ["06_console", Vector3(22.5, 0, 20.4), PI, -0.25],
-		["07_airlock", Vector3(3.1, 0, 9.6), 0.0, -0.05], ["08_eclss", Vector3(10.6, 0, 19.6), 0.0, -0.05],
-		["09_calib", Vector3(11.2, 0, 19.3), PI, 0.0], ["10_medical", Vector3(5.6, 0, 15.6), 2.21, -0.1],
-		["11_exercise", Vector3(31.2, 0, 21.6), 0.0, -0.05], ["12_storage", Vector3(15.6, 0, 21.8), 0.0, -0.05],
-		["13_corridor", Vector3(2.6, 0, 11.9), -PI / 2.0, 0.0],
-		["16_wellness_center", Vector3(22.6, 0, 20.3), 0.62, -0.2], ["17_wellness_dock", Vector3(29.6, 0, 19.4), -2.1, -0.12],
-		["18_earth_corner", Vector3(25.2, 0, 6.6), -PI / 2.0, -0.05], ["19_eva_prep", Vector3(3.1, 0, 4.4), 0.0, -0.05],
+		["01_pod", Vector3(9.4, 0, 4.6), 0.35, -0.12], ["02_kiosk", Vector3(9.6, 0, 5.62), PI / 2.0, -0.05],
+		["03_hub", Vector3(24.2, 0, 5.6), 1.16, -0.1], ["04_greenhouse", Vector3(26.875, 0, 5.8), 0.0, -0.12],
+		["05_ops", Vector3(17.0, 0, 8.2), 0.9, -0.15], ["06_console", Vector3(13.0, 0, 9.6), 0.0, -0.25],
+		["07_airlock", Vector3(3.125, 0, 5.9), 0.0, -0.05], ["08_eclss", Vector3(6.875, 0, 11.6), 0.0, -0.05],
+		["09_calib", Vector3(6.875, 0, 8.6), PI, 0.0], ["10_medical", Vector3(3.1, 0, 8.2), 2.74, -0.1],
+		["11_exercise", Vector3(19.4, 0, 12.0), -0.72, -0.05], ["12_storage", Vector3(10.6, 0, 7.9), PI, -0.05],
+		["13_corridor", Vector3(2.0, 0, 6.875), -PI / 2.0, 0.0],
+		["16_wellness_center", Vector3(14.5, 0, 9.0), -2.23, -0.2], ["17_wellness_dock", Vector3(21.0, 0, 9.4), -2.73, -0.12],
+		["18_earth_corner", Vector3(21.0, 0, 3.75), -PI / 2.0, -0.05], ["19_eva_prep", Vector3(2.6, 0, 3.4), 0.0, -0.05],
 	]
 	for v in views:
 		player.place(v[1], v[2]); player.pitch = v[3]; player.cam.rotation.x = v[3]
@@ -947,7 +956,7 @@ func _autoplay(dir: String) -> void:
 				did["ev_" + e.id] = true
 				if not did.has("shot_console"):
 					did["shot_console"] = true
-					player.place(Vector3(22.5, 0, 20.4), PI); player.pitch = -0.3; player.cam.rotation.x = -0.3
+					player.place(Vector3(13.0, 0, 9.0), 0.0); player.pitch = -0.3; player.cam.rotation.x = -0.3
 					ui["console"].refresh(true)
 					for k in 6: await get_tree().process_frame
 					_save_shot("%s/console.png" % dir)
@@ -966,7 +975,7 @@ func _autoplay(dir: String) -> void:
 			for k in 120: await get_tree().process_frame
 			airlock_cycle(); continue
 		if sim.hab.flare_until > sim.now and not did.has(key.call("shelter")):
-			did[key.call("shelter")] = true; player.place(Vector3(4.0, 0.05, 19.5), PI); continue
+			did[key.call("shelter")] = true; player.place(Vector3(2.6, 0.05, 11.2), PI); continue
 		if _meal_time() and not did.has(key.call("meal_%d" % int(h))):
 			did[key.call("meal_%d" % int(h))] = true; _on_click({"kind": "inter", "node": {"id": "seat"}}); continue
 		if h >= 9.0 and not did.has(key.call("tend")):
@@ -987,7 +996,7 @@ func _autoplay(dir: String) -> void:
 		if (h >= 22.0 or h < 5.0) and not sim.me().asleep:
 			if shot_n == 0:
 				shot_n = 1
-				player.place(Vector3(23.75, 0, 20.2), 0.0); player.pitch = -0.6; player.cam.rotation.x = -0.6
+				player.place(Vector3(15.625, 0, 11.7), 0.0); player.pitch = -0.6; player.cam.rotation.x = -0.6
 				ui["twin"].refresh(true)
 				for k in 6: await get_tree().process_frame
 				_save_shot("%s/twin.png" % dir)
@@ -1055,7 +1064,7 @@ func _build_twin3d() -> void:
 	var tw: Node3D = hab.dyn.get("twin3d")
 	if tw == null: return
 	var spin = Node3D.new(); spin.name = "spin"; tw.add_child(spin)
-	var c = Vector3(18.1, 0, 11.9)
+	var c = Vector3(D.MAP_W * 0.5 * Habitat.CELL, 0, D.MAP_H * 0.5 * Habitat.CELL)
 	for r in hab._regions():
 		var wr = hab.world_rect(r)
 		var mi = MeshInstance3D.new(); var bm = BoxMesh.new()
@@ -1078,7 +1087,7 @@ func _update_twin3d(dt: float) -> void:
 	var tw: Node3D = hab.dyn["twin3d"]
 	var spin = tw.get_node("spin")
 	spin.rotation.y = 0.0          # fixed, lined up with the real habitat (a spinning model only looks busy)
-	var c = Vector3(18.1, 0, 11.9)
+	var c = Vector3(D.MAP_W * 0.5 * Habitat.CELL, 0, D.MAP_H * 0.5 * Habitat.CELL)
 	for i in 4:
 		var wp: Vector3
 		if i == 0:

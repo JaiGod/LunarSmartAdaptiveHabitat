@@ -21,8 +21,14 @@ func _st(m: Material) -> SurfaceTool:
 		groups[key] = st; mats[key] = m
 	return groups[key]
 
+static var occ_log = null      # debug: when an Array, every primitive's world AABB is appended (layout tooling)
+var log_tag = ""
+
 func add(mesh: Mesh, xf: Transform3D, m: Material) -> void:
 	_cur = xf.origin
+	if occ_log != null and log_tag != "":
+		var bb: AABB = xf * mesh.get_aabb()
+		occ_log.append([log_tag, bb.position.x, bb.position.y, bb.position.z, bb.end.x, bb.end.y, bb.end.z])
 	_st(m).append_from(mesh, 0, xf)
 
 ## axis-aligned (optionally yaw-rotated) box; c = centre
