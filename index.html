@@ -475,9 +475,8 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
 .bricks-wrap{display:block!important;margin-top:22px}
 .bricks{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:center;padding:26px;border-radius:18px;border:2px solid rgba(56,189,248,.7)!important;box-shadow:0 0 0 1px rgba(56,189,248,.2),0 0 38px rgba(56,189,248,.2)!important}
 .bricks h2{font-size:30px;margin:6px 0 10px;color:#9fe0ff}.bricks p{color:#c9d3e8;line-height:1.55;max-width:46ch}
-.bk-boxes{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:auto auto;gap:10px;text-decoration:none}
-.bk-boxes img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.45);transition:transform .25s}
-.bk-boxes img:first-child{grid-row:1 / span 2;aspect-ratio:auto;height:100%;min-height:0}
+.bk-boxes{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px;text-decoration:none;max-width:100%}
+.bk-boxes img{display:block;width:100%!important;height:auto!important;max-height:none;aspect-ratio:4/3;object-fit:cover;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.45);transition:transform .25s}
 .bk-boxes:hover img{transform:translateY(-3px)}
 #bricks:target{animation:brFlash 1.6s ease-out 2}
 @media(max-width:900px){.bricks{grid-template-columns:1fr}}
