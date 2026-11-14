@@ -196,3 +196,11 @@ footer{position:relative;z-index:6;background:var(--void);text-align:center;colo
 #surgeTxt{top:108px;color:#ffe9a8;background:rgba(60,40,0,.7);border:1px solid rgba(255,201,60,.6);box-shadow:0 0 26px rgba(255,201,60,.55)}
 #eclipse.on,#surgeTxt.on{opacity:1;transform:translate(-50%,0)}
 @media (max-width:700px){#eclipse,#surgeTxt{font-size:9px;letter-spacing:.08em;white-space:normal;width:86vw;text-align:center}}
+
+/* failure modes table (realism audit) */
+.failh{font-size:18px;font-weight:700;margin:34px 0 10px}
+.fail{width:100%;border-collapse:collapse;font-size:14.5px;line-height:1.5}
+.fail th{text-align:left;font-weight:600;color:var(--mut,#9aa7c0);padding:8px 10px;border-bottom:1px solid var(--line)}
+.fail td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+.fail td:first-child{font-weight:600;width:26%}.fail td:last-child{width:26%;color:var(--mut,#9aa7c0)}
+@media(max-width:720px){.fail thead{display:none}.fail tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}.fail td{display:block;border:0;padding:3px 0;width:auto!important}}

@@ -68,7 +68,8 @@ function buildDOM() {
 <div class="story">${steps}</div>
 <div class="content"><main>
   <section id="overview" class="reveal"><div class="kick">Exhibit ${esc(C.no || '')} · ${esc(C.category || '')}</div><h2 class="sec">${esc(C.title)}</h2>
-    <p class="desc">${esc(C.desc)}</p><div class="q5">${Q.map(([t, v], i) => `<div class="q"><em>${i + 1}</em><b>${t}</b><p>${esc(v)}</p></div>`).join('')}</div></section>
+    <p class="desc">${esc(C.desc)}</p><div class="q5">${Q.map(([t, v], i) => `<div class="q"><em>${i + 1}</em><b>${t}</b><p>${esc(v)}</p></div>`).join('')}</div>
+    ${C.fail ? `<h3 class="failh">What can fail, and what the crew does</h3><table class="fail"><thead><tr><th>Failure</th><th>How it's caught and handled</th><th>Upkeep</th></tr></thead><tbody>${C.fail.map(([f, r, m]) => `<tr><td>${esc(f)}</td><td>${esc(r)}</td><td>${esc(m || '-')}</td></tr>`).join('')}</tbody></table>` : ''}</section>
   <section id="parts" class="reveal"><div class="kick">Systems on the model</div><h2 class="sec">Every Part Has a Job</h2>
     <p class="sub">Each card is a real part of the 3D model. Hover a part in 3D for its name, or click a card or the model to open the full briefing and fly the camera to it.</p>
     <div class="q5">${C.parts.map((p) => `<button class="q" data-part="${p.k}" type="button" style="text-align:left;cursor:pointer;color:inherit;font:inherit"><b>${esc(p.label)}</b><p>${esc(p.sub)}</p><p class="note">Open briefing →</p></button>`).join('')}</div></section>
@@ -484,7 +485,7 @@ drawCmp(); $$('[data-cmp]').forEach((b) => (b.onclick = () => { $$('[data-cmp]')
 let counted = false;
 function countUp() {
   if (counted) return; counted = true;
-  $$('.spec').forEach((el) => { el.style.setProperty('--p', el.dataset.p + '%'); const v = parseFloat(el.dataset.v); if (isNaN(v)) return; const span = $('.cnt', el); const pre = span.textContent.replace(/[\d.,]+.*$/, ''); const dec = (String(el.dataset.v).split('.')[1] || '').length; const t1 = performance.now();
+  $$('.spec').forEach((el) => { el.style.setProperty('--p', el.dataset.p + '%'); if (!/^-?[\d.]+$/.test(el.dataset.v)) return; const v = parseFloat(el.dataset.v); if (isNaN(v)) return; const span = $('.cnt', el); const pre = span.textContent.replace(/[\d.,]+.*$/, ''); const dec = (String(el.dataset.v).split('.')[1] || '').length; const t1 = performance.now();
     const f = () => { const k = Math.min(1, (performance.now() - t1) / 1400), e = 1 - Math.pow(1 - k, 3); span.textContent = pre + (v * e).toFixed(dec); if (k < 1) requestAnimationFrame(f); }; f(); });
 }
 const lb = $('#lb'), lbi = $('img', lb);
