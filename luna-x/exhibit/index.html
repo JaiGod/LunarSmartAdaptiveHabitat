@@ -15,6 +15,7 @@ body{background:radial-gradient(60% 40% at 70% 0%,rgba(29,78,216,.25),transparen
 .ex{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
 .card{position:relative;display:block;background:var(--glass);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.25s}
 .card:hover{border-color:var(--cyan);transform:translateY(-3px);box-shadow:0 10px 40px rgba(56,189,248,.15)}
+.card .ph{aspect-ratio:16/10;display:grid;place-items:center;font-size:44px;background:radial-gradient(circle at 50% 40%,rgba(56,189,248,.25),rgba(5,8,22,.9) 70%)}
 .card img{aspect-ratio:16/10;object-fit:cover;width:100%;transition:transform .5s}.card:hover img{transform:scale(1.05)}
 .card .b{padding:12px 14px 14px}.card h3{font:700 15px var(--hd);margin:4px 0}.card p{color:var(--mut);font-size:13.5px}
 .tag{position:absolute;top:10px;left:10px;font:600 10px var(--mono);letter-spacing:.12em;background:rgba(5,8,22,.8);border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:#bfe6ff}
@@ -25,7 +26,7 @@ body{background:radial-gradient(60% 40% at 70% 0%,rgba(29,78,216,.25),transparen
 <header class="hallhero reveal vis"><div class="kick">NASA HUNCH · Project ARES · Lunar colony technology showcase</div>
 <h1>THE LUNA-X<br>EXHIBITION HALL</h1>
 <p>Every model built for the Project ARES lunar colony, shown as a museum exhibit. Open a <b>LIVE 3D</b> exhibit to fly around it, hover any part, open a full briefing, run a scan and see how it connects to sleep, health, power, water, food and communications across the habitat.</p>
-<div class="stats"><div><b>5</b><span>live 3D exhibits</span></div><div><b>14</b><span>habitat modules</span></div><div><b>11</b><span>habitat systems linked</span></div></div></header>
+<div class="stats"><div><b>19</b><span>live 3D exhibits</span></div><div><b>6</b><span>exhibit galleries</span></div><div><b>11</b><span>habitat systems linked</span></div></div></header>
 <div id="hall"></div>
 <footer>LUNA-X Exhibition Hall · NASA HUNCH Project ARES · © 2026 Jaineil R. · with Angel C. and Farhan K.</footer>
 <script>
@@ -35,19 +36,31 @@ const CATS=[
   L('suit/','../media/suit/pose_34f.jpg','LUNA-X Smart Suit','Full EVA suit with the XCore wellness hub, life-support backpack and exoskeleton.','Exhibit 04',['Life support','Health','Power'],1),
   L('helmet/','../helmet/img/01_hero_3quarter.jpg','Adaptive Cognitive Helmet','AI vision, sensors, HUD and crew-safety guardian.','Exhibit 01',['Health','Comms','Sleep'],1),
   L('glove/','../glove/img/glove_hero.jpg','Adaptive Wellness Glove','Vitals, haptics, IR plant scans and gestures.','Exhibit 02',['Agriculture','Health'],1),
-  L('boot/','../boot/img/boot_hero.jpg','Adaptive Mobility Boot','Smart sole, ankle actuators, dust shield, path lights.','Exhibit 03',['EVA','Health'],1)]],
- ['health','Crew Health','Medical, mental-health and everyday wellness technology.',[
+  L('boot/','../boot/img/boot_hero.jpg','Adaptive Mobility Boot','Smart sole, ankle actuators, dust shield, path lights.','Exhibit 03',['EVA','Health'],1),
+  L('airlock/','../media/habitat/LUNA_X_Airlock_hero.jpg','Dust Decontamination Airlock','Keeps regolith out of the habitat.','H07',['Life support','EVA'],1)]],
+ ['health','Crew Health','Medical, sleep, exercise and mental-health technology.',[
   L('../habitat-uniform/','../habitat-uniform/img/LHC_01_hero_front.jpg','Habitat Operations Uniform','Everyday crew jumpsuit with the LUNA-X chest module.','Exhibit 05',['Health','Comms','Ops'],1),
-  L('../suit-habitat-aegis.html#habitat','../media/habitat/LUNA_X_WellnessDock_hero.jpg','Wellness Dock','Mood check-in and recovery station.','Habitat module',['Health','Sleep']),
+  L('crew-pod/','../media/habitat/LUNA_X_SleepPod_hero.jpg','Crew Sleep Pod','Private quarters with circadian lighting.','H01',['Sleep','Health'],1),
+  L('medical/','✚','Medical Storm Shelter','Clinic and water-shielded radiation safe room.','H02',['Health','Water'],1),
+  L('exercise/','🏋','Exercise Bay','Fights bone and muscle loss in 1/6 g.','H03',['Health'],1),
+  L('kiosk/','☺','Mood Check-in Kiosk','Daily mental-health check-in.','H04',['Health','Sleep'],1),
+  L('social/','☕','Social Hub','Meals, games and a view of Earth.','H10',['Health'],1),
   L('../suit-habitat-aegis.html#aegis','../media/aegis/full_test_245.jpg','AEGIS Balance AI','Self-balancing robot: the stability science behind the boot.','Research',['Science','EVA'])]],
- ['habitat','Habitat Infrastructure','Where the crew sleeps, works and lives.',[
-  L('../suit-habitat-aegis.html#habitat','../media/habitat/LUNA_X_SleepPod_hero.jpg','Crew Sleep Pod','Private quarters with circadian lighting.','Habitat module',['Sleep','Health']),
-  L('../suit-habitat-aegis.html#habitat','../media/habitat/LUNA_X_AI_CommandCenter_hero.jpg','AI Command Center','Habitat operations and the LUNA AI.','Habitat module',['Ops','Comms','Power'])]],
- ['life','Life Support','Air, water and dust control.',[
-  L('../suit-habitat-aegis.html#habitat','../media/habitat/LUNA_X_Airlock_hero.jpg','Suitport Airlock','Dust decontamination and suit docking.','Habitat module',['Life support','EVA','Sustainability'])]],
+ ['life','Life Support','Air, water and the habitat environment.',[
+  L('eclss/','◎','ECLSS + Lighting Calibration','CO2 scrubbing and lighting for 13 zones.','H06',['Life support','Sleep','Power'],1),
+  L('hygiene/','💧','Hygiene Module','Low-flow fixtures; all water recycled.','H08',['Water'],1)]],
+ ['agri','Agriculture','Food production and plant monitoring.',[
+  L('greenhouse/','🌱','Greenhouse Therapy Racks','Hydroponics under grow LEDs.','H05',['Agriculture','Water','Health'],1)]],
+ ['habitat','Habitat Infrastructure & Operations','Where the crew lives, works and runs the base.',[
+  L('habitat/','⌂','Habitat Shell (Whole Base)','Every zone of the colony in one model.','H14',['Everything'],1),
+  L('ops/','../media/habitat/LUNA_X_AI_CommandCenter_hero.jpg','LUNA Ops Center','Where the habitat AI and crew run the base.','H09',['Ops','Comms','Power'],1),
+  L('robot-bay/','🤖','Robot Bay + Stores','Spares, supplies and a helper robot.','H11',['Ops'],1)]],
+ ['transport','Transportation','Rovers and cargo.',[
+  L('rover/','🚙','Pressurised Rover','Shirt-sleeve driving across the Moon.','H12',['EVA','Life support'],1),
+  L('athlete/','🦿','ATHLETE Robot','Six-legged cargo carrier.','H13',['Ops','EVA'],1)]],
 ];
 const h=document.getElementById('hall');
-h.innerHTML=CATS.map(([id,t,p,cards])=>`<section class="cat reveal" id="${id}"><div class="kick">Gallery</div><h2>${t}</h2><p>${p}</p><div class="ex">${cards.map(c=>`<a class="card" href="${c.h}"><span class="tag${c.live?' live':''}">${c.live?'LIVE 3D · ':''}${c.tag}</span><img loading="lazy" src="${c.img}" alt="${c.t}"><div class="b"><h3>${c.t}</h3><p>${c.p}</p><div class="sys">${c.sys.map(s=>`<span class="chip">${s}</span>`).join('')}</div></div></a>`).join('')}</div></section>`).join('');
+h.innerHTML=CATS.map(([id,t,p,cards])=>`<section class="cat reveal" id="${id}"><div class="kick">Gallery</div><h2>${t}</h2><p>${p}</p><div class="ex">${cards.map(c=>`<a class="card" href="${c.h}"><span class="tag${c.live?' live':''}">${c.live?'LIVE 3D · ':''}${c.tag}</span>${c.img.length<4?`<div class="ph">${c.img}</div>`:`<img loading="lazy" src="${c.img}" alt="${c.t}">`}<div class="b"><h3>${c.t}</h3><p>${c.p}</p><div class="sys">${c.sys.map(s=>`<span class="chip">${s}</span>`).join('')}</div></div></a>`).join('')}</div></section>`).join('');
 const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('vis')),{threshold:.1});document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
 </script>
 <script src="../../audio/ares-audio.js" data-base="../../audio/" data-default="suit"></script>
