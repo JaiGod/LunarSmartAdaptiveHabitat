@@ -1,0 +1,138 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LUNA-X Adaptive Wellness Glove · Lunar Smart Adaptive Habitat</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050816;--card:rgba(10,20,48,.66);--line:rgba(56,189,248,.22);--txt:#E6F1FF;--mut:#93A4C8;--gold:#FBBF24;--cyan:#38BDF8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 600px at 75% -10%,rgba(109,40,217,.30) 0,transparent 60%),radial-gradient(900px 500px at 10% 60%,rgba(11,61,145,.35) 0,transparent 70%),var(--bg);color:var(--txt);font:16px/1.6 Inter,system-ui,sans-serif}
+h1,h2,.k{font-family:Orbitron,system-ui,sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:28px 16px 60px}
+a{color:var(--cyan)}
+.k{letter-spacing:.2em;font-size:12px;color:var(--cyan);text-transform:uppercase}
+h1{font-size:clamp(30px,5vw,50px);margin:.2em 0;background:linear-gradient(90deg,#fff2b0,var(--gold),#ff8a1f);-webkit-background-clip:text;color:transparent}
+h2{margin:40px 0 12px;font-size:26px}
+p.lead{color:var(--mut);max-width:780px}
+.back{display:inline-block;margin-bottom:10px;color:var(--mut);text-decoration:none}
+.vid{border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#000;margin:18px 0 10px}
+.vid video{width:100%;display:block}
+.chap{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 6px}
+.chap button{background:#1a2142;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:7px 11px;font:600 13px system-ui;cursor:pointer}
+.chap button:hover{border-color:var(--cyan)}
+.chap button b{color:var(--gold);font-weight:700;margin-right:6px}
+.gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.gal figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.gal img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+.gal figcaption{padding:10px 12px;color:var(--mut);font-size:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.card h3{margin:0 0 8px;font-size:18px}.card p,.card li{color:var(--mut);font-size:15px}
+.card ul{margin:0;padding-left:18px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:15px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--cyan);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+td.m{color:var(--mut)}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:8px;box-shadow:0 0 10px currentColor}
+.btn{display:inline-block;text-align:center;padding:12px 18px;border-radius:12px;font-weight:700;text-decoration:none;color:#111;background:linear-gradient(90deg,var(--gold),#ff8a1f)}
+.btn.s{background:#1a2142;color:var(--txt);border:1px solid var(--line);font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+footer{margin-top:44px;color:var(--mut);font-size:14px}
+</style></head><body><div class="wrap">
+<a class="back" href="../../">← Project ARES home</a> · <a class="back" href="../">LUNA-X wearables</a>
+<div class="k">NASA HUNCH · Project ARES · LUNA-X wearables</div>
+<h1>LUNA-X Adaptive Wellness Glove</h1>
+<p class="lead">The crew's hands-on link to the habitat's <b>LUNA</b> AI. One glove that monitors hand health, scans plants and materials, speaks through light and vibration, and takes gesture commands, so astronauts don't need a giant screen to talk to the habitat.</p>
+
+<div class="vid"><video id="show" src="media/LUNA-X_Glove_Showcase.mp4" controls playsinline preload="metadata" poster="media/startup.jpg"></video></div>
+<div class="chap" id="chapters">
+  <button data-t="0"><b>0:00</b>Power on + finger calibration</button>
+  <button data-t="5"><b>0:05</b>Idle micro-adjust</button>
+  <button data-t="10"><b>0:10</b>Greenhouse plant scan</button>
+  <button data-t="16"><b>0:16</b>Material analysis</button>
+  <button data-t="20"><b>0:20</b>Wellness check (fatigue)</button>
+  <button data-t="24"><b>0:24</b>Crew meeting signal</button>
+  <button data-t="28"><b>0:28</b>Sleep mode</button>
+  <button data-t="34"><b>0:34</b>Navigation</button>
+  <button data-t="37"><b>0:37</b>Emergency + fist acknowledge</button>
+  <button data-t="43"><b>0:43</b>Gestures</button>
+  <button data-t="48"><b>0:48</b>LUNA recommendation</button>
+</div>
+<p style="color:var(--mut);font-size:14px">Low-settings preview render (Blender EEVEE, 960×540). Click a chapter to jump to it.</p>
+
+<h2>Why a glove</h2>
+<div class="grid2">
+  <div class="card"><h3>A real NASA problem</h3><p>Hand injuries (fingernail delamination, fatigue, sore knuckles) are a long-documented problem with pressurized spacesuit gloves. LUNA-X watches the hand itself: tremor, grip force and fatigue, before they become injuries.</p></div>
+  <div class="card"><h3>One product, two modes</h3><p>The <b>sensor liner</b> is the core product. Crew wear it on its own inside the habitat (IVA mode: greenhouse, lab, wellness checks), and it slides inside the pressure glove for moonwalks (EVA mode).</p></div>
+  <div class="card"><h3>Tied to the habitat</h3><p>Every reading goes to LUNA, the habitat's AI that monitors crew psychological health. The glove becomes the habitat's quietest wellness sensor.</p></div>
+</div>
+
+<h2>The model</h2>
+<p class="lead">White outer fabric with silicone grip pads, a segmented carbon-fiber knuckle guard, a titanium wrist disconnect with a gold bearing and status ring, the LUNA Wellness Processor on the back of the hand (glass dome, gold bezel, spinning AI ring, cooling vents), finger LED rings, fingertip status lights, gold fingertip sensor pads, haptic pods, and a cuff status display.</p>
+<h2>Animation pack</h2>
+<div class="gal">
+  <figure><img src="media/startup.jpg" alt="Power on" loading="lazy"><figcaption>Power on: fingertips light one by one, AI ring spins up, finger calibration</figcaption></figure>
+  <figure><img src="media/plantscan.jpg" alt="Greenhouse plant scan" loading="lazy"><figcaption>Greenhouse plant scan: fingertip pad touches the leaf, data travels to the wrist</figcaption></figure>
+  <figure><img src="media/material.jpg" alt="Material analysis" loading="lazy"><figcaption>Material analysis: non-contact IR scanner in the index fingertip</figcaption></figure>
+  <figure><img src="media/wellness.jpg" alt="Wellness check" loading="lazy"><figcaption>Wellness check: amber wave from fingers to forearm as fatigue rises</figcaption></figure>
+  <figure><img src="media/crewcall.jpg" alt="Crew meeting signal" loading="lazy"><figcaption>Crew meeting signal: purple sweep pinky → thumb</figcaption></figure>
+  <figure><img src="media/nav.jpg" alt="Navigation mode" loading="lazy"><figcaption>Navigation mode: white chase on the wrist ring, fingertip torches</figcaption></figure>
+  <figure><img src="media/emergency.jpg" alt="Emergency" loading="lazy"><figcaption>Emergency: fall detected, red broadcast</figcaption></figure>
+  <figure><img src="media/fist.jpg" alt="Fist held 2 s" loading="lazy"><figcaption>Fist held 2 s: emergency acknowledged, haptic triple pulse</figcaption></figure>
+  <figure><img src="media/pinch.jpg" alt="Pinch" loading="lazy"><figcaption>Pinch: select / accept LUNA's recommendation</figcaption></figure>
+  <figure><img src="media/openpalm.jpg" alt="Open palm" loading="lazy"><figcaption>Open palm: open the interface</figcaption></figure>
+  <figure><img src="media/recommendation.jpg" alt="LUNA recommendation on the cuff display" loading="lazy"><figcaption>LUNA recommendation on the cuff display: Greenhouse activity, 20 min</figcaption></figure>
+  <figure><img src="media/confirm.jpg" alt="Centre button press" loading="lazy"><figcaption>Centre button press: purple confirmation, habitat gets the instruction</figcaption></figure>
+</div>
+
+<h2>Light protocol</h2>
+<p class="lead">Six states, each with its own blink pattern so they're readable for color-blind crew too. Red and amber follow the warning/caution convention used in spaceflight and aviation displays.</p>
+<table>
+<tr><th>State</th><th>Pattern</th><th>Meaning</th></tr>
+<tr><td><span class="dot" style="color:#1aff52;background:#1aff52"></span>Green</td><td class="m">Steady glow</td><td class="m">Nominal, all systems normal</td></tr>
+<tr><td><span class="dot" style="color:#00c8ff;background:#00c8ff"></span>Cyan</td><td class="m">Breathing pulse</td><td class="m">LUNA processing / scanning</td></tr>
+<tr><td><span class="dot" style="color:#fff;background:#fff"></span>White</td><td class="m">Rotating chase</td><td class="m">Navigation guidance, fingertip torches</td></tr>
+<tr><td><span class="dot" style="color:#9e38ff;background:#9e38ff"></span>Purple</td><td class="m">Double pulse</td><td class="m">Crew call, wellness check-in, confirmation</td></tr>
+<tr><td><span class="dot" style="color:#ff8000;background:#ff8000"></span>Amber</td><td class="m">Slow blink, 1 Hz</td><td class="m">Caution (e.g. fatigue rising)</td></tr>
+<tr><td><span class="dot" style="color:#ff0805;background:#ff0805"></span>Red</td><td class="m">Fast strobe, 4 Hz</td><td class="m">Warning / emergency broadcast</td></tr>
+</table>
+
+<h2>Gestures &amp; haptics</h2>
+<div class="grid2">
+  <div class="card"><h3>Gestures (no buttons)</h3><ul>
+    <li><b>Pinch</b>: select / accept</li>
+    <li><b>Open palm</b>: open the interface</li>
+    <li><b>Double tap</b>: open status</li>
+    <li><b>Fist held 2 s</b>: acknowledge an emergency (a plain fist would fire every time you grab a handrail)</li></ul></div>
+  <div class="card"><h3>Haptic language</h3><ul>
+    <li>1 pulse: notification</li><li>2 pulses: recommendation</li>
+    <li>Long pulse: important message</li><li>Triple pulse: crew alert / confirmed</li></ul></div>
+  <div class="card"><h3>Micro-mechanics</h3><ul>
+    <li>AI activity ring spins faster while LUNA thinks</li>
+    <li>Fingertip sensor pods extend to scan, then retract</li>
+    <li>Cooling vents open during heavy processing</li></ul></div>
+</div>
+
+<h2>Layer breakdown</h2>
+<div class="vid"><video src="media/LUNA-X_Glove_Layers.mp4" controls playsinline preload="metadata" poster="media/layers.jpg"></video></div>
+<table>
+<tr><th>#</th><th>Layer</th><th>What it does</th></tr>
+<tr><td>1</td><td>LUNA sensor liner</td><td class="m">Worn alone in the habitat. IMUs (tremor, motion), grip-force pads, PPG heart-rate + EDA stress sensors, haptic motors, coolant lines, micro pumps</td></tr>
+<tr><td>2</td><td>Pressure bladder</td><td class="m">Urethane; holds suit pressure</td></tr>
+<tr><td>3</td><td>Restraint layer</td><td class="m">Polyester; keeps the bladder's shape</td></tr>
+<tr><td>4</td><td>Insulation</td><td class="m">Aluminized Mylar; thermal protection</td></tr>
+<tr><td>5</td><td>Outer layer + hardware</td><td class="m">Outer fabric, silicone grip, carbon knuckle guard, titanium wrist disconnect, LUNA core</td></tr>
+</table>
+
+<h2>Files</h2>
+<div class="row">
+  <a class="btn" href="../../Models/LUNA-X_Glove/LUNA-X_Wellness_Glove.blend" download>⬇ Blender file (.blend)</a>
+  <a class="btn s" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/Models/LUNA-X_Glove/scripts">Build scripts</a>
+  <a class="btn s" href="media/LUNA-X_Glove_Showcase.mp4" download>Download showcase video</a>
+  <a class="btn s" href="media/LUNA-X_Glove_Layers.mp4" download>Download layer video</a>
+</div>
+
+<footer>LUNA-X Adaptive Wellness Glove · part of the Lunar Smart Adaptive Habitat (NASA HUNCH). © Jaineil R., with credit to Angel C. and Farhan K.</footer>
+</div>
+<script>
+const v=document.getElementById('show');
+document.querySelectorAll('#chapters button').forEach(b=>b.addEventListener('click',()=>{v.currentTime=+b.dataset.t;v.play();v.scrollIntoView({behavior:'smooth',block:'center'});}));
+</script>
+</body></html>
