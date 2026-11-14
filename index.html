@@ -470,6 +470,18 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
 #brochure:target,.brochure.flash{animation:brFlash 1.6s ease-out 2}
 @keyframes brFlash{0%{transform:scale(1)}30%{transform:scale(1.015);box-shadow:0 0 70px rgba(255,201,77,.6)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.brochure::before,#brochure:target{animation:none}}
+
+/* brick sets block in #mission */
+.bricks-wrap{display:block!important;margin-top:22px}
+.bricks{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:center;padding:26px;border-radius:18px;border:2px solid rgba(56,189,248,.7)!important;box-shadow:0 0 0 1px rgba(56,189,248,.2),0 0 38px rgba(56,189,248,.2)!important}
+.bricks h2{font-size:30px;margin:6px 0 10px;color:#9fe0ff}.bricks p{color:#c9d3e8;line-height:1.55;max-width:46ch}
+.bk-boxes{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:auto auto;gap:10px;text-decoration:none}
+.bk-boxes img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.45);transition:transform .25s}
+.bk-boxes img:first-child{grid-row:1 / span 2;aspect-ratio:auto;height:100%;min-height:0}
+.bk-boxes:hover img{transform:translateY(-3px)}
+#bricks:target{animation:brFlash 1.6s ease-out 2}
+@media(max-width:900px){.bricks{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.bk-boxes img{transition:none}#bricks:target{animation:none}}
 </style>
 </head>
 <body>
@@ -569,6 +581,24 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
       <a class="br-pages" href="Docs/Brochure/Project_ARES_Brochure.pdf" target="_blank" rel="noopener" aria-label="Open the brochure PDF">
         <img src="Docs/Brochure/preview-1.jpg" alt="Brochure outside: front cover with the LUNA-X suit, how we built it, and our games and team" loading="lazy">
         <img src="Docs/Brochure/preview-2.jpg" alt="Brochure inside: the problem, the AI and its rules, and the LUNA-X wearables" loading="lazy">
+      </a>
+    </div>
+  </div>
+  <div class="wrap bricks-wrap">
+    <div class="glass bricks reveal" id="bricks">
+      <div class="br-text">
+        <div class="kicker"><span class="new-tag">NEW</span> Brick Series · 20 sets · 168,660 pieces</div>
+        <h2>Our habitats, brick by brick</h2>
+        <p>Every habitat we designed, rebuilt from standard bricks and plates: the sci-fi base, the concept habitats, Moon Base Final, the LUNA VR rooms and the LUNA-X wearables. Each set has box art, a parts list with real part numbers, a bag-by-bag building guide and its own Blender file.</p>
+        <div class="cta" style="margin-top:14px">
+          <a class="btn go" href="https://jaigod.github.io/lunar-brick-sets/"><span class="ar">▶</span> Open the brick sets</a>
+          <a class="btn" href="https://jaigod.github.io/lunar-brick-sets/sets/ls-100/instructions.pdf" target="_blank" rel="noopener">📘 Lunar Kingdom instructions</a>
+        </div>
+      </div>
+      <a class="bk-boxes" href="https://jaigod.github.io/lunar-brick-sets/" aria-label="Open the brick sets site">
+        <img src="https://jaigod.github.io/lunar-brick-sets/sets/ls-100/box_front.jpg" alt="Box art: Lunar Kingdom, the sci-fi base" loading="lazy" width="1600" height="1200">
+        <img src="https://jaigod.github.io/lunar-brick-sets/sets/ls-301/thumb.jpg" alt="Box art: Moon Base Final" loading="lazy" width="800" height="600">
+        <img src="https://jaigod.github.io/lunar-brick-sets/sets/ls-501/thumb.jpg" alt="Box art: LUNA-X Smart Suit" loading="lazy" width="800" height="600">
       </a>
     </div>
   </div>
