@@ -41,7 +41,7 @@ for n, h in [("white", "F4F4F4"), ("lgrey", "A0A5A9"), ("dgrey", "6C6E68"), ("bl
              ("bgreen", "4B9F4A"), ("tan", "E4CD9E"), ("dtan", "958A73"), ("brown", "583927"), ("ground", "5A5D5A"),
              ("regolith", "7A7466")]:
     mat(n, h)
-mat("t_clear", "EEEEEE", trans=True, alpha=0.28); mat("t_lblue", "AEEFEC", trans=True, alpha=0.5)
+mat("t_clear", "CFE8F4", trans=True, alpha=0.16); mat("t_lblue", "AEEFEC", trans=True, alpha=0.5)
 mat("t_blue", "0A5CC8", trans=True, alpha=0.55); mat("t_red", "E02020", trans=True, emit=3.0, alpha=0.7)
 mat("t_green", "4BD45B", trans=True, emit=2.0, alpha=0.7); mat("t_yellow", "F7D117", trans=True, emit=2.0, alpha=0.7)
 mat("screen", "3CC8FF", emit=2.5); mat("grow", "D060C0", emit=0.0); mat("water", "4FB8FF", trans=True, emit=0.6, alpha=0.75)
@@ -205,7 +205,7 @@ def dome(mod, cname, cx, cy, R, z0, frame_col="white"):
         n = max(6, int(round(TAU * rr / 2))); mbt = MB(); mbf = MB()
         for i in range(n):
             a = TAU * (i + 0.5 * (k % 2)) / n
-            rib = (k % 3 == 0) or (i % max(1, n // 6) == 0)
+            rib = (k % 4 == 0) or (i % max(1, n // 4) == 0)
             (mbf if rib else mbt).brick(cx + rr * math.cos(a), cy + rr * math.sin(a), z0 + k * BH, 2, 1, BH, a + math.pi / 2, studs=False)
         for mb, col, tag in ((mbt, "t_clear", "Glass"), (mbf, frame_col, "Frame")):
             ob = make(mb, f"{mod}_Dome{tag}_C{k}", col, cname)
@@ -536,9 +536,9 @@ try:
     w = bpy.data.worlds.new("Space"); sc.world = w; w.use_nodes = True; nt = w.node_tree; N = nt.nodes
     bg = N["Background"]; tc = N.new("ShaderNodeTexCoord"); vor = N.new("ShaderNodeTexVoronoi"); vor.inputs["Scale"].default_value = 260
     ramp = N.new("ShaderNodeValToRGB"); ramp.color_ramp.elements[0].position = 0.0; ramp.color_ramp.elements[0].color = (1, 1, 1, 1)
-    ramp.color_ramp.elements[1].position = 0.035; ramp.color_ramp.elements[1].color = (0.004, 0.006, 0.014, 1)
+    ramp.color_ramp.elements[1].position = 0.03; ramp.color_ramp.elements[1].color = (0.0012, 0.0018, 0.0045, 1)
     nt.links.new(tc.outputs["Generated"], vor.inputs["Vector"]); nt.links.new(vor.outputs["Distance"], ramp.inputs["Fac"]); nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
-    bg.inputs["Strength"].default_value = 1.0
+    bg.inputs["Strength"].default_value = 3.5
     log("earth+world")
 
     # ============================================================ CAMERAS (website showcase)
@@ -550,9 +550,9 @@ try:
         c = co.constraints.new('TRACK_TO'); c.target = t; c.track_axis = 'TRACK_NEGATIVE_Z'; c.up_axis = 'UP_Y'; TG[name] = t
         return co
     CAMS = {"hero": cam("Cam_1_Hero_Homepage", (95, -125, 85), (2, -4, 0), 35),
-            "rad": cam("Cam_2_Radiation_Closeup", (98, -34, 42), (72, 0, 6), 45),
+            "rad": cam("Cam_2_Radiation_Closeup", (114, -60, 64), (70, 2, 8), 35),
             "water": cam("Cam_3_Water_Systems", (30, -108, 52), (0, -66, 6), 40),
-            "green": cam("Cam_4_Greenhouse_Overview", (0, -8, 105), (0, 42, 0), 38),
+            "green": cam("Cam_4_Greenhouse_Overview", (0, 4, 150), (0, 40, 0), 26),
             "cross": cam("Cam_5_Cross_Section", (-60, -110, 120), (0, -8, 0), 32),
             "explode": cam("Cam_6_Exploded_View", (120, -150, 150), (0, -4, 10), 30),
             "trailer": cam("Cam_7_Trailer_Cinematic", (0, -150, 30), (0, 0, 10), 32)}
