@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Project ARES · Lunar Smart Adaptive Habitat · Tri-fold brochure</title>
+<style>
+@page{size:11in 8.5in;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#060B1E;--deep:#0B1638;--cyan:#38BDF8;--gold:#F5B942;--orange:#FB923C;--white:#EEF4FF;--mut:#A9B7D6;--line:rgba(56,189,248,.35)}
+body{font-family:Inter,'DejaVu Sans',sans-serif;color:var(--white);background:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sheet{width:11in;height:8.5in;display:grid;grid-template-columns:repeat(3,1fr);background:url(starfield.svg) center/cover no-repeat,radial-gradient(60% 50% at 75% 20%,rgba(109,40,217,.22),transparent 70%),radial-gradient(50% 45% at 15% 85%,rgba(11,61,145,.35),transparent 70%),var(--navy);page-break-after:always;overflow:hidden}
+.panel{position:relative;padding:.38in .34in;display:flex;flex-direction:column;gap:.11in;overflow:hidden}
+.panel+.panel{border-left:1px dashed rgba(255,255,255,.07)}
+.kick{font:600 7.5pt/1 'Inter Display',Inter;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan)}
+h1{font:800 30pt/1.02 'Inter Display',Inter;letter-spacing:-.01em}
+h2{font:800 16.5pt/1.1 'Inter Display',Inter;letter-spacing:-.005em}
+h3{font:700 9.5pt/1.25 Inter;color:var(--white)}
+p,li{font-size:8.6pt;line-height:1.45;color:var(--mut)}
+b{color:var(--white);font-weight:600}
+img{display:block;width:100%;object-fit:cover;border-radius:6px}
+.rule{height:2px;width:.55in;background:linear-gradient(90deg,var(--cyan),var(--orange));border-radius:2px}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:8.2pt;line-height:1.35}
+.facts dt{color:var(--cyan);font-weight:600}.facts dd{color:var(--mut)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat{background:rgba(56,189,248,.08);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.stat .n{font:800 15pt/1 'Inter Display',Inter;color:var(--white)}.stat .l{font-size:7pt;line-height:1.3;color:var(--mut);margin-top:3px}
+.tiers{display:flex;flex-direction:column;gap:5px}
+.tier{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start}
+.tier .d{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:800 9pt Inter;color:var(--navy)}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.wear{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:7px;overflow:hidden}
+.wear img{height:.95in;border-radius:0}.wear div{padding:5px 7px 6px}.wear h3{font-size:8.4pt}.wear p{font-size:7.2pt;line-height:1.32}
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:6px}
+.steps li{list-style:none;counter-increment:s;display:grid;grid-template-columns:18px 1fr;gap:7px}
+.steps li::before{content:counter(s);width:18px;height:18px;border-radius:50%;border:1px solid var(--cyan);color:var(--cyan);font:700 7.5pt/16px Inter;text-align:center}
+.tag{display:inline-block;font:600 7pt Inter;padding:2px 7px;border-radius:99px;border:1px solid var(--line);color:var(--cyan);margin:0 3px 3px 0}
+/* cover */
+.cover{padding:0}
+.cover .img{position:absolute;inset:0}
+.cover .img img{height:100%;border-radius:0;object-position:22% 50%}
+.cover .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,11,30,0) 0%,rgba(6,11,30,0) 70%,rgba(6,11,30,.9) 86%)}
+.cover .top,.cover .bot{position:absolute;left:.34in;right:.34in}
+.cover .top{top:.38in}.cover .bot{bottom:.36in}
+.quote{border-left:2px solid var(--orange);padding-left:9px;font-size:8.4pt;font-style:italic;color:var(--white)}
+.team{display:flex;gap:8px}
+.av{flex:1;background:rgba(56,189,248,.07);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center}
+.av .c{width:34px;height:34px;margin:0 auto 5px;border-radius:50%;background:linear-gradient(135deg,#0B3D91,#6D28D9);display:grid;place-items:center;font:800 10pt Inter;color:#fff}
+.av .nm{font:700 8.4pt Inter}.av .rl{font-size:6.8pt;color:var(--mut)}
+.url{font:700 8.4pt Inter;color:var(--cyan);word-break:break-all}
+.small{font-size:7.2pt;color:#7f8db0}
+.foot{margin-top:auto}
+.cover .suit{position:absolute;left:50%;transform:translateX(-50%);top:2.05in;height:4.75in;width:auto;border-radius:0;filter:drop-shadow(0 0 18px rgba(56,189,248,.25))}
+.cover .glow{position:absolute;left:10%;right:10%;top:2.6in;height:4in;background:radial-gradient(closest-side,rgba(56,189,248,.18),rgba(109,40,217,.10) 55%,transparent 75%)}
+</style></head><body>
+
+<!-- ============ OUTSIDE: inside flap | back | front cover ============ -->
+<section class="sheet">
+  <div class="panel">
+    <div class="kick">How we built it</div>
+    <h2>We Didn't Stop at Drawings</h2>
+    <div class="rule"></div>
+    <p>Every idea went through paper, a 3D model, a printed model and a playable game. Whenever a test showed us a problem, we changed the design.</p>
+    <ol class="steps">
+      <li><p><b>Research.</b> We broke the Project ARES brief into six problems: anxiety, low mood, conflict, fatigue, losing control of your day, and monotony. Every room got a job against one of them.</p></li>
+      <li><p><b>Sketch.</b> Shared core first, then the modules, then the tunnels, laid out at true scale.</p></li>
+      <li><p><b>Model.</b> The whole base built in Blender with full interiors, so we could check that people actually fit.</p></li>
+      <li><p><b>Print.</b> A 1:150 3D-printed kit showed what a screen hides.</p></li>
+      <li><p><b>Prototype.</b> A hand-wired mood tracker: one press rates your mood 1–5, and it checks in on its own after a minute of no activity.</p></li>
+      <li><p><b>Play.</b> We made playable games, including VR, and ran 70 simulated missions to test the AI before anyone lives with it.</p></li>
+    </ol>
+    <img src="../LUNA_VR/04_greenhouse.jpg" style="height:1.25in" alt="">
+    <p class="small">LUNA VR (Godot 4): tending the greenhouse racks on day 1 of a crew shift.</p>
+    <div class="foot"><span class="tag">Unity</span><span class="tag">Godot 4</span><span class="tag">Blender</span><span class="tag">3D printing</span><span class="tag">Meta Quest VR</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="kick">Step inside</div>
+    <h2>Play It, Download It, Hold It</h2>
+    <div class="rule"></div>
+    <p><b>Simulator 1:</b> walk the full-size base in lunar gravity while the AI reads 9 sensors.</p>
+    <p><b>Lunar Habitat Commander:</b> run the base through solar storms and the lunar night.</p>
+    <p><b>LUNA (2D):</b> you are the AI. Keep four crew well for 90 days using only sensor estimates.</p>
+    <p><b>LUNA VR:</b> be the Commander. The smart bed wakes you, then come the Wellness Dock, the EVA checks and a call home.</p>
+    <img src="../LUNA_VR/05_ops.jpg" style="height:1.15in" alt="">
+    <div class="kick" style="margin-top:4px">The team</div>
+    <div class="team">
+      <div class="av"><div class="c">JR</div><div class="nm">Jaineil R.</div><div class="rl">Design · 3D · games</div></div>
+      <div class="av"><div class="c">AC</div><div class="nm">Angel C.</div><div class="rl">Team member</div></div>
+      <div class="av"><div class="c">FK</div><div class="nm">Farhan K.</div><div class="rl">Team member</div></div>
+    </div>
+    <img src="../LUNA_VR/15_outside_hab.jpg" style="height:1.05in;margin-top:4px" alt="">
+    <div class="foot">
+      <p>Every game, model, paper and download is on our website:</p>
+      <div class="url">jaigod.github.io/LunarSmartAdaptiveHabitat</div>
+      <p class="small" style="margin-top:6px">NASA HUNCH · Project ARES student design project. Renders are our own Blender and in-game captures.</p>
+    </div>
+  </div>
+
+  <div class="panel cover">
+    <div class="glow"></div>
+    <img class="suit" src="suit_cover.png" alt="LUNA-X smart EVA suit">
+    <div class="top">
+      <div class="kick">NASA HUNCH · Project ARES</div>
+      <h1 style="margin-top:10px">Creating a Home on the Moon</h1>
+    </div>
+    <div class="bot">
+      <div class="rule" style="margin-bottom:8px"></div>
+      <p style="color:var(--white);font-size:9.6pt;line-height:1.4"><b>Lunar Smart Adaptive Habitat</b>: a home for four astronauts, and an AI that notices when someone is struggling and offers help they are free to turn down.</p>
+      <p class="small" style="margin-top:8px">Pictured: the LUNA-X smart EVA suit · Jaineil R. · Angel C. · Farhan K.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INSIDE: three panels ============ -->
+<section class="sheet">
+  <div class="panel">
+    <div class="kick">The problem we picked</div>
+    <h2>Caring for the People Who Live on the Moon</h2>
+    <div class="rule"></div>
+    <p>Long stays on the Moon are hard on people, not just machines. Isolation, poor sleep, cramped rooms and the same faces every day wear crews down. NASA's Human Research Program counts behavioral health among the risks of long missions.</p>
+    <img src="../../3D_Print_Kits/images/project3_finished_model.png" style="height:1.45in;object-position:50% 62%" alt="">
+    <dl class="facts">
+      <dt>Site</dt><dd>Rim of Shackleton crater, 89.9° S: near-constant sunlight, water ice in the shadows below</dd>
+      <dt>Crew</dt><dd>4 people, 90 days</dd>
+      <dt>Layout</dt><dd>10.2 m shared core for work, meals and exercise; four private crew quarters; command, greenhouse, medical + storm shelter, airlock</dd>
+      <dt>Space</dt><dd>About 185 m³ of private space each</dd>
+    </dl>
+    <img src="../../Models/Lunar_Habitat_v1/renders/02_cutaway_lower_deck.png" style="height:1.45in;object-position:50% 55%" alt=""><p class="small">Blender cutaway: airlock, hygiene, medical, life support, logistics and the science lab around the core.</p><p class="foot quote">A shared core to live in, and a private space that is truly yours.</p>
+  </div>
+
+  <div class="panel">
+    <div class="kick">The habitat's AI</div>
+    <h2>Help They Are Free to Turn Down</h2>
+    <div class="rule"></div>
+    <p>The AI reads simple signals (sleep, heart rate, how often people meet) and watches for six conditions: <b>anxiety, low mood, conflict, fatigue, loss of autonomy and monotony</b>. It answers in small steps:</p>
+    <div class="tiers">
+      <div class="tier"><span class="d" style="background:#34D399">1</span><p><b>Silent.</b> It quietly changes the light or sound in the room.</p></div>
+      <div class="tier"><span class="d" style="background:#FBBF24">2</span><p><b>An offer.</b> It suggests a break, a call home or greenhouse time. A "no" starts a cool-down.</p></div>
+      <div class="tier"><span class="d" style="background:#FB923C">3</span><p><b>A human.</b> Only when something is serious does it bring in the Chief Medical Officer, and it always tells the person first.</p></div>
+    </div>
+    <p><b>8 rules it can never break.</b> There are no cameras or microphones where people sleep, a "no" always stops the AI, and humans make the decisions.</p>
+    <div class="kick" style="margin-top:2px">What our tests showed</div>
+    <div class="stats">
+      <div class="stat"><div class="n">70</div><div class="l">simulated missions (189 crew-weeks)</div></div>
+      <div class="stat"><div class="n">60/60</div><div class="l">problems caught</div></div>
+      <div class="stat"><div class="n">0.02</div><div class="l">unwanted offers per person per week</div></div>
+      <div class="stat"><div class="n">200/200</div><div class="l">self-assessed rubric score, +20/20 bonus</div></div>
+    </div>
+    <img class="foot" src="../LUNA_VR/02_kiosk.jpg" style="height:1.3in;object-position:50% 45%" alt=""><p class="small">LUNA VR: the mood check-in kiosk outside the crew quarters, where each astronaut rates how they feel.</p>
+  </div>
+
+  <div class="panel">
+    <div class="kick">LUNA-X wearables</div>
+    <h2>The AI Goes Where the Crew Goes</h2>
+    <div class="rule"></div>
+    <p>LUNA-X carries the habitat's wellness AI outside the walls, so someone is watching for fatigue, stress and danger even when nobody says a word.</p>
+    <div class="grid4">
+      <div class="wear"><img src="../../luna-x/helmet/img/03_HUD_closeup.jpg" alt=""><div><h3>Cognitive Helmet</h3><p>Eye tracking, a calm HUD, and an automatic crew alert after a fall.</p></div></div>
+      <div class="wear"><img src="../../luna-x/glove/img/glove_hero.jpg" alt=""><div><h3>Wellness Glove</h3><p>Grip and tremor sensing, plant scans, gesture control.</p></div></div>
+      <div class="wear"><img src="../../luna-x/boot/img/boot_hero.jpg" style="object-position:50% 60%" alt=""><div><h3>Mobility Boot</h3><p>Smart sole reads gait and balance; path lights guide you home.</p></div></div>
+      <div class="wear"><img src="../../luna-x/habitat-uniform/img/LHC_01_hero_front.jpg" style="object-position:50% 30%" alt=""><div><h3>Crew Uniform</h3><p>Everyday habitat wear with a chest module and a sleeve tablet.</p></div></div>
+    </div>
+    <img src="../../luna-x/helmet/img/07_exploded_layers.jpg" style="height:1.35in;object-position:50% 45%" alt=""><p class="small">Helmet layers: gold sun visor, smart-glass visor, ceramic shell, shock liner, neck ring.</p><p class="quote foot">Every step our astronauts take depends on keeping the people taking them safe and well.</p>
+  </div>
+</section>
+</body></html>
