@@ -28,15 +28,16 @@ const SYSTEMS = [
   ['agri', '🌱', 'Agriculture'], ['power', '⚡', 'Power'], ['comms', '📡', 'Comms'], ['ops', '⌂', 'Habitat ops'],
   ['eva', '👣', 'EVA & mobility'], ['sus', '♻', 'Sustainability'], ['science', '🔬', 'Science'],
 ];
-const FAMILY = [
+const FAMILY0 = [
   { id: 'helmet', name: 'Cognitive Helmet', href: '../helmet/', blurb: 'AI, vision, comms, crew safety' },
   { id: 'glove', name: 'Wellness Glove', href: '../glove/', blurb: 'Vitals, plant scans, gestures' },
   { id: 'boot', name: 'Mobility Boot', href: '../boot/', blurb: 'Gait, balance, dust defense' },
   { id: 'suit', name: 'Smart Suit', href: '../suit/', blurb: 'Full EVA suit, XCore hub' },
   { id: 'uniform', name: 'Habitat Uniform', href: '../../habitat-uniform/', blurb: 'Everyday indoor flight suit' },
 ];
+const FAMILY = C.family || FAMILY0;
 // comparison rows (concept design targets, not flight hardware)
-const CMP = {
+const CMP = C.cmp || {
   rows: ['Role', 'Worn', 'Main sensors', 'AI on board', 'Light language', 'Power (design target)', 'Mass (design target)', 'Links to habitat'],
   helmet: ['See, hear and think for the crew', 'EVA + habitat', 'Eye tracking, LiDAR, dust, air, radiation, surface IR', 'Fatigue + stress model, fall detection', '9-colour ring: meeting, O2, sleep, alert', '~12 W avg', '~4.8 kg', 'Comms relay, LUNA AI, wellness log'],
   glove: ['Hands-on work and vitals', 'EVA (in pressure glove) + habitat', 'Grip force, tremor, skin temp, IR material scan', 'Gesture + fatigue detection', '6-state fingertip protocol', '~3 W avg', '~0.9 kg pair', 'Greenhouse data, wrist display, alerts'],
@@ -76,9 +77,9 @@ function buildDOM() {
   <section id="habitat" class="reveal"><div class="kick">Habitat ecosystem</div><h2 class="sec">How It Connects to the Base</h2>
     <p class="sub">The ${esc(C.short)} never works alone. Bright nodes are habitat systems it talks to. Click any node to see what flows between them.</p>
     <div class="sysw"><svg viewBox="0 0 560 560" id="sysd" aria-label="Habitat systems diagram"></svg><div id="sysinfo"></div></div></section>
-  <section id="compare" class="reveal"><div class="kick">Comparison view</div><h2 class="sec">The LUNA-X Family Side by Side</h2>
+  <section id="compare" class="reveal"><div class="kick">Comparison view</div><h2 class="sec">${esc(C.cmpTitle || 'The LUNA-X Family Side by Side')}</h2>
     <p class="sub">How this exhibit compares with the rest of the wearable system. Values are concept design targets.</p>
-    <div class="cmp-toggle"><button class="btn sq on" data-cmp="all" type="button">All five</button><button class="btn sq" data-cmp="eva" type="button">EVA gear only</button><button class="btn sq" data-cmp="hab" type="button">Habitat wear</button></div>
+    <div class="cmp-toggle">${(C.cmpTabs || [['all', 'All'], ['eva', 'EVA gear only'], ['hab', 'Habitat wear']]).map(([k, l], i) => `<button class="btn sq${i ? '' : ' on'}" data-cmp="${k}" type="button">${esc(l)}</button>`).join('')}</div>
     <div class="cmp-wrap"><table class="cmp" id="cmpt"></table></div></section>
   <section id="media" class="reveal"><div class="kick">Renders & animation</div><h2 class="sec">Up Close</h2><p class="sub">Rendered in Blender. Click any picture to see it full size.</p>
     <div class="gal">${(C.gallery || []).map(([s, c]) => `<figure><img loading="lazy" src="${s}" alt="${esc(c)}"><figcaption>${esc(c)}</figcaption></figure>`).join('')}</div>
@@ -434,7 +435,8 @@ function selSys(k) {
 }
 drawSys(); selSys(Object.keys(C.systems || { health: 1 })[0]);
 function drawCmp(filter = 'all') {
-  const ids = FAMILY.map((f) => f.id).filter((id) => filter === 'all' || (filter === 'eva' ? ['helmet', 'glove', 'boot', 'suit'].includes(id) : ['uniform', 'glove', 'helmet'].includes(id)) || id === C.id);
+  const grp = C.cmpGroups || { eva: ['helmet', 'glove', 'boot', 'suit'], hab: ['uniform', 'glove', 'helmet'] };
+  const ids = FAMILY.map((f) => f.id).filter((id) => CMP[id] && (filter === 'all' || (grp[filter] || []).includes(id) || id === C.id));
   $('#cmpt').innerHTML = `<thead><tr><th></th>${ids.map((id) => { const f = FAMILY.find((x) => x.id === id); return `<th class="${id === C.id ? 'me' : ''}">${id === C.id ? esc(f.name) + ' ●' : `<a href="${f.href}">${esc(f.name)} ↗</a>`}</th>`; }).join('')}</tr></thead>
     <tbody>${CMP.rows.map((r, i) => `<tr><th>${r}</th>${ids.map((id) => `<td class="${id === C.id ? 'me' : ''}">${esc(CMP[id][i])}</td>`).join('')}</tr>`).join('')}</tbody>`;
 }
