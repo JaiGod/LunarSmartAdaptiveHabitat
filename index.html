@@ -420,6 +420,20 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
 @media (max-width:900px){.pgrid{grid-template-columns:1fr}}
 @media (max-width:600px){.process{grid-template-columns:repeat(2,minmax(0,1fr))}.patchcard{grid-template-columns:1fr}.patch{margin:0 auto}.ideas{grid-template-columns:1fr}.facts div{grid-template-columns:96px minmax(0,1fr)}}
 @media (max-width:1380px){nav a{padding:11px 14px}}
+
+.slides-btn{background:linear-gradient(135deg,#f59e0b,#ec4899)!important;border-color:transparent!important;color:#fff!important;font-weight:700;box-shadow:0 0 24px rgba(236,72,153,.45)}
+.slides-banner{position:relative;display:flex;align-items:center;gap:22px;padding:26px 30px;border-radius:22px;overflow:hidden;text-decoration:none;color:#fff;
+  background:linear-gradient(120deg,rgba(245,158,11,.22),rgba(236,72,153,.22) 45%,rgba(56,189,248,.18));border:1px solid rgba(255,200,120,.55);box-shadow:0 0 40px rgba(236,72,153,.25);transition:transform .3s,box-shadow .3s}
+.slides-banner:hover{transform:translateY(-3px) scale(1.005);box-shadow:0 0 60px rgba(236,72,153,.45)}
+.slides-banner .sb-glow{position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent,rgba(255,214,110,.25),transparent 30%);animation:sbspin 6s linear infinite;pointer-events:none}
+@keyframes sbspin{to{transform:rotate(360deg)}}
+.slides-banner .sb-ic{position:relative;font-size:56px;filter:drop-shadow(0 0 14px rgba(255,200,120,.7))}
+.slides-banner .sb-txt{position:relative;display:flex;flex-direction:column;gap:4px;flex:1}
+.slides-banner .sb-k{font:600 12px var(--mono,monospace);letter-spacing:.2em;text-transform:uppercase;color:#ffd78a}
+.slides-banner .sb-t{font:800 clamp(24px,3.4vw,40px)/1.05 var(--hd,system-ui)}
+.slides-banner .sb-s{color:#e6ecfa;font-size:15px}
+.slides-banner .sb-go{position:relative;font-weight:800;padding:14px 22px;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#ec4899);white-space:nowrap;box-shadow:0 0 20px rgba(236,72,153,.5)}
+@media(max-width:700px){.slides-banner{flex-direction:column;align-items:flex-start;padding:20px}.slides-banner .sb-ic{font-size:40px}}
 </style>
 </head>
 <body>
@@ -460,7 +474,7 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
   <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">≡</button>
   <nav id="nav">
     <a href="#mission">Home</a><a href="#profile">Our project</a><a href="#descent">Descent</a><a href="#eva">Spacewalk</a><a href="#telemetry">Results</a><a href="#games">Games</a>
-    <a href="#papers">Papers</a><a href="#models">3D designs</a><a href="models.html" target="_blank" rel="noopener">3D library ↗</a><a href="#floorplan">Floor plan</a><a href="#gallery">Gallery</a><a href="#exhibition">◉ 3D Exhibition</a><a href="luna-x/">LUNA-X wearables</a><a href="companion/">Luna companion</a>
+    <a href="#presentation">Slides</a><a href="#papers">Papers</a><a href="#models">3D designs</a><a href="models.html" target="_blank" rel="noopener">3D library ↗</a><a href="#floorplan">Floor plan</a><a href="#gallery">Gallery</a><a href="#exhibition">◉ 3D Exhibition</a><a href="luna-x/">LUNA-X wearables</a><a href="companion/">Luna companion</a>
   </nav>
 </header>
 
@@ -473,6 +487,7 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
       <h1><span class="l">Lunar Smart</span><span class="l">Adaptive</span><span class="l r">Habitat</span></h1>
       <div class="typed" id="typed" data-text="We designed a home on the Moon for four astronauts, and an AI that notices when someone is struggling and offers help they are free to turn down. We sketched it, modeled it, 3D-printed it and turned it into games you can play right here, one of them in VR."><span id="tt"></span><span class="cur"></span></div>
       <div class="cta">
+        <a class="btn slides-btn" href="https://www.canva.com/design/DAHap5mo0bk/llF4zDK1fMKFc2njB36gWw/view" target="_blank" rel="noopener">🎞 Watch our presentation</a>
         <a class="btn go" href="play/"><span class="ar">▶</span> Launch Simulator 1</a>
         <a class="btn red" href="play2/"><span class="ar">▶</span> Launch Simulator 2</a>
         <a class="btn go" href="luna/"><span class="ar">▶</span> LUNA (2D)</a>
@@ -504,6 +519,18 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
     </div>
   </div>
 </section>
+<!-- ================= PRESENTATION ================= -->
+<section id="presentation" style="padding-top:10px">
+  <div class="wrap">
+    <a class="slides-banner reveal" href="https://www.canva.com/design/DAHap5mo0bk/llF4zDK1fMKFc2njB36gWw/view" target="_blank" rel="noopener">
+      <span class="sb-glow"></span>
+      <span class="sb-ic">🎞</span>
+      <span class="sb-txt"><span class="sb-k">Project ARES · our presentation · 35 slides</span><span class="sb-t">Watch the Full Slideshow</span><span class="sb-s">The habitat, the AI, the LUNA-X wearables, the Smart Suit and the Habitat Uniform, slide by slide on Canva.</span></span>
+      <span class="sb-go">Open slides ↗</span>
+    </a>
+  </div>
+</section>
+
 
 
 <!-- ================= PROJECT PROFILE ================= -->
