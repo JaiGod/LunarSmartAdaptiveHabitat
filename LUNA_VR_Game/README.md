@@ -59,7 +59,7 @@ Realism comes first. Anything that looked good but had no engineering job was re
 - its resource cost (power, water, mass, consumables)
 - its honest limits
 
-The prompt shows the resource line. Press **X** for the full card. This follows the brief's §7 rule that every sensor and actuator must be justified in mass, power and mission value.
+The prompt shows the resource line. Press **X** for the info card: job, uses, care, limit, all in short plain words. This follows the brief's §7 rule that every sensor and actuator must be justified in mass, power and mission value.
 
 - **No dust storms.** The Moon has no weather. Dust comes from lander plumes, rover traffic, EVA boots and electrostatic lofting at the terminator.
 - **E-readers, not paper books.** Each one is 0.3 kg, and every kilogram costs about $1M to land.
