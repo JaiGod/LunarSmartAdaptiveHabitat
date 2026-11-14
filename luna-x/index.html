@@ -48,6 +48,7 @@ h2{font:700 clamp(22px,3vw,32px) var(--hd);margin-bottom:6px}
 .chip{font:600 12px var(--mono);padding:6px 12px;border-radius:999px;border:1px solid currentColor}
 .btns{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 22px}
 .btn{font:600 14px var(--bd);padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:rgba(56,189,248,.08)}
+.card.dl{display:flex;flex-direction:column;gap:6px}.card.dl .btn{margin-top:auto;text-align:center}
 .btn:hover{border-color:var(--cyan)}
 #lb{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;place-items:center;z-index:50;cursor:zoom-out;padding:3vw}
 #lb.on{display:grid}#lb img{max-height:90vh;border-radius:10px}
@@ -57,7 +58,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:30px;border-top
 <body>
 <nav>
   <a class="brand" href="../">← PROJECT ARES</a>
-  <a href="#day">A day on the Moon</a><a href="#helmet">Helmet</a><a href="#glove">Glove</a><a href="#boot">Boot</a>
+  <a href="#day">A day on the Moon</a><a href="#helmet">Helmet</a><a href="#glove">Glove</a><a href="#boot">Boot</a><a href="#downloads">⬇ Downloads</a>
 <a href="suit-habitat-aegis.html">Smart Suit · Habitat modules · AEGIS ↗</a></nav>
 <main>
   <div class="hero">
@@ -88,6 +89,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:30px;border-top
     <div class="kick">01 · LUNA-X Adaptive Cognitive Helmet</div>
     <h2>A Second Set of Eyes on Every Mission</h2>
     <p class="sub">When an astronaut is tired, stressed or in trouble, they are often the last to notice. The helmet watches their eyes, breathing and surroundings, warns them gently before small problems become big ones, and calls the crew automatically if something goes wrong.</p>
+    <div class="btns"><a class="btn" href="downloads/LUNA-X_Helmet_Package.zip" download>⬇ Download helmet package (19 MB)</a><a class="btn" href="#downloads">All downloads</a></div>
     <div class="vid"><video controls preload="metadata" poster="helmet/img/poster.jpg" src="helmet/LUNA-X_Helmet_Living_AI.mp4"></video></div>
     <div class="modes">
       <span class="chip" style="color:#22D3EE">Startup · AI scan</span><span class="chip" style="color:#34D399">Normal</span>
@@ -130,6 +132,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:30px;border-top
     <h2>Precision When Every Movement Matters</h2>
     <p class="sub">Designed to help astronauts work with precision while protecting their hands during long lunar missions. An AI-integrated glove for health monitoring and interaction. It watches the hand itself (tremor, grip force, fatigue), scans plants and materials, talks through a 6-state light protocol and haptics, and takes gesture commands. The sensor liner is worn alone inside the habitat and inside the pressure glove on moonwalks.</p>
     <div class="btns"><a class="btn" href="glove/">Full glove page: chapters, light protocol, layers →</a><a class="btn" href="glove/media/LUNA-X_Glove_Layers.mp4">Layer breakdown video</a><a class="btn" href="../Models/LUNA-X_Glove/LUNA-X_Wellness_Glove.blend" download>⬇ Blender file</a></div>
+    <div class="btns"><a class="btn" href="downloads/LUNA-X_Glove_Package.zip" download>⬇ Download glove package (35 MB)</a><a class="btn" href="#downloads">All downloads</a></div>
     <div class="vid"><video controls preload="metadata" poster="glove/media/startup.jpg" src="glove/media/LUNA-X_Glove_Showcase.mp4"></video></div>
     <div class="gal">
       <figure><img loading="lazy" src="glove/media/startup.jpg" alt=""><figcaption>Power on: fingertips light one by one, finger calibration</figcaption></figure>
@@ -151,6 +154,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:30px;border-top
     <div class="kick">03 · LUNA-X Adaptive Mobility Boot</div>
     <h2>Built for Every Step Beyond Earth</h2>
     <p class="sub">Every step our astronauts take on the Moon depends on footwear that protects them from sharp regolith, extreme cold and the risk of a fall far from help. An AI-assisted mobility platform. A smart-sole sensor array reads gait, balance and fatigue, the shock-absorber system handles impacts, an electrodynamic dust shield protects the boot, and navigation lighting guides the crew home.</p>
+    <div class="btns"><a class="btn" href="downloads/LUNA-X_Boot_Package.zip" download>⬇ Download boot package (6 MB)</a><a class="btn" href="#downloads">All downloads</a></div>
     <div class="vid"><video controls preload="metadata" poster="boot/img/poster.jpg" src="boot/LUNA-X_Boot_Morning_Routine.mp4"></video></div>
     <div class="gal">
       <figure><img loading="lazy" src="boot/img/boot_hero.jpg" alt=""><figcaption>Hero view</figcaption></figure>
@@ -160,6 +164,14 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:30px;border-top
       <figure><img loading="lazy" src="boot/img/boot_anim_check_160.jpg" alt=""><figcaption>Lunar dust detected: dust shield active</figcaption></figure>
       <figure><img loading="lazy" src="boot/img/boot_anim_check_285.jpg" alt=""><figcaption>Mission assigned: path lighting to the habitat</figcaption></figure>
     </div>
+  </section>
+
+
+  <section id="downloads">
+    <div class="kick">Take it with you</div>
+    <h2>Download Every Project</h2>
+    <p class="sub">Every LUNA-X design is free to explore. Each package has the original Blender file, the videos and the renders. Open the .blend in Blender 4.2 or newer.</p>
+    <div class="trio"><a class="card dl" href="downloads/LUNA-X_Helmet_Package.zip" download><h3>🪖 Cognitive Helmet</h3><p>Blender file (baked textures, 80 s living-AI animation), video, 18 renders</p><span class="btn">⬇ Download .zip · 19 MB</span></a><a class="card dl" href="downloads/LUNA-X_Glove_Package.zip" download><h3>🧤 Wellness Glove</h3><p>Blender file, showcase + layers videos, renders</p><span class="btn">⬇ Download .zip · 35 MB</span></a><a class="card dl" href="downloads/LUNA-X_Boot_Package.zip" download><h3>🥾 Mobility Boot</h3><p>Model + animation Blender files, morning-routine video, renders</p><span class="btn">⬇ Download .zip · 6 MB</span></a><a class="card dl" href="downloads/LUNA-X_Smart_Suit_Package.zip" download><h3>🧑‍🚀 Smart Suit</h3><p>Blender file, wellness-story + preview videos, renders</p><span class="btn">⬇ Download .zip · 12 MB</span></a><a class="card dl" href="downloads/LUNA-X_Habitat_Modules_Package.zip" download><h3>🏠 Habitat Modules</h3><p>10 GLB models (airlock, crew pod, greenhouse...), renders</p><span class="btn">⬇ Download .zip · 3 MB</span></a><a class="card dl" href="downloads/AEGIS_Balance_AI_Package.zip" download><h3>⚖️ AEGIS Balance AI</h3><p>Blender file, physics + base videos, renders</p><span class="btn">⬇ Download .zip · 17 MB</span></a></div>
   </section>
 
   <section id="team">
