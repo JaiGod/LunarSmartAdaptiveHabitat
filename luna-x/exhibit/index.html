@@ -68,4 +68,5 @@ h.innerHTML=CATS.map(([id,t,p,cards])=>`<section class="cat reveal" id="${id}"><
 const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('vis')),{threshold:.1});document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
 </script>
 <script src="../../audio/ares-audio.js" data-base="../../audio/" data-default="suit"></script>
+<script src="../../js/cosmos-bg.js" defer></script>
 </body></html>

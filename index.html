@@ -1016,5 +1016,6 @@ const up=()=>{const r=d.getBoundingClientRect(),span=Math.max(1,r.height-innerHe
 if(bar)bar.style.width=(p*100).toFixed(1)+'%';const i=Math.min(caps.length-1,Math.floor(p*caps.length));caps.forEach((c,k)=>c.classList.toggle('on',k===i));};
 addEventListener('scroll',up,{passive:true});addEventListener('resize',up);up();})();</script>
 <script src="audio/ares-audio.js" data-base="audio/" data-default="hero" data-sections='{"mission":"hero","profile":"habitat","telemetry":"habitat","models":"habitat","floorplan":"habitat","gallery":"habitat"}'></script>
+<script src="js/cosmos-bg.js" defer></script>
 </body>
 </html>

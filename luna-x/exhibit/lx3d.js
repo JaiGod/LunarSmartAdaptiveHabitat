@@ -13,6 +13,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { createCosmos, brainWaves } from './cosmos.js?v=2';
 
 const C = window.EXHIBIT;
 const $ = (s, r = document) => r.querySelector(s);
@@ -93,6 +94,7 @@ function buildDOM() {
 </main></div>
 <div id="callouts"><svg></svg>${C.parts.filter((p) => !p.nocall).map((p) => `<div class="co" data-part="${p.k}">${esc(p.label)}<small>${esc(p.sub)}</small></div>`).join('')}</div>
 <div id="holo">${(C.holo || []).map((h, i) => `<div class="hs" style="transition-delay:${i * 0.18}s">${esc(h.l)}: <b data-h="${i}"${h.ok ? ' style="color:#7CF0B4"' : ''}>${esc(h.t ?? h.v)}</b>${h.u ? ' ' + esc(h.u) : ''}</div>`).join('')}</div>
+<div id="eeg" class="hs" style="position:fixed"><div style="font:600 10px var(--mono);letter-spacing:.14em;color:#bfe6ff;margin-bottom:4px">CREW BRAIN-WAVE MONITOR</div><canvas width="230" height="72"></canvas></div><div id="eclipse">🌘 LUNAR ECLIPSE IN PROGRESS · EARTH'S SHADOW CROSSES THE MOON</div><div id="surgeTxt">⚡ POWER SURGE · ALL SYSTEMS AT 100%</div>
 <div id="hint">${esc(C.hub?.hint || 'CLICK TO SCAN')}</div>
 <div id="tip"></div>
 <aside id="drawer" aria-live="polite"></aside>
@@ -156,6 +158,7 @@ function moonTexture() {
 const moonMat = new THREE.MeshStandardMaterial({ map: moonTexture(), roughness: 1, transparent: true, opacity: 0 });
 const moon = new THREE.Mesh(new THREE.SphereGeometry(9, 64, 48), moonMat); moon.position.set(-22, 13, -60); scene.add(moon);
 const sun = new THREE.DirectionalLight(0xffffff, 0); sun.position.set(40, 10, -20); sun.target = moon; scene.add(sun);
+const cosmos = createCosmos(scene); cosmos.setMoon(moon);
 const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 64), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, uniforms: { uO: { value: 0 } },
   vertexShader: 'varying vec2 vU; void main(){ vU = position.xy; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
   fragmentShader: 'varying vec2 vU; uniform float uO; void main(){ float d = length(vU); float a = smoothstep(2.6,0.2,d)*0.55*uO; gl_FragColor = vec4(0.08,0.13,0.24,a); }' }));
@@ -257,7 +260,7 @@ const disc = new THREE.Mesh(new THREE.CircleGeometry(1, 64), discMat); disc.rota
 const ringMat = new THREE.MeshBasicMaterial({ color: ACC, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
 const scanRing = new THREE.Mesh(new THREE.RingGeometry(0.9, 1, 96), ringMat); scene.add(scanRing);
 let scanT = -1, holoOn = false, focusUntil = 0;
-function runScan() { if (!ready) return; scanT = 0; holoOn = true; $('#holo').classList.add('on'); sfx.scan(); if (mode !== 'scan') focusUntil = clock.elapsedTime + 8.5; }
+function runScan() { if (!ready) return; scanT = 0; holoOn = true; $('#holo').classList.add('on'); sfx.scan(); cosmos.powerSurge(new THREE.Vector3(0, 0, 0), H, R * 0.55, C.surge || '#ffc93c'); sfx.surge(); if (mode !== 'scan') focusUntil = clock.elapsedTime + 8.5; }
 function clearHolo() { holoOn = false; focusUntil = 0; $('#holo').classList.remove('on'); }
 $$('[data-scan]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); runScan(); }));
 setInterval(() => { if (!holoOn) return; $$('[data-h]').forEach((el) => { const h = C.holo[+el.dataset.h]; if (h.t == null) el.textContent = (h.v + (Math.random() - 0.5) * 2 * (h.j || 0)).toFixed(h.d || 0); }); }, 1300);
@@ -276,7 +279,8 @@ const sfx = (() => {
     open() { tone(520, 0.12, 'sine', 0.02); tone(780, 0.16, 'sine', 0.018, 0.08); },
     startup() { tone(110, 1.4, 'sine', 0.05, 0, 220); tone(440, 0.25, 'sine', 0.025, 0.9); tone(660, 0.3, 'sine', 0.025, 1.1); tone(880, 0.5, 'sine', 0.02, 1.3); },
     scan() { tone(300, 1.2, 'sawtooth', 0.012, 0, 1600); tone(1760, 0.12, 'sine', 0.02, 1.2); tone(2350, 0.18, 'sine', 0.018, 1.35); },
-    whoosh() { tone(180, 0.9, 'triangle', 0.015, 0, 420); } };
+    whoosh() { tone(180, 0.9, 'triangle', 0.015, 0, 420); },
+    surge() { tone(60, 2.4, 'sawtooth', 0.02, 0, 240); tone(120, 2.2, 'triangle', 0.02, 0.1, 880); tone(1600, 0.25, 'sine', 0.02, 1.9); tone(2400, 0.4, 'sine', 0.016, 2.1); } };
 })();
 $('#bSound').addEventListener('click', () => { const b = document.getElementById('ares-snd'); if (!sfx.on() && b) b.click(); setTimeout(() => sfx.startup(), 120); $('#bSound').textContent = '● Systems online'; });
 
@@ -345,6 +349,7 @@ addEventListener('click', (e) => {
   if (p?.part) { sfx.click(); openDrawer(p.part); return; }
   if (p?.hub) { sfx.click(); runScan(); return; }
   if (holoOn && mode !== 'scan') clearHolo();
+  else cosmos.meteorShower(6);
 });
 $$('.co').forEach((el) => {
   el.addEventListener('click', (e) => { e.stopPropagation(); sfx.click(); openDrawer(el.dataset.part); });
@@ -488,6 +493,7 @@ lb.onclick = () => lb.classList.remove('on');
 
 // ------------------------------------------------------------------ animation loop
 const clock = new THREE.Clock();
+const eegDraw = brainWaves($('#eeg canvas'));
 const ss = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const CYC = C.cycle || [[0x5ab8ff, 0], [0x26ff5a, 2.5], [0x1ae6ff, 5], [0x9e4dff, 7.5], [0xff9e14, 10], [0x26ff5a, 11.2]];
 const cA = new THREE.Color(), cB = new THREE.Color(), cNow = new THREE.Color();
@@ -576,6 +582,9 @@ function tick() {
     const q = (scanT * 0.8) % 1; scanRing.scale.setScalar(R * 0.08 * (1 + q * 3)); ringMat.opacity = (1 - q) * 0.55;
     if (scanT > 9) { scanT = -1; sweepMat.opacity = 0; discMat.opacity = 0; ringMat.opacity = 0; }
   }
+  const cs = cosmos.update(dt, T, camera, ss(0, 3, sk));
+  $('#eclipse').classList.toggle('on', cs.eclipse && mode !== 'content'); $('#surgeTxt').classList.toggle('on', cs.surging && mode !== 'content');
+  const eeg = $('#eeg'); eeg.classList.toggle('on', holoOn && mode !== 'content'); if (holoOn) { eegDraw(dt, cs.surging ? 1.6 : 1); const [ex, ey] = toScreen(worldOf(hub.local)); eeg.style.left = Math.max(8, Math.min(innerWidth - 260, ex - 125)) + 'px'; eeg.style.top = Math.min(innerHeight - 120, ey + Math.min(250, innerWidth * 0.26) * 0.62 + 40) + 'px'; }
   if (ready) layoutOverlays(T);
   composer.render();
   requestAnimationFrame(tick);

@@ -9,6 +9,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createCosmos, brainWaves } from '../exhibit/cosmos.js?v=2';
 
 const $ = (s) => document.querySelector(s);
 const stage = $('#stage');
@@ -84,6 +85,7 @@ const moonMat = new THREE.MeshStandardMaterial({ map: moonTexture(), roughness: 
 const moon = new THREE.Mesh(new THREE.SphereGeometry(9, 64, 48), moonMat);
 moon.position.set(-22, 13, -60); scene.add(moon);
 const sun = new THREE.DirectionalLight(0xffffff, 0); sun.position.set(40, 10, -20); sun.target = moon; scene.add(sun);
+const cosmos = createCosmos(scene); cosmos.setMoon(moon);
 
 // floor that fades into darkness
 const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 64), new THREE.ShaderMaterial({
@@ -206,6 +208,7 @@ const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.32, 0.55, 48, 1,
 let scanT = -1, holoOn = false, focusUntil = 0, facing = 1;
 function runScan() {
   scanT = 0; holoOn = true; $('#holo').classList.add('on'); sfx.scan();
+  cosmos.powerSurge(new THREE.Vector3(0, 0, 0), 1.9, 0.42, '#5ab8ff');
   if (mode !== 'scan') focusUntil = clock.elapsedTime + 8.5;   // zoom to the hub, then let go
 }
 $('#bScan').addEventListener('click', runScan);
@@ -461,6 +464,8 @@ function tick() {
   const bo = holoOn ? 1 : 0; beamMat.uniforms.uO.value += (bo - beamMat.uniforms.uO.value) * Math.min(1, dt * 3); beamMat.uniforms.uT.value = T;
   hubWorld(beam.position); beam.position.z += 0.3; beam.rotation.set(Math.PI / 2, 0, 0);
 
+  const cs = cosmos.update(dt, T, camera, ss(0, 3, skip));
+  document.getElementById('eclipse')?.classList.toggle('on', cs.eclipse && mode !== 'content');
   layoutOverlays();
   composer.render();
   requestAnimationFrame(tick);
