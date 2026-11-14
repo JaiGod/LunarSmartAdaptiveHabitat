@@ -424,7 +424,9 @@ func _lights() -> void:
 		var key = "pod%d" % cr.i
 		var pr = "neutral"
 		if cr.asleep:
-			pr = "dawn" if (cr.dawn_light and now >= wake_time(cr.i) - 30.0) else "sleepdark"
+			# dawn simulation: the light starts rising 30 min before the alarm window opens (06:00 for you)
+			var lead = 60.0 if cr.i == 0 else 30.0
+			pr = "dawn" if (cr.dawn_light and now >= wake_time(cr.i) - lead) else "sleepdark"
 		elif hour() >= 20.0 or hour() < 6.5: pr = "evening"
 		if cr.pod_invite and not cr.asleep:
 			var lz = luna.zone_light(key, now)

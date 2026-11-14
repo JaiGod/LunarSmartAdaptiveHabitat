@@ -97,8 +97,26 @@ var bgm: AudioStreamPlayer
 var vent: AudioStreamPlayer
 var strip_mat: StandardMaterial3D
 var pod_temp = 20
-var sleep_sound = "vent"           # vent (air circulation) | silence
-var feedstock = 6.0                # kg of recycled-plastic printer feedstock
+var sleep_sound = "vent"
+var pod_air = 22.0
+var ac_mode = "auto"
+var ac_state = "hold"
+var ac_mat: StandardMaterial3D
+var ac_air: AudioStreamPlayer3D           # vent (air circulation) | silence
+var feedstock = 6.0
+var auto = false
+var auto_path = []
+var auto_t = 0.0
+var auto_goal = {}
+var auto_best = 1e9
+var veto_t = 0.0
+var auto_walk = 0.0                # seconds spent walking to the current goal
+var lessons = {}                   # what the autopilot has learned across runs: goal -> {"runs","stuck","walk","alt"}
+var play_log = []                  # notes for the playtest report
+const LESSONS = "user://autopilot_lessons.json"
+var auto_stuck = 0.0
+var demo_i = -1
+var demo_t = 0.0                # kg of recycled-plastic printer feedstock
 var snd = {}
 
 
@@ -416,6 +434,10 @@ func tick(dt: float) -> void:
 		g.player.cam.add_child(zone_lab)
 	_markers()
 	_ambience(dt)
+	_climate(dt)
+	_autopilot(dt)
+	_demo(dt)
+	_seat_me()
 	if g.state != "play" and g.state != "sleep": return
 	_track()
 	_drill()
@@ -429,6 +451,7 @@ func tick(dt: float) -> void:
 		else:
 			for k in path_nodes.size():
 				path_nodes[k].scale = Vector3.ONE * (0.8 + 0.25 * sin(t * 4.0 - k * 0.6))
+	if g.state == "sleep": zone_t = 0.0; zone_lab.visible = false
 	if zone_t > 0.0:
 		zone_t -= dt
 		zone_lab.modulate.a = clamp(zone_t / 1.2, 0.0, 1.0)
@@ -465,13 +488,14 @@ func _markers() -> void:
 			var av = a.get_parent()
 			if not av.visible: vis = 0.0
 		var hovered = hov != null and hov == it
+		if d < 1.1 or not g.activity.is_empty() or auto: vis = 0.0     # in use, or the autopilot is driving: no rings in your face
 		if hovered: vis = 1.0
 		mk.s.visible = vis > 0.02
 		if not mk.s.visible: mk.lab.visible = false; continue
-		var pulse = 0.82 + 0.18 * sin(t * 3.2 + mk.base.x * 1.7)
-		mk.s.modulate = Color(1, 1, 1, vis * (1.0 if hovered else 0.8 * pulse))
-		mk.s.scale = Vector3.ONE * ((1.5 if hovered else 1.0) * clamp(0.75 + d * 0.08, 0.75, 1.3))
-		mk.s.global_position = mk.base + Vector3(0, 0.02 * sin(t * 2.0 + mk.base.z), 0)
+		# a quiet "you can use this" mark: no pulsing, no bobbing (glow is for status, not decoration)
+		mk.s.modulate = Color(1, 1, 1, vis * (0.9 if hovered else 0.45))
+		mk.s.scale = Vector3.ONE * ((1.25 if hovered else 0.8) * clamp(0.75 + d * 0.08, 0.75, 1.3))
+		mk.s.global_position = mk.base
 		mk.lab.visible = hovered and g.player.vr
 		if hovered and g.player.vr:
 			var txt = g.label_for(it) + spec_line(it).replace("  ·  X: info", "")
@@ -542,7 +566,11 @@ func label(it: Dictionary) -> String:
 		"gh_irrigation": return "Water the plants"
 	return ""
 
+var last_used = {}
+var last_act = ""
+
 func use(it: Dictionary) -> bool:
+	last_used = it
 	var id: String = it.id
 	if id.begins_with("crew_"): check_in(int(id.substr(5))); return true
 	match id:
@@ -677,6 +705,7 @@ func set_luna_off(off: bool, who: String) -> void:
 	if off == L.off: return
 	L.off = off
 	g.play("switch")
+	if off and auto: set_auto(false, "AI OFF stops every AI, the autopilot too")
 	if off:
 		for i in 4:
 			for c in 6: L.t1_active[i][c] = {}
@@ -964,13 +993,16 @@ func key(k: int) -> bool:
 		KEY_B: guide(true); return true
 		KEY_J: show_rubric(); return true
 		KEY_Z: show_zone(zone_now); return true
+		KEY_P: set_auto(not auto, "you pressed P"); return true
+		KEY_L: lessons_card(); return true
+		KEY_T: start_demo(); return true
 		KEY_M: music_on = not music_on; g._toast("Music %s." % ("on" if music_on else "off"), "info"); return true
 		KEY_X:
 			var h = g.player.hit
 			if h.get("kind", "") == "inter": show_spec(h.node)
 			return true
 		KEY_K:
-			show_card({"title": "Keys", "lines": [["WASD move · mouse look · E / click use · F fast-forward · Y / N / H answer LUNA", UI.INK],
+			show_card({"title": "Keys", "lines": [["WASD move · mouse look · E / click use · F fast-forward · Y / N / H answer LUNA", UI.INK], ["T guided demo of the whole project · P autopilot (the AI plays) · L what it learned", UI.ACC], ["Status lights: green working · blue standby · yellow warning · red emergency · purple night", UI.INK],
 				["G guide me to my next step · B path to my bed · I check on the crewmate next to you", UI.INK],
 				["O AI OFF switch · C floor plan A/B · J rubric checklist · Z zone card · X specs of what you point at · K this list · V voice", UI.INK]],
 				"buttons": [["Close", func(): close_card(), 0.62]]})
@@ -1249,6 +1281,8 @@ func shots(dir: String) -> void:
 		["r3_11_cmo", Vector3(5.6, 0, 16.6), -PI / 2.0, -0.05],
 		["r3_15_printer", Vector3(15.6, 0, 18.3), -PI / 2.0, -0.2],
 		["r3_16_ereaders", Vector3(20.3, 0, 8.4), PI, -0.12],
+		["r3_17_podpanel", Vector3(9.75, 0, 1.9), PI / 2.0, -0.18],
+		["r3_18_ac", Vector3(9.4, 0, 4.6), PI, 0.3],
 	]
 	for v in views:
 		g.player.place(v[1], v[2]); g.player.pitch = v[3]; g.player.cam.rotation.x = v[3]
@@ -1292,10 +1326,45 @@ func _night_strips() -> void:
 
 func _pod_panel() -> void:
 	var m = MB.new()
-	var p = Vector3(7 * C + 0.11, 1.12, 1 * C + 0.32)
-	_screen_frame(m, p, PI / 2.0, 0.3, 0.22)
-	hab.add_screen("pod_room", p, PI / 2.0, Vector2(0.3, 0.22), Vector2i(600, 440), null)
+	var p = Vector3(7 * C + 0.11, 1.32, 1 * C + 0.62)
+	_screen_frame(m, p, PI / 2.0, 0.6, 0.42)
+	hab.add_screen("pod_room", p, PI / 2.0, Vector2(0.6, 0.42), Vector2i(900, 630), null)
+	# air conditioner (heat goes out through the habitat's radiators; on the Moon there is no outside air)
+	var ac = Vector3(7 * C + 0.75, 2.12, 6 * C - 0.15)
+	m.box(ac, Vector3(0.75, 0.24, 0.2), Mats.white_plastic())
+	m.box(ac + Vector3(0, -0.08, -0.101), Vector3(0.65, 0.05, 0.01), Mats.black())
+	ac_mat = _glow(Color(0.3, 1.0, 0.5), 1.0)
+	var led = MeshInstance3D.new(); led.mesh = _boxm(Vector3(0.5, 0.015, 0.012)); led.material_override = ac_mat
+	led.position = ac + Vector3(0, 0.05, -0.104); world.add_child(led)
+	_label("AC · air handler", ac + Vector3(0, 0.0, -0.105), PI, 14)
+	ac_air = AudioStreamPlayer3D.new(); ac_air.position = ac; ac_air.unit_size = 2.5; ac_air.volume_db = -60.0; world.add_child(ac_air)
 	m.commit(world, "r3_podpanel")
+
+## the pod's air temperature moves toward what you set; the AC cools or heats and its light shows which
+func _climate(dt: float) -> void:
+	var dm = dt * (120.0 if g.state == "sleep" else 1.0)          # sim minutes this frame (roughly)
+	var diff = pod_temp - pod_air
+	ac_state = "hold"
+	if ac_mode == "off": ac_state = "off"
+	elif absf(diff) > 0.2:
+		ac_state = "heat" if diff > 0.0 else "cool"
+		pod_air += sign(diff) * min(absf(diff), 0.05 * dm)
+	# status light legend (same everywhere): green = working, blue = normal standby, yellow = warning, red = emergency, purple = sleep
+	var col = {"cool": Color(0.3, 1.0, 0.5), "heat": Color(0.3, 1.0, 0.5), "hold": Color(0.25, 0.6, 1.0), "off": Color(0.2, 0.2, 0.2)}[ac_state]
+	ac_mat.emission = col; ac_mat.albedo_color = col
+	ac_mat.emission_energy_multiplier = 0.0 if ac_state == "off" else (0.6 if g.state == "sleep" else 1.4)
+	if ac_air:
+		var wv = -60.0 if ac_state in ["off", "hold"] else -16.0
+		if ac_air.stream == null and vent: ac_air.stream = vent.stream
+		ac_air.volume_db = move_toward(ac_air.volume_db, wv, dt * 20.0)
+		if wv > -60.0 and not ac_air.playing and ac_air.stream: ac_air.play()
+		elif ac_air.volume_db <= -59.0 and ac_air.playing: ac_air.stop()
+	# light follows the temperature when your pod light is on Auto: cool room = cool white, warm room = warm light
+	if sim.pod_manual == "" and not sim.me().asleep and hab.lights.has("pod0"):
+		var k = lerp(5600.0, 2700.0, clamp((pod_temp - 18.0) / 6.0, 0.0, 1.0))
+		var c = Mats.cct(k)
+		for o in hab.lights["pod0"].omni: o.light_color = o.light_color.lerp(c, min(1.0, dt * 2.0))
+		for mm in hab.lights["pod0"].mats: mm.emission = mm.emission.lerp(c, min(1.0, dt * 2.0))
 
 func _ambience(dt: float) -> void:
 	var h = sim.hour()
@@ -1323,12 +1392,14 @@ func _ambience(dt: float) -> void:
 		var wh = -14.0
 		if asleep: wh = -80.0 if sleep_sound == "silence" else -26.0
 		g.sfx.hum.volume_db = move_toward(g.sfx.hum.volume_db, wh, dt * 20.0)
-	# red path lights at night, flashing in an emergency
+	# purple path lights at night (sleep mode), flashing red in an emergency
 	if strip_mat:
 		var e = 0.0
-		if mode == "sleep": e = 1.4
-		elif mode == "evening": e = 0.3
+		if mode == "sleep": e = 1.1
+		elif mode == "evening": e = 0.25
 		if emerg: e = 1.5 + 1.5 * sin(t * 8.0)
+		strip_mat.emission = Color(1.0, 0.12, 0.08) if emerg else Color(0.55, 0.22, 0.85)
+		strip_mat.albedo_color = strip_mat.emission
 		strip_mat.emission_energy_multiplier = lerp(strip_mat.emission_energy_multiplier, e, min(1.0, dt * 3.0))
 	if emerg and g.state == "play":
 		var red = Color(1.0, 0.15, 0.1); var pz = 0.55 + 0.45 * sin(t * 8.0)
@@ -1336,11 +1407,27 @@ func _ambience(dt: float) -> void:
 			if key.begins_with("pod"): continue
 			for o in hab.lights[key].omni: o.light_color = red; o.light_energy = max(0.25, o.light_energy) * (0.6 + 0.4 * pz)
 			for mm in hab.lights[key].mats: mm.emission = red * pz
+	# grow lights run a 16 h day / 8 h night photoperiod (06:00-22:00): plants need the dark too, and your pod stays dark
+	var grow_on = h >= 6.0 and h < 22.0 and not (asleep and true)
+	for key in ["grow_led", "cabinet_grow"]:
+		var gm = Mats.cache.get(key)
+		if gm: gm.emission_energy_multiplier = move_toward(gm.emission_energy_multiplier, (2.0 if key == "cabinet_grow" else 1.6) if grow_on else 0.0, dt * 2.0)
+	# the Ops digital-twin ring is the habitat's status light: green OK, yellow warning, red emergency, purple at night
+	var ring = Mats.cache.get("twin_ring")
+	if ring:
+		var rc = Color(0.3, 1.0, 0.5)
+		if emerg: rc = Color(1.0, 0.15, 0.1)
+		elif sim.hab.co2 > 1500.0 or not sim.pending.is_empty() or sim.luna.off: rc = Color(1.0, 0.8, 0.15)
+		elif mode == "sleep": rc = Color(0.55, 0.22, 0.85)
+		ring.emission = rc; ring.albedo_color = rc
 	# screens dim at night (they never go fully dark: status must stay readable)
 	var bright = 0.45 if mode == "sleep" else (0.8 if mode == "evening" else 1.0)
 	for s in hab.screens:
 		var mat = s.quad.material_override as StandardMaterial3D
-		if mat: mat.albedo_color = mat.albedo_color.lerp(Color(bright, bright, bright), min(1.0, dt * 2.0))
+		if not mat: continue
+		var b = bright
+		if asleep and sim.hab.zone_of(Habitat.to_cell(s.global_position)) == "pod0": b = 0.03   # your pod goes dark while you sleep
+		mat.albedo_color = mat.albedo_color.lerp(Color(b, b, b), min(1.0, dt * 2.0))
 
 func on_sleep() -> void:
 	if pod_temp >= 18 and pod_temp <= 20: sim.me().stress = max(0.0, sim.me().stress - 0.04)   # cool room helps sleep onset
@@ -1352,3 +1439,373 @@ func on_sleep() -> void:
 func on_wake() -> void:
 	if not g.player.vr:
 		g.player.pitch = 0.0; g.player.cam.rotation.x = 0.0; g.player.cam.position.y = Player.EYE
+
+# =====================================================================================================
+#  autopilot (P): the AI plays the mission for you, step by step, through the same handlers you use
+# =====================================================================================================
+## Human override rules for the autopilot (it is an AI too):
+##  - any key, click or stick input from a person stops it at once;
+##  - switching LUNA OFF stops it as well, and it can never switch LUNA back on (a person must);
+##  - before it acts on a decision it shows a 6-second veto window.
+func set_auto(on: bool, why := "") -> void:
+	if on and sim.luna.off:
+		g._toast("Autopilot can't start while LUNA is OFF. A person switches LUNA back on first.", "info"); return
+	if on and lessons.is_empty(): _load_lessons()
+	if not on and auto: _save_lessons()
+	if not on and card.get("veto", false): close_card()
+	var was = auto
+	if was and not on and g.activity.is_empty() and g.state == "play": g.player.frozen = false
+	auto = on; auto_path = []; auto_goal = {}
+	if on: g._toast("Autopilot ON: the AI plays for you. Move, click or press P and you take over.", "info")
+	elif was: g._toast("Autopilot OFF%s. You're in control." % ((": " + why) if why != "" else ""), "info")
+
+# A realistic crew day, modelled on the ISS timeline: work blocks, ~2 h of exercise split in two,
+# maintenance rounds, shared meals, a little personal time, then 8 h of sleep. Each item once a day.
+const AUTO_PLAN = [
+	[8.0, "desk"], [9.0, "treadmill"], [10.0, "o2_gen"], [10.5, "rack_0"], [11.0, "desk"],
+	[13.0, "gh_irrigation"], [13.5, "desk"], [15.0, "parts_shelf"], [15.5, "bike"], [16.5, "eva_tools"],
+	[17.0, "desk"], [19.5, "sofa"], [20.3, "earth_window"], [20.8, "books"],
+]
+var auto_done = {}                 # "day:item" -> true
+
+## nearest free one of a kind (a seat nobody is sitting in)
+func _pick(id: String):
+	var pp = g.player.global_position; var best = null; var bd = 1e9
+	for it in hab.inters:
+		if it.id != id or not is_instance_valid(it.area): continue
+		var ap = it.area.global_position
+		var taken = false
+		if id in ["seat", "sofa", "bike", "treadmill"]:
+			for av in g.avatars:
+				if av.visible and Vector2(av.global_position.x - ap.x, av.global_position.z - ap.z).length() < 0.7: taken = true
+		var dd = ap.distance_to(pp) + (50.0 if taken else 0.0)
+		if dd < bd: bd = dd; best = it
+	return best
+
+func _cell_for(id: String) -> Vector2i:
+	var H = sim.hab
+	var best = _pick(id)
+	if best == null: return Vector2i(-1, -1)
+	var c = Habitat.to_cell(best.area.global_position)
+	if H.region.has(c) and not H.blocked.has(c): return c
+	for r in [1, 2]:
+		for dx in range(-r, r + 1):
+			for dy in range(-r, r + 1):
+				var n = c + Vector2i(dx, dy)
+				if H.region.has(n) and not H.blocked.has(n): return n
+	return c
+
+func _goal(id: String) -> Dictionary:
+	var c = _cell_for(id)
+	return {} if c.x < 0 else {"cell": c, "do": id}
+
+func _auto_goal() -> Dictionary:
+	var H = sim.hab; var h = sim.hour(); var d = sim.day()
+	if not drill.is_empty(): return {"cell": Vector2i(3, 16), "do": ""}
+	if H.flare_until > sim.now: return {"cell": Vector2i(3, 15), "do": ""}
+	if not sim.pending.is_empty(): return {"cell": Vector2i(18, 15), "do": "decide"}
+	if sim.fired.get("swap_task", false): return _goal("cartridge")
+	if h >= 21.5 or h < 5.5: return _goal("bed")
+	var meal = "%d:meal%d" % [d, int(h / 6.0)]
+	if g._meal_time() and not auto_done.has(meal): auto_done[meal] = true; return _goal("seat")
+	if not sim.my_checkins.any(func(c): return c.day == d): return {"cell": Vector2i(9, 7), "do": "kiosk"}
+	if _tasks().checked == 0 and h > 9.5:
+		for cr in sim.crew:
+			if cr.i != 0 and not cr.asleep and not cr.outside: return {"cell": cr.cell, "do": "crew_%d" % cr.i}
+	for step in AUTO_PLAN:
+		var key = "%d:%s@%.1f" % [d, step[1], step[0]]
+		if h >= step[0] and not auto_done.has(key):
+			var gl = _goal(step[1])
+			auto_done[key] = true
+			if not gl.is_empty(): return gl
+	return _goal("sofa") if h >= 19.0 else _goal("desk")
+
+func _autopilot(dt: float) -> void:
+	if not auto or g.state != "play": return
+	if sim.luna.off: set_auto(false, "LUNA was switched OFF, so a person decides what happens next"); return
+	if card.get("veto", false):
+		veto_t -= dt
+		if veto_t <= 0.0: var f: Callable = card.on_go; close_card(); f.call()
+		return
+	if not g.asking.is_empty(): g._answer(true); return
+	if not card.is_empty():
+		if demo_i >= 0: return
+		if card.has("buttons") and not card.buttons.is_empty(): card.buttons[0][1].call()
+		else: close_card()
+		return
+	if not g.activity.is_empty(): return
+	if auto_t > 0.0: auto_t -= dt; return
+	if auto_path.is_empty():
+		auto_goal = _auto_goal()
+		var L = lessons.get(auto_goal.do, {})
+		if L.has("alt"): auto_goal.cell = Vector2i(int(L.alt[0]), int(L.alt[1]))
+		auto_path = Array(sim.hab.path(sim.player_cell, auto_goal.cell)); auto_walk = 0.0
+		if auto_path.size() <= 1: _auto_act(); auto_path = []; auto_t = 0.6; return
+	var tgt = Habitat.cpos(Vector2i(auto_path[0]), 0.05)
+	var pos = g.player.global_position
+	var to = Vector3(tgt.x - pos.x, 0, tgt.z - pos.z)
+	# stuck check: if we stop getting closer (furniture, a crewmate in the way), skip the waypoint
+	if to.length() < auto_best - 0.05: auto_best = to.length(); auto_stuck = 0.0
+	else: auto_stuck += dt
+	var near = 0.15 if auto_path.size() > 1 else 0.9
+	if to.length() < near or auto_stuck > 1.2:
+		var was_stuck = auto_stuck > 1.2
+		auto_path.pop_front(); auto_best = 1e9; auto_stuck = 0.0
+		if was_stuck: _learn_stuck(auto_goal.get("do", ""), auto_goal.cell, auto_path.is_empty())
+		if auto_path.is_empty():
+			if g.activity.is_empty(): g.player.frozen = false
+			_learn_arrive(auto_goal.get("do", "")); _auto_act(); auto_t = 0.6
+		return
+	auto_walk += dt
+	g.player.frozen = true          # guided walk: no physics push-back from furniture corners while following the path
+	var step = to.normalized() * min(to.length(), 2.2 * dt)
+	g.player.place(pos + step, atan2(-to.x, -to.z))
+
+## turn to look at the thing you're about to use (a person would)
+func _face(t: Vector3) -> void:
+	var p = g.player.global_position
+	var to = t - p
+	if Vector2(to.x, to.z).length() < 0.05: return
+	g.player.place(p, atan2(-to.x, -to.z))
+	var pitch = clamp(atan2(t.y - (p.y + Player.EYE), Vector2(to.x, to.z).length()), -0.7, 0.3)
+	g.player.pitch = pitch; g.player.cam.rotation.x = pitch
+
+func _auto_act() -> void:
+	var what: String = auto_goal.get("do", "")
+	match what:
+		"": return
+		"decide":
+			if sim.pending.is_empty(): return
+			var e = sim.pending[0]; var k = int(e.get("rec", 0))
+			var ch = e.choices[k] if k < e.choices.size() else e.choices[0]
+			var name = str(ch[0]) if ch is Array else str(ch)
+			veto_t = 6.0
+			show_card({"title": "Autopilot wants to decide", "veto": true, "lines": [[e.title, UI.INK], ["It will pick: " + name, UI.ACC], ["In 6 s unless you stop it. You have the final say.", UI.INK]],
+				"on_go": func():
+					if sim.pending.has(e): sim.choose(e, k); g._toast("Autopilot picked: %s. Logged as an autopilot choice." % name, "info"),
+				"buttons": [["Go ahead", func(): var f: Callable = card.on_go; close_card(); f.call(), 0.4], ["Stop, I'll decide", func(): set_auto(false, "you vetoed its choice"), 0.0]]})
+		"kiosk": sim.player_checkin(4, false); g._toast("Autopilot checked in: mood 4 of 5, kept private.", "info")
+		_:
+			if what.begins_with("crew_"):
+				var i = int(what.substr(5))
+				if i < g.avatars.size(): _face(g.avatars[i].global_position + Vector3(0, 1.4, 0))
+				check_in(i); return
+			var best = _pick(what)
+			if best != null:
+				_face(best.area.global_position)
+				g._on_click({"kind": "inter", "node": best})
+
+# =====================================================================================================
+#  demonstration (T): a guided tour of the whole project, one station at a time
+# =====================================================================================================
+const DEMO = [
+	[Vector3(10.6, 0, 6.6), 0.0, -0.12, "1 · Your pod", "Private room. Smart bed tracks sleep with no camera. Light, temperature and AC are yours to set."],
+	[Vector3(12.2, 0, 8.8), PI / 2.0, -0.05, "2 · Mood check-in", "Once a day, rate how you feel. Private unless you share it."],
+	[Vector3(27.8, 0, 9.3), 0.64, -0.1, "3 · Social hub", "Shared meals, team meetings, movie nights. Warm light pulls the crew together."],
+	[Vector3(31.9, 0, 9.6), 0.0, -0.25, "4 · Greenhouse", "Grows food and cleans the air. Tending plants lifts mood."],
+	[Vector3(20.2, 0, 17.3), PI / 2.0, -0.08, "5 · Humans in charge", "AI OFF switch, AI dashboard and review board. LUNA advises; people decide. AI OFF also stops the autopilot."],
+	[Vector3(22.5, 0, 20.4), PI, -0.25, "6 · Ops console", "Every big decision happens here. The ring on the table is the habitat status light: green OK, yellow warning, red emergency."],
+	[Vector3(29.6, 0, 19.4), -2.1, -0.12, "7 · Wellness Dock", "1-minute health scan and the ISS reaction test. You choose to take it."],
+	[Vector3(5.6, 0, 15.6), 2.21, -0.1, "8 · Medical + storm shelter", "Water walls block solar radiation. Drills muster here. Tier 3 cases go to the doctor."],
+	[Vector3(3.1, 0, 4.4), 0.0, -0.05, "9 · Airlock + suitports", "Suits stay outside so moon dust does too. Check yourself and the suit before every EVA."],
+	[Vector3(10.6, 0, 19.6), 0.0, -0.05, "10 · Life support", "Makes oxygen, removes CO2, recycles 98 % of the water."],
+]
+
+func start_demo() -> void:
+	if g.state != "play": return
+	if auto: set_auto(false)
+	demo_i = 0; demo_t = 0.0; _demo_show()
+
+## stations with a "look at" point: stand ~2 m away on a free floor cell in the same room, face it
+const DEMO_LOOK = {5: Vector3(20.625, 0.95, 18.125), 6: "dock"}
+
+func _demo_spot(t: Vector3) -> bool:
+	var H = sim.hab
+	var tc = Habitat.to_cell(t)
+	var zone = H.zone_of(tc)
+	var best = null; var bd = 1e9
+	for k in 16:
+		var a = k * TAU / 16.0
+		for r in [2.2, 1.8, 2.8]:
+			var p = t + Vector3(cos(a), 0, sin(a)) * r
+			var c = Habitat.to_cell(p)
+			if not H.region.has(c) or H.blocked.has(c) or H.zone_of(c) != zone: continue
+			var score = absf(r - 2.2) + (0.0 if H.region.has(c + Vector2i(1, 0)) and H.region.has(c - Vector2i(1, 0)) else 0.5)
+			if score < bd: bd = score; best = Vector3(p.x, 0.0, p.z)
+	if best == null: return false
+	g.player.place(best, 0.0); _face(t)
+	return true
+
+func _demo_show() -> void:
+	var d = DEMO[demo_i]
+	g.msg = {}; g.msg_t = 0.0
+	var placed = false
+	if DEMO_LOOK.has(demo_i):
+		var t = DEMO_LOOK[demo_i]
+		if t is String:
+			var it = _pick(t)
+			t = it.area.global_position + Vector3(0, 0.7, 0) if it != null else null
+		if t != null: placed = _demo_spot(t)
+	if not placed:
+		g.player.place(d[0], d[1]); g.player.pitch = d[2]; g.player.cam.rotation.x = d[2]
+	show_card({"title": "Demo · " + d[3], "lines": [[d[4], UI.INK]], "buttons": [
+		["Next ▶" if demo_i < DEMO.size() - 1 else "Finish", func(): _demo_next(), 0.4], ["End demo", func(): demo_i = -1; close_card(), 0.62]]})
+
+func _demo_next() -> void:
+	demo_i += 1; demo_t = 0.0
+	if demo_i >= DEMO.size():
+		demo_i = -1; close_card(); g._toast("Demo done. Press P to let the AI play, or just explore.", "info")
+	else: _demo_show()
+
+func _demo(dt: float) -> void:
+	if demo_i < 0: return
+	demo_t += dt
+	if demo_t > 10.0: _demo_next()
+
+# headless check of autopilot + demo: --r3auto
+func autotest(shot_dir := "") -> void:
+	var nshot = 0
+	g._start_desktop()
+	while g.state != "play": await get_tree().process_frame
+	start_demo()
+	var seen = []
+	for k in DEMO.size():
+		seen.append(card.get("title", "?")); _demo_next()
+	print("R3AUTO demo stations=%d first=%s last=%s closed=%s" % [seen.size(), seen[0], seen[-1], str(card.is_empty() and demo_i == -1)])
+	lessons = {}; DirAccess.remove_absolute(ProjectSettings.globalize_path(LESSONS))   # each test run learns from scratch
+	set_auto(true); g.ff = true; Engine.time_scale = 4.0
+	var last = ""; var acts = {}; var f = 0
+	var drilled = false
+	while f < 120000 and not sim.done and g.state != "report":
+		await get_tree().process_frame; f += 1
+		if not drilled and sim.day() == 1 and sim.hour() > 10.4:
+			drilled = true; print("R3AUTO test: safety drill starts at %s" % sim.clock()); start_drill()
+		if not auto and g.state == "play":
+			# the test plays the human: a person turns LUNA back on after the watchdog, then hands back to the autopilot
+			if sim.luna.off: print("R3AUTO human: LUNA was OFF -> person switches it ON at %s" % sim.clock()); set_luna_off(false, "the Commander")
+			set_auto(true)
+		var d = auto_goal.get("do", "") + "|" + g.state + "|" + str(g.activity.get("id", ""))
+		if d != last:
+			last = d; acts[d] = acts.get(d, 0) + 1
+			if shot_dir != "" and nshot < 70:
+				for k in 3: await get_tree().process_frame
+				g._save_shot("%s/p%02d_d%d_%05.2f_%s.png" % [shot_dir, nshot, sim.day(), sim.hour(), d.replace("|", "_")]); nshot += 1
+			print("R3AUTO day %d %05.2fh goal=%s state=%s" % [sim.day(), sim.hour(), d, g.state])
+	print("R3AUTO frames=%d day=%d goals=%s" % [f, sim.day(), str(acts)])
+	print("R3AUTO lessons=%s" % JSON.stringify(lessons))
+	print("R3AUTO log=%s" % str(play_log))
+	_save_lessons()
+	print("R3AUTO OK")
+	get_tree().quit()
+
+# ---------------------------------------------------------------------------------------------------
+#  autopilot learning: every run it remembers where it got stuck and how long each trip took,
+#  and next time it walks to a better spot. Saved between sessions (user://autopilot_lessons.json).
+# ---------------------------------------------------------------------------------------------------
+func _load_lessons() -> void:
+	if not FileAccess.file_exists(LESSONS): return
+	var f = FileAccess.open(LESSONS, FileAccess.READ)
+	var v = JSON.parse_string(f.get_as_text())
+	if v is Dictionary: lessons = v
+
+func _save_lessons() -> void:
+	var f = FileAccess.open(LESSONS, FileAccess.WRITE)
+	if f: f.store_string(JSON.stringify(lessons, " "))
+
+func _learn_arrive(what: String) -> void:
+	if what == "": return
+	var L = lessons.get(what, {"runs": 0, "stuck": 0, "walk": 0.0})
+	L.runs += 1; L.walk = lerp(float(L.walk), auto_walk, 1.0 / min(L.runs, 5))
+	lessons[what] = L
+
+func _learn_stuck(what: String, cell: Vector2i, final: bool) -> void:
+	if what == "": return
+	var L = lessons.get(what, {"runs": 0, "stuck": 0, "walk": 0.0})
+	L.stuck += 1
+	play_log.append("stuck walking to %s (%s)" % [what, "last step" if final else "on the way"])
+	# stuck right at the goal twice: pick a free neighbouring cell to stand on instead
+	if final and L.stuck >= 2 and not L.has("alt"):
+		var H = sim.hab; var best = null; var bl = 1e9
+		for dx in [-1, 0, 1]:
+			for dy in [-1, 0, 1]:
+				var c = cell + Vector2i(dx, dy)
+				if c == cell or not H.region.has(c) or H.blocked.has(c): continue
+				var p = H.path(sim.player_cell, c)
+				if p.size() > 0 and p.size() < bl: bl = p.size(); best = c
+		if best != null:
+			L["alt"] = [best.x, best.y]
+			play_log.append("learned: stand at %s for %s" % [str(best), what])
+	lessons[what] = L
+
+func lessons_card() -> void:
+	var lines = [["What the autopilot has learned (it improves every run):", UI.ACC]]
+	var keys = lessons.keys(); keys.sort()
+	for k in keys:
+		var L = lessons[k]
+		lines.append(["%s · done %d× · avg walk %.0f s · stuck %d×%s" % [k, L.runs, L.walk, L.stuck, " · uses a better spot" if L.has("alt") else ""], UI.INK])
+	if keys.is_empty(): lines.append(["Nothing yet. Press P and let it play.", UI.MUT])
+	show_card({"title": "Autopilot lessons", "lines": lines, "buttons": [["Close", func(): close_card(), 0.6]]})
+
+## when you sit down, actually sit on the seat you chose and face the table (or the screen)
+func _seat_me() -> void:
+	var a = str(g.activity.get("id", ""))
+	if a == last_act: return
+	last_act = a
+	if g.player.vr or last_used.is_empty() or not is_instance_valid(last_used.get("area")): return
+	var sp = last_used.area.global_position
+	# exercise and desk work: stand on the belt / sit on the bike or desk chair, facing the display
+	var fixed = {"treadmill": [Vector3(0, 0.25, 0.1), 0.0, Player.EYE], "bike": [Vector3(0, 0.0, 0.3), 0.0, 1.35], "desk": [Vector3(0, -0.9, 0.3), 0.0, 1.2]}
+	if fixed.has(last_used.id) and a in ["ex", "bike", "work"]:
+		var f = fixed[last_used.id]
+		g.player.place(Vector3(sp.x, 0.0, sp.z) + f[0], f[1])
+		g.player.pitch = -0.1; g.player.cam.rotation.x = -0.1; g.player.cam.position.y = f[2]
+		return
+	if not (a in ["meal", "table", "sofa"] and last_used.id in ["seat", "sofa"]): return
+	var look = Vector3.ZERO; var n = 0
+	if last_used.id == "seat":
+		for it in hab.inters:          # the middle of the seats around this table
+			if it.id == "seat" and is_instance_valid(it.area) and it.area.global_position.distance_to(sp) < 2.6:
+				look += it.area.global_position; n += 1
+		look /= max(n, 1)
+	else:
+		var bd = 1e9
+		for sc in hab.screens:
+			var dd = sc.global_position.distance_to(sp)
+			if dd < bd and dd < 7.0: bd = dd; look = sc.global_position
+	var at = Vector3(sp.x, g.player.global_position.y, sp.z)
+	var to = look - at
+	if Vector2(to.x, to.z).length() < 0.1: return
+	g.player.place(at, atan2(-to.x, -to.z))
+	g.player.pitch = -0.08; g.player.cam.rotation.x = -0.08
+
+# scenario screenshots: --r3scene=dir:night  or  dir:drill  (jumps the clock, then the autopilot plays)
+func scene_test(arg: String) -> void:
+	var dir = arg.split(":")[0]; var which = arg.split(":")[1] if ":" in arg else "night"
+	g._start_desktop()
+	while g.state != "play": await get_tree().process_frame
+	if which == "demo":
+		start_demo()
+		for k in DEMO.size():
+			for j in 12: await get_tree().process_frame
+			g._save_shot("%s/demo_%02d.png" % [dir, k]); _demo_next()
+		get_tree().quit(); return
+	var until = 21.6 if which == "night" else 10.3
+	while sim.hour() < until: sim._minute()
+	for cr in sim.crew: cr.act_until = sim.now
+	lessons = {}
+	set_auto(true)
+	if which == "drill": start_drill()
+	var n = 0; var last_shot = -999.0; var f = 0
+	while n < 24 and f < 20000:
+		await get_tree().process_frame; f += 1
+		if not auto and g.state == "play":
+			if sim.luna.off: set_luna_off(false, "the Commander")
+			set_auto(true)
+		var gap = 25.0 if which == "night" else 1.5
+		if sim.now - last_shot >= gap:
+			last_shot = sim.now
+			for k in 3: await get_tree().process_frame
+			g._save_shot("%s/%s_%02d_d%d_%05.2f_%s.png" % [dir, which, n, sim.day(), sim.hour(), g.state]); n += 1
+			if which == "night" and sim.day() == 2 and sim.hour() > 6.6: break
+	print("R3SCENE %s shots=%d" % [which, n])
+	get_tree().quit()

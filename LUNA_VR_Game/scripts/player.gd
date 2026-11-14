@@ -112,7 +112,12 @@ func _on_right_button(n: String) -> void:
 func _on_left_button(n: String) -> void:
 	get_parent().call("vr_button", "left_" + n)
 
+func _take_over() -> void:
+	var g = get_parent()
+	if "r3" in g and g.r3 != null and g.r3.auto: g.r3.set_auto(false, "you took the controls")
+
 func _click() -> void:
+	_take_over()
 	if _click_cool > 0.0: return
 	_click_cool = 0.22
 	if hit.get("kind", "") == "screen":
@@ -165,6 +170,8 @@ func _physics_process(dt: float) -> void:
 		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT): input.x -= 1
 		if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT): input.x += 1
 		if Input.is_key_pressed(KEY_SHIFT): speed = RUN
+	# a person always outranks the autopilot: touch the controls and you are flying again
+	if input.length() > 0.3: _take_over()
 	var basis_y = Basis(Vector3.UP, (cam.global_transform.basis.get_euler().y if vr else rotation.y))
 	var dir = basis_y * Vector3(input.x, 0, input.y)
 	if dir.length() > 1.0: dir = dir.normalized()

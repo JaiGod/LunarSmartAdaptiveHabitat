@@ -97,6 +97,9 @@ func _ready() -> void:
 		if arg.begins_with("--autoplay="): _autoplay.call_deferred(arg.substr(11))
 		if arg == "--selenetest": _selenetest.call_deferred()
 		if arg == "--r3test": r3.selftest.call_deferred()
+		if arg == "--r3auto": r3.autotest.call_deferred()
+		if arg.begins_with("--r3scene="): r3.scene_test.call_deferred(arg.substr(10))
+		if arg.begins_with("--r3play="): r3.autotest.call_deferred(arg.substr(9))
 		if arg.begins_with("--r3shots="): r3.shots.call_deferred(arg.substr(10))
 
 # =====================================================================================================
@@ -242,7 +245,7 @@ func _process(dt: float) -> void:
 	var scale = 1.0
 	if state == "sleep": scale = 120.0
 	elif not activity.is_empty(): scale = 8.0
-	elif ff: scale = 8.0
+	elif ff and not (r3 != null and r3.auto and not r3.auto_path.is_empty()): scale = 8.0   # autopilot walks in real time
 	if state == "play" and (not sim.pending.is_empty() or sim.hab.flare_until > sim.now) and scale > 2.0 and activity.is_empty(): scale = 2.0
 	if state == "play" and not asking.is_empty(): scale = min(scale, 1.0)
 	# where you are, for the engine
@@ -296,7 +299,11 @@ func _sync_world(dt: float) -> void:
 	var H = sim.hab
 	# outside: the Sun only lights the world when you are out there (no light leaks into the cabin)
 	sun.visible = outside
-	env.ambient_light_energy = 0.12 if outside else 0.32
+	# indoor fill light follows the lights: almost none when your pod is dark and you're asleep
+	var amb = 0.12 if outside else 0.32
+	if state == "sleep": amb = 0.03
+	elif r3 != null and r3.mode == "sleep": amb = 0.12
+	env.ambient_light_energy = lerp(env.ambient_light_energy, amb, min(1.0, dt * 1.5))
 	# solar arrays gather real dust from the engine's dust model
 	if hab.h_solar_mat: hab.h_solar_mat.albedo_color = Color(1, 1, 1).lerp(Color(0.62, 0.58, 0.52), H.dust_panels)
 	# airlock dust + the electrostatic curtain during a cleaning cycle
@@ -304,7 +311,7 @@ func _sync_world(dt: float) -> void:
 	dp.emitting = H.airlock_dust > 0.15 or cleaning_t > 0.0
 	dp.gravity = Vector3(0, -1.5 if cleaning_t > 0.0 else -0.05, 0)
 	var cm: StandardMaterial3D = hab.dyn["curtain_mat"]
-	cm.emission_energy_multiplier = lerp(cm.emission_energy_multiplier, 3.0 if cleaning_t > 0.0 else 0.35, min(1.0, dt * 3.0))
+	cm.emission_energy_multiplier = lerp(cm.emission_energy_multiplier, 2.0 if cleaning_t > 0.0 else 0.0, min(1.0, dt * 3.0))
 	cleaning_t = max(0.0, cleaning_t - dt)
 	# crops grow (rebuild a rack only when its stage changes)
 	for r in hab.dyn["racks"]:
@@ -359,6 +366,8 @@ func go_to_bed(nap := false) -> void:
 	flags["napping"] = nap
 	if nap: sim.player_nap(25.0)
 	else: sim.player_sleep()
+	msg = {}; msg_t = 0.0     # no stale message hanging over you all night
+	if asking.is_empty(): _hide_popup()
 	state = "sleep"
 	player.frozen = true
 	var t = create_tween(); t.tween_method(set_fade, 0.0, 1.0 if player.vr else 0.62, 2.5)
@@ -384,6 +393,10 @@ func _wake_up() -> void:
 	else:
 		sim.say("Nap over. You should feel a little sharper now.")
 	sim.player_act = "idle"
+	if not held_msgs.is_empty():
+		var txt = "While you slept: " + " · ".join(held_msgs.map(func(m): return m[0]))
+		held_msgs.clear()
+		var tw = create_tween(); tw.tween_interval(8.0); tw.tween_callback(func(): _toast(txt, "info"))
 
 # =====================================================================================================
 #  activities: sit, eat, tend, exercise… the engine applies the effects; time runs faster meanwhile
@@ -437,9 +450,11 @@ func label_for(it: Dictionary) -> String:
 		return "Brush dust off this array (%d%% dusty)" % int(H.dust_panels * 100.0) if outside else "Solar array"
 	match id:
 		"bed":
-			if sim.hour() >= 20.5 or sim.hour() < 5.0: return "Go to sleep (smart alarm: light sleep, 06:00–06:30)"
+			var ln = flags.get("last_night", {})
+			var last = (" · last night %.1f h, %d wake-ups" % [ln.hours, ln.wakes]) if ln.has("hours") and ln.hours > 0.5 else ""
+			if sim.hour() >= 20.0 or sim.hour() < 5.0: return "Go to sleep (alarm 06:00–06:30)" + last
 			if not sim.player_offer.is_empty() and sim.player_offer.id == "nap": return "Take LUNA's 25-minute nap"
-			return "Lie down and rest (20 min)"
+			return "Nap (25 min, then the alarm)"
 		"cabinet": return "Tend your hydroponics cabinet"
 		"seat": return "Eat with the crew" if _meal_time() else "Sit at the table (talk, play cards)"
 		"sofa": return "Movie night on the sofa" if sim.movie_at > 0.0 and absf(sim.now - sim.movie_at - 30.0) < 90.0 else "Relax on the sofa"
@@ -451,7 +466,7 @@ func label_for(it: Dictionary) -> String:
 		"rig": return "Resistance training (30 min)"
 		"recovery_chair": return "Sit in the VR recovery chair"
 		"sink": return "Wash up"
-		"suitport": return "Climb into your suit through the suitport (EVA)" if g_eva_ready() else "Suitport (run the EVA prep check first)"
+		"suitport": return ("Climb into your suit through the suitport (EVA)" if g_eva_ready() else "Suitport (run the EVA prep check first)") + " · suit 29.6 kPa, seal OK"
 		"earth_window": return "Sit by the Earth-view display (live south-pole camera, 20 min)"
 		"dock": return "Wellness Dock: posture, heart rate, Reaction Self Test"
 		"suitport_return": return "Back in through the suitport"
@@ -483,10 +498,11 @@ func _on_click(hit: Dictionary) -> void:
 		return
 	match id:
 		"bed":
-			if sim.hour() >= 20.5 or sim.hour() < 5.0: go_to_bed(false)
+			# lying down in your bed always means sleep: a full night after 20:00, a short nap in the day
+			if sim.hour() >= 20.0 or sim.hour() < 5.0: go_to_bed(false)
 			elif not sim.player_offer.is_empty() and sim.player_offer.id == "nap":
 				sim.complete_player_offer("nap"); go_to_bed(true)
-			else: start_activity("rest", "Resting in your pod", 20.0, "pod")
+			else: go_to_bed(true)
 		"cabinet":
 			start_activity("cabinet", "Tending your plants", 10.0, "greenhouse", {"fx": {"mood": 0.06}}, true, func():
 				_toast("Basil and strawberries tended. Your own small garden."); flags["cabinet"] = sim.day())
@@ -610,7 +626,13 @@ func _messages(dt: float) -> void:
 		msg_t -= dt
 		if msg_t <= 0.0 and asking.is_empty(): _hide_popup()
 
+var held_msgs = []
+
 func _toast(text: String, kind := "luna") -> void:
+	# while you sleep, only something that needs you now (a Tier 3 or a real emergency) breaks through; the rest waits for morning
+	if state == "sleep" and kind != "t3" and not (kind == "alert" and (sim.hab.flare_until > sim.now or sim.luna.off)):
+		if held_msgs.size() < 4: held_msgs.append([text, kind])
+		return
 	msg = {"text": text, "kind": kind}
 	msg_t = 7.0 if text.length() < 120 else 10.0
 	if kind in ["alert", "t3"]: play("alert")
@@ -697,6 +719,7 @@ func _hide_popup() -> void:
 
 func _unhandled_key_input(e: InputEvent) -> void:
 	if not (e is InputEventKey and e.pressed and not e.echo): return
+	if r3.auto and e.keycode in [KEY_E, KEY_ESCAPE, KEY_Y, KEY_N, KEY_H, KEY_SPACE]: r3.set_auto(false, "you took the controls")
 	if r3.key(e.keycode): return
 	match e.keycode:
 		KEY_Y: if not asking.is_empty(): _answer(true)
@@ -761,8 +784,12 @@ func _refresh_hud() -> void:
 		r3b.add_child(UI.btn("AI OFF" if not sim.luna.off else "LUNA on", func(): r3.use({"id": "ai_switch"}), 0.0, 18))
 		r3b.add_child(UI.btn("Music " + ("on" if r3.music_on else "off"), func(): r3.music_on = not r3.music_on, 0.75, 18))
 		hud_v.add_child(r3b)
+		r3b = UI.hbox(6)
+		r3b.add_child(UI.btn("Demo", func(): r3.start_demo(), 0.4, 18))
+		r3b.add_child(UI.btn("Autopilot " + ("on" if r3.auto else "off"), func(): r3.set_auto(not r3.auto), 0.08, 18))
+		hud_v.add_child(r3b)
 	else:
-		hud_v.add_child(UI.lbl("G guide me · I ask a crewmate · M music · J rubric · K keys", 14, UI.MUT))
+		hud_v.add_child(UI.lbl("T demo · P autopilot · G guide me · I ask a crewmate · M music · K keys", 14, UI.MUT))
 
 func _prompt() -> void:
 	if player.vr:

@@ -158,6 +158,12 @@ func go_to_sleep(now: float, sim) -> void:
 	var hab: Hab = sim.hab
 	var q = 0.95 - 0.35 * stress - 0.1 * clamp((hab.co2 - 900.0) / 1500.0, 0.0, 1.0)
 	q -= sim.luna.night_light_penalty()
+	# back to bed within an hour of a night-time wake: it's the same night, keep counting it
+	if night.get("woke_at", -999.0) > now - 60.0 and night.get("start", -1.0) > 0.0 and night.get("start", -1.0) > now - 600.0:
+		night.wakes_now = night.get("wakes_now", 0) + 1
+		night["awake_min"] = night.get("awake_min", 0.0) + (now - night.woke_at)
+		stage = "N1"; woke_deep = false
+		return
 	night = {"hours": 0.0, "wakes": 0, "quality": clamp(q, 0.25, 1.0), "start": now, "wakes_now": 0, "deep": 0.0, "rem": 0.0}
 	hyp = []; stage = "N1"; woke_deep = false
 
@@ -179,8 +185,9 @@ func wake(now: float) -> void:
 	if not asleep: return
 	asleep = false
 	stage = "Wake"
-	night.hours = max(0.0, (now - night.start) / 60.0 - 0.15 * night.wakes_now)
+	night.hours = max(0.0, (now - night.start - night.get("awake_min", 0.0)) / 60.0 - 0.15 * night.wakes_now)
 	night.wakes = night.wakes_now
+	night["woke_at"] = now
 
 # =====================================================================================================
 #  movement (fractional minutes, so it's smooth at any speed)

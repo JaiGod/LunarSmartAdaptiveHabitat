@@ -247,21 +247,28 @@ static func my_data(ui) -> void:
 # ------------------------------------------------------------------------------------------------------
 ## your pod's own controls (next to your pillow): light on/off, temperature, sleep sound, music
 class PodRoomUI extends Screens.SUI:
-	func _init(game) -> void: super._init(game, "My pod", "yours to set")
-	func sig() -> String: return "%s|%d|%s|%s" % [sim().pod_manual, g.r3.pod_temp, g.r3.sleep_sound, g.r3.music_on]
+	func _init(game) -> void: super._init(game, "My pod", "light · temperature · AC · sound")
+	func sig() -> String: return "%s|%d|%s|%s|%s|%s|%d" % [sim().pod_manual, g.r3.pod_temp, g.r3.sleep_sound, g.r3.music_on, g.r3.ac_mode, g.r3.ac_state, int(g.r3.pod_air * 10.0)]
+	func _row(t: String, items: Array) -> void:
+		body.add_child(UI.lbl(t, 22, UI.MUT))
+		var r = UI.hbox(8)
+		for it in items: r.add_child(UI.btn(it[0], it[1], it[2], 26))
+		body.add_child(r)
 	func build() -> void:
-		var r = UI.hbox(5)
+		var r3 = g.r3
+		var lights = []
 		for o in [["", "Auto"], ["off", "Off"], ["amber", "Dim"], ["warm", "Warm"], ["energise", "Bright"]]:
 			var v = o[0]
-			r.add_child(UI.btn(o[1] + (" ✓" if sim().pod_manual == v else ""), func(): sim().pod_manual = v; g.play("click"); refresh(true), 0.6 if sim().pod_manual == v else 0.62, 16))
-		body.add_child(UI.lbl("Light", 15, UI.MUT)); body.add_child(r)
-		var r2 = UI.hbox(5)
+			lights.append([o[1] + (" ✓" if sim().pod_manual == v else ""), func(): sim().pod_manual = v; g.play("click"); refresh(true), 0.6 if sim().pod_manual == v else 0.62])
+		_row("Light", lights)
+		var temps = []
 		for tc in [18, 20, 22, 24]:
 			var v = tc
-			r2.add_child(UI.btn("%d °C%s" % [tc, " ✓" if g.r3.pod_temp == tc else ""], func(): g.r3.pod_temp = v; g.play("click"); refresh(true), 0.58 if tc <= 20 else 0.05, 16))
-		body.add_child(UI.lbl("Temperature (18–20 °C helps you fall asleep)", 15, UI.MUT)); body.add_child(r2)
-		var r3 = UI.hbox(5)
-		r3.add_child(UI.btn("Sleep: air vents" + (" ✓" if g.r3.sleep_sound == "vent" else ""), func(): g.r3.sleep_sound = "vent"; refresh(true), 0.55, 16))
-		r3.add_child(UI.btn("Sleep: silence" + (" ✓" if g.r3.sleep_sound == "silence" else ""), func(): g.r3.sleep_sound = "silence"; refresh(true), 0.62, 16))
-		r3.add_child(UI.btn("Music " + ("on" if g.r3.music_on else "off"), func(): g.r3.music_on = not g.r3.music_on; refresh(true), 0.75, 16))
-		body.add_child(r3)
+			temps.append(["%d °C%s" % [tc, " ✓" if r3.pod_temp == tc else ""], func(): r3.pod_temp = v; g.play("click"); refresh(true), 0.58 if tc <= 20 else 0.05])
+		_row("Temperature  (now %.1f °C)" % r3.pod_air, temps)
+		var st = {"cool": "cooling", "heat": "heating", "hold": "holding", "off": "off"}[r3.ac_state]
+		_row("AC: %s" % st, [["Auto" + (" ✓" if r3.ac_mode == "auto" else ""), func(): r3.ac_mode = "auto"; refresh(true), 0.55],
+			["Off" + (" ✓" if r3.ac_mode == "off" else ""), func(): r3.ac_mode = "off"; refresh(true), 0.62]])
+		_row("When I sleep", [["Air vents" + (" ✓" if r3.sleep_sound == "vent" else ""), func(): r3.sleep_sound = "vent"; refresh(true), 0.55],
+			["Silence" + (" ✓" if r3.sleep_sound == "silence" else ""), func(): r3.sleep_sound = "silence"; refresh(true), 0.62],
+			["Music " + ("on" if r3.music_on else "off"), func(): r3.music_on = not r3.music_on; refresh(true), 0.75]])

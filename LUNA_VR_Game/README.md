@@ -55,11 +55,19 @@ The whole habitat follows the crew:
 
 - **Awake:** lo-fi music plays (synthesized for the game; **M** turns it off).
 - **Evening:** warmer, dimmer light, and the music gets quieter.
-- **Sleep:** the main lights go off and the pods go fully dark. Dim red path lights come on near the floor, screens dim, and the music stops. You hear only the air vents, or silence if you choose it.
+- **Sleep:** clicking your bed always means sleep: the whole night after 20:00, a 25-minute nap in the day. The main lights go off and your pod goes fully dark (its screens too, and the grow lights follow a 16 h on / 8 h off cycle). Dim purple path lights come on near the floor, and the music stops. You hear only the air vents, or silence if you choose it. Messages that can wait are held until morning.
 - **When everyone is asleep**, the shared rooms switch to night mode to save power.
 - **Emergency** (drill, solar particle event): the lights flash red and the music stops.
+- **Status lights mean one thing everywhere:** green working, blue standby, yellow warning, red emergency, purple night. Nothing glows just to look cool.
 
 The panel by your pillow sets your pod's light (auto, off, dim, warm, bright), the temperature (18–24 °C; 18–20 °C helps you fall asleep), and the sleep sound. On desktop you watch your pod go dark from your bed, and in the morning the dawn light rises.
+
+## Autopilot, demo and human override
+
+- **T: guided demo.** Ten stops through the whole habitat, one short card each. It moves on by itself after 10 seconds, or press Next.
+- **P: autopilot (the AI plays).** It lives an ISS-style day: desk work, two exercise sessions, greenhouse and life-support checks, meals with the crew, a little free time, and bed by 22:00. It checks in on a crewmate and answers LUNA.
+- **The person is always in charge.** Any key, click or stick movement takes control back at once. The AI OFF switch stops the autopilot too, and the autopilot can never switch LUNA back on: only a person can. Before it makes a decision for you it shows a 6-second veto window ("Stop, I'll decide").
+- **It learns.** It remembers where it got stuck and how long each walk took, and next time picks a better place to stand. Press **L** to see what it has learned (saved on your computer between sessions).
 
 ## Realism pass
 
@@ -103,6 +111,7 @@ No SELENE or camera? Run `python selene_bridge.py --demo` (or `--demo --stress 0
 | Guide me · bed path · check in | G · B · I | wrist panel: Guide me |
 | AI OFF · floor plan A/B · rubric · zone card · all keys | O · C · J · Z · K | wrist panel: AI OFF, Rubric |
 | Fast-forward | F | Y button / wrist panel |
+| Guided demo · autopilot · what it learned | T · P · L | wrist panel: Demo, Autopilot |
 
 ## Build
 

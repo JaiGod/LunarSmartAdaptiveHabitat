@@ -51,7 +51,10 @@ func update_light(key: String, preset: String, now: float) -> void:
 	var L = light[key]
 	L.preset = preset
 	L.cct = lerp(L.cct, tgt[0], 0.12)
-	L.lux = exp(lerp(log(max(L.lux, 1.0)), log(max(tgt[1], 1.0)), 0.12))
+	if tgt[1] < 0.5:
+		L.lux = L.lux * 0.8 if L.lux > 0.4 else 0.0     # really off (the log fade below never reaches 0 lux)
+	else:
+		L.lux = exp(lerp(log(max(L.lux, 1.0)), log(max(tgt[1], 1.0)), 0.12))
 
 const CROPS = {"lettuce": 12.0, "tomato": 26.0, "potato": 32.0, "herbs": 8.0, "radish": 10.0}
 var racks = []             # {"built": bool, "crop": String, "age": days, "health": 0..1, "blight": bool}

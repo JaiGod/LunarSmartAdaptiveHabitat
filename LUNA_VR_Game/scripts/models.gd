@@ -86,7 +86,7 @@ func airlock() -> void:
 	for side in [[x0 + 0.62, 1.25], [x1 - 0.62, 1.25]]:
 		mb.box(Vector3(side[0], 1.15, zc), Vector3(side[1], 2.3, 0.08), Mats.frame(), 0.0, true)
 		for k in 9:
-			mb.box(Vector3(side[0], 0.25 + k * 0.24, zc + 0.045), Vector3(side[1] - 0.12, 0.012, 0.01), Mats.cache.get("curtain_glow", Mats.glow(Color(0.35, 0.6, 1.0), 0.4, "curtain_glow")))
+			mb.box(Vector3(side[0], 0.25 + k * 0.24, zc + 0.045), Vector3(side[1] - 0.12, 0.012, 0.01), Mats.glow(Color(0.3, 1.0, 0.5), 0.0, "curtain_glow"))   # electrodes: lit green only while charged
 	mb.box(Vector3((x0 + x1) * 0.5, 2.38, zc), Vector3(x1 - x0, 0.2, 0.3), Mats.grey_plastic())   # air knife header
 	label("Electrostatic dust curtain\nwalk through slowly", Vector3((x0 + x1) * 0.5, 2.38, zc + 0.16), 0.0, 20)
 	h.dyn["curtain_mat"] = Mats.cache["curtain_glow"]
@@ -148,7 +148,7 @@ func pods() -> void:
 		var cz = z0 + 3.1
 		mb.box(Vector3(x1 - 0.22, 1.45, cz), Vector3(0.38, 0.75, 0.95), Mats.white_plastic(), 0.0, true)
 		mb.box(Vector3(x1 - 0.02 - 0.4, 1.45, cz), Vector3(0.015, 0.7, 0.9), Mats.glass())
-		mb.box(Vector3(x1 - 0.22, 1.78, cz), Vector3(0.3, 0.02, 0.85), Mats.glow(Color(1.0, 0.55, 0.85), 2.0))
+		mb.box(Vector3(x1 - 0.22, 1.78, cz), Vector3(0.3, 0.02, 0.85), Mats.glow(Color(1.0, 0.55, 0.85), 2.0, "cabinet_grow"))   # cabinet grow light (photoperiod, off at night)
 		mb.box(Vector3(x1 - 0.22, 1.2, cz), Vector3(0.3, 0.12, 0.85), Mats.dark_metal())
 		for k in 4:
 			var pz = cz - 0.33 + k * 0.22
@@ -668,7 +668,7 @@ func wellness_center() -> void:
 	var pp = Vector3(16.5 * C, 0, 14.5 * C)
 	mb.cyl(pp + Vector3(0, 0.45, 0), 0.62, 0.9, Mats.white_plastic(), 24)
 	mb.cyl(pp + Vector3(0, 0.92, 0), 0.72, 0.04, Mats.dark_metal(), 32)
-	mb.torus(pp + Vector3(0, 0.95, 0), 0.7, 0.74, Mats.glow(Color(0.3, 0.7, 1.0), 1.2, "twin_ring"))
+	mb.torus(pp + Vector3(0, 0.95, 0), 0.7, 0.74, Mats.glow(Color(0.3, 1.0, 0.5), 0.5, "twin_ring"))   # habitat status ring: green OK, yellow warning, red emergency
 	var tw = Node3D.new(); tw.name = "twin3d"; tw.position = pp + Vector3(0, 0.96, 0); root.add_child(tw)
 	h.dyn["twin3d"] = tw
 	label("3D digital twin · 1:30 · live", pp + Vector3(0, 0.6, 0.66), 0.0, 18)
@@ -690,9 +690,9 @@ func wellness_center() -> void:
 # =====================================================================================================
 func wellness_dock() -> void:
 	var dp = Vector3(25.5 * C, 0, 16.8 * C)
-	# dock platform: stand on the glowing ring for the 1-minute scan
+	# dock platform: stand on the ring for the 1-minute scan (ring = standby blue)
 	mb.cyl(dp + Vector3(0, 0.04, 0), 0.6, 0.08, Mats.dark_metal(), 24, -1.0, Basis(), )
-	mb.torus(dp + Vector3(0, 0.085, 0), 0.5, 0.56, Mats.glow(Color(0.3, 0.9, 0.7), 1.4, "dock_ring"))
+	mb.torus(dp + Vector3(0, 0.085, 0), 0.5, 0.56, Mats.glow(Color(0.25, 0.6, 1.0), 0.5, "dock_ring"))
 	# posture camera arch
 	for side in [-1.0, 1.0]: mb.box(dp + Vector3(side * 0.75, 1.1, 0.25), Vector3(0.08, 2.2, 0.12), Mats.white_plastic())
 	mb.box(dp + Vector3(0, 2.25, 0.25), Vector3(1.6, 0.12, 0.14), Mats.white_plastic())
