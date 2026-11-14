@@ -6,7 +6,7 @@
 <meta name="description" content="NASA HUNCH Project ARES: a 4-crew lunar habitat with AI psychological monitoring. Two playable Unity/VR simulators, final papers, rubric and complete 3D designs.">
 <meta name="theme-color" content="#050816">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --void:#050816; --blue:#0B3D91; --cyan:#38BDF8; --white:#E6F1FF; --red:#FC3D21; --purple:#6D28D9;
@@ -338,6 +338,82 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
 .eva .chips span{font:600 10px var(--mono);letter-spacing:.1em;color:var(--cyan);border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:rgba(5,8,22,.5)}
 .eva .credit{position:absolute;right:16px;bottom:10px;z-index:2;font:500 10px var(--mono);color:var(--mut);opacity:.7}
 @media (max-width:720px){.eva .evatext{left:16px;right:16px;bottom:8vh;max-width:none}}
+
+/* ================= humanized: readable type, hue rectangle buttons, project profile ================= */
+:root{--hd:'Space Grotesk',system-ui,sans-serif}
+.brand{font:700 16px var(--hd);letter-spacing:.01em}
+.brand small{font:500 12px var(--bd);letter-spacing:0;color:#9fd3f5}
+nav{gap:6px;align-items:center}
+nav a{font:600 13.5px var(--bd);letter-spacing:0;text-transform:none;padding:8px 13px;border-radius:7px;color:#eef5ff;
+  background:hsl(var(--h,212) 70% 45% / .16);border:1px solid hsl(var(--h,212) 85% 66% / .38);
+  transition:background .2s,border-color .2s,transform .2s,box-shadow .2s}
+nav a::before,nav a::after{display:none}
+nav a:hover{background:hsl(var(--h,212) 75% 50% / .36);border-color:hsl(var(--h,212) 90% 72% / .85);transform:translateY(-1px);box-shadow:0 6px 18px hsl(var(--h,212) 90% 55% / .28)}
+nav a.on{background:hsl(var(--h,212) 80% 50% / .52);border-color:hsl(var(--h,212) 95% 76%)}
+nav a:focus-visible,.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+nav a:nth-child(1){--h:200}nav a:nth-child(2){--h:212}nav a:nth-child(3){--h:224}nav a:nth-child(4){--h:236}
+nav a:nth-child(5){--h:248}nav a:nth-child(6){--h:260}nav a:nth-child(7){--h:272}nav a:nth-child(8){--h:186}
+nav a:nth-child(9){--h:170}nav a:nth-child(10){--h:284}nav a:nth-child(11){--h:296}
+.btn{font:600 15px var(--bd);letter-spacing:0;text-transform:none;border-radius:8px;padding:12px 18px;
+  background:hsl(var(--h,215) 70% 42% / .28);border:1px solid hsl(var(--h,215) 85% 66% / .5)}
+.btn:hover{background:hsl(var(--h,215) 75% 48% / .5);box-shadow:0 8px 24px hsl(var(--h,215) 90% 55% / .3);border-color:hsl(var(--h,215) 95% 74%)}
+.btn.go{--h:214}.btn.red{--h:8}
+.cta .btn:nth-child(4){--h:168}.cta .btn:nth-child(5){--h:44}.cta .btn:nth-child(6){--h:262}.cta .btn:nth-child(7){--h:190}.cta .btn:nth-child(8){--h:286}
+.kicker{font:600 13.5px var(--bd);letter-spacing:.02em;text-transform:none}
+h2.sec{font:700 clamp(28px,3.8vw,46px)/1.12 var(--hd);letter-spacing:-.01em;text-transform:none}
+.hero h1{font:700 clamp(40px,6vw,82px)/1.02 var(--hd);letter-spacing:-.015em;text-transform:none}
+.chip{font:500 14px var(--bd);letter-spacing:0;text-transform:none}
+.tcard .lab{font:600 14px var(--bd);letter-spacing:0;text-transform:none;color:#b9c9e8}
+.tcard .num{font-weight:700}
+.cond div{font:500 14px var(--bd);letter-spacing:0;text-transform:none}
+.traj text{font:600 12.5px var(--bd);letter-spacing:0;text-transform:none}
+.panelhead{font:600 15px var(--bd);letter-spacing:0;text-transform:none}
+.game .tag,.game .trail{font:600 12.5px var(--bd);letter-spacing:0}
+.game h3{font:700 24px var(--hd);letter-spacing:-.01em;text-transform:none}
+.game .meta{font:600 13px var(--bd);letter-spacing:0;text-transform:none}
+.specs span{font:500 12px var(--bd);letter-spacing:0;text-transform:none}
+.doc h4{font:700 15px var(--hd);letter-spacing:0;text-transform:none}
+.subhead{font:600 15px var(--bd);letter-spacing:0;text-transform:none}
+.dl h3{font:700 26px var(--hd);letter-spacing:-.01em;text-transform:none}
+.planet h4{font:700 15px var(--hd);letter-spacing:0;text-transform:none}
+.step figcaption b{font:700 14px var(--hd);letter-spacing:0;text-transform:none}
+.descent .cap .lab{font:600 13px var(--bd);letter-spacing:0;text-transform:none}
+.descent .cap h3{font:700 clamp(19px,3vw,25px)/1.2 var(--hd);letter-spacing:0}
+footer .cred b{font:700 15px var(--hd);letter-spacing:0}
+footer a.gh{font:600 14px var(--bd);letter-spacing:0}
+
+/* ---- project profile ---- */
+.pgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:30px}
+.patchcard{padding:24px;display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;align-items:start}
+.patch{width:150px;height:150px;display:block}
+.facts{margin:0}
+.facts div{display:grid;grid-template-columns:118px minmax(0,1fr);gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px;line-height:1.45}
+.facts div:last-child{border-bottom:0}
+.facts dt{color:#9fb0d2}.facts dd{margin:0;color:var(--white)}
+.story{padding:26px 26px 22px}
+.story h3{font:700 22px/1.25 var(--hd);margin:0 0 10px}
+.story p{color:#c9d7f3;margin:0 0 12px;max-width:62ch}
+.team{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.team span{display:flex;align-items:center;gap:10px;padding:7px 12px 7px 7px;border-radius:8px;font-size:14.5px;background:hsl(var(--h) 60% 40% / .18);border:1px solid hsl(var(--h) 80% 66% / .38)}
+.team i{width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font:700 12.5px var(--hd);font-style:normal;background:hsl(var(--h) 75% 62%);color:#06122a}
+.process{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-top:18px}
+.pstep{display:flex;flex-direction:column}
+.pstep .ph{aspect-ratio:4/3;background:#060c1e center/cover no-repeat;border-bottom:1px solid var(--line);display:grid;place-items:center}
+.pstep .ph svg{width:78%;height:auto}
+.pstep .pt{padding:14px 14px 16px;display:flex;flex-direction:column;flex:1}
+.pstep .n{font:600 12.5px var(--mono);color:hsl(var(--h) 90% 72%)}
+.pstep h3{font:700 17px/1.25 var(--hd);margin:4px 0 6px}
+.pstep p{font-size:13.5px;line-height:1.5;color:#a9b8d8;margin:0}
+.pstep a{margin-top:auto;padding-top:10px;color:hsl(var(--h) 90% 74%);font-size:13.5px;font-weight:600}
+.pstep a:hover{text-decoration:underline}
+.ideas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:18px}
+.idea{padding:18px 18px 16px;border-left:3px solid hsl(var(--h) 85% 62%)}
+.idea h4{font:700 16px/1.3 var(--hd);margin:0 0 6px}
+.idea p{font-size:13.5px;color:#a9b8d8;margin:0}
+@media (max-width:1180px){.process{grid-template-columns:repeat(3,minmax(0,1fr))}.ideas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){.pgrid{grid-template-columns:1fr}}
+@media (max-width:600px){.process{grid-template-columns:repeat(2,minmax(0,1fr))}.patchcard{grid-template-columns:1fr}.patch{margin:0 auto}.ideas{grid-template-columns:1fr}.facts div{grid-template-columns:96px minmax(0,1fr)}}
+@media (max-width:1380px){nav a{padding:11px 14px}}
 </style>
 
 
@@ -373,12 +449,12 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
       <g class="ring"><ellipse cx="20" cy="20" rx="15" ry="5.5" fill="none" stroke="#FC3D21" stroke-width="1.6" transform="rotate(-25 20 20)"/></g>
       <g class="sat"><circle cx="20" cy="4.5" r="1.8" fill="#E6F1FF"/></g>
     </svg>
-    <span>PROJECT ARES<small class="t2">LUNAR HABITAT · MISSION CONTROL</small></span>
+    <span>Project ARES<small class="t2">A NASA HUNCH student project</small></span>
   </a>
   <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">≡</button>
   <nav id="nav">
-    <a href="#mission">Mission</a><a href="#descent">Descent</a><a href="#eva">Spacewalk</a><a href="#telemetry">Telemetry</a><a href="#games">Simulators</a>
-    <a href="#papers">Papers</a><a href="#models">3D Designs</a><a href="https://claude.ai/artifact/BMs8Ea9epbjhnYAMEk7w2D" target="_blank" rel="noopener">3D Library ↗</a><a href="#floorplan">Floor Plan</a><a href="#gallery">Gallery</a>
+    <a href="#mission">Home</a><a href="#profile">Our project</a><a href="#descent">Descent</a><a href="#eva">Spacewalk</a><a href="#telemetry">Results</a><a href="#games">Games</a>
+    <a href="#papers">Papers</a><a href="#models">3D designs</a><a href="https://claude.ai/artifact/BMs8Ea9epbjhnYAMEk7w2D" target="_blank" rel="noopener">3D library ↗</a><a href="#floorplan">Floor plan</a><a href="#gallery">Gallery</a>
   </nav>
 </header>
 
@@ -387,9 +463,9 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
 <section class="hero" id="mission">
   <div class="wrap">
     <div>
-      <div class="kicker">NASA HUNCH · Project ARES</div>
+      <div class="kicker">NASA HUNCH · Project ARES · a three-person student team</div>
       <h1><span class="l">Lunar Smart</span><span class="l">Adaptive</span><span class="l r">Habitat</span></h1>
-      <div class="typed" id="typed" data-text="A lunar base for a crew of four, with sensors and an AI that help look after their mental health. Three games you can play in the browser."><span id="tt"></span><span class="cur"></span></div>
+      <div class="typed" id="typed" data-text="We designed a home on the Moon for four astronauts, and an AI that notices when someone is struggling and offers help they are free to turn down. We sketched it, modeled it, 3D-printed it and turned it into three games you can play right here."><span id="tt"></span><span class="cur"></span></div>
       <div class="cta">
         <a class="btn go" href="https://claude.ai/artifact/2W9bnbJaDD6nL2Sajr5amW" target="_blank" rel="noopener"><span class="ar">▶</span> Launch Simulator 1</a>
         <a class="btn red" href="https://claude.ai/artifact/GmnWEKZ6uWtNKZv2SaGPSB" target="_blank" rel="noopener"><span class="ar">▶</span> Launch Simulator 2</a>
@@ -400,10 +476,9 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
         <a class="btn" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/blob/main/Downloads/Lunar_Habitat_Complete_Designs.zip" target="_blank" rel="noopener">⬇ 3D designs</a>
       </div>
       <div class="statusbar">
-        <div class="chip"><span class="pulse"></span>All systems nominal</div>
-        <div class="chip">UTC <span class="v" id="utc">--:--:--</span></div>
-        <div class="chip">Session MET <span class="v" id="met">T+00:00:00</span></div>
-        <div class="chip">Crew <span class="v">4 / 4</span></div>
+        <div class="chip"><span class="pulse"></span>Crew of 4 · 90 days</div>
+        <div class="chip">Sketched → modeled → printed → played</div>
+        <div class="chip">By Jaineil R., Angel C. &amp; Farhan K.</div>
       </div>
     </div>
     <div class="orbitwrap" id="orbit">
@@ -420,6 +495,99 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
   </div>
 </section>
 
+
+<!-- ================= PROJECT PROFILE ================= -->
+<section id="profile">
+  <div class="wrap">
+    <div class="reveal"><div class="kicker">Our project, in our own words</div>
+    <h2 class="sec">NASA HUNCH project profile</h2>
+    <p class="sub">Long stays on the Moon are hard on people, not just machines. Isolation, poor sleep, cramped rooms and the same faces every day wear crews down. NASA's Human Research Program counts behavioral health among the risks of long missions. That is the problem we picked.</p></div>
+    <div class="pgrid">
+      <div class="glass patchcard reveal"><span class="corner tl"></span>
+        <svg class="patch" viewBox="0 0 160 160" role="img" aria-label="Project ARES mission patch: the habitat on the Moon's south pole with four stars for the four crew">
+  <defs><radialGradient id="pp_sky" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#173a86"/><stop offset="1" stop-color="#050b22"/></radialGradient>
+  <linearGradient id="pp_moon" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9dde6"/><stop offset="1" stop-color="#8a93a6"/></linearGradient>
+  <path id="pp_top" d="M24,80 A56,56 0 0 1 136,80"/><path id="pp_bot" d="M15,80 A65,65 0 0 0 145,80"/>
+  <clipPath id="pp_in"><circle cx="80" cy="80" r="47"/></clipPath></defs>
+  <circle cx="80" cy="80" r="77" fill="#0B3D91"/><circle cx="80" cy="80" r="74" fill="none" stroke="#38BDF8" stroke-width="1.5"/>
+  <circle cx="80" cy="80" r="62" fill="#08122e"/>
+  <text font-family="Space Grotesk,sans-serif" font-weight="700" font-size="12.5" fill="#E6F1FF" letter-spacing="2.4"><textPath href="#pp_top" startOffset="50%" text-anchor="middle">PROJECT ARES</textPath></text>
+  <text font-family="Space Grotesk,sans-serif" font-weight="600" font-size="9.5" fill="#9fd3f5" letter-spacing="1.6"><textPath href="#pp_bot" startOffset="50%" text-anchor="middle">J.R · A.C · F.K · HUNCH</textPath></text>
+  <circle cx="80" cy="80" r="48" fill="url(#pp_sky)" stroke="#38BDF8" stroke-opacity=".6"/>
+  <g clip-path="url(#pp_in)">
+    <circle cx="112" cy="56" r="9" fill="#2a6fd6"/><path d="M106,52 q6,-4 11,1 q-4,3 -11,-1z" fill="#7cc4ff" opacity=".8"/>
+    <path d="M30,104 Q80,88 130,104 L130,130 L30,130 Z" fill="url(#pp_moon)"/>
+    <path d="M58,100 a14,10 0 0 1 28,0 z" fill="#E6F1FF"/><rect x="56" y="99.5" width="32" height="2.4" fill="#c9d3e6"/>
+    <path d="M86,100 h12" stroke="#E6F1FF" stroke-width="2.2"/><path d="M98,101 a6,4.5 0 0 1 12,0 z" fill="#E6F1FF"/>
+    <circle cx="72" cy="95" r="1.6" fill="#FBBF24"/><circle cx="104" cy="98.5" r="1.1" fill="#FBBF24"/>
+    <path d="M44,98 v-12 M41,86 h6" stroke="#9fb0d2" stroke-width="1.1"/>
+  </g>
+  <g fill="#FBBF24"><path d="M50,66 l1.6,3.3 3.6,.5 -2.6,2.5 .6,3.6 -3.2,-1.7 -3.2,1.7 .6,-3.6 -2.6,-2.5 3.6,-.5z"/>
+  <path d="M66,52 l1.3,2.7 3,.4 -2.2,2.1 .5,3 -2.6,-1.4 -2.6,1.4 .5,-3 -2.2,-2.1 3,-.4z"/>
+  <path d="M88,48 l1.3,2.7 3,.4 -2.2,2.1 .5,3 -2.6,-1.4 -2.6,1.4 .5,-3 -2.2,-2.1 3,-.4z"/>
+  <path d="M60,74 l1.1,2.3 2.5,.4 -1.8,1.7 .4,2.5 -2.2,-1.2 -2.2,1.2 .4,-2.5 -1.8,-1.7 2.5,-.4z"/></g>
+  <circle cx="80" cy="80" r="77" fill="none" stroke="#FC3D21" stroke-width="2" stroke-dasharray="2 5" opacity=".7"/>
+</svg>
+        <dl class="facts">
+          <div><dt>Program</dt><dd>NASA HUNCH · Project ARES brief</dd></div>
+          <div><dt>Challenge</dt><dd>A smart lunar habitat that helps protect the crew's mental health</dd></div>
+          <div><dt>Site</dt><dd>Rim of Shackleton crater, 89.9° S: steady sunlight, ice nearby</dd></div>
+          <div><dt>Crew</dt><dd>4 people, 90 days</dd></div>
+          <div><dt>Layout</dt><dd>10.2 m shared core, four private crew quarters, command, greenhouse, medical + storm shelter, airlock</dd></div>
+          <div><dt>The AI</dt><dd>Watches 6 conditions, answers in 3 tiers, and has 8 rules it can never break</dd></div>
+          <div><dt>Built with</dt><dd>Paper sketches, a deck designer, Blender, a 3D printer, Unity, Godot and a hand-wired prototype</dd></div>
+        </dl>
+      </div>
+      <div class="glass story reveal">
+        <h3>Who we are and what we're making</h3>
+        <p>We're three high-school students in the NASA HUNCH program. Our habitat gives four astronauts a shared core to work, eat and exercise in, plus a private space each that is truly theirs.</p>
+        <p>Watching over it is an AI that reads simple signals (sleep, heart rate, how often people meet) and acts in small steps. First it quietly changes the light or sound. Next it makes an offer the person can refuse. Only when something is serious does it bring in a human, and it tells the person first. It never puts a camera or microphone where people sleep.</p>
+        <p>We didn't stop at drawings. Each idea went through paper, a 3D model, a printed model and a playable game, and we changed the design whenever a test showed us a problem.</p>
+        <div class="team">
+          <span style="--h:205"><i>JR</i>Jaineil R.</span>
+          <span style="--h:262"><i>AC</i>Angel C.</span>
+          <span style="--h:160"><i>FK</i>Farhan K.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="subhead reveal">Our design process, step by step</div>
+    <div class="process">
+      <article class="glass pstep reveal" style="--h:200"><div class="ph" style="background-image:url('Docs/Deck_Design/01_initial_concept_plan.png')"></div>
+        <div class="pt"><span class="n">01 · Research</span><h3>Read the brief, list the problems</h3><p>We broke the ARES brief into six problems: anxiety, low mood, conflict, fatigue, losing control of your day, and monotony. Then we gave every room a job against one of them.</p></div></article>
+      <article class="glass pstep reveal" style="--h:224"><div class="ph" style="background-image:url('Docs/Deck_Design/05_sketch_full_concept_outline.jpg')"></div>
+        <div class="pt"><span class="n">02 · Sketch</span><h3>Core first, then the rooms</h3><p>We drew the shared core first, placed the modules around it and joined them with tunnels, changing the plan at every step.</p><a href="#floorplan">See the sketches →</a></div></article>
+      <article class="glass pstep reveal" style="--h:248"><div class="ph" style="background-image:url('Models/Lunar_Habitat_v1/renders/01_exterior_hero.png')"></div>
+        <div class="pt"><span class="n">03 · Model</span><h3>Build it in Blender</h3><p>We modeled the whole base at true scale with full interiors, so we could walk the rooms and check that people actually fit.</p><a href="#models">3D designs →</a></div></article>
+      <article class="glass pstep reveal" style="--h:186"><div class="ph" style="background-image:url('3D_Print_Kits/images/project3_finished_model.png')"></div>
+        <div class="pt"><span class="n">04 · Print</span><h3>Hold it in our hands</h3><p>A 1:150 3D-printed kit showed things a screen hides, like how the quarters cluster around the core.</p><a href="#models">Print kits →</a></div></article>
+      <article class="glass pstep reveal" style="--h:44"><div class="ph"><svg viewBox="0 0 200 150" role="img" aria-label="Drawing of the team's hand-held mood tracker: a small screen above five mood buttons">
+  <rect x="34" y="18" width="132" height="116" rx="14" fill="#16244a" stroke="#38BDF8" stroke-width="2"/>
+  <rect x="50" y="32" width="100" height="44" rx="6" fill="#06122a" stroke="#2a4a8a"/>
+  <text x="100" y="52" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" fill="#E6F1FF">How are you?</text>
+  <text x="100" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#38BDF8">check-in 1-5</text>
+  <g font-family="Space Grotesk,sans-serif" font-size="11" font-weight="700" text-anchor="middle" fill="#06122a">
+  <circle cx="58" cy="104" r="11" fill="#e5484d"/><text x="58" y="108">1</text>
+  <circle cx="79" cy="104" r="11" fill="#f08a3c"/><text x="79" y="108">2</text>
+  <circle cx="100" cy="104" r="11" fill="#e6c84a"/><text x="100" y="108">3</text>
+  <circle cx="121" cy="104" r="11" fill="#7bd88f"/><text x="121" y="108">4</text>
+  <circle cx="142" cy="104" r="11" fill="#34D399"/><text x="142" y="108">5</text></g>
+  <path d="M166,60 c18,0 18,30 2,34" fill="none" stroke="#93A4C8" stroke-width="2" stroke-dasharray="3 3"/>
+</svg></div>
+        <div class="pt"><span class="n">05 · Prototype</span><h3>Wire a real mood tracker</h3><p>We built a hand-held check-in device: one press rates your mood 1–5, it asks on its own after a minute idle, and its screen brightness adjusts. A case is next.</p></div></article>
+      <article class="glass pstep reveal" style="--h:150"><div class="ph" style="background-image:url('Docs/LUNA/card.jpg')"></div>
+        <div class="pt"><span class="n">06 · Play-test</span><h3>Turn it into games and test it</h3><p>Three playable games and 70 simulated missions let us try the AI before anyone lives with it, and showed us what to fix.</p><a href="#telemetry">Our results →</a></div></article>
+    </div>
+
+    <div class="subhead reveal">Ideas we're proud of</div>
+    <div class="ideas">
+      <div class="glass idea reveal" style="--h:44"><h4>Beds that wake you gently</h4><p>The smart bed waits for light sleep before the alarm, and the pod brightens like a sunrise first.</p></div>
+      <div class="glass idea reveal" style="--h:150"><h4>A greenhouse that is also therapy</h4><p>Tending plants gives fresh food and oxygen, and it lifts low mood, so the AI can suggest it.</p></div>
+      <div class="glass idea reveal" style="--h:212"><h4>An AI that has to ask</h4><p>Every offer can be turned down, and a "no" starts a cool-down. There is no force button.</p></div>
+      <div class="glass idea reveal" style="--h:270"><h4>Play as the AI yourself</h4><p>In LUNA you are the habitat's AI, so you feel how hard it is to help without making people feel watched.</p></div>
+    </div>
+  </div>
+</section>
 
 <!-- ================= DESCENT (scroll-driven 3D) ================= -->
 <section class="descent" id="descent" aria-label="Scroll to descend from lunar orbit to the habitat">
@@ -456,18 +624,18 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
 <!-- ================= TELEMETRY ================= -->
 <section id="telemetry">
   <div class="wrap">
-    <div class="reveal"><div class="kicker">Live telemetry</div>
-    <h2 class="sec">Mission telemetry</h2>
-    <p class="sub">Every number below comes from our running AI engine and the threshold check we ran inside the games.</p></div>
+    <div class="reveal"><div class="kicker">Testing it</div>
+    <h2 class="sec">What our tests showed</h2>
+    <p class="sub">We didn't want to just say the AI works, so we put it through 70 simulated missions (189 crew-weeks) inside our games. These are the results, straight from that engine.</p></div>
     <div class="tgrid">
-      <div class="glass tcard reveal float" style="animation-delay:0s"><span class="corner tl"></span><div class="lab">Sensors online</div><div class="num"><span data-count="9">0</span><small>/ 9</small></div><p>Wristband, skin patch, beacon, voice &amp; face (shared rooms only), CO₂, task data</p><div class="bar"><i data-w="100"></i></div></div>
-      <div class="glass tcard reveal float" style="animation-delay:-1.5s"><span class="corner tl"></span><div class="lab">Problems caught</div><div class="num"><span data-count="60">0</span><small>/ 60</small></div><p>Problems caught in 70 simulated missions</p><div class="bar"><i data-w="100"></i></div></div>
-      <div class="glass tcard reveal float" style="animation-delay:-3s"><span class="corner tl"></span><div class="lab">False alarms</div><div class="num"><span data-count="0.02" data-dec="2">0</span><small>/ wk</small></div><p>Unwanted AI offers per person per week, across 189 crew-weeks</p><div class="bar"><i data-w="2"></i></div></div>
-      <div class="glass tcard reveal float" style="animation-delay:-4.5s"><span class="corner tl"></span><div class="lab">Living volume</div><div class="num"><span data-count="740">0</span><small>m³ / crew</small></div><p>NASA guide: 20–120 m³. Private space: ~185 m³ each</p><div class="bar"><i data-w="92"></i></div></div>
-      <div class="glass tcard reveal float" style="animation-delay:-.8s"><span class="corner tl"></span><div class="lab">Conditions scored</div><div class="num"><span data-count="6">0</span><small>live</small></div><p>Anxiety · depression · conflict · fatigue · autonomy · monotony</p><div class="bar"><i data-w="100"></i></div></div>
-      <div class="glass tcard reveal float" style="animation-delay:-2.2s"><span class="corner tl"></span><div class="lab">Response tiers</div><div class="num"><span data-count="3">0</span><small>tiers</small></div><p>Silent → offer you can refuse → CMO, always telling the person first</p><div class="bar"><i data-w="100"></i></div></div>
-      <div class="glass tcard reveal float" style="animation-delay:-3.7s"><span class="corner tl"></span><div class="lab">Hard limits in code</div><div class="num"><span data-count="8">0</span><small>limits</small></div><p>No sensors in sleep pods. A “no” stops the AI. Humans decide.</p><div class="bar"><i data-w="100"></i></div></div>
-      <div class="glass tcard reveal float" style="animation-delay:-5.2s"><span class="corner tl"></span><div class="lab">Rubric self-score</div><div class="num"><span data-count="220">0</span><small>/ 220</small></div><p>200/200 main rubric + 20/20 bonus. <a href="rubric.html" style="color:var(--cyan)">See evidence →</a></p><div class="bar"><i data-w="100"></i></div></div>
+      <div class="glass tcard reveal float" style="animation-delay:0s"><span class="corner tl"></span><div class="lab">Sensors we chose</div><div class="num"><span data-count="9">0</span><small>/ 9</small></div><p>Wristband, skin patch, beacon, voice &amp; face (shared rooms only), CO₂, task data</p><div class="bar"><i data-w="100"></i></div></div>
+      <div class="glass tcard reveal float" style="animation-delay:-1.5s"><span class="corner tl"></span><div class="lab">Problems it caught</div><div class="num"><span data-count="60">0</span><small>/ 60</small></div><p>Problems caught in 70 simulated missions</p><div class="bar"><i data-w="100"></i></div></div>
+      <div class="glass tcard reveal float" style="animation-delay:-3s"><span class="corner tl"></span><div class="lab">Unwanted offers</div><div class="num"><span data-count="0.02" data-dec="2">0</span><small>/ wk</small></div><p>Unwanted AI offers per person per week, across 189 crew-weeks</p><div class="bar"><i data-w="2"></i></div></div>
+      <div class="glass tcard reveal float" style="animation-delay:-4.5s"><span class="corner tl"></span><div class="lab">Room per person</div><div class="num"><span data-count="740">0</span><small>m³ / crew</small></div><p>NASA guide: 20–120 m³. Private space: ~185 m³ each</p><div class="bar"><i data-w="92"></i></div></div>
+      <div class="glass tcard reveal float" style="animation-delay:-.8s"><span class="corner tl"></span><div class="lab">What it watches for</div><div class="num"><span data-count="6">0</span><small>live</small></div><p>Anxiety · depression · conflict · fatigue · autonomy · monotony</p><div class="bar"><i data-w="100"></i></div></div>
+      <div class="glass tcard reveal float" style="animation-delay:-2.2s"><span class="corner tl"></span><div class="lab">Ways it can respond</div><div class="num"><span data-count="3">0</span><small>tiers</small></div><p>Silent → offer you can refuse → CMO, always telling the person first</p><div class="bar"><i data-w="100"></i></div></div>
+      <div class="glass tcard reveal float" style="animation-delay:-3.7s"><span class="corner tl"></span><div class="lab">Rules it can never break</div><div class="num"><span data-count="8">0</span><small>limits</small></div><p>No sensors in sleep pods. A “no” stops the AI. Humans decide.</p><div class="bar"><i data-w="100"></i></div></div>
+      <div class="glass tcard reveal float" style="animation-delay:-5.2s"><span class="corner tl"></span><div class="lab">Rubric self-check</div><div class="num"><span data-count="220">0</span><small>/ 220</small></div><p>200/200 main rubric + 20/20 bonus. <a href="rubric.html" style="color:var(--cyan)">See evidence →</a></p><div class="bar"><i data-w="100"></i></div></div>
     </div>
 
     <div class="mc">
@@ -475,13 +643,13 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
         <div class="scan"></div>
         <div class="scope" id="scope" aria-label="Crew condition radar"></div>
         <div>
-          <div class="panelhead"><span>Crew wellness scan</span><span><span class="pulse"></span>LIVE</span></div>
+          <div class="panelhead"><span>Crew check-in (demo)</span><span><span class="pulse"></span>Simulated</span></div>
           <div class="cond" id="cond"></div>
           <p class="mono" style="font-size:11px;color:var(--mut);margin-top:12px">Simulated readings · 14-day personal baseline · confidence 100 %</p>
         </div>
       </div>
       <div class="glass traj reveal">
-        <div class="panelhead"><span>Mission trajectory</span><span><span class="pulse"></span>ON COURSE</span></div>
+        <div class="panelhead"><span>How the project came together</span><span><span class="pulse"></span>8 weeks</span></div>
         <svg viewBox="0 0 600 250" aria-label="Project timeline as an orbital trajectory">
           <defs><linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#0B3D91"/><stop offset="1" stop-color="#38BDF8"/></linearGradient>
             <radialGradient id="eg"><stop offset="0" stop-color="#9fd8ff"/><stop offset=".5" stop-color="#2a6fd6"/><stop offset="1" stop-color="#0B3D91"/></radialGradient>
@@ -492,7 +660,7 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
           <g><circle r="5" fill="#FC3D21"/><circle r="10" fill="none" stroke="#FC3D21" stroke-opacity=".5"/><animateMotion dur="9s" repeatCount="indefinite" rotate="auto"><mpath href="#tp"/></animateMotion></g>
           <g fill="#38BDF8"><circle cx="150" cy="118" r="4"/><circle cx="238" cy="114" r="4"/><circle cx="318" cy="150" r="4"/><circle cx="400" cy="160" r="4"/><circle cx="470" cy="118" r="4"/></g>
           <text x="118" y="100">Research</text><text x="212" y="96">Sensors</text><text x="296" y="182">Spaces</text><text x="376" y="192">AI + ethics</text><text x="438" y="148">Board</text>
-          <text class="lbl2" x="20" y="242">EARTH · WEEK 1</text><text class="lbl2" x="488" y="122">MOON · WEEK 8</text>
+          <text class="lbl2" x="20" y="242">Week 1: the brief</text><text class="lbl2" x="492" y="124">Week 8: review</text>
         </svg>
       </div>
     </div>
@@ -647,8 +815,8 @@ footer a.gh{font:600 11px var(--hd);letter-spacing:.2em;color:var(--cyan)}
 <footer>
   <div class="horizon" aria-hidden="true"></div>
   <div class="wrap">
-    <div class="cred"><b>PROJECT ARES · NASA HUNCH 2025–26</b><br>© 2026 Jaineil R. · with thanks to Angel C. and Farhan K.<br><span style="color:var(--mut);font-size:12px">Student project for NASA HUNCH. Not an official NASA website.</span></div>
-    <a class="gh" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat">SOURCE ON GITHUB ↗</a>
+    <div class="cred"><b>Project ARES · NASA HUNCH 2025–26</b><br>© 2026 Jaineil R. · with thanks to Angel C. and Farhan K.<br><span style="color:var(--mut);font-size:12px">Student project for NASA HUNCH. Not an official NASA website.</span></div>
+    <a class="gh" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat">Source on GitHub ↗</a>
   </div>
 </footer>
 
@@ -694,7 +862,7 @@ secs.forEach(s=>spy.observe(s));
 
 /* ---------- clocks ---------- */
 const t0=Date.now(),pad2=n=>String(n).padStart(2,'0');
-function clock(){const d=new Date();$('#utc').textContent=pad2(d.getUTCHours())+':'+pad2(d.getUTCMinutes())+':'+pad2(d.getUTCSeconds());
+function clock(){if(!$('#utc'))return;const d=new Date();$('#utc').textContent=pad2(d.getUTCHours())+':'+pad2(d.getUTCMinutes())+':'+pad2(d.getUTCSeconds());
   const s=Math.floor((Date.now()-t0)/1000);$('#met').textContent='T+'+pad2(Math.floor(s/3600))+':'+pad2(Math.floor(s/60)%60)+':'+pad2(s%60);}
 clock();setInterval(clock,1000);
 
@@ -726,7 +894,7 @@ if(!RM)setInterval(()=>{conds.forEach(([n,v],i)=>{const nv=Math.max(5,Math.min(6
   $('#tex').style.backgroundImage=`url(${c.toDataURL('image/jpeg',.85)})`;})();
 
 /* ---------- trailers on hover / tap ---------- */
-$$('.game').forEach(card=>{const v=card.querySelector('video');let loaded=false;
+$$('.game').forEach(card=>{const v=card.querySelector('video');if(!v||!card.querySelector('.trail'))return;let loaded=false;
   const play=()=>{if(RM)return;if(!loaded){v.src=v.dataset.src;loaded=true;}card.classList.add('playing');v.play().catch(()=>{});};
   const stop=()=>{card.classList.remove('playing');v.pause();};
   if(!TOUCH){card.addEventListener('mouseenter',play);card.addEventListener('mouseleave',stop);}
