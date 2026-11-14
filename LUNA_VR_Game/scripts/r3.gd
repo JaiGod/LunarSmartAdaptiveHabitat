@@ -1484,7 +1484,7 @@ func set_auto(on: bool, why := "") -> void:
 const AUTO_PLAN = [
 	[8.0, "desk"], [9.0, "treadmill"], [10.0, "o2_gen"], [10.5, "rack_0"], [11.0, "desk"],
 	[13.0, "gh_irrigation"], [13.5, "desk"], [15.0, "parts_shelf"], [15.5, "bike"], [16.5, "eva_tools"],
-	[17.0, "desk"], [19.5, "sofa"], [20.3, "earth_window"], [20.8, "books"],
+	[17.0, "desk"], [19.0, "cabinet"], [19.5, "sofa"], [20.3, "earth_window"], [20.8, "books"],
 ]
 var auto_done = {}                 # "day:item" -> true
 
@@ -1515,6 +1515,30 @@ func _cell_for(id: String) -> Vector2i:
 				if H.region.has(n) and not H.blocked.has(n): return n
 	return c
 
+## stand ~1.6 m in front of a point and look at it
+func _spot_goal(t: Vector3) -> Dictionary:
+	var H = sim.hab; var tc = Habitat.to_cell(t); var best = null; var bd = 1e9
+	for dx in range(-2, 3):
+		for dy in range(-2, 3):
+			var c = tc + Vector2i(dx, dy)
+			if c == tc or not H.region.has(c) or H.blocked.has(c) or H.zone_of(c) != H.zone_of(tc): continue
+			var dd = absf(Vector2(dx, dy).length() - 1.4)
+			if dd < bd: bd = dd; best = c
+	if best == null: best = tc
+	return {"cell": best, "look": t}
+
+func _screen_goal(id: String, zone: String) -> Dictionary:
+	for sc in hab.screens:
+		if sc.id != id: continue
+		if zone != "" and sim.hab.zone_of(Habitat.to_cell(sc.global_position)) != zone: continue
+		var fwd = sc.global_transform.basis.z.normalized()
+		var stand = sc.global_position + Vector3(fwd.x, 0, fwd.z) * 1.0
+		var g2 = _spot_goal(sc.global_position)
+		var c = Habitat.to_cell(stand)
+		if sim.hab.region.has(c) and not sim.hab.blocked.has(c): g2.cell = c
+		return g2
+	return {}
+
 func _goal(id: String) -> Dictionary:
 	var c = _cell_for(id)
 	return {} if c.x < 0 else {"cell": c, "do": id}
@@ -1528,7 +1552,21 @@ func _auto_goal() -> Dictionary:
 	if h >= 21.5 or h < 5.5: return _goal("bed")
 	var meal = "%d:meal%d" % [d, int(h / 6.0)]
 	if g._meal_time() and not auto_done.has(meal): auto_done[meal] = true; return _goal("seat")
-	if not sim.my_checkins.any(func(c): return c.day == d): return {"cell": Vector2i(9, 7), "do": "kiosk"}
+	# things only the person can do: the autopilot never answers for you or tests your body
+	if not sim.my_checkins.any(func(c): return c.day == d) and not auto_done.has("%d:kiosk_note" % d):
+		auto_done["%d:kiosk_note" % d] = true
+		g._toast("The mood check-in is yours: the autopilot never says how you feel. Press P any time to do it.", "info")
+	if sim.fired.get("eva_task", false) and not auto_done.has("%d:eva_note" % d):
+		auto_done["%d:eva_note" % d] = true
+		g._toast("EVA is a human job: the autopilot won't suit up for you. It's on your list.", "info")
+	if sim.hab.airlock_dust > 0.6 and not g.outside:
+		var ag = _screen_goal("airlock", "")
+		if not ag.is_empty(): ag["do"] = "clean"; return ag
+	if d == 1 and not g.flags.get("twin", false) and h > 8.5:
+		var tg = _spot_goal(Vector3(20.625, 0.95, 18.125)); tg["do"] = "twin"; return tg
+	if d == 2 and g.flags.get("sleep_read", -1) != d:
+		var sg = _screen_goal("pod_desk", "pod0")
+		if not sg.is_empty(): sg["do"] = "sleep_read"; return sg
 	if _tasks().checked == 0 and h > 9.5:
 		for cr in sim.crew:
 			if cr.i != 0 and not cr.asleep and not cr.outside: return {"cell": cr.cell, "do": "crew_%d" % cr.i}
@@ -1592,8 +1630,18 @@ func _face(t: Vector3) -> void:
 
 func _auto_act() -> void:
 	var what: String = auto_goal.get("do", "")
+	if auto_goal.has("look"): _face(auto_goal.look)
 	match what:
 		"": return
+		"twin":
+			g.flags["twin"] = true; mark("map")
+			g._toast("Autopilot checked the digital twin: rooms, lights and where everyone is.", "info")
+		"sleep_read":
+			g.flags["sleep_read"] = sim.day()
+			var n = g.flags.get("last_night", {})
+			g._toast("Last night: %.1f h of sleep. Full chart on the pod desk." % n.get("hours", 0.0), "info")
+		"clean":
+			g.airlock_cycle()
 		"decide":
 			if sim.pending.is_empty(): return
 			var e = sim.pending[0]; var k = int(e.get("rec", 0))

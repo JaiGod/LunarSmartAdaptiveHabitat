@@ -68,6 +68,7 @@ The panel by your pillow sets your pod's light (auto, off, dim, warm, bright), t
 - **T: guided demo.** Ten stops through the whole habitat, one short card each. It moves on by itself after 10 seconds, or press Next.
 - **P: autopilot (the AI plays).** It lives an ISS-style day: desk work, two exercise sessions, greenhouse and life-support checks, meals with the crew, a little free time, and bed by 22:00. It checks in on a crewmate and answers LUNA.
 - **The person is always in charge.** Any key, click or stick movement takes control back at once. The AI OFF switch stops the autopilot too, and the autopilot can never switch LUNA back on: only a person can. Before it makes a decision for you it shows a 6-second veto window ("Stop, I'll decide").
+- **Some things only you can do.** The autopilot never fills in your mood check-in, never takes the reaction test for you (it would fake your fatigue data), and never goes on EVA. It leaves those on your list and tells you.
 - **It learns.** It remembers where it got stuck and how long each walk took, and next time picks a better place to stand. Press **L** to see what it has learned (saved on your computer between sessions).
 
 ## Realism pass
