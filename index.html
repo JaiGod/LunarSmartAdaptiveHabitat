@@ -435,6 +435,18 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
 .slides-banner .sb-s{color:#e6ecfa;font-size:15px}
 .slides-banner .sb-go{position:relative;font-weight:800;padding:14px 22px;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#ec4899);white-space:nowrap;box-shadow:0 0 20px rgba(236,72,153,.5)}
 @media(max-width:700px){.slides-banner{flex-direction:column;align-items:flex-start;padding:20px}.slides-banner .sb-img{width:100%}}
+
+/* ================= menu: every tab visible, wrapped onto two centered rows ================= */
+@media (min-width:821px){
+  :root{--nav:112px}
+  header{height:auto;min-height:var(--nav);flex-wrap:wrap;row-gap:8px;padding-top:10px;padding-bottom:10px;background:rgba(5,8,22,.78);backdrop-filter:blur(10px);border-color:var(--line)}
+  .brand{flex:0 0 auto}
+  nav,nav.open{position:static;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 auto;flex:1 1 100%;background:none;border:0;padding:0}
+  nav a{font-size:13px;padding:6px 11px}
+  .burger{display:none}
+}
+@media (min-width:821px) and (max-width:1560px){:root{--nav:140px}}
+nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:150}nav a:nth-child(15){--h:30}nav a:nth-child(16){--h:45}
 </style>
 </head>
 <body>
