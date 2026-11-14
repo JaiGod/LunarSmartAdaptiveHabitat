@@ -23,11 +23,13 @@
 <a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/play2/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%202-Lunar%20Habitat%20Commander-2ea44f?style=for-the-badge" height="48" alt="Play Game 2"></a>
 &nbsp;
 <a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%203-LUNA%20(2D%20pixel)-5fd3e6?style=for-the-badge" height="48" alt="Play Game 3: LUNA"></a>
+&nbsp;
+<a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/vr/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%204-LUNA%20VR%20(3D%20%2B%20VR)-e0752f?style=for-the-badge" height="48" alt="Play Game 4: LUNA VR"></a>
 &nbsp;&nbsp;
 <a href="https://play.unity.com/en/games/3a71c85f-445e-4048-9ed1-7d68a42f1ff5/lunar-smart-adaptive-habitat"><img src="https://img.shields.io/badge/%E2%96%B6%20%20GAME%201%20ON-Unity%20Play-000000?style=for-the-badge&logo=unity&logoColor=white" height="48" alt="Play Game 1 on Unity Play"></a>
 <a href="https://play.unity.com/en/games/4b4f2ef7-1ba6-4d1e-b5b3-435a0b63396f/lunar-habitat-commander"><img src="https://img.shields.io/badge/%E2%96%B6%20%20GAME%202%20ON-Unity%20Play-000000?style=for-the-badge&logo=unity&logoColor=white" height="48" alt="Play Game 2 on Unity Play"></a>
 </p>
-<p align="center"><b>All three games run in the browser:</b> no download, works in Chrome or Edge on any PC, including school computers · <a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/"><b>Project home page</b></a></p>
+<p align="center"><b>All four games run in the browser:</b> no download (LUNA VR also runs in a VR headset), works in Chrome or Edge on any PC, including school computers · <a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/"><b>Project home page</b></a></p>
 
 
 **AI Psychological Monitoring for Positive Crew Mental Health** · Project ARES · 4-person lunar habitat · 2 Unity games (VR + desktop) · every 3D model · 3D-printable model kits · presentation, research, proposal and rubric deliverables
@@ -49,6 +51,7 @@
 |---|---|
 | [`play/`](play/) · [`play2/`](play2/) · [`luna/`](luna/) | The three browser builds (2 Unity WebGL + LUNA web) |
 | [`LUNA_2D_Game/`](LUNA_2D_Game/) | Game 3: **LUNA**, a 2D pixel-art Godot 4 simulation where you are the habitat AI: sensor loadout, response protocols, forecasts, lighting and sleep simulation, dust storms, digital twin, board questions Q1–Q6. [Play](https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna/) |
+| [`LUNA_VR_Game/`](LUNA_VR_Game/) | Game 4: **LUNA VR**, first person in the browser or in VR (Meta Quest browser, PC VR through OpenXR). You are the Commander, one of the four crew LUNA looks after, on the same engine as the 2D game. [Play](https://jaigod.github.io/LunarSmartAdaptiveHabitat/vr/) · [PC VR build](vr/LUNA_VR_Windows.zip) · [why each model exists](Docs/LUNA_VR/MODEL_MANIFEST.md) · [Blender-ready .glb models](Models/LUNA_VR_GLB/) |
 | [`Unity_Game_Moon_Base_Final/`](Unity_Game_Moon_Base_Final/) | **Lunar Smart Adaptive Habitat**: the Unity 6 source (VR + desktop). Open with Unity Hub (6000.3.21f1). |
 | [`Models/`](Models/) | **Every 3D model**: all texture-baked habitat models (`Blender_Rich_Baked`), the Crew Wellness Dome, Base1 FBX, and Lunar Habitat v1 (.blend, .obj, 1:50 STL parts, renders) |
 | [`Models/Health_Monitoring/`](Models/Health_Monitoring/) · [`models/health/`](models/health/) | **Health-monitoring hardware**: the Blender script and the six exported models (chest beacon, wristband, cortisol patch, zone sensor pod, Crew Health Station, sleep bunk) |

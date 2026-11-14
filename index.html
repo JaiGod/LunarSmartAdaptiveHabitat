@@ -466,11 +466,12 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
     <div>
       <div class="kicker">NASA HUNCH · Project ARES · a three-person student team</div>
       <h1><span class="l">Lunar Smart</span><span class="l">Adaptive</span><span class="l r">Habitat</span></h1>
-      <div class="typed" id="typed" data-text="We designed a home on the Moon for four astronauts, and an AI that notices when someone is struggling and offers help they are free to turn down. We sketched it, modeled it, 3D-printed it and turned it into three games you can play right here."><span id="tt"></span><span class="cur"></span></div>
+      <div class="typed" id="typed" data-text="We designed a home on the Moon for four astronauts, and an AI that notices when someone is struggling and offers help they are free to turn down. We sketched it, modeled it, 3D-printed it and turned it into games you can play right here, one of them in VR."><span id="tt"></span><span class="cur"></span></div>
       <div class="cta">
         <a class="btn go" href="play/"><span class="ar">▶</span> Launch Simulator 1</a>
         <a class="btn red" href="play2/"><span class="ar">▶</span> Launch Simulator 2</a>
         <a class="btn go" href="luna/"><span class="ar">▶</span> LUNA (2D)</a>
+        <a class="btn red" href="vr/"><span class="ar">▶</span> LUNA VR (3D + VR)</a>
         <a class="btn" href="voice-log/">🎙 Astronaut Voice Log</a>
         <a class="btn" href="rubric.html">🏆 Rubric report</a>
         <a class="btn" href="code.html">💻 Code highlights</a>
@@ -578,7 +579,7 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
 </svg></div>
         <div class="pt"><span class="n">05 · Prototype</span><h3>Wire a real mood tracker</h3><p>We built a hand-held check-in device: one press rates your mood 1–5, it asks on its own after a minute idle, and its screen brightness adjusts. A case is next.</p></div></article>
       <article class="glass pstep reveal" style="--h:150"><div class="ph" style="background-image:url('Docs/LUNA/card.jpg')"></div>
-        <div class="pt"><span class="n">06 · Play-test</span><h3>Turn it into games and test it</h3><p>Three playable games and 70 simulated missions let us try the AI before anyone lives with it, and showed us what to fix.</p><a href="#telemetry">Our results →</a></div></article>
+        <div class="pt"><span class="n">06 · Play-test</span><h3>Turn it into games and test it</h3><p>Playable games (one in VR) and 70 simulated missions let us try the AI before anyone lives with it, and showed us what to fix.</p><a href="#telemetry">Our results →</a></div></article>
     </div>
 
     <div class="subhead reveal">Ideas we're proud of</div>
@@ -673,7 +674,7 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
 <section id="games">
   <div class="wrap">
     <div class="reveal"><div class="kicker">Flight simulators</div>
-    <h2 class="sec">Four playable simulators</h2>
+    <h2 class="sec">Five playable simulators</h2>
     <p class="sub">All four run in the browser. The two Unity games also run on a Meta Quest, and the Voice Log also runs as a Windows program.</p></div>
     <div class="games">
       <article class="glass game reveal">
@@ -701,8 +702,16 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
           <div class="row"><a class="btn go" href="luna/"><span class="ar">▶</span> Play in browser</a><a class="btn" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/tree/main/LUNA_2D_Game">Source</a></div></div>
       </article>
       <article class="glass game reveal">
-        <div class="media"><img src="voice-log/screenshot.jpg" alt="Astronaut Voice Log with a saved log and an estimated mood of Happy" loading="lazy">
+        <div class="media"><img src="Docs/LUNA_VR/card.jpg" alt="LUNA VR: the greenhouse under its light-pipe dome, racks of crops tended by the crew" loading="lazy">
           <div class="tag"><span class="pulse"></span>SIM-04 · READY</div></div>
+        <div class="body"><div class="meta">First person · Godot 4 · browser + VR (Quest, PC VR)</div><h3>LUNA VR: Life in the Habitat</h3>
+          <p>Now you are the Commander, one of the four crew LUNA looks after. Wake with the smart bed, check in at the kiosk, eat with the crew, clean dust out of the airlock, and make the calls at the Ops console. LUNA's offers pop up and you can say no.</p>
+          <div class="specs"><div><b>3 days</b><span>Mission</span></div><div><b>8</b><span>Decisions</span></div><div><b>14</b><span>Blender models</span></div></div>
+          <div class="row"><a class="btn go" href="vr/"><span class="ar">▶</span> Play (or Enter VR)</a><a class="btn" href="vr/LUNA_VR_Windows.zip">⬇ PC VR</a><a class="btn" href="https://github.com/JaiGod/LunarSmartAdaptiveHabitat/blob/main/Docs/LUNA_VR/MODEL_MANIFEST.md" target="_blank" rel="noopener">Why each model</a></div></div>
+      </article>
+      <article class="glass game reveal">
+        <div class="media"><img src="voice-log/screenshot.jpg" alt="Astronaut Voice Log with a saved log and an estimated mood of Happy" loading="lazy">
+          <div class="tag"><span class="pulse"></span>SIM-05 · READY</div></div>
         <div class="body"><div class="meta">Crew wellness · Python + web · voice control</div><h3>Astronaut Voice Log</h3>
           <p>Record a crew log by voice. Say "start log" and "stop log", and the AI estimates the astronaut's mood from their words and how their voice compares with their calm baseline.</p>
           <div class="specs"><div><b>8</b><span>Moods</span></div><div><b>4</b><span>Voice commands</span></div><div><b>Offline</b><span>Windows program</span></div></div>
