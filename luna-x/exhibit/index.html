@@ -1,0 +1,54 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LUNA-X Exhibition Hall · Lunar Colony Technology Showcase · Project ARES</title>
+<meta name="description" content="The official digital showcase of the Project ARES lunar colony: interactive 3D exhibits of every LUNA-X wearable and habitat module, by NASA HUNCH student Jaineil R.">
+<meta name="theme-color" content="#050816">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="lx3d.css">
+<style>
+body{background:radial-gradient(60% 40% at 70% 0%,rgba(29,78,216,.25),transparent 70%),radial-gradient(40% 30% at 0% 40%,rgba(109,40,217,.18),transparent 70%),var(--void)}
+.hallhero{padding:120px 5vw 30px;max-width:1180px;margin:0 auto}
+.hallhero h1{font:900 clamp(30px,5vw,58px)/1.05 var(--hd);margin:12px 0}
+.hallhero p{color:#c7d5f0;max-width:760px;font-size:17px}
+.stats{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px}.stats b{font:700 28px var(--hd);display:block}.stats span{color:var(--mut);font-size:13px}
+.cat{max-width:1180px;margin:0 auto;padding:40px 5vw 10px}
+.cat h2{font:700 24px var(--hd);margin:6px 0 4px}.cat>p{color:var(--mut);margin-bottom:16px}
+.ex{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.card{position:relative;display:block;background:var(--glass);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.25s}
+.card:hover{border-color:var(--cyan);transform:translateY(-3px);box-shadow:0 10px 40px rgba(56,189,248,.15)}
+.card img{aspect-ratio:16/10;object-fit:cover;width:100%;transition:transform .5s}.card:hover img{transform:scale(1.05)}
+.card .b{padding:12px 14px 14px}.card h3{font:700 15px var(--hd);margin:4px 0}.card p{color:var(--mut);font-size:13.5px}
+.tag{position:absolute;top:10px;left:10px;font:600 10px var(--mono);letter-spacing:.12em;background:rgba(5,8,22,.8);border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:#bfe6ff}
+.tag.live{color:#05081a;background:var(--cyan);border-color:var(--cyan)}
+.sys{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+</style></head><body>
+<nav class="top"><a class="brand" href="../">← LUNA-X</a><a href="#health">Crew health</a><a href="#eva">EVA</a><a href="#habitat">Habitat</a><a href="#life">Life support</a><a href="#agri">Agriculture</a><a href="#transport">Transport</a><a href="../../">Project ARES</a></nav>
+<header class="hallhero reveal vis"><div class="kick">NASA HUNCH · Project ARES · Lunar colony technology showcase</div>
+<h1>THE LUNA-X<br>EXHIBITION HALL</h1>
+<p>Every model built for the Project ARES lunar colony, shown as a museum exhibit. Open a <b>LIVE 3D</b> exhibit to fly around it, hover any part, open a full briefing, run a scan and see how it connects to sleep, health, power, water, food and communications across the habitat.</p>
+<div class="stats"><div><b>5</b><span>live 3D exhibits</span></div><div><b>14</b><span>habitat modules</span></div><div><b>11</b><span>habitat systems linked</span></div></div></header>
+<div id="hall"></div>
+<footer>LUNA-X Exhibition Hall · NASA HUNCH Project ARES · © 2026 Jaineil R. · with Angel C. and Farhan K.</footer>
+<script>
+const L=(h,img,t,p,tag,sys,live)=>({h,img,t,p,tag,sys,live});
+const CATS=[
+ ['eva','EVA Systems','The wearables that keep astronauts safe outside.',[
+  L('suit/','../media/suit/pose_34f.jpg','LUNA-X Smart Suit','Full EVA suit with the XCore wellness hub, life-support backpack and exoskeleton.','Exhibit 04',['Life support','Health','Power'],1),
+  L('helmet/','../helmet/img/01_hero_3quarter.jpg','Adaptive Cognitive Helmet','AI vision, sensors, HUD and crew-safety guardian.','Exhibit 01',['Health','Comms','Sleep'],1),
+  L('glove/','../glove/img/glove_hero.jpg','Adaptive Wellness Glove','Vitals, haptics, IR plant scans and gestures.','Exhibit 02',['Agriculture','Health'],1),
+  L('boot/','../boot/img/boot_hero.jpg','Adaptive Mobility Boot','Smart sole, ankle actuators, dust shield, path lights.','Exhibit 03',['EVA','Health'],1)]],
+ ['health','Crew Health','Medical, mental-health and everyday wellness technology.',[
+  L('../habitat-uniform/','../habitat-uniform/img/LHC_01_hero_front.jpg','Habitat Operations Uniform','Everyday crew jumpsuit with the LUNA-X chest module.','Exhibit 05',['Health','Comms','Ops'],1),
+  L('../suit-habitat-aegis.html#habitat','../media/habitat/LUNA_X_WellnessDock_hero.jpg','Wellness Dock','Mood check-in and recovery station.','Habitat module',['Health','Sleep']),
+  L('../suit-habitat-aegis.html#aegis','../media/aegis/full_test_245.jpg','AEGIS Balance AI','Self-balancing robot: the stability science behind the boot.','Research',['Science','EVA'])]],
+ ['habitat','Habitat Infrastructure','Where the crew sleeps, works and lives.',[
+  L('../suit-habitat-aegis.html#habitat','../media/habitat/LUNA_X_SleepPod_hero.jpg','Crew Sleep Pod','Private quarters with circadian lighting.','Habitat module',['Sleep','Health']),
+  L('../suit-habitat-aegis.html#habitat','../media/habitat/LUNA_X_AI_CommandCenter_hero.jpg','AI Command Center','Habitat operations and the LUNA AI.','Habitat module',['Ops','Comms','Power'])]],
+ ['life','Life Support','Air, water and dust control.',[
+  L('../suit-habitat-aegis.html#habitat','../media/habitat/LUNA_X_Airlock_hero.jpg','Suitport Airlock','Dust decontamination and suit docking.','Habitat module',['Life support','EVA','Sustainability'])]],
+];
+const h=document.getElementById('hall');
+h.innerHTML=CATS.map(([id,t,p,cards])=>`<section class="cat reveal" id="${id}"><div class="kick">Gallery</div><h2>${t}</h2><p>${p}</p><div class="ex">${cards.map(c=>`<a class="card" href="${c.h}"><span class="tag${c.live?' live':''}">${c.live?'LIVE 3D · ':''}${c.tag}</span><img loading="lazy" src="${c.img}" alt="${c.t}"><div class="b"><h3>${c.t}</h3><p>${c.p}</p><div class="sys">${c.sys.map(s=>`<span class="chip">${s}</span>`).join('')}</div></div></a>`).join('')}</div></section>`).join('');
+const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('vis')),{threshold:.1});document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
+</script>
+<script src="../../audio/ares-audio.js" data-base="../../audio/" data-default="suit"></script>
+</body></html>
