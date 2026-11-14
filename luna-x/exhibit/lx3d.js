@@ -286,6 +286,7 @@ let mode = 'hero', curStep = -1, stepP = 0;
 const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('vis'); if (e.target.id === 'specs') countUp(); } }), { threshold: 0.2 });
 stepEls.forEach((s) => io.observe(s)); $$('.reveal').forEach((s) => io.observe(s));
 function updateScroll() {
+  moved = true;
   const vh = innerHeight; let m = 'hero', best = -1, idx = -1;
   stepEls.forEach((s, i) => { const r = s.getBoundingClientRect(); const c = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)) / vh; if (c > best && c > 0.35) { best = c; m = s.dataset.mode; idx = i; } });
   if ($('.content').getBoundingClientRect().top < vh * 0.55) { m = 'content'; idx = -1; }
@@ -323,7 +324,8 @@ addEventListener('keydown', (e) => {
 // ------------------------------------------------------------------ pointer: hover tooltips, click to brief / scan
 const ndc = new THREE.Vector2(-9, -9), mouse = new THREE.Vector2(), ray = new THREE.Raycaster();
 let hoverPart = null, hoverHub = false, lastMove = { x: 0, y: 0 };
-addEventListener('pointermove', (e) => { mouse.set(e.clientX / innerWidth - 0.5, e.clientY / innerHeight - 0.5); ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); lastMove = { x: e.clientX, y: e.clientY }; });
+let moved = false, pickN = 0, lastPick = null;
+addEventListener('pointermove', (e) => { moved = true; mouse.set(e.clientX / innerWidth - 0.5, e.clientY / innerHeight - 0.5); ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); lastMove = { x: e.clientX, y: e.clientY }; });
 const tip = $('#tip');
 function pick() {
   if (!ready || mode === 'content') return null;
@@ -554,7 +556,8 @@ function tick() {
 
   // hover → tooltip
   if (ready && mode !== 'content') {
-    const p = (lastMove.x || lastMove.y) ? pick() : null;
+    if (moved && (pickN++ % 2 === 0)) { lastPick = pick(); moved = false; }
+    const p = lastPick;
     const hp = p?.part || null; const hh = !!p?.hub;
     if ((hp && hp !== hoverPart) || (hh && !hoverHub)) sfx.chirp();
     if (!$('.co:hover')) hoverPart = hp; hoverHub = hh;
