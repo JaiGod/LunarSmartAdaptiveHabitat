@@ -454,6 +454,8 @@ func zone_effects(z: String, i: int, now: float) -> Dictionary:
 
 ## lighting preset for a zone right now (for both the effects and the rendering)
 func zone_light(zkey: String, now: float) -> String:
+	# smart habitat: when every crew member is asleep, shared rooms fade to night mode (power saving)
+	if not zkey.begins_with("pod") and sim.crew.all(func(c): return c.asleep or c.outside): return "night"
 	var lv = active_levers_in(zkey, now)
 	var best = ""; var bs = -1.0
 	var h = fmod(now / 60.0, 24.0)

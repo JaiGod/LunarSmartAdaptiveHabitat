@@ -368,6 +368,7 @@ func add_screen(id: String, pos: Vector3, yaw: float, size_m: Vector2, px: Vecto
 const LUX_E = 0.55
 
 func lux_energy(lux: float) -> float:
+	if lux < 0.5: return 0.0          # lights off: really dark
 	return clamp(0.15 + LUX_E * log(max(lux, 1.0) / 20.0) / log(10.0), 0.03, 2.4)
 
 func sync(dt: float, actors: Array) -> void:
@@ -384,7 +385,7 @@ func sync(dt: float, actors: Array) -> void:
 			o.light_energy = lerp(o.light_energy, e, min(1.0, dt * 2.0))
 		for m in lights[key].mats:
 			m.emission = m.emission.lerp(col, min(1.0, dt * 2.0))
-			m.emission_energy_multiplier = lerp(m.emission_energy_multiplier, 0.25 + e * 1.1, min(1.0, dt * 2.0))
+			m.emission_energy_multiplier = lerp(m.emission_energy_multiplier, (0.25 + e * 1.1) if e > 0.0 else 0.0, min(1.0, dt * 2.0))
 	# doors open for anyone within reach
 	for d in doors:
 		var want = 0.0

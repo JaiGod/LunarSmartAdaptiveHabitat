@@ -3,7 +3,7 @@ extends RefCounted
 ## Round-3 screens: AI dashboard, review board, CMO console, room controls, and the "My data" tab of your pod
 ## desk (the crew interface: Bonus B). Shared screens show habitat data and anonymous crew data only (hard limit 1).
 
-const LIGHTS = [["auto", "LUNA auto"], ["warm", "Warm"], ["cool", "Cool"], ["amber", "Dim"], ["energise", "Bright"], ["night", "Night"]]
+const LIGHTS = [["auto", "Auto"], ["off", "Off"], ["warm", "Warm"], ["cool", "Cool"], ["amber", "Dim"], ["energise", "Bright"], ["night", "Night"]]
 const SOUNDS = [["off", "Off"], ["rain", "Rain"], ["forest", "Forest"], ["ocean", "Ocean"], ["cafe", "Café"]]
 const TEMPS = [19, 21, 23]
 const SCENTS = [["off", "Off"], ["lavender", "Lavender"], ["mint", "Mint"], ["petrichor", "Petrichor"]]
@@ -242,3 +242,26 @@ static func my_data(ui) -> void:
 		L._log(sim.now, 0, "info", "Commander deleted their raw sensor history. Only the daily summaries needed for the mission record stay.")
 		g._toast("Your raw history is deleted. LUNA keeps only daily summaries.", "info"), 0.0, 15))
 	ui.body.add_child(r2)
+
+
+# ------------------------------------------------------------------------------------------------------
+## your pod's own controls (next to your pillow): light on/off, temperature, sleep sound, music
+class PodRoomUI extends Screens.SUI:
+	func _init(game) -> void: super._init(game, "My pod", "yours to set")
+	func sig() -> String: return "%s|%d|%s|%s" % [sim().pod_manual, g.r3.pod_temp, g.r3.sleep_sound, g.r3.music_on]
+	func build() -> void:
+		var r = UI.hbox(5)
+		for o in [["", "Auto"], ["off", "Off"], ["amber", "Dim"], ["warm", "Warm"], ["energise", "Bright"]]:
+			var v = o[0]
+			r.add_child(UI.btn(o[1] + (" ✓" if sim().pod_manual == v else ""), func(): sim().pod_manual = v; g.play("click"); refresh(true), 0.6 if sim().pod_manual == v else 0.62, 16))
+		body.add_child(UI.lbl("Light", 15, UI.MUT)); body.add_child(r)
+		var r2 = UI.hbox(5)
+		for tc in [18, 20, 22, 24]:
+			var v = tc
+			r2.add_child(UI.btn("%d °C%s" % [tc, " ✓" if g.r3.pod_temp == tc else ""], func(): g.r3.pod_temp = v; g.play("click"); refresh(true), 0.58 if tc <= 20 else 0.05, 16))
+		body.add_child(UI.lbl("Temperature (18–20 °C helps you fall asleep)", 15, UI.MUT)); body.add_child(r2)
+		var r3 = UI.hbox(5)
+		r3.add_child(UI.btn("Sleep: air vents" + (" ✓" if g.r3.sleep_sound == "vent" else ""), func(): g.r3.sleep_sound = "vent"; refresh(true), 0.55, 16))
+		r3.add_child(UI.btn("Sleep: silence" + (" ✓" if g.r3.sleep_sound == "silence" else ""), func(): g.r3.sleep_sound = "silence"; refresh(true), 0.62, 16))
+		r3.add_child(UI.btn("Music " + ("on" if g.r3.music_on else "off"), func(): g.r3.music_on = not g.r3.music_on; refresh(true), 0.75, 16))
+		body.add_child(r3)

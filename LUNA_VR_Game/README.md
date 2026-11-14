@@ -49,6 +49,18 @@ New things to use: coffee machine, water station, food warmer, bookshelf, team-m
 
 Test it headless: `godot --headless -- --r3test` presses every new control through the real handlers. To take screenshots of every new object, run `godot -- --r3shots=<dir>`.
 
+## Day, evening, sleep, emergency
+
+The whole habitat follows the crew:
+
+- **Awake:** lo-fi music plays (synthesized for the game; **M** turns it off).
+- **Evening:** warmer, dimmer light, and the music gets quieter.
+- **Sleep:** the main lights go off and the pods go fully dark. Dim red path lights come on near the floor, screens dim, and the music stops. You hear only the air vents, or silence if you choose it.
+- **When everyone is asleep**, the shared rooms switch to night mode to save power.
+- **Emergency** (drill, solar particle event): the lights flash red and the music stops.
+
+The panel by your pillow sets your pod's light (auto, off, dim, warm, bright), the temperature (18–24 °C; 18–20 °C helps you fall asleep), and the sleep sound. On desktop you watch your pod go dark from your bed, and in the morning the dawn light rises.
+
 ## Realism pass
 
 Realism comes first. Anything that looked good but had no engineering job was redesigned or removed. Everything you can use now states:

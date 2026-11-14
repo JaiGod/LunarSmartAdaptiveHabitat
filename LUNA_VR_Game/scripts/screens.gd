@@ -20,9 +20,10 @@ static func make(id: String, g) -> SUI:
 		"family": return FamilyUI.new(g)
 		"plan": return PlanUI.new(g)
 		"dock": return DockUI.new(g)
-	if id in ["dashboard", "board", "cmo"] or id.begins_with("room_"):
+	if id in ["dashboard", "board", "cmo", "pod_room"] or id.begins_with("room_"):
 		var R = load("res://scripts/r3_ui.gd")
 		match id:
+			"pod_room": return R.PodRoomUI.new(g)
 			"dashboard": return R.DashUI.new(g)
 			"board": return R.BoardUI.new(g)
 			"cmo": return R.CmoUI.new(g)

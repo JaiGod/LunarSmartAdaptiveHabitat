@@ -41,7 +41,7 @@ var light = {}             # zone key -> {"cct": K, "lux": lux, "preset": name}
 const PRESETS = {  # lighting presets: [CCT K, lux]
 	"warm": [2900.0, 300.0], "amber": [2200.0, 120.0], "cool": [6300.0, 520.0], "therapy": [5200.0, 10000.0],
 	"hue": [4000.0, 320.0], "night": [1800.0, 3.0], "evening": [2400.0, 170.0], "energise": [5600.0, 750.0],
-	"grow": [3400.0, 650.0], "neutral": [4000.0, 400.0], "corridor": [3800.0, 240.0], "dawn": [2700.0, 250.0], "sleepdark": [1800.0, 0.0],
+	"grow": [3400.0, 650.0], "neutral": [4000.0, 400.0], "corridor": [3800.0, 240.0], "dawn": [2700.0, 250.0], "sleepdark": [1800.0, 0.0], "off": [2700.0, 0.0],
 }
 
 ## smooth every zone's light toward what LUNA asks for (fixtures fade over ~10 min)

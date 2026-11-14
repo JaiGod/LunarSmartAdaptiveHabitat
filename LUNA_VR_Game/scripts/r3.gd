@@ -91,6 +91,13 @@ var pod_toggle: Node3D
 var music: AudioStreamPlayer3D
 var tabletop = {}                 # {"sim": Sim, "run": bool, "report": Dictionary}
 var hl_next = 0
+var mode = "awake"                 # awake | evening | sleep | emergency (whole habitat)
+var music_on = true
+var bgm: AudioStreamPlayer
+var vent: AudioStreamPlayer
+var strip_mat: StandardMaterial3D
+var pod_temp = 20
+var sleep_sound = "vent"           # vent (air circulation) | silence
 var feedstock = 6.0                # kg of recycled-plastic printer feedstock
 var snd = {}
 
@@ -166,6 +173,8 @@ func setup(game) -> void:
 	_pod_and_hygiene()
 	_service_rooms()
 	_room_panels()
+	_night_strips()
+	_pod_panel()
 	_crew_areas()
 	_sounds()
 	zone_lab = Label3D.new(); zone_lab.font_size = 34; zone_lab.pixel_size = 0.001; zone_lab.outline_size = 9
@@ -387,6 +396,13 @@ func _sounds() -> void:
 		if n in ["ocean", "forest", "cafe", "music", "rain"]:
 			s = s.duplicate(); s.loop_mode = AudioStreamWAV.LOOP_FORWARD; s.loop_end = int(s.get_length() * s.mix_rate)
 		snd[n] = s
+	for n in ["lofi", "vent"]:
+		var o = load("res://assets/snd/%s.ogg" % n)
+		if o == null: continue
+		o = o.duplicate(); o.loop = true
+		var p = AudioStreamPlayer.new(); p.stream = o; p.volume_db = -60.0; add_child(p)
+		if n == "lofi": bgm = p
+		else: vent = p
 	for n in ["klaxon", "switch"]:
 		if not snd.has(n): continue
 		var p = AudioStreamPlayer.new(); p.stream = snd[n]; p.volume_db = -6.0; add_child(p); g.sfx[n] = p
@@ -399,6 +415,7 @@ func tick(dt: float) -> void:
 	if zone_lab.get_parent() == null and g.player and g.player.cam:
 		g.player.cam.add_child(zone_lab)
 	_markers()
+	_ambience(dt)
 	if g.state != "play" and g.state != "sleep": return
 	_track()
 	_drill()
@@ -677,7 +694,7 @@ func set_luna_off(off: bool, who: String) -> void:
 func _night_watch() -> void:
 	if night_fired or sim.day() != 2 or g.state != "sleep": return
 	var h = sim.hour()
-	if h < 2.1 or h >= 3.5 or not sim.me().asleep or g.flags.get("napping", false) or sim.luna.off: return
+	if h < 2.1 or h >= 5.9 or not sim.me().asleep or g.flags.get("napping", false) or sim.luna.off: return
 	_night_watch_fire()
 
 func _night_watch_fire() -> void:
@@ -692,6 +709,7 @@ func _night_watch_fire() -> void:
 	sim.player_act = "idle"
 	g.state = "play"; g.player.frozen = false
 	g.player.place(Vector3(9.95, 0.05, 3.25), 0.0)
+	on_wake()
 	var tw = g.create_tween(); tw.tween_method(g.set_fade, 1.0, 0.0, 2.0)
 	g.play("alert")
 	show_card({"title": "Night watch · %s" % sim.clock(), "lines": [
@@ -946,6 +964,7 @@ func key(k: int) -> bool:
 		KEY_B: guide(true); return true
 		KEY_J: show_rubric(); return true
 		KEY_Z: show_zone(zone_now); return true
+		KEY_M: music_on = not music_on; g._toast("Music %s." % ("on" if music_on else "off"), "info"); return true
 		KEY_X:
 			var h = g.player.hit
 			if h.get("kind", "") == "inter": show_spec(h.node)
@@ -1260,3 +1279,76 @@ func fit_popup() -> void:
 	p.reset_size()
 	var vs = get_viewport().get_visible_rect().size
 	p.position = Vector2(max(10.0, (vs.x - p.size.x) * 0.5), max(10.0, vs.y - p.size.y - 18.0))
+
+# =====================================================================================================
+#  day / evening / sleep / emergency: light, sound, music and screens follow the crew
+# =====================================================================================================
+func _night_strips() -> void:
+	# dim red path lights at floor level along the corridor (keep night vision, guide to the shelter)
+	strip_mat = _glow(Color(1.0, 0.12, 0.08), 0.0)
+	for z in [8 * C + 0.08, 11 * C - 0.08]:
+		var mi = MeshInstance3D.new(); mi.mesh = _boxm(Vector3(26 * C, 0.02, 0.03)); mi.material_override = strip_mat
+		mi.position = Vector3(14.5 * C, 0.12, z); world.add_child(mi)
+
+func _pod_panel() -> void:
+	var m = MB.new()
+	var p = Vector3(7 * C + 0.11, 1.12, 1 * C + 0.32)
+	_screen_frame(m, p, PI / 2.0, 0.3, 0.22)
+	hab.add_screen("pod_room", p, PI / 2.0, Vector2(0.3, 0.22), Vector2i(600, 440), null)
+	m.commit(world, "r3_podpanel")
+
+func _ambience(dt: float) -> void:
+	var h = sim.hour()
+	var asleep = g.state == "sleep"
+	var emerg = (not drill.is_empty()) or sim.hab.flare_until > sim.now
+	var all_asleep = sim.crew.all(func(c): return c.asleep or c.outside)
+	if emerg: mode = "emergency"
+	elif asleep or all_asleep or h >= 22.5 or h < 6.0: mode = "sleep"
+	elif h >= 20.0: mode = "evening"
+	else: mode = "awake"
+	# lo-fi music whenever you're awake (quieter in the evening); never while you sleep or in an emergency
+	if bgm:
+		var want = -60.0
+		if music_on and not asleep and not emerg and g.state != "report": want = -21.0 if mode != "awake" else -15.0
+		bgm.volume_db = move_toward(bgm.volume_db, want, dt * 15.0)
+		if want > -60.0 and not bgm.playing: bgm.play()
+		elif bgm.volume_db <= -59.0 and bgm.playing: bgm.stop()
+	# sleeping: air circulation only, or silence
+	if vent:
+		var wv = -13.0 if (asleep and sleep_sound == "vent") else -60.0
+		vent.volume_db = move_toward(vent.volume_db, wv, dt * 15.0)
+		if wv > -60.0 and not vent.playing: vent.play()
+		elif vent.volume_db <= -59.0 and vent.playing: vent.stop()
+	if g.sfx.has("hum"):
+		var wh = -14.0
+		if asleep: wh = -80.0 if sleep_sound == "silence" else -26.0
+		g.sfx.hum.volume_db = move_toward(g.sfx.hum.volume_db, wh, dt * 20.0)
+	# red path lights at night, flashing in an emergency
+	if strip_mat:
+		var e = 0.0
+		if mode == "sleep": e = 1.4
+		elif mode == "evening": e = 0.3
+		if emerg: e = 1.5 + 1.5 * sin(t * 8.0)
+		strip_mat.emission_energy_multiplier = lerp(strip_mat.emission_energy_multiplier, e, min(1.0, dt * 3.0))
+	if emerg and g.state == "play":
+		var red = Color(1.0, 0.15, 0.1); var pz = 0.55 + 0.45 * sin(t * 8.0)
+		for key in hab.lights:
+			if key.begins_with("pod"): continue
+			for o in hab.lights[key].omni: o.light_color = red; o.light_energy = max(0.25, o.light_energy) * (0.6 + 0.4 * pz)
+			for mm in hab.lights[key].mats: mm.emission = red * pz
+	# screens dim at night (they never go fully dark: status must stay readable)
+	var bright = 0.45 if mode == "sleep" else (0.8 if mode == "evening" else 1.0)
+	for s in hab.screens:
+		var mat = s.quad.material_override as StandardMaterial3D
+		if mat: mat.albedo_color = mat.albedo_color.lerp(Color(bright, bright, bright), min(1.0, dt * 2.0))
+
+func on_sleep() -> void:
+	if pod_temp >= 18 and pod_temp <= 20: sim.me().stress = max(0.0, sim.me().stress - 0.04)   # cool room helps sleep onset
+	if not g.player.vr:
+		# lie in your bed and watch the room go dark (and the dawn light rise in the morning)
+		g.player.place(Vector3(7 * C + 0.56, 0.0, 1 * C + 0.5), PI)
+		g.player.pitch = 1.15; g.player.cam.rotation.x = 1.15; g.player.cam.position.y = 0.72
+
+func on_wake() -> void:
+	if not g.player.vr:
+		g.player.pitch = 0.0; g.player.cam.rotation.x = 0.0; g.player.cam.position.y = Player.EYE

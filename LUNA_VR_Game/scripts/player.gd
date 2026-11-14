@@ -127,6 +127,7 @@ func _click() -> void:
 func _unhandled_input(e: InputEvent) -> void:
 	if vr: return
 	if e is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and mouse_look:
+		if e.relative.length() > 180.0: return     # browsers send a huge jump when pointer lock (re)starts: ignore it
 		rotate_y(-e.relative.x * 0.0025)
 		pitch = clamp(pitch - e.relative.y * 0.0025, -1.45, 1.45)
 		cam.rotation.x = pitch

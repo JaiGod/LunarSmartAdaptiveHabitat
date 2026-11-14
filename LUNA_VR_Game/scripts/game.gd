@@ -361,7 +361,8 @@ func go_to_bed(nap := false) -> void:
 	else: sim.player_sleep()
 	state = "sleep"
 	player.frozen = true
-	var t = create_tween(); t.tween_method(set_fade, 0.0, 1.0, 1.5)
+	var t = create_tween(); t.tween_method(set_fade, 0.0, 1.0 if player.vr else 0.62, 2.5)
+	r3.on_sleep()
 	speak("Good night.")
 
 func _wake_up() -> void:
@@ -370,6 +371,7 @@ func _wake_up() -> void:
 	flags.erase("intro")
 	player.frozen = false
 	player.place(Vector3(9.95, 0.05, 3.25), 0.0)
+	r3.on_wake()
 	var cr = sim.me()
 	play("alarm")
 	var t = create_tween(); t.tween_method(set_fade, 1.0, 0.0, 3.0)
@@ -757,9 +759,10 @@ func _refresh_hud() -> void:
 		r3b.add_child(UI.btn("Guide me", func(): r3.guide(false), 0.12, 18))
 		r3b.add_child(UI.btn("Rubric", func(): r3.show_rubric(), 0.6, 18))
 		r3b.add_child(UI.btn("AI OFF" if not sim.luna.off else "LUNA on", func(): r3.use({"id": "ai_switch"}), 0.0, 18))
+		r3b.add_child(UI.btn("Music " + ("on" if r3.music_on else "off"), func(): r3.music_on = not r3.music_on, 0.75, 18))
 		hud_v.add_child(r3b)
 	else:
-		hud_v.add_child(UI.lbl("G guide me · I check on someone · J rubric · K all keys", 14, UI.MUT))
+		hud_v.add_child(UI.lbl("G guide me · I ask a crewmate · M music · J rubric · K keys", 14, UI.MUT))
 
 func _prompt() -> void:
 	if player.vr:
