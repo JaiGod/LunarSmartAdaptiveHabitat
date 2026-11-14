@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LUNA-X Wearable Astronaut Intelligence System · Project ARES</title>
+<meta name="description" content="LUNA-X: an AI wellness glove, mobility boot and cognitive helmet for long-duration lunar crews. NASA HUNCH Project ARES, by Jaineil R.">
+<meta name="theme-color" content="#050816">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050816;--cyan:#38BDF8;--white:#E6F1FF;--red:#FC3D21;--purple:#8B5CF6;--mut:#93A4C8;--line:rgba(56,189,248,.22);--glass:rgba(10,20,48,.66);--ok:#34D399;--amber:#FBBF24;--orange:#FB923C;--pink:#F472B6;
+  --hd:'Orbitron',system-ui,sans-serif;--bd:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{background:var(--void);color:var(--white);font:16px/1.6 var(--bd);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(40% 30% at 80% 10%,rgba(109,40,217,.25),transparent 70%),radial-gradient(35% 30% at 10% 60%,rgba(11,61,145,.35),transparent 70%)}
+a{color:inherit;text-decoration:none}
+img,video{max-width:100%;display:block}
+nav{position:sticky;top:0;z-index:10;display:flex;gap:6px 18px;align-items:center;flex-wrap:wrap;padding:14px 5vw;background:rgba(5,8,22,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);font-size:14px}
+nav .brand{font:700 15px var(--hd);letter-spacing:.08em;margin-right:auto}
+nav a:not(.brand){color:var(--mut)}nav a:hover{color:var(--cyan)}
+main{max-width:1180px;margin:0 auto;padding:0 5vw 80px}
+.hero{padding:70px 0 40px;text-align:center}
+.kick{font:600 12px var(--mono);letter-spacing:.2em;color:var(--cyan);text-transform:uppercase}
+h1{font:900 clamp(30px,5vw,56px)/1.1 var(--hd);margin:14px 0}
+h1 span{background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{max-width:760px;margin:0 auto;color:var(--mut);font-size:18px}
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:40px 0 10px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:18px;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:var(--cyan)}
+.card img{border-radius:10px;aspect-ratio:16/10;object-fit:cover;width:100%;margin-bottom:12px}
+.card h3{font:700 16px var(--hd)}.card p{color:var(--mut);font-size:14px}
+section{padding:60px 0 10px;border-top:1px solid var(--line);margin-top:40px}
+h2{font:700 clamp(22px,3vw,32px) var(--hd);margin-bottom:6px}
+.sub{color:var(--mut);margin-bottom:22px;max-width:820px}
+.vid{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#000;margin-bottom:22px}
+.vid video{width:100%}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.gal figure{margin:0;background:var(--glass);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:zoom-in}
+.gal img{aspect-ratio:16/10;object-fit:cover;width:100%;transition:transform .3s}
+.gal figure:hover img{transform:scale(1.04)}
+.gal figcaption{font-size:13px;color:var(--mut);padding:8px 12px}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:22px 0}
+.feat div{background:rgba(14,28,66,.6);border-left:3px solid var(--cyan);border-radius:8px;padding:12px 14px;font-size:14px;color:var(--mut)}
+.feat b{display:block;color:var(--white);font-size:15px;margin-bottom:2px}
+.modes{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 24px}
+.chip{font:600 12px var(--mono);padding:6px 12px;border-radius:999px;border:1px solid currentColor}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 22px}
+.btn{font:600 14px var(--bd);padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:rgba(56,189,248,.08)}
+.btn:hover{border-color:var(--cyan)}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;place-items:center;z-index:50;cursor:zoom-out;padding:3vw}
+#lb.on{display:grid}#lb img{max-height:90vh;border-radius:10px}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:30px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="../">← PROJECT ARES</a>
+  <a href="#helmet">Helmet</a><a href="#glove">Glove</a><a href="#boot">Boot</a>
+</nav>
+<main>
+  <div class="hero">
+    <div class="kick">NASA HUNCH · Project ARES · Wearable AI</div>
+    <h1>LUNA-X <span>Wearable Astronaut Intelligence System</span></h1>
+    <p class="lead">Three wearables that carry the LUNA wellness AI out of the habitat and onto the crew. The <b>helmet</b> thinks, the <b>glove</b> senses and interacts, and the <b>boot</b> moves and monitors. Together they watch fatigue, stress, balance and the lunar environment in real time, so the AI can step in before a crew member has to ask.</p>
+    <div class="trio">
+      <a class="card" href="#helmet"><img src="helmet/img/01_hero_3quarter.jpg" alt="LUNA-X helmet"><h3>Adaptive Cognitive Helmet</h3><p>AI, vision, communication, environmental awareness and crew safety.</p></a>
+      <a class="card" href="#glove"><img src="glove/img/glove_hero.jpg" alt="LUNA-X glove"><h3>Adaptive Wellness Glove</h3><p>Interaction, plant scans, vitals and gesture control.</p></a>
+      <a class="card" href="#boot"><img src="boot/img/boot_hero.jpg" alt="LUNA-X boot"><h3>Adaptive Mobility Boot</h3><p>Gait analysis, balance, dust defense and path lighting.</p></a>
+    </div>
+  </div>
+
+  <section id="helmet">
+    <div class="kick">01 · AI + cognition + safety</div>
+    <h2>LUNA-X Adaptive Cognitive Helmet</h2>
+    <p class="sub">The helmet isn't just protective equipment. It's a wearable AI operating center, animated like a living system with four layers running at once: biological awareness, AI activity, wellness support and environmental intelligence.</p>
+    <div class="vid"><video controls preload="metadata" poster="helmet/img/poster.jpg" src="helmet/LUNA-X_Helmet_Living_AI.mp4"></video></div>
+    <div class="modes">
+      <span class="chip" style="color:#22D3EE">Startup · AI scan</span><span class="chip" style="color:#34D399">Normal</span>
+      <span class="chip" style="color:#8B5CF6">Crew meeting</span><span class="chip" style="color:#3B82F6">O2 refill</span>
+      <span class="chip" style="color:#F472B6">Sleep readiness</span><span class="chip" style="color:#FB923C">Recovery</span>
+      <span class="chip" style="color:#E6F1FF">Navigation</span><span class="chip" style="color:#FBBF24">Dust storm</span><span class="chip" style="color:#FC3D21">Radiation lockdown</span>
+    </div>
+    <div class="feat">
+      <div><b>Vision intelligence</b>Internal eye-tracking cameras watch blink rate, focus and fatigue, and constantly scan and refocus.</div>
+      <div><b>Environmental sensors</b>Obstacle detection, dust, air quality, radiation and surface-temperature pods extend to analyze conditions, then retract.</div>
+      <div><b>Adaptive lighting ring</b>Thin light strips with traveling pulses: purple for a crew meeting, blue for O2, pink for sleep readiness, red for emergencies.</div>
+      <div><b>Cognitive load HUD</b>Small fighter-pilot-style overlays: O2, stress, recovery score and LUNA messages.</div>
+      <div><b>LUNA AI core</b>Rear processor housing with cooling vents that open under AI load, plus a motion sensor that detects falls and impacts.</div>
+      <div><b>Crew safety guardian</b>During a radiation event the visor closes, seals and locks, and the helmet alerts the crew automatically.</div>
+    </div>
+    <div class="gal">
+      <figure><img loading="lazy" src="helmet/img/01_hero_3quarter.jpg" alt=""><figcaption>Hero view: ceramic shell, gold sun visor and adaptive lighting ring</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/03_HUD_closeup.jpg" alt=""><figcaption>Cognitive load HUD behind the smart-glass visor</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/04_side_sensors_audio.jpg" alt=""><figcaption>Sensor clusters, camera pods and directional audio</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/05_rear_AI_core.jpg" alt=""><figcaption>Rear LUNA AI core with heat sink and fall sensor</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/06_gold_visor_down.jpg" alt=""><figcaption>Gold sun visor lowered for EVA</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/07_exploded_layers.jpg" alt=""><figcaption>Exploded layers: outer shell, shock liner, smart glass, sun visor, neck ring</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_01_startup_power_core.jpg" alt=""><figcaption>Morning startup: Power Core Online</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_03_startup_comms_antenna.jpg" alt=""><figcaption>Communication online: antenna deploys</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_04_face_analysis_scan.jpg" alt=""><figcaption>AI face analysis scan</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_05_ai_load_vents_open.jpg" alt=""><figcaption>Cooling vents open under AI load</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_06_crew_meeting_purple.jpg" alt=""><figcaption>Purple pulse: crew meeting scheduled</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_07_o2_refill_blue.jpg" alt=""><figcaption>Blue wave: O2 refill recommended</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_08_sleep_pink.jpg" alt=""><figcaption>Pink glow: sleep readiness</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_09_fatigue_detected.jpg" alt=""><figcaption>AI detects rising fatigue</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_10_recovery_orange_greenhouse.jpg" alt=""><figcaption>Recovery mode: the greenhouse suggestion and the habitat light changes</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_11_dark_navigation.jpg" alt=""><figcaption>Dark environment: white navigation lights and path guidance</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_12_dust_storm.jpg" alt=""><figcaption>Dust storm: visor protection and tinted glass</figcaption></figure>
+      <figure><img loading="lazy" src="helmet/img/living_13_radiation_lockdown.jpg" alt=""><figcaption>Radiation event: shell locked, red alert</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="glove">
+    <div class="kick">02 · Interaction + sensing</div>
+    <h2>LUNA-X Adaptive Wellness Glove</h2>
+    <p class="sub">An AI-integrated glove for health monitoring and interaction. It has a wrist wellness core, fingertip sensors, LUNA status lights, and gesture control for plant scans, wellness checks, crew signals and emergencies.</p>
+    <div class="vid"><video controls preload="metadata" poster="glove/img/poster.jpg" src="glove/LUNA-X_Glove_Layers.mp4"></video></div>
+    <div class="gal">
+      <figure><img loading="lazy" src="glove/img/glove_hero.jpg" alt=""><figcaption>Hero view</figcaption></figure>
+      <figure><img loading="lazy" src="glove/img/glove_side.jpg" alt=""><figcaption>Side profile and wrist rings</figcaption></figure>
+      <figure><img loading="lazy" src="glove/img/glove_back.jpg" alt=""><figcaption>Back of hand and wellness core</figcaption></figure>
+      <figure><img loading="lazy" src="glove/img/glove_core.jpg" alt=""><figcaption>Wellness core close-up</figcaption></figure>
+      <figure><img loading="lazy" src="glove/img/glove_layers_0160.jpg" alt=""><figcaption>Layer breakdown</figcaption></figure>
+      <figure><img loading="lazy" src="glove/img/glove_anim_check_0345.jpg" alt=""><figcaption>Animation pack, frame 345</figcaption></figure>
+      <figure><img loading="lazy" src="glove/img/glove_anim_check_0760.jpg" alt=""><figcaption>Animation pack, frame 760</figcaption></figure>
+      <figure><img loading="lazy" src="glove/img/glove_anim_check_1320.jpg" alt=""><figcaption>Animation pack, frame 1320</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="boot">
+    <div class="kick">03 · Mobility + health monitoring</div>
+    <h2>LUNA-X Adaptive Mobility Boot</h2>
+    <p class="sub">An AI-assisted mobility platform. A smart-sole sensor array reads gait, balance and fatigue, the shock-absorber system handles impacts, an electrodynamic dust shield protects the boot, and navigation lighting guides the crew home.</p>
+    <div class="vid"><video controls preload="metadata" poster="boot/img/poster.jpg" src="boot/LUNA-X_Boot_Morning_Routine.mp4"></video></div>
+    <div class="gal">
+      <figure><img loading="lazy" src="boot/img/boot_hero.jpg" alt=""><figcaption>Hero view</figcaption></figure>
+      <figure><img loading="lazy" src="boot/img/boot_flight_34_baked.jpg" alt=""><figcaption>Baked textures: flight boot</figcaption></figure>
+      <figure><img loading="lazy" src="boot/img/boot_xray_side.jpg" alt=""><figcaption>Transparent sole: sensors and dampers</figcaption></figure>
+      <figure><img loading="lazy" src="boot/img/boot_anim_check_092.jpg" alt=""><figcaption>Walk test: heel strike to toe-off</figcaption></figure>
+      <figure><img loading="lazy" src="boot/img/boot_anim_check_160.jpg" alt=""><figcaption>Lunar dust detected: dust shield active</figcaption></figure>
+      <figure><img loading="lazy" src="boot/img/boot_anim_check_285.jpg" alt=""><figcaption>Mission assigned: path lighting to the habitat</figcaption></figure>
+    </div>
+  </section>
+</main>
+<div id="lb"><img alt=""></div>
+<footer>LUNA-X · NASA HUNCH Project ARES · © Jaineil R. · with Angel C. and Farhan K.</footer>
+<script>
+const lb=document.getElementById('lb'),li=lb.querySelector('img');
+document.querySelectorAll('.gal img').forEach(i=>i.onclick=()=>{li.src=i.src;lb.classList.add('on')});
+lb.onclick=()=>lb.classList.remove('on');
+</script>
+</body>
+</html>
