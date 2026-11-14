@@ -203,9 +203,10 @@ const beamMat = new THREE.ShaderMaterial({
   fragmentShader: 'varying vec2 vU; uniform float uO; uniform float uT; void main(){ float l = 0.5+0.5*sin(vU.y*60.0 - uT*6.0); float a = (1.0-vU.y)*0.35*uO*(0.6+0.4*l); gl_FragColor = vec4(0.35,0.72,1.0,a); }',
 });
 const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.32, 0.55, 48, 1, true), beamMat); scene.add(beam);
-let scanT = -1, holoOn = false;
+let scanT = -1, holoOn = false, focusUntil = 0, facing = 1;
 function runScan() {
   scanT = 0; holoOn = true; $('#holo').classList.add('on'); sfx.scan();
+  if (mode !== 'scan') focusUntil = clock.elapsedTime + 8.5;   // zoom to the hub, then let go
 }
 $('#bScan').addEventListener('click', runScan);
 
@@ -260,9 +261,48 @@ function updateScroll() {
   const s1 = $('#s1').getBoundingClientRect();
   storyP = Math.max(0, Math.min(1, (vh - s1.top) / (s1.height + vh)));
   $('#callouts').classList.toggle('on', mode === 'callouts');
-  if (mode !== 'scan' && mode !== 'callouts') { holoOn = false; $('#holo').classList.remove('on'); }
+  if (m !== 'scan' && clock.elapsedTime > focusUntil) clearHolo();
+  stepNav.querySelectorAll('.sn-dot').forEach((d) => d.classList.toggle('on', d.dataset.go === curStepId()));
 }
 addEventListener('scroll', updateScroll, { passive: true });
+
+// ---------------------------------------------------------------- step navigator: dots, arrows, keyboard
+const stops = ['hero', ...steps.map((s) => s.id), 'overview'];
+const stopEl = (id) => id === 'hero' ? document.body : document.getElementById(id) || document.querySelector('.content');
+const stepNav = document.createElement('div'); stepNav.id = 'stepnav';
+const labels = { hero: 'Intro', overview: 'Details' };
+steps.forEach((s, i) => { labels[s.id] = String(i + 1).padStart(2, '0') + ' · ' + (s.querySelector('.kick')?.textContent.split('·').pop().trim() || ''); });
+stepNav.innerHTML = '<button class="sn-arr" data-d="-1" type="button" aria-label="Previous section">▲</button>' +
+  stops.map((id, i) => `<button class="sn-dot" data-go="${id}" type="button" aria-label="${labels[id]}"><span>${labels[id]}</span><b>${id === 'hero' ? '◦' : id === 'overview' ? '≡' : String(i).padStart(2, '0')}</b></button>`).join('') +
+  '<button class="sn-arr" data-d="1" type="button" aria-label="Next section">▼</button><div class="sn-tip">↑ ↓ keys</div>';
+document.body.appendChild(stepNav);
+const navCss = document.createElement('style');
+navCss.textContent = `#stepnav{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:25;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+#stepnav button{font:600 11px var(--mono,monospace);color:#9fb3d9;background:rgba(8,14,34,.72);border:1px solid rgba(110,180,255,.28);border-radius:999px;cursor:pointer;backdrop-filter:blur(6px)}
+#stepnav .sn-arr{width:34px;height:30px;align-self:flex-end}#stepnav .sn-arr:hover{color:#fff;border-color:#5ab8ff}
+#stepnav .sn-dot{display:flex;align-items:center;gap:8px;padding:0;border:none;background:none}
+#stepnav .sn-dot b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(8,14,34,.72);border:1px solid rgba(110,180,255,.28);font-weight:700;transition:.25s}
+#stepnav .sn-dot span{opacity:0;transform:translateX(6px);transition:.25s;white-space:nowrap;letter-spacing:.06em;text-transform:uppercase;background:rgba(8,14,34,.82);padding:5px 9px;border-radius:6px}
+#stepnav .sn-dot:hover span,#stepnav .sn-dot.on span{opacity:1;transform:none}
+#stepnav .sn-dot.on b{background:#5ab8ff;color:#05081a;border-color:#5ab8ff;box-shadow:0 0 14px #5ab8ff}
+#stepnav .sn-tip{font:600 10px var(--mono,monospace);color:#6b7fa6;margin-top:2px}
+@media (max-width:700px){#stepnav{right:8px}#stepnav .sn-dot span,#stepnav .sn-tip{display:none}#stepnav .sn-dot b{width:28px;height:28px}}`;
+document.head.appendChild(navCss);
+function curStepId() {
+  const vh = innerHeight; let id = 'hero';
+  stops.forEach((sid) => { if (sid === 'hero') return; const r = stopEl(sid).getBoundingClientRect(); if (r.top < vh * 0.45) id = sid; });
+  return id;
+}
+function goStop(id) { const el = stopEl(id); const y = id === 'hero' ? 0 : el.getBoundingClientRect().top + scrollY + (id === 'overview' ? -60 : Math.max(0, (el.offsetHeight - innerHeight) / 2)); scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' }); }
+function stepBy(d) { const i = stops.indexOf(curStepId()); goStop(stops[Math.max(0, Math.min(stops.length - 1, i + d))]); sfx.chirp(); }
+stepNav.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); if (b.dataset.go) { goStop(b.dataset.go); sfx.chirp(); } else stepBy(+b.dataset.d); });
+addEventListener('keydown', (e) => {
+  if (e.target.closest('input,textarea,select') || e.metaKey || e.ctrlKey || e.altKey) return;
+  const inStory = curStepId() !== 'overview' || e.key === 'ArrowUp' || e.key === 'PageUp';
+  if (!inStory) return;
+  if (['ArrowDown', 'ArrowRight', 'PageDown', ' '].includes(e.key)) { if (curStepId() === 'overview') return; e.preventDefault(); stepBy(1); }
+  else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) { if (curStepId() === 'overview' && document.querySelector('.content').getBoundingClientRect().top < -40) return; e.preventDefault(); stepBy(-1); }
+});
 
 // ---------------------------------------------------------------- pointer: parallax + hub hover/click
 const mouse = new THREE.Vector2(), ndc = new THREE.Vector2(), ray = new THREE.Raycaster();
@@ -276,8 +316,12 @@ addEventListener('click', (e) => {
   if (!ready || mode === 'content') return;
   if (e.target.closest('a,button,.panel,nav')) return;
   ray.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), camera);
-  if (ray.intersectObjects(hubMeshes, false).length) { sfx.click(); runScan(); }
+  if (e.target.closest('#stepnav')) return;
+  if (facing > 0.25 && ray.intersectObjects(hubMeshes, false).length) { sfx.click(); runScan(); }
+  else if (holoOn && mode !== 'scan') clearHolo();
 });
+function clearHolo() { holoOn = false; focusUntil = 0; $('#holo').classList.remove('on'); }
+addEventListener('keydown', (e) => { if (e.key === 'Escape') clearHolo(); });
 
 // ---------------------------------------------------------------- camera states
 const camState = { target: new THREE.Vector3(0, 0.86, 0), dist: 4.2, h: 0.25, az: 0 };
@@ -308,7 +352,9 @@ function layoutOverlays() {
     el.style.top = (hy + Math.sin(a) * R * 0.62 - el.offsetHeight / 2) + 'px';
   });
   const hint = $('#hint'); hint.style.left = hx + 'px'; hint.style.top = hy + 'px';
-  hint.style.opacity = (mode === 'scan' && !holoOn) || (hoverHub && mode !== 'content') ? 1 : 0;
+  hint.style.opacity = facing > 0.25 && ((mode === 'scan' && !holoOn) || (hoverHub && mode !== 'content')) ? 1 : 0;
+  const vis = Math.max(0, Math.min(1, (facing - 0.15) * 4));
+  $('#callouts').style.opacity = vis; $('#holo').style.opacity = vis;
 }
 setInterval(() => { if (!holoOn) return; $('#hr').textContent = 70 + Math.round(Math.random() * 4); $('#o2').textContent = 97 + Math.round(Math.random() * 2); $('#ct').textContent = (36.7 + Math.random() * 0.2).toFixed(1); }, 1400);
 
@@ -374,14 +420,20 @@ function tick() {
   autoAz += dt * 0.12;
   if (mode === 'hero') { want.target.set(0, 0.86, 0); want.dist = 4.3; want.h = 0.28; suitRot += (Math.sin(autoAz * 0.6) * 0.5 - suitRot) * dt; }
   else if (mode === 'rotate') { want.target.set(0, 0.86, 0); want.dist = 4.0; want.h = 0.22; suitRot += ((storyP * 4.5 * Math.PI) % (2 * Math.PI) * 0 + storyP * 2 * Math.PI * 1.0 - suitRot) * Math.min(1, dt * 3); }
-  else if (mode === 'zoom' || mode === 'callouts' || mode === 'scan') {
+  const focus = T < focusUntil;
+  if (holoOn && !focus && mode !== 'scan' && mode !== 'callouts' && scanT < 0) clearHolo();
+  if (focus && mode !== 'zoom' && mode !== 'callouts' && mode !== 'scan') {
+    suitRot += ((Math.round(suitRot / (2 * Math.PI)) * 2 * Math.PI) - suitRot) * Math.min(1, dt * 2.5);
+    hubWorld(want.target); want.dist = 1.1; want.h = 0.03;
+  } else if (mode === 'zoom' || mode === 'callouts' || mode === 'scan') {
     suitRot += ((Math.round(suitRot / (2 * Math.PI)) * 2 * Math.PI) - suitRot) * Math.min(1, dt * 2.5);
     hubWorld(want.target); want.dist = mode === 'zoom' ? 0.75 : (mode === 'callouts' ? 1.35 : 1.0); want.h = 0.03;
   } else { want.target.set(0, 0.86, 0); want.dist = 4.6; want.h = 0.3; }
   suit.rotation.y = suitRot;
+  facing = Math.cos(suitRot - Math.atan2(camera.position.x - camState.target.x, camera.position.z - camState.target.z));
   const k = Math.min(1, dt * 2.2);
   camState.target.lerp(want.target, k); camState.dist += (want.dist - camState.dist) * k; camState.h += (want.h - camState.h) * k;
-  const near = mode === 'zoom' || mode === 'callouts' || mode === 'scan';
+  const near = focus || mode === 'zoom' || mode === 'callouts' || mode === 'scan';
   const az = (near ? 0.12 * Math.sin(autoAz * 0.8) : 0.35 * Math.sin(autoAz)) + mouse.x * (near ? 0.18 : 0.35);
   const el = camState.h + mouse.y * -0.12;
   camera.position.set(camState.target.x + Math.sin(az) * camState.dist, camState.target.y + el * camState.dist, camState.target.z + Math.cos(az) * camState.dist);
@@ -391,8 +443,8 @@ function tick() {
   if (ready && mode !== 'content') {
     ray.setFromCamera(ndc, camera);
     const h = ray.intersectObjects(hubMeshes, false).length > 0;
-    if (h && !hoverHub) sfx.chirp();
-    hoverHub = h; document.body.style.cursor = h ? 'pointer' : '';
+    if (h && !hoverHub && facing > 0.25) sfx.chirp();
+    hoverHub = h && facing > 0.25; document.body.style.cursor = hoverHub ? 'pointer' : '';
   }
 
   // scan sweep + hologram
@@ -403,7 +455,7 @@ function tick() {
     sweep.material.opacity = u < 1 ? 0.9 : Math.max(0, 0.9 - (u - 1) * 3); sweepDisc.material.opacity = sweep.material.opacity * 0.16;
     const hw = hubWorld(new THREE.Vector3());
     scanRing.position.copy(hw).add(new THREE.Vector3(0, 0, 0.03)); scanRing.lookAt(camera.position);
-    const rr = ((scanT * 0.8) % 1); scanRing.scale.setScalar(1 + rr * 6); ringMat.opacity = (1 - rr) * 0.8;
+    const rr = ((scanT * 0.8) % 1); scanRing.scale.setScalar(1 + rr * 3.5); ringMat.opacity = (1 - rr) * 0.6;
     if (scanT > 9) { scanT = -1; sweep.material.opacity = 0; sweepDisc.material.opacity = 0; ringMat.opacity = 0; }
   }
   const bo = holoOn ? 1 : 0; beamMat.uniforms.uO.value += (bo - beamMat.uniforms.uO.value) * Math.min(1, dt * 3); beamMat.uniforms.uT.value = T;
