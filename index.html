@@ -457,6 +457,19 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
 .br-pages:hover img:first-child{transform:rotate(-1.5deg) translateY(-3px)}.br-pages:hover img:last-child{transform:rotate(1.5deg) translateY(-3px)}
 @media(max-width:900px){.brochure{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.br-pages img{transition:none}}
+
+/* brochure highlight */
+.brochure{border:2px solid #ffc94d!important;box-shadow:0 0 0 1px rgba(255,201,77,.25),0 0 38px rgba(255,201,77,.28),0 0 90px rgba(255,160,40,.12)!important;position:relative}
+.brochure h2{color:#ffd76e}
+.brochure::before{content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;box-shadow:0 0 22px rgba(255,201,77,.55);animation:brGlow 2.6s ease-in-out infinite}
+@keyframes brGlow{0%,100%{opacity:.35}50%{opacity:1}}
+.new-tag{display:inline-block;font:800 10.5px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;color:#1a1200;background:#ffc94d;border-radius:4px;padding:3px 6px;margin-right:6px;vertical-align:2px}
+.brochure-btn{border-color:#ffc94d!important;color:#ffe3a1!important;box-shadow:0 0 16px rgba(255,201,77,.35)}
+.brochure-btn .new-tag{margin:0 0 0 6px}
+.nav-brochure{color:#ffd76e!important;font-weight:700}
+#brochure:target,.brochure.flash{animation:brFlash 1.6s ease-out 2}
+@keyframes brFlash{0%{transform:scale(1)}30%{transform:scale(1.015);box-shadow:0 0 70px rgba(255,201,77,.6)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.brochure::before,#brochure:target{animation:none}}
 </style>
 </head>
 <body>
@@ -497,7 +510,7 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
   <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">≡</button>
   <nav id="nav">
     <a href="#mission">Home</a><a href="#profile">Our project</a><a href="#descent">Descent</a><a href="#eva">Spacewalk</a><a href="#telemetry">Results</a><a href="#games">Games</a>
-    <a href="#presentation">Slides</a><a href="#papers">Papers</a><a href="#models">3D designs</a><a href="models.html" target="_blank" rel="noopener">3D library ↗</a><a href="#floorplan">Floor plan</a><a href="#gallery">Gallery</a><a href="#exhibition">◉ 3D Exhibition</a><a href="luna-x/">LUNA-X wearables</a><a href="companion/">Luna companion</a><a href="https://jaigod.github.io/lunar-habitat-engineering/">Engineering portal</a>
+    <a href="#presentation">Slides</a><a href="#brochure" class="nav-brochure">📄 Brochure</a><a href="#papers">Papers</a><a href="#models">3D designs</a><a href="models.html" target="_blank" rel="noopener">3D library ↗</a><a href="#floorplan">Floor plan</a><a href="#gallery">Gallery</a><a href="#exhibition">◉ 3D Exhibition</a><a href="luna-x/">LUNA-X wearables</a><a href="companion/">Luna companion</a><a href="https://jaigod.github.io/lunar-habitat-engineering/">Engineering portal</a>
   </nav>
 </header>
 
@@ -518,7 +531,7 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
         <a class="btn" href="voice-log/">🎙 Astronaut Voice Log</a>
         <a class="btn" href="luna-x/exhibit/">◉ 3D Exhibition Hall</a><a class="btn" href="luna-x/">🧑‍🚀 LUNA-X helmet · glove · boot · suit</a>
         <a class="btn" href="luna-x/#downloads">⬇ LUNA-X downloads</a>
-        <a class="btn" href="#brochure">📄 Brochure</a><a class="btn" href="rubric.html">🏆 Rubric report</a>
+        <a class="btn brochure-btn" href="#brochure">📄 Brochure <span class="new-tag">NEW</span></a><a class="btn" href="rubric.html">🏆 Rubric report</a>
         <a class="btn" href="code.html">💻 Code highlights</a>
         <a class="btn" href="models.html" target="_blank" rel="noopener">🛰 3D model library</a>
         <a class="btn" href="Downloads/Lunar_Habitat_Complete_Designs.zip" download>⬇ 3D designs</a>
@@ -544,7 +557,7 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
   <div class="wrap brochure-wrap">
     <div class="glass brochure reveal" id="brochure">
       <div class="br-text">
-        <div class="kicker">Print-ready tri-fold · letter size · 2 sides</div>
+        <div class="kicker"><span class="new-tag">NEW</span> Print-ready tri-fold · letter size · 2 sides</div>
         <h2>Our brochure</h2>
         <p>The whole project on one folded sheet: the problem, our AI and the 8 rules it can never break, the LUNA-X wearables, our games and the team. Print it double-sided and fold in thirds.</p>
         <div class="cta" style="margin-top:14px">
