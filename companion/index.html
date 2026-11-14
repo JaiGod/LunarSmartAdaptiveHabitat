@@ -103,11 +103,11 @@ const log=$('#log');
 function add(cls,t){ const d=document.createElement('div'); d.className='msg '+cls; d.textContent=t; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
 const ai=t=>{add('ai',t); speak(t);}, sys=t=>add('sys',t);
 let crew='Crew', askEsc=false, lowTimes=[], toggle=0, lastLow=-1e9, lastHappy=-1e9, lastAmb=performance.now()/1000;
-function alertHuman(reason){ add('alert','⚠ ALERT → mission psychologist: '+crew+' · '+reason+' · '+new Date().toLocaleTimeString()); }
+function alertHuman(reason){ add('alert','⚠ SIMULATED ALERT → mission psychologist (no one is contacted in this demo): '+crew+' · '+reason+' · '+new Date().toLocaleTimeString()); }
 function reply(text){
   const t=text.toLowerCase();
-  if(CRISIS.test(text)){ alertHuman('CRISIS language in conversation. A human should check in now.'); return "I'm really glad you told me, and I'm taking it seriously. I'm alerting the mission psychologist right now so a real person reaches out. Are you safe right now? If you're in the US and in danger, call or text 988 right away."; }
-  if(askEsc){ if(/^(yes|yeah|yep|sure|ok|okay|please)\b/.test(t)){askEsc=false; alertHuman('Crew agreed to notify the mission psychologist (repeated low mood).'); return "Okay, I've let them know. Reaching out was a good move. I'm still here.";}
+  if(CRISIS.test(text)){ alertHuman('CRISIS language in conversation. A human should check in now.'); return "I'm really glad you told me, and I'm taking it seriously. In the real habitat this would go straight to the mission psychologist. This web demo can't reach anyone, so please talk to a real person now: in the US, call or text 988 (Suicide and Crisis Lifeline), or call 911 if you're in danger. Outside the US, findahelpline.com lists a free line for your country. Are you safe right now?"; }
+  if(askEsc){ if(/^(yes|yeah|yep|sure|ok|okay|please)\b/.test(t)){askEsc=false; alertHuman('Crew agreed to notify the mission psychologist (repeated low mood).'); return "Okay. In the habitat, the psychologist would get that message now (this demo sends nothing). Reaching out was a good move. If you'd like to talk to someone for real, a school counselor, doctor or someone you trust is a great start. I'm still here.";}
     if(/^(no|nah|nope|not now)\b/.test(t)){askEsc=false; return "That's okay. The offer stands whenever you want it. What would help right now?";} }
   if(/^\/?joke\b|joke/.test(t)) return joke();
   if(/^\/?earth\b|message from (home|earth)/.test(t)){ const m=nextEarth(); return m?`A message from ${m.from}: "${m.text}"`:'No messages from Earth yet. Add one under "Messages from Earth".'; }
