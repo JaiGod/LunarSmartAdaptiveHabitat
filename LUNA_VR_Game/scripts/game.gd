@@ -60,6 +60,13 @@ var selene_said_high = false
 var twin_rooms = []               # [{"mat","key"}]
 var twin_pucks = []
 var twin_t = 0.0
+var selene: Selene                # SELENE: your personal health companion (face, posture, voice; nothing recorded)
+var selene_ui = null               # SeleneUI.Dash, built the first time you open it
+var selene_open = false
+var selene_layer: CanvasLayer
+var selene_scr: Screen3D           # VR: the dashboard floats in front of you
+var selene_now = -1.0
+var selene_req = 0.0
 var r3: R3                        # round 3: every object does something + the earlier HUNCH games' features
 
 func _ready() -> void:
@@ -76,6 +83,7 @@ func _ready() -> void:
 	for i in range(1, 4):
 		var a = Avatar.new(); a.setup(i); add_child(a); avatars.append(a)
 	r3 = R3.new(); r3.name = "R3"; add_child(r3); r3.setup(self)
+	selene = Selene.new(); selene.name = "Selene"; add_child(selene); selene.setup(self)
 	player = Player.new(); player.name = "Player"; add_child(player)
 	player.pointer_clicked.connect(_on_click)
 	_spawn_in_pod()
@@ -99,6 +107,8 @@ func _ready() -> void:
 		if arg.begins_with("--autoplay="): _autoplay.call_deferred(arg.substr(11))
 		if arg == "--selenetest": _selenetest.call_deferred()
 		if arg == "--r3test": r3.selftest.call_deferred()
+		if arg == "--seltest": selene.selftest.call_deferred()
+		if arg.begins_with("--selshot="): selene.shots.call_deferred(arg.substr(10))
 		if arg == "--r3auto": r3.autotest.call_deferred()
 		if arg == "--r3audit": r3.audit.call_deferred()
 		if arg.begins_with("--r3occ="): r3.occ_dump.call_deferred(arg.substr(8))
@@ -186,7 +196,7 @@ func _build_title() -> void:
 	var vr_b = UI.btn("Enter VR", _start_vr, 0.75, 24, player.webxr_available() != null)
 	row.add_child(vr_b)
 	b.add_child(row)
-	var help = "Desktop: WASD move · mouse look · click / E to use · F fast-forward · Tab free the mouse · Y / N answer LUNA\nVR: left stick move · right stick turn · trigger to use and click screens · Y button fast-forward"
+	var help = "Desktop: WASD move · mouse look · click / E to use · F fast-forward · Tab free the mouse · Y / N answer LUNA · U SELENE (camera + mic optional)\nVR: left stick move · right stick turn · trigger to use and click screens · Y button fast-forward"
 	b.add_child(UI.lbl(help, 18, UI.MUT, true))
 	b.add_child(UI.lbl("© 2026 Jaineil R. — with thanks to Angel C. and Farhan K.", 16, UI.MUT))
 	if player.webxr_available() == null:
@@ -232,7 +242,50 @@ func vr_button(n: String) -> void:
 	elif n == "right_by_button" and not asking.is_empty(): _answer(false)
 	elif n == "right_ax_button" and not asking.is_empty(): _answer(true)
 
-func ui_open() -> bool: return state != "play" or not asking.is_empty()
+func ui_open() -> bool: return state != "play" or not asking.is_empty() or selene_open
+
+# =====================================================================================================
+#  SELENE dashboard: full screen on PC / browser (U), a big floating panel in VR (wrist button)
+# =====================================================================================================
+func toggle_selene() -> void:
+	selene_open = not selene_open
+	if selene_ui == null:
+		selene_ui = SeleneUI.Dash.new(self, player.vr)
+		if player.vr:
+			selene_scr = Screen3D.new(); selene_scr.setup("selene", Vector2(1.6, 0.9), Vector2i(1920, 1080), null, true)
+			add_child(selene_scr); selene_scr.set_ui(selene_ui)
+		else:
+			selene_layer = CanvasLayer.new(); selene_layer.layer = 20; add_child(selene_layer)
+			selene_layer.add_child(selene_ui)
+	if selene_scr:
+		selene_scr.visible = selene_open
+		if selene_open: _place_vr_panel(selene_scr, 1.5, 0.0)
+	else:
+		selene_ui.visible = selene_open
+		hud_layer.visible = not selene_open
+		if selene_open: _fit_selene()
+		if state == "play":
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if selene_open else (Input.MOUSE_MODE_CAPTURED if asking.is_empty() and r3.card.is_empty() else Input.MOUSE_MODE_VISIBLE)
+	selene_ui.dirty = true
+	if selene_open: flags["selene"] = true
+	play("click")
+
+func _fit_selene() -> void:
+	var vs = get_viewport().get_visible_rect().size
+	var k = min(vs.x / 1920.0, vs.y / 1080.0)
+	selene_ui.scale = Vector2(k, k)
+	selene_ui.position = (vs - Vector2(1920, 1080) * k) * 0.5
+
+func _selene_frame(dt: float) -> void:
+	if selene_scr:
+		selene_req -= dt
+		if selene_req <= 0.0: selene_req = 0.2; selene_scr.request(1)
+	else: _fit_selene()
+
+func _place_vr_panel(scr: Node3D, dist: float, down: float) -> void:
+	var f = -player.cam.global_transform.basis.z; f.y = 0; f = f.normalized()
+	scr.global_position = player.cam.global_position + f * dist + Vector3(0, down, 0)
+	scr.look_at(player.cam.global_position, Vector3.UP); scr.rotate_object_local(Vector3.UP, PI)
 
 func _begin_mission() -> void:
 	hud.visible = true
@@ -276,6 +329,10 @@ func _process(dt: float) -> void:
 		sim.player_sleep()       # very first night: you start asleep
 	_update_activity(dt)
 	_selene_tick(dt)
+	var dmn = 0.0 if selene_now < 0.0 else max(0.0, sim.now - selene_now)
+	selene_now = sim.now
+	selene.tick(dt, dmn)
+	if selene_open: _selene_frame(dt)
 	_sync_world(dt)
 	_messages(dt)
 	refresh_t -= dt
@@ -730,6 +787,9 @@ func _hide_popup() -> void:
 
 func _unhandled_key_input(e: InputEvent) -> void:
 	if not (e is InputEventKey and e.pressed and not e.echo): return
+	if selene_open:
+		if e.keycode in [KEY_U, KEY_ESCAPE]: toggle_selene()
+		return
 	if r3.auto and e.keycode in [KEY_E, KEY_ESCAPE, KEY_Y, KEY_N, KEY_H, KEY_SPACE]: r3.set_auto(false, "you took the controls")
 	if r3.key(e.keycode): return
 	match e.keycode:
@@ -741,6 +801,7 @@ func _unhandled_key_input(e: InputEvent) -> void:
 		KEY_TAB, KEY_ESCAPE:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
 		KEY_V: voice = not voice; _toast("LUNA voice %s." % ("on" if voice else "off"), "info")
+		KEY_U: toggle_selene()
 
 # =====================================================================================================
 #  HUD (desktop overlay; in VR it lives on your left wrist)
@@ -796,6 +857,7 @@ func _refresh_hud() -> void:
 		r3b.add_child(UI.btn("Music " + ("on" if r3.music_on else "off"), func(): r3.music_on = not r3.music_on, 0.75, 18))
 		hud_v.add_child(r3b)
 		r3b = UI.hbox(6)
+		r3b.add_child(UI.btn("SELENE", func(): toggle_selene(), 0.55, 18))
 		r3b.add_child(UI.btn("Demo", func(): r3.start_demo(), 0.4, 18))
 		r3b.add_child(UI.btn("Autopilot " + ("on" if r3.auto else "off"), func(): r3.set_auto(not r3.auto), 0.08, 18))
 		hud_v.add_child(r3b)
@@ -1020,12 +1082,14 @@ func g_eva_ready() -> bool: return flags.get("eva_ready", -9999.0) > sim.now - 2
 # =====================================================================================================
 func selene_status() -> String:
 	if selene_live:
-		return "SELENE live: stress %s · fatigue %s · low mood %s (from your last camera + voice check-in)" % [_f(selene_data.get("stress")), _f(selene_data.get("fatigue")), _f(selene_data.get("low_mood"))]
-	return "SELENE not connected. On this PC run selene_bridge.py next to SELENE to use your real face and voice."
+		return "SELENE live: stress %s · fatigue %s · low mood %s (%s)" % [_f(selene_data.get("stress")), _f(selene_data.get("fatigue")), _f(selene_data.get("low_mood")),
+			"sensed live in the game" if selene_data.get("source", "") == "SELENE in-game" else "from your last camera + voice check-in in the SELENE app"]
+	return "SELENE sensing is off. Press U (or SELENE on your wrist) and switch on face, posture and voice."
 
 func _f(v) -> String: return "–" if v == null else "%.2f" % float(v)
 
 func _selene_tick(dt: float) -> void:
+	if OS.has_feature("web"): return            # the browser build senses in-game (camera + mic in this tab)
 	selene_t -= dt
 	if selene_t > 0.0 or selene_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED: return
 	selene_t = 2.0 if selene_live else (4.0 if selene_fail < 3 else 20.0)
@@ -1033,11 +1097,13 @@ func _selene_tick(dt: float) -> void:
 
 func _on_selene(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		if selene_data.get("source", "") == "SELENE in-game": selene_fail += 1; return
 		if selene_live: _toast("SELENE disconnected. LUNA goes back to the habitat sensors alone.", "info")
 		selene_live = false; selene_fail += 1
 		return
 	var d = JSON.parse_string(body.get_string_from_utf8())
 	if typeof(d) != TYPE_DICTIONARY or not d.get("connected", false): return
+	if selene_data.get("source", "") == "SELENE in-game": return     # live in-game sensing wins over the last app check-in
 	selene_fail = 0
 	if not selene_live:
 		selene_live = true
@@ -1124,3 +1190,7 @@ func _selenetest() -> void:
 	print("SELENETEST asked ", asked)
 	for m in sim.messages: print("LUNA> ", m.text)
 	get_tree().quit()
+
+## break the one reference cycle (sim <-> LUNA) so everything is freed cleanly when the game closes
+func _exit_tree() -> void:
+	if sim and sim.luna: sim.luna.sim = null

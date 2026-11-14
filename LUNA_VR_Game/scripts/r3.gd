@@ -1023,7 +1023,7 @@ func key(k: int) -> bool:
 			if h.get("kind", "") == "inter": show_spec(h.node)
 			return true
 		KEY_K:
-			show_card({"title": "Keys", "lines": [["WASD move · mouse look · E / click use · F fast-forward · Y / N / H answer LUNA", UI.INK], ["T guided demo of the whole project · P autopilot (the AI plays) · L what it learned", UI.ACC], ["Status lights: green working · blue standby · yellow warning · red emergency · purple night", UI.INK],
+			show_card({"title": "Keys", "lines": [["WASD move · mouse look · E / click use · F fast-forward · Y / N / H answer LUNA", UI.INK], ["T guided demo of the whole project · P autopilot (the AI plays) · L what it learned", UI.ACC], ["U SELENE, your health companion: face, posture + voice sensing · say \"Selene, how am I doing?\"", UI.ACC], ["Status lights: green working · blue standby · yellow warning · red emergency · purple night", UI.INK],
 				["G guide me to my next step · B path to my bed · I check on the crewmate next to you", UI.INK],
 				["O AI OFF switch · C floor plan A/B · J rubric checklist · Z zone card · X specs of what you point at · K this list · V voice", UI.INK]],
 				"buttons": [["Close", func(): close_card(), 0.62]]})

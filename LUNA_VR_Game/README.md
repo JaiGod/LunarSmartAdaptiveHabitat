@@ -109,15 +109,30 @@ How it compares:
 - **ISS crew quarters** are only about 2.1 m³ each. NASA notes that longer surface missions need larger quarters, so our pods are 2.5 × 2.5 m.
 - Sleeping crewmates now lie in their own beds instead of on the floor.
 
-## SELENE link (real face + voice sensing)
+## SELENE inside the game (press U)
 
-LUNA VR can use SELENE, the team's face + voice wellness app, as a live sensor.
+SELENE is the team's health companion ([lunar-crew-monitor](https://github.com/JaiGod/lunar-crew-monitor)), now built into the game. **LUNA runs the habitat; SELENE looks after you.**
 
-1. Copy [`tools/selene_bridge.py`](tools/selene_bridge.py) into the SELENE folder (next to `selene_app.py`).
-2. Run `python selene_bridge.py` instead of `python selene_app.py`, and do a check-in in SELENE.
-3. Play LUNA VR on the same computer (browser or PC build). The screens show **SELENE live** and LUNA reacts to your real readings.
+- **Huge dashboard.** Heart rate with a live trace, blood oxygen, HRV, body temperature, blood pressure, exercise and resistive minutes, water, sleep, radiation dose, brainwaves, fatigue / stress / mood, cabin CO₂, outside conditions with an EVA go/hold, alerts and a schedule. Full screen on PC and browser; a big floating panel in VR (wrist button **SELENE**).
+- **Talk to it.** Tap a question, type, or say **"Selene, …"**: how am I doing · I feel anxious / tired / lonely · breathing exercise · my brainwaves · outside conditions · radiation dose · crew status · lights warm · temperature 21 · music off · take me to the greenhouse · AI off · autopilot off · tell me a joke.
+- **It learns what helps you.** After a suggestion, tap Helpful or Not helpful. It uses the same Thompson-sampling learning as the SELENE app. Delete my data clears it.
+- **Same logo as the app:** a Moon made of 760 particles that ripples when it listens, swirls when it thinks and pulses when it speaks.
+- **Ops crew-health wall.** A 4.2 m screen above the Ops desks. It's a shared room, so it shows only crew who chose to appear, and only physical data, never mental (hard limit 1).
 
-No SELENE or camera? Run `python selene_bridge.py --demo` (or `--demo --stress 0.85`). Only three scores leave SELENE, with no images and no audio, and only on this computer (`127.0.0.1:8765`).
+### The big three: face, posture, voice
+
+| | What it reads | Where it works |
+|---|---|---|
+| **Face** | smiles, frowns, brow tension, blinks, eyes closed, yawns | browser version (camera) |
+| **Posture** | upright or slumped, fidgeting, shoulder tilt | browser version (camera); **VR: from your headset** (head height, angle, movement) |
+| **Voice** | spoken commands, loudness, pitch | Chrome and Edge (commands + tone); other browsers (tone only) |
+
+- **Camera and mic are optional.** Everything else works without them. Nothing starts until you press the button, read the consent card on the dashboard and say yes, and then the browser asks too.
+- **What leaves your device:** face and posture are analysed inside the browser tab (MediaPipe), and only scores from 0 to 1 reach the game. Nothing is recorded. Speech-to-text is done by the browser's own speech service (in Chrome that's Google's servers), and only the words of your commands reach the game.
+- The first 20 seconds learn **your** normal face and posture, so scores are relative to you. A 30-second check-in averages them. Not a medical device: it never diagnoses, and the CMO, a person, handles anything serious. Crisis words get real help lines (988 / 911); the game contacts no one.
+- Your live scores feed LUNA exactly like the old bridge did, so LUNA's lights, sounds and offers react to you.
+
+**PC version:** the camera and mic still come in through the SELENE app. Copy [`tools/selene_bridge.py`](tools/selene_bridge.py) next to `selene_app.py`, run `python selene_bridge.py`, and do a check-in (no camera? `python selene_bridge.py --demo`). Only three scores leave SELENE, and only on this computer (`127.0.0.1:8765`).
 
 ## Controls
 
@@ -131,10 +146,11 @@ No SELENE or camera? Run `python selene_bridge.py --demo` (or `--demo --stress 0
 | AI OFF · floor plan A/B · rubric · zone card · all keys | O · C · J · Z · K | wrist panel: AI OFF, Rubric |
 | Fast-forward | F | Y button / wrist panel |
 | Guided demo · autopilot · what it learned | T · P · L | wrist panel: Demo, Autopilot |
+| SELENE health companion | U (Esc closes) · say "Selene, …" | wrist panel: SELENE |
 
 ## Build
 
 Godot 4.3, Compatibility renderer (needed for WebXR). Export presets: **Web** (no threads, so it runs on GitHub Pages) and **Windows Desktop** (OpenXR on).
-Tools: `tools/simtest.gd` (headless 3-day run), `tools/export_glb.gd` (model export), `tools/selene_bridge.py` (SELENE link), `tools/blender/` (game → Blender scene), `--autoplay=<dir>` (the whole mission played by script), `--shots=<dir>` (screenshots of every room), `--selenetest` (SELENE link check).
+Tools: `tools/simtest.gd` (headless 3-day run), `tools/export_glb.gd` (model export), `tools/selene_bridge.py` (SELENE link), `tools/blender/` (game → Blender scene), `--autoplay=<dir>` (the whole mission played by script), `--shots=<dir>` (screenshots of every room), `--selenetest` (SELENE link check), `--seltest` (every SELENE command, the dashboard for each person, the Ops wall, VR posture and the VR panel), `--selshot=<dir>` (SELENE screenshots). The browser camera / mic module is [`web/selene_sense.js`](web/selene_sense.js).
 
 © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.

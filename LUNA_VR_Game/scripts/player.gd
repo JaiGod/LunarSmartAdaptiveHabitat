@@ -164,7 +164,7 @@ func _physics_process(dt: float) -> void:
 			_snap_turn(-sign(rv.x) * deg_to_rad(30.0)); snap_ready = false
 		elif abs(rv.x) < 0.3: snap_ready = true
 		_follow_head(dt)
-	else:
+	elif get_parent().get("selene_open") != true:     # typing to SELENE must not walk you around
 		if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP): input.y -= 1
 		if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN): input.y += 1
 		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT): input.x -= 1

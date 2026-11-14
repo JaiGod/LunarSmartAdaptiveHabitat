@@ -506,9 +506,13 @@ func ops() -> void:
 			mb.box(p + Vector3(ox, 1.05, 0.104), Vector3(0.43, 0.27, 0.005), Mats.glow(Color(0.12, 0.25, 0.45), 0.8))
 		_chair(p + Vector3(0, 0, -0.75), 0.0, Mats.fabric(Color(0.45, 0.6, 0.9), "fabric_ops"))
 		h.add_inter("desk", p + Vector3(0, 0.9, -0.5), Vector3(1.0, 0.6, 0.6), "", Callable(), "work")
-	# trend & forecast display (display only) high on the south wall
-	mb.box(Vector3(x0 + 3.9, 2.15, z1 - 0.05), Vector3(4.0, 1.05, 0.06), Mats.black())
-	h.add_screen("forecast", Vector3(x0 + 3.9, 2.15, z1 - 0.085), PI, Vector2(3.9, 0.95), Vector2i(1520, 370), null, 0.0, false)
+	# SELENE crew-health wall (display only) above the desks on the south wall: big enough to read from the doorway.
+	# Shared room, so it shows only crew who chose to appear, physical status only, never mental data (hard limit 1).
+	mb.box(Vector3(x0 + 3.9, 2.05, z1 - 0.05), Vector3(4.3, 1.55, 0.06), Mats.black())
+	h.add_screen("selene_wall", Vector3(x0 + 3.9, 2.05, z1 - 0.085), PI, Vector2(4.2, 1.45), Vector2i(1920, 663), null, 0.0, false)
+	# trend & forecast display (display only) high on the east wall, above the planning station
+	mb.box(Vector3(x1 - 0.04, 2.62, z0 + 3.1), Vector3(0.05, 0.74, 2.9), Mats.black())
+	h.add_screen("forecast", Vector3(x1 - 0.075, 2.62, z0 + 3.1), -PI / 2.0, Vector2(2.8, 0.68), Vector2i(1520, 370), null, 0.0, false)
 	# digital twin table: horizontal touch screen showing the live habitat (middle of the room)
 	var tp = Vector3(x0 + 4.375, 0, z0 + 3.125)
 	mb.box(tp + Vector3(0, 0.45, 0), Vector3(1.7, 0.9, 0.7), Mats.white_plastic(), 0.0, true)
