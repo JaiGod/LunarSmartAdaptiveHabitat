@@ -530,7 +530,7 @@ function tick() {
   if (drawerPart && parts[drawerPart] && mode !== 'content') {
     const P = parts[drawerPart]; wantRot = wrapNear(-Math.atan2(P.n.x, P.n.z), modelRot); want.target.copy(worldOf(P.local)).lerp(center, 0.15); want.dist = Math.max(R * 1.25, Math.min(R * 2.2, P.size * 3.2)); want.h = 0.12; near = true;
   } else if (focus && mode !== 'scan') { wantRot = wrapNear(-Math.atan2(hub.n.x, hub.n.z), modelRot); want.target.copy(worldOf(hub.local)).lerp(center, 0.25); want.dist = R * 1.5; want.h = 0.05; near = true; }
-  else if (mode === 'hero') { want.target.copy(center); want.dist = R * 3.1; want.h = 0.26; wantRot = Math.sin(T * 0.07) * 0.5 + (C.heroRot || 0); }
+  else if (mode === 'hero') { want.target.copy(center).add(new THREE.Vector3(0, -H * 0.32, 0)); want.dist = R * 3.3; want.h = 0.26; wantRot = Math.sin(T * 0.07) * 0.5 + (C.heroRot || 0); }
   else if (S && S.mode === 'turn') { want.target.copy(center); want.dist = R * (S.d || 2.6); want.h = S.h ?? 0.2; wantRot = (C.heroRot || 0) + stepP * Math.PI * 2; }
   else if (S && S.mode.startsWith('part:')) { const P = parts[S.mode.slice(5)]; if (P) { wantRot = wrapNear(-Math.atan2(P.n.x, P.n.z) + (S.yaw || 0), modelRot); want.target.copy(worldOf(P.local)).lerp(center, 0.35); want.dist = R * 1.45 * (S.d || 1.1); want.h = S.h ?? 0.08; near = true; } }
   else if (S && S.mode === 'hub') { wantRot = wrapNear(-Math.atan2(hub.n.x, hub.n.z), modelRot); want.target.copy(worldOf(hub.local)).lerp(center, 0.25); want.dist = R * 1.45 * (S.d || 0.9); want.h = S.h ?? 0.04; near = true; }
