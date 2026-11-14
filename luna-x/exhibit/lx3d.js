@@ -166,10 +166,15 @@ const draco = new DRACOLoader(); draco.setDecoderPath('https://www.gstatic.com/d
 const loader = new GLTFLoader(); loader.setDRACOLoader(draco);
 const model = new THREE.Group(); scene.add(model);
 const FIT = C.fit || 1.4;
-let H = 1, R = 1, ready = false;
+let H = 1, R = 1, ready = false, modelCorners = [];
 const center = new THREE.Vector3(0, 0.7, 0);
 const meshes = [], partOf = new Map(), parts = {}, glow = [];
 const hub = { pos: new THREE.Vector3(), meshes: [], has: false };
+function visBox(root) { // bounding box of visible meshes only
+  const b = new THREE.Box3(), t = new THREE.Box3();
+  root.traverse((o) => { let v = true, n = o; while (n) { if (!n.visible) { v = false; break; } n = n.parent; } if (v && o.isMesh) { o.geometry.computeBoundingBox(); t.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); b.union(t); } });
+  return b;
+}
 const nameChain = (o) => { let s = '', n = o; while (n && n !== model) { s += ' ' + n.name; n = n.parent; } return s; };
 const rx = (s) => (s ? new RegExp(s) : null);
 const reCycle = rx(C.glow?.cycle), reBeat = rx(C.glow?.beat), reHide = rx(C.hide);
@@ -178,11 +183,12 @@ loader.load(C.model, (g) => {
   const root = g.scene;
   if (C.rot) root.rotation.set(...C.rot.map((d) => (d * Math.PI) / 180));
   root.updateMatrixWorld(true);
-  if (reHide) root.traverse((o) => { if (reHide.test(o.name)) o.visible = false; });
-  const box = new THREE.Box3().setFromObject(root, true), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+  root.traverse((o) => { if ((reHide && reHide.test(o.name)) || /(^|_)(Lunar_Ground|Ground|Studio_Floor|Floor|Regolith_Ground|Backdrop)$/i.test(o.name)) o.visible = false; });
+  const box = visBox(root), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
   const s = FIT / Math.max(size.x, size.y, size.z);
   const wrap = new THREE.Group(); wrap.add(root); wrap.scale.setScalar(s); wrap.position.set(-c.x * s, -box.min.y * s, -c.z * s);
   model.add(wrap); model.updateMatrixWorld(true);
+  modelCorners = []; for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) modelCorners.push(model.worldToLocal(wrap.localToWorld(new THREE.Vector3(x, y, z))));
   H = size.y * s; R = 0.5 * Math.hypot(size.x, size.y, size.z) * s; center.set(0, H / 2, 0);
   plinth.scale.setScalar(Math.max(0.5, Math.hypot(size.x, size.z) * s * 0.75) / 0.55);
   Object.assign(key.shadow.camera, { left: -R * 1.4, right: R * 1.4, top: H + 0.3, bottom: -0.3 }); key.shadow.camera.updateProjectionMatrix();
@@ -382,28 +388,45 @@ const facingOf = (n) => { const w = n.clone().applyAxisAngle(new THREE.Vector3(0
 const svg = $('#callouts svg');
 function layoutOverlays(T) {
   const W = innerWidth, Hh = innerHeight;
-  if (mode === 'callouts' || hoverPart || drawerPart) {
-    const [cx, cy] = toScreen(center); const L = Math.min(170, W * 0.15); const items = [];
+  const showAll = mode === 'callouts', want = drawerPart || hoverPart;
+  let lines = '';
+  if (showAll || want) {
+    // screen extent of the model
+    let minX = 1e9, maxX = -1e9;
+    modelCorners.forEach((c) => { const [x] = toScreen(model.localToWorld(c.clone())); minX = Math.min(minX, x); maxX = Math.max(maxX, x); });
+    const [cx] = toScreen(center);
+    const gap = 36, top = 84, bot = Hh - 70;
+    const cols = { '-1': [], '1': [] };
     $$('.co').forEach((el) => {
       const P = parts[el.dataset.part]; if (!P) return;
+      const on = showAll || el.dataset.part === want;
       const [ax, ay, az] = toScreen(worldOf(P.local)); const f = facingOf(P.n);
-      let dx = ax - cx, dy = ay - cy; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl; if (Math.abs(dx) < 0.25) dx = dx < 0 ? -0.6 : 0.6;
-      const side = dx < 0 ? -1 : 1; const w = el.offsetWidth, h = el.offsetHeight;
-      items.push({ el, ax, ay, side, w, h, y: ay + dy * L * 0.5 - h / 2, x: side < 0 ? ax - L - w : ax + L, vis: f > -0.08 && az < 1 });
+      const vis = on && f > -0.15 && az < 1 && ax > 0 && ax < W && ay > 0 && ay < Hh;
+      el.classList.toggle('hidden', !vis); el.style.opacity = vis ? 1 : 0; el.style.pointerEvents = vis ? 'auto' : 'none';
+      if (!vis) return;
+      const side = ax < cx ? -1 : 1;
+      cols[side].push({ el, ax, ay, w: el.offsetWidth, h: el.offsetHeight });
     });
-    [-1, 1].forEach((sd) => { const col = items.filter((i) => i.side === sd && i.vis).sort((a, b) => a.y - b.y); for (let i = 1; i < col.length; i++) { const min = col[i - 1].y + col[i - 1].h + 8; if (col[i].y < min) col[i].y = min; } });
-    let lines = '';
-    items.forEach((i) => {
-      const x = Math.max(8, Math.min(W - i.w - 70, i.x)), y = Math.max(70, Math.min(Hh - i.h - 60, i.y));
-      i.el.style.left = x + 'px'; i.el.style.top = y + 'px'; i.el.classList.toggle('hidden', !i.vis);
-      if (i.vis) { const ex = i.side < 0 ? x + i.w : x, ey = y + i.h / 2; lines += `<line x1="${i.ax}" y1="${i.ay}" x2="${ex}" y2="${ey}"/><circle cx="${i.ax}" cy="${i.ay}" r="3.2"/><circle class="ping" cx="${i.ax}" cy="${i.ay}" r="4"/>`; }
+    [-1, 1].forEach((side) => {
+      const col = cols[side].sort((a, b) => a.ay - b.ay);
+      // stack labels in a column beside the model, as close to their anchor height as possible
+      col.forEach((it) => { it.y = Math.max(top, Math.min(bot - it.h, it.ay - it.h / 2)); });
+      for (let i = 1; i < col.length; i++) { const min = col[i - 1].y + col[i - 1].h + 10; if (col[i].y < min) col[i].y = min; }
+      const over = col.length ? col[col.length - 1].y + col[col.length - 1].h - bot : 0;
+      if (over > 0) col.forEach((it) => { it.y = Math.max(top, it.y - over); });
+      col.forEach((it) => {
+        let x = side < 0 ? minX - gap - it.w : maxX + gap;
+        x = Math.max(10, Math.min(W - it.w - 64, x));
+        // if the column would cover the model (narrow screens), keep it at the screen edge
+        it.el.style.left = x + 'px'; it.el.style.top = it.y + 'px';
+        const ex = side < 0 ? x + it.w : x, ey = it.y + it.h / 2;
+        const kx = side < 0 ? Math.min(ex + 18, it.ax - 8) : Math.max(ex - 18, it.ax + 8);
+        lines += `<polyline points="${it.ax},${it.ay} ${kx},${ey} ${ex},${ey}"/><circle cx="${it.ax}" cy="${it.ay}" r="3.4"/><circle class="ping" cx="${it.ax}" cy="${it.ay}" r="4"/>`;
+      });
     });
-    svg.innerHTML = lines;
-    $('#callouts').style.opacity = mode === 'callouts' ? '' : (drawerPart || hoverPart ? 1 : '');
-    if (mode !== 'callouts') $$('.co').forEach((el) => { const show = el.dataset.part === (drawerPart || hoverPart); el.style.opacity = show ? 1 : 0; el.style.pointerEvents = show ? 'auto' : 'none'; });
-    else $$('.co').forEach((el) => { el.style.opacity = ''; el.style.pointerEvents = ''; });
-    if (mode !== 'callouts') { const want = drawerPart || hoverPart; svg.innerHTML = items.filter((i) => i.el.dataset.part === want && i.vis).map((i) => { const x = parseFloat(i.el.style.left), y = parseFloat(i.el.style.top); const ex = i.side < 0 ? x + i.w : x; return `<line x1="${i.ax}" y1="${i.ay}" x2="${ex}" y2="${y + i.h / 2}"/><circle cx="${i.ax}" cy="${i.ay}" r="3.2"/><circle class="ping" cx="${i.ax}" cy="${i.ay}" r="4"/>`; }).join(''); }
-  } else { svg.innerHTML = ''; $('#callouts').style.opacity = ''; $$('.co').forEach((el) => { el.style.opacity = ''; el.style.pointerEvents = ''; }); }
+    $('#callouts').style.opacity = 1;
+  } else { $('#callouts').style.opacity = ''; $$('.co').forEach((el) => { el.style.opacity = ''; el.style.pointerEvents = ''; }); }
+  svg.innerHTML = lines;
   // hologram ring around the hub
   const [hx, hy] = toScreen(worldOf(hub.local)); const hf = facingOf(hub.n);
   const Rr = Math.min(250, W * 0.26);
