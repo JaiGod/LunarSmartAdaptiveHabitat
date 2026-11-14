@@ -6,9 +6,9 @@
 >
 > 💻 **[Code highlights](Docs/Code_Highlights/README.md)**: the 12 most important pieces of code in both games, as screenshots with plain-English explanations.
 >
-> 🌐 **[Project website](https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj)**: 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj).
+> 🌐 **[Project website](https://jaigod.github.io/LunarSmartAdaptiveHabitat/)**: 3D Moon, a scroll-driven descent to the realistic habitat, a spacewalk scene, and the [floor plan from first idea to 3D deck](https://jaigod.github.io/LunarSmartAdaptiveHabitat/).
 >
-> 🛰️ **[3D model library](https://claude.ai/artifact/BMs8Ea9epbjhnYAMEk7w2D)**: spin every model in the browser, with what each one does to keep the crew safe, including the new health-monitoring hardware (heart-rate chest beacon, sleep wristband, cortisol patch, sensor pods, Crew Health Station, smart sleep bunk) designed in Blender ([source](Models/Health_Monitoring/)).
+> 🛰️ **[3D model library](https://jaigod.github.io/LunarSmartAdaptiveHabitat/models.html)**: spin every model in the browser, with what each one does to keep the crew safe, including the new health-monitoring hardware (heart-rate chest beacon, sleep wristband, cortisol patch, sensor pods, Crew Health Station, smart sleep bunk) designed in Blender ([source](Models/Health_Monitoring/)).
 >
 > 🖨️ **[STL: 6 ring bases + 8 hallways + regolith shield, separate parts](3D_Print_Kits/Realistic_Separate_Parts/)** (1:150) · **[STL: whole outer shell + hallways + regolith shield](3D_Print_Kits/Realistic_Shell_Hallways_Shield/)** (1:320)
 >
@@ -18,16 +18,16 @@
 
 
 <p align="center">
-<a href="https://claude.ai/artifact/2W9bnbJaDD6nL2Sajr5amW"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%201-Lunar%20Smart%20Adaptive%20Habitat-1f8fff?style=for-the-badge" height="48" alt="Play Game 1"></a>
+<a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/play/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%201-Lunar%20Smart%20Adaptive%20Habitat-1f8fff?style=for-the-badge" height="48" alt="Play Game 1"></a>
 &nbsp;&nbsp;
-<a href="https://claude.ai/artifact/GmnWEKZ6uWtNKZv2SaGPSB"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%202-Lunar%20Habitat%20Commander-2ea44f?style=for-the-badge" height="48" alt="Play Game 2"></a>
+<a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/play2/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%202-Lunar%20Habitat%20Commander-2ea44f?style=for-the-badge" height="48" alt="Play Game 2"></a>
 &nbsp;
-<a href="https://claude.ai/artifact/Eb2L96uMVs113LTLTNG23P"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%203-LUNA%20(2D%20pixel)-5fd3e6?style=for-the-badge" height="48" alt="Play Game 3: LUNA"></a>
+<a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna/"><img src="https://img.shields.io/badge/%E2%96%B6%20%20PLAY%20GAME%203-LUNA%20(2D%20pixel)-5fd3e6?style=for-the-badge" height="48" alt="Play Game 3: LUNA"></a>
 &nbsp;&nbsp;
 <a href="https://play.unity.com/en/games/3a71c85f-445e-4048-9ed1-7d68a42f1ff5/lunar-smart-adaptive-habitat"><img src="https://img.shields.io/badge/%E2%96%B6%20%20GAME%201%20ON-Unity%20Play-000000?style=for-the-badge&logo=unity&logoColor=white" height="48" alt="Play Game 1 on Unity Play"></a>
 <a href="https://play.unity.com/en/games/4b4f2ef7-1ba6-4d1e-b5b3-435a0b63396f/lunar-habitat-commander"><img src="https://img.shields.io/badge/%E2%96%B6%20%20GAME%202%20ON-Unity%20Play-000000?style=for-the-badge&logo=unity&logoColor=white" height="48" alt="Play Game 2 on Unity Play"></a>
 </p>
-<p align="center"><b>All three games run in the browser:</b> no download, works in Chrome or Edge on any PC, including school computers · <a href="https://claude.ai/artifact/V5Xa1xNWJxsvBSqWp7oJUj"><b>Project home page</b></a></p>
+<p align="center"><b>All three games run in the browser:</b> no download, works in Chrome or Edge on any PC, including school computers · <a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/"><b>Project home page</b></a></p>
 
 
 **AI Psychological Monitoring for Positive Crew Mental Health** · Project ARES · 4-person lunar habitat · 2 Unity games (VR + desktop) · every 3D model · 3D-printable model kits · presentation, research, proposal and rubric deliverables
@@ -38,7 +38,7 @@
 
 | | Game 1: Lunar Smart Adaptive Habitat | Game 2: Lunar Habitat Commander |
 |---|---|---|
-| **Play** | [▶ Play in browser](https://claude.ai/artifact/2W9bnbJaDD6nL2Sajr5amW) | [▶ Play in browser](https://claude.ai/artifact/GmnWEKZ6uWtNKZv2SaGPSB) |
+| **Play** | [▶ Play in browser](https://jaigod.github.io/LunarSmartAdaptiveHabitat/play/) | [▶ Play in browser](https://jaigod.github.io/LunarSmartAdaptiveHabitat/play2/) |
 | **What it is** | The Project ARES simulator: walk the whole base in 1/6 g while an AI reads 9 sensors, scores 6 crew conditions and responds in 3 tiers | The VR adventure: command the base, talk to ARIA, mine minerals, zap aliens, build, wire power, survive solar storms and lunar night |
 | **Controls** | WASD + mouse · **H** help · **F11** Project ARES deliverables | WASD + mouse · on Meta Quest with controllers |
 | **Unity source** | [`Unity_Game_Moon_Base_Final/`](Unity_Game_Moon_Base_Final/) (Unity 6000.3.21f1) | Built in Unity 6 · [game info + screenshots](Docs/Lunar_Habitat_Commander/) |
@@ -48,7 +48,7 @@
 | Folder | What's inside |
 |---|---|
 | [`play/`](play/) · [`play2/`](play2/) · [`luna/`](luna/) | The three browser builds (2 Unity WebGL + LUNA web) |
-| [`LUNA_2D_Game/`](LUNA_2D_Game/) | Game 3: **LUNA**, a 2D pixel-art Godot 4 simulation where you are the habitat AI: sensor loadout, response protocols, forecasts, lighting and sleep simulation, dust storms, digital twin, board questions Q1–Q6. [Play](https://claude.ai/artifact/Eb2L96uMVs113LTLTNG23P) |
+| [`LUNA_2D_Game/`](LUNA_2D_Game/) | Game 3: **LUNA**, a 2D pixel-art Godot 4 simulation where you are the habitat AI: sensor loadout, response protocols, forecasts, lighting and sleep simulation, dust storms, digital twin, board questions Q1–Q6. [Play](https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna/) |
 | [`Unity_Game_Moon_Base_Final/`](Unity_Game_Moon_Base_Final/) | **Lunar Smart Adaptive Habitat**: the Unity 6 source (VR + desktop). Open with Unity Hub (6000.3.21f1). |
 | [`Models/`](Models/) | **Every 3D model**: all texture-baked habitat models (`Blender_Rich_Baked`), the Crew Wellness Dome, Base1 FBX, and Lunar Habitat v1 (.blend, .obj, 1:50 STL parts, renders) |
 | [`Models/Health_Monitoring/`](Models/Health_Monitoring/) · [`models/health/`](models/health/) | **Health-monitoring hardware**: the Blender script and the six exported models (chest beacon, wristband, cortisol patch, zone sensor pod, Crew Health Station, sleep bunk) |
