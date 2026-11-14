@@ -12,7 +12,7 @@ const ROOM_COL = {"airlock": Color("#e0a83a"), "hygiene": Color("#5ab0d6"), "qha
 	"eclss": Color("#3fa7a0"), "storage": Color("#a08a5a"), "work": Color("#4f8ef7"), "exercise": Color("#e0b23a")}
 const ROOM_NAME = {"airlock": "Airlock · dust lock", "hygiene": "Hygiene", "qhall": "Crew quarters", "communal": "Social hub",
 	"greenhouse": "Greenhouse", "corridor": "Corridor", "medical": "Medical · storm shelter", "eclss": "Life support",
-	"storage": "Robot bay · stores", "work": "Ops · LUNA", "exercise": "Exercise"}
+	"storage": "Robot bay · stores", "work": "Wellness Operations Center", "exercise": "Exercise · Wellness Dock"}
 const POD_COL = [Color("#4f8ef7"), Color("#3fbfb0"), Color("#e08a3c"), Color("#6abf5a")]
 
 var sim: VRSim

@@ -1,0 +1,87 @@
+
+
+# =====================================================================================================
+#  Blender export (scratch copy only): every primitive, label, screen, light and loose mesh of the habitat
+# =====================================================================================================
+func _bxf(n: Node3D) -> Array: return MB.xf_list(n.global_transform)
+
+func _top_owner(n: Node) -> String:
+	var cur = n
+	while cur and cur.get_parent() != hab: cur = cur.get_parent()
+	return String(cur.name) if cur else ""
+
+func _blender_dump(dir: String) -> void:
+	DirAccess.make_dir_recursive_absolute(dir)
+	_start_desktop()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	while state != "play": await get_tree().process_frame
+	set_fade(0.0)
+	sim.advance(150.0)
+	for k in 20: await get_tree().process_frame
+	for s in hab.screens: s.request(8)
+	for k in 14: await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	var screens = []
+	for s in hab.screens:
+		var img = s.vp.get_texture().get_image()
+		var fn = "screen_%s.png" % s.id
+		if img: img.save_png("%s/%s" % [dir, fn])
+		screens.append({"id": s.id, "xf": _bxf(s.quad), "size": [s.size_m.x, s.size_m.y], "px": [s.px.x, s.px.y], "owner": _top_owner(s), "file": fn, "vis": s.is_visible_in_tree()})
+	var labels = []
+	for l in hab.find_children("*", "Label3D", true, false):
+		labels.append({"text": l.text, "xf": _bxf(l), "fs": l.font_size, "ps": l.pixel_size, "col": MB.col_list(l.modulate), "bb": l.billboard,
+			"owner": _top_owner(l), "name": String(l.name), "ha": l.horizontal_alignment, "va": l.vertical_alignment, "outline": l.outline_size,
+			"vis": l.is_visible_in_tree()})
+	var lights = []
+	for o in hab.find_children("*", "Light3D", true, false):
+		var d = {"type": o.get_class(), "xf": _bxf(o), "col": MB.col_list(o.light_color), "e": o.light_energy, "owner": _top_owner(o), "vis": o.is_visible_in_tree()}
+		if o is OmniLight3D: d["range"] = o.omni_range
+		if o is SpotLight3D: d["range"] = o.spot_range; d["angle"] = o.spot_angle
+		lights.append(d)
+	var others = []
+	for mi in hab.find_children("*", "MeshInstance3D", true, false):
+		if mi.has_meta("mb"): continue
+		var par = mi.get_parent()
+		if par is Screen3D and mi == par.quad: continue
+		if mi.mesh == null: continue
+		var mat = mi.material_override
+		if mat == null and mi.mesh.get_surface_count() > 0: mat = mi.mesh.surface_get_material(0)
+		if mat == null and mi.mesh is PrimitiveMesh: mat = (mi.mesh as PrimitiveMesh).material
+		var d = MB.mesh_info(mi.mesh)
+		d["mat"] = MB.mat_key(mat); d["xf"] = _bxf(mi); d["owner"] = _top_owner(mi); d["name"] = String(mi.name)
+		d["path"] = String(hab.get_path_to(mi)); d["vis"] = mi.is_visible_in_tree()
+		others.append(d)
+	# textures that only exist at run time (viewport / generated) are saved as PNGs; files are referenced by name
+	for k in MB.mat_obj:
+		var m = MB.mat_obj[k]
+		if m is StandardMaterial3D and m.albedo_texture:
+			var t: Texture2D = m.albedo_texture
+			if t.resource_path != "" and t.resource_path.begins_with("res://"):
+				MB.mat_reg[k]["tex_file"] = t.resource_path.get_file()
+			else:
+				var img = t.get_image()
+				if img:
+					var fn = "tex_%s.png" % k
+					img.save_png("%s/%s" % [dir, fn]); MB.mat_reg[k]["tex_file"] = fn
+	var rooms = {}
+	for r in hab._regions():
+		var wr = hab.world_rect(r)
+		rooms[r] = {"rect": [wr.position.x, wr.position.y, wr.size.x, wr.size.y], "h": hab.rh(r), "kind": hab.rkind(r),
+			"name": Habitat.ROOM_NAME.get(hab.rkind(r), r)}
+	var prims = []
+	for i in MB.rec.size():
+		var mi = MB.rec_mi[i]
+		if mi == null or not is_instance_valid(mi) or not (mi as Node3D).is_inside_tree(): continue
+		var pr: Dictionary = MB.rec[i]
+		var a = pr["xf"]
+		var lx = Transform3D(Basis(Vector3(a[0], a[1], a[2]), Vector3(a[3], a[4], a[5]), Vector3(a[6], a[7], a[8])), Vector3(a[9], a[10], a[11]))
+		pr["xf"] = MB.xf_list((mi as Node3D).global_transform * lx)
+		pr["node"] = String((mi as Node).get_path())
+		prims.append(pr)
+	var out = {"prims": prims, "mats": MB.mat_reg, "labels": labels, "screens": screens, "lights": lights, "others": others,
+		"rooms": rooms, "clock": sim.clock(), "cell": Habitat.CELL}
+	var f = FileAccess.open(dir + "/luna_vr_scene.json", FileAccess.WRITE)
+	f.store_string(JSON.stringify(out))
+	f.close()
+	print("BLENDER DUMP prims=%d (recorded %d) labels=%d screens=%d lights=%d others=%d mats=%d" % [prims.size(), MB.rec.size(), labels.size(), screens.size(), lights.size(), others.size(), MB.mat_reg.size()])
+	get_tree().quit()

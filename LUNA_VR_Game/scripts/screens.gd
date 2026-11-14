@@ -16,6 +16,10 @@ static func make(id: String, g) -> SUI:
 		"twin": return TwinUI.new(g)
 		"console": return ConsoleUI.new(g)
 		"luna_log": return LogUI.new(g)
+		"eva_prep": return EvaPrepUI.new(g)
+		"family": return FamilyUI.new(g)
+		"plan": return PlanUI.new(g)
+		"dock": return DockUI.new(g)
 	return null
 
 class SUI extends RefCounted:
@@ -396,3 +400,144 @@ class LogUI extends SUI:
 			var h = int(p.min / 60.0) % 24; var m = int(p.min) % 60
 			body.add_child(UI.lbl("%02d:%02d  %s" % [h, m, p.text], 15, UI.MUT, true))
 		body.add_child(UI.lbl("No names here. Each person sees their own entries; the medical officer sees someone's data only after a Tier 3 that person was told about.", 13, UI.MUT, true))
+
+
+# ------------------------------------------------------------------------------------------------------
+class EvaPrepUI extends SUI:
+	func _init(game) -> void: super._init(game, "EVA prep", "suit · readiness")
+	func sig() -> String: return "%s|%d|%s" % [g.flags.get("eva_ready", -1.0) > sim().now - 240.0, sim().day(), g.outside]
+	func build() -> void:
+		var ready = g.flags.get("eva_ready", -1.0) > sim().now - 240.0
+		body.add_child(row("Suit O₂ / cooling water", "100 % · 100 %  (umbilicals connected)", UI.OK))
+		var L = sim().luna; var cr = sim().me()
+		var fat = L.est[0][3]; var anx = L.est[0][0]
+		var n = g.flags.get("last_night", cr.night)
+		body.add_child(row("Sleep last night", "%.1f h · %d wake-ups" % [n.get("hours", 0.0), n.get("wakes", 0)], UI.INK))
+		body.add_child(row("LUNA: fatigue · stress", "%.2f · %.2f" % [fat, anx], UI.WARN if max(fat, anx) > D.T2 else UI.INK))
+		var go = fat < D.T2 and anx < D.T2 and n.get("hours", 7.0) >= 5.5
+		body.add_child(UI.lbl("LUNA advises: GO" if go else "LUNA advises: rest first, or keep the EVA short. You decide.", 22, UI.OK if go else UI.WARN, true))
+		if not ready:
+			body.add_child(UI.btn("Run pre-EVA check (5 min)", func():
+				g.flags["eva_ready"] = sim().now; g.play("chime"); refresh(true), 0.4, 22))
+		else:
+			body.add_child(UI.lbl("Check done. Climb in through a suitport.", 20, UI.OK))
+
+# ------------------------------------------------------------------------------------------------------
+class FamilyUI extends SUI:
+	var idx = 0
+	const MSGS = [
+		["Mum", "We watched the Moon from the porch tonight and waved. The garden tomatoes finally came in. Eat your vegetables up there too!"],
+		["Sister", "Got the robotics team's results back: we made state! Your rover video helped. Send a picture of the greenhouse?"],
+		["Dad", "Fixed the old telescope. Saturday we'll try to spot the crater rim where you live. Proud of you."],
+	]
+	func _init(game) -> void: super._init(game, "Family messages", "private · delayed uplink")
+	func sig() -> String: return "%d|%d|%s" % [idx, sim().day(), sim().hab.comms_down_until > sim().now]
+	func build() -> void:
+		if sim().hab.comms_down_until > sim().now:
+			body.add_child(UI.lbl("Relay satellite down: messages queue until it's back.", 20, UI.WARN, true)); return
+		var m = MSGS[(idx + sim().day() - 1) % MSGS.size()]
+		body.add_child(UI.lbl("From: " + m[0], 20, UI.ACC))
+		body.add_child(UI.lbl(m[1], 21, UI.INK, true))
+		var r = UI.hbox(8)
+		r.add_child(UI.btn("Record a reply (10 min)", func():
+			g.start_activity("reply", "Recording a reply home", 10.0, "pod", {"fx": {"connection": 0.3, "mood": 0.08}}, true, func(): g._toast("Reply queued for the next uplink.")), 0.58, 20))
+		r.add_child(UI.btn("Next message", func(): idx += 1; refresh(true), 0.6, 20))
+		body.add_child(r)
+
+# ------------------------------------------------------------------------------------------------------
+class PlanUI extends SUI:
+	func _init(game) -> void: super._init(game, "Intervention planning", "crew-wide · no names")
+	func sig() -> String:
+		return "%d|%d|%d|%d|%d" % [int(sim().movie_at), sim().crew[1].free_block_day, int(sim().sync_meals_until), int(sim().now / 60.0), g.flags.get("gh_session", -1)]
+	func build() -> void:
+		var L = sim().luna
+		var rising = 0; var high = 0
+		for cr in sim().crew:
+			if cr.i == 0: continue
+			var top = 0.0
+			for c in 6: top = max(top, L.est[cr.i][c])
+			if top >= D.T2: high += 1
+			for c in [1, 3, 5]:
+				var f = L.forecast(cr.i, c, 7.0)
+				if f.risk >= 0.5: rising += 1; break
+		body.add_child(UI.lbl("Crew: %d of 3 at an elevated level now · %d with a rising 7-day burnout trend" % [high, rising], 19, UI.WARN if high + rising > 0 else UI.OK, true))
+		body.add_child(UI.lbl("Plans apply to everyone, so nobody is singled out:", 17, UI.MUT))
+		var day0 = (sim().day() - 1) * 1440.0
+		body.add_child(UI.btn("Movie night tonight 20:00 (connection, novelty)", func():
+			sim().movie_at = day0 + 20.0 * 60.0; sim().public("Commander scheduled movie night at 20:00."); refresh(true), 0.7, 17, sim().movie_at < day0))
+		body.add_child(UI.btn("Shared dinner tonight (connection)", func():
+			sim().sync_meals_until = sim().now + 720.0; sim().public("Commander asked for a shared dinner tonight."); refresh(true), 0.08, 17, sim().sync_meals_until < sim().now))
+		body.add_child(UI.btn("Free afternoon tomorrow for all (autonomy)", func():
+			for cr in sim().crew: cr.free_block_day = sim().day() + 1
+			sim().public("Tomorrow afternoon is free for the whole crew."); refresh(true), 0.4, 17, sim().crew[1].free_block_day <= sim().day()))
+		body.add_child(UI.btn("Crew greenhouse session (mood, food)", func():
+			g.flags["gh_session"] = sim().day()
+			for cr in sim().crew:
+				if cr.i != 0: cr.offer_queue.append({"id": "greenhouse", "at": sim().now + 10.0, "until": sim().now + 60.0, "fx": {"mood": 0.15, "connection": 0.2}, "cond": 1})
+			sim().public("Commander called a crew greenhouse session."); refresh(true), 0.33, 17, g.flags.get("gh_session", -1) != sim().day()))
+		body.add_child(UI.lbl(g.selene_status(), 16, UI.ACC if g.selene_live else UI.MUT, true))
+
+# ------------------------------------------------------------------------------------------------------
+class DockUI extends SUI:
+	var phase = "idle"       # idle | wait | go | done
+	var trials = []
+	var t0 = 0
+	var go_at = 0
+	var hr = 0
+	var spo2 = 0
+	var posture = 0
+	func _init(game) -> void: super._init(game, "Wellness Dock", "your scan · private")
+	func sig() -> String: return "%s|%d" % [phase, trials.size()]
+	func tick() -> void:
+		if phase == "wait" and Time.get_ticks_msec() >= go_at:
+			phase = "go"; t0 = Time.get_ticks_msec(); refresh(true)
+		elif phase == "go" and Time.get_ticks_msec() - t0 > 2500:
+			trials.append(2500); _next()
+	func _next() -> void:
+		if trials.size() >= 5: _finish(); return
+		phase = "wait"; go_at = Time.get_ticks_msec() + randi_range(900, 2400); refresh(true)
+	func _hit() -> void:
+		if phase == "go":
+			trials.append(Time.get_ticks_msec() - t0); _next()
+		elif phase == "wait":
+			trials.append(900); _next()     # false start counts as a lapse
+	func _finish() -> void:
+		phase = "done"
+		var cr = sim().me()
+		var live = g.selene_data
+		hr = int(live.get("heart_rate", 0)) if live.get("heart_rate") else int(62 + 30 * cr.stress + 8 * cr.fatigue + randi_range(-3, 3))
+		spo2 = int(live.get("spo2", 0)) if live.get("spo2") else randi_range(97, 99)
+		posture = int(100 - 35 * cr.fatigue - randi_range(0, 6))
+		var mean = 0.0
+		for t in trials: mean += t
+		mean /= trials.size()
+		# slower reactions -> more fatigue (a PVT-style self test); the person chose to take it
+		var f = clamp((mean - 300.0) / 500.0, 0.0, 1.0)
+		sim().luna.est[0][3] = lerp(sim().luna.est[0][3], f, 0.4)
+		g.flags["dock_%d" % sim().day()] = int(mean)
+		sim().luna._log(sim().now, 0, "info", "Wellness Dock: reaction %d ms, HR %d, posture %d." % [int(mean), hr, posture])
+		refresh(true)
+	func build() -> void:
+		match phase:
+			"idle":
+				body.add_child(UI.lbl("A 1-minute scan: posture camera, finger-clip heart rate, then the Reaction Self Test. Click the panel the moment it turns green (5 times).", 18, UI.INK, true))
+				body.add_child(UI.btn("Start scan", func(): trials = []; _next(), 0.45, 24))
+				body.add_child(UI.lbl(g.selene_status(), 15, UI.ACC if g.selene_live else UI.MUT, true))
+			"wait", "go":
+				var b = Button.new(); b.text = "WAIT…" if phase == "wait" else "NOW!"
+				b.action_mode = BaseButton.ACTION_MODE_BUTTON_PRESS
+				b.custom_minimum_size = Vector2(640, 300); b.add_theme_font_size_override("font_size", 64)
+				var sb = StyleBoxFlat.new(); sb.bg_color = Color("#7a1d1d") if phase == "wait" else Color("#1d7a3a"); sb.set_corner_radius_all(12)
+				b.add_theme_stylebox_override("normal", sb); b.add_theme_stylebox_override("hover", sb); b.add_theme_stylebox_override("pressed", sb)
+				b.pressed.connect(_hit)
+				body.add_child(b)
+				body.add_child(UI.lbl("Trial %d of 5" % (trials.size() + 1), 18, UI.MUT))
+			"done":
+				var mean = 0.0
+				for t in trials: mean += t
+				mean /= trials.size()
+				body.add_child(UI.lbl("Reaction %d ms · HR %d bpm · SpO₂ %d %% · posture %d/100" % [int(mean), hr, spo2, posture], 22, UI.INK, true))
+				var verdict = "Sharp. Normal for you." if mean < 380 else ("A little slow: some fatigue showing. A short break or a nap would help." if mean < 520 else "Slow: real fatigue. Rest before any EVA or precision task.")
+				body.add_child(UI.lbl(verdict, 20, UI.OK if mean < 380 else UI.WARN, true))
+				body.add_child(UI.lbl("Your result updated LUNA's fatigue estimate for you. Nobody else sees it.", 15, UI.MUT, true))
+				body.add_child(UI.btn("Done", func(): phase = "idle"; refresh(true), 0.6, 20))

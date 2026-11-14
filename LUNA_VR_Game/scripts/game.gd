@@ -49,6 +49,17 @@ var parts_cache = -1
 var athlete_t = 0.0
 var hub_mode = "dining"
 var time_mult = 1.0               # tests run the mission faster
+# SELENE (the team's face + voice wellness app) as a live sensor for you
+const SELENE_URL = "http://127.0.0.1:8765/status"
+var selene_http: HTTPRequest
+var selene_live = false
+var selene_data = {}
+var selene_t = 0.0
+var selene_fail = 0
+var selene_said_high = false
+var twin_rooms = []               # [{"mat","key"}]
+var twin_pucks = []
+var twin_t = 0.0
 
 func _ready() -> void:
 	randomize()
@@ -70,6 +81,9 @@ func _ready() -> void:
 	_build_hud()
 	_build_popup()
 	_build_title()
+	_build_twin3d()
+	selene_http = HTTPRequest.new(); selene_http.timeout = 2.0; add_child(selene_http)
+	selene_http.request_completed.connect(_on_selene)
 	if DisplayServer.tts_get_voices().size() > 0:
 		var vs = DisplayServer.tts_get_voices_for_language("en")
 		voice_id = vs[0] if vs.size() > 0 else DisplayServer.tts_get_voices()[0].id
@@ -79,6 +93,7 @@ func _ready() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--shots="): _shots.call_deferred(arg.substr(8))
 		if arg.begins_with("--autoplay="): _autoplay.call_deferred(arg.substr(11))
+		if arg == "--selenetest": _selenetest.call_deferred()
 
 # =====================================================================================================
 #  world: sky, Sun, Earth, ambient
@@ -248,6 +263,7 @@ func _process(dt: float) -> void:
 	if state == "sleep" and not was_asleep and not sim.me().asleep and flags.get("intro", false):
 		sim.player_sleep()       # very first night: you start asleep
 	_update_activity(dt)
+	_selene_tick(dt)
 	_sync_world(dt)
 	_messages(dt)
 	refresh_t -= dt
@@ -327,6 +343,7 @@ func _sync_world(dt: float) -> void:
 		t.mat.emission_energy_multiplier = hab.lux_energy(L.lux) * 1.4
 		t.label.text = "%s\n%d K · %d lx" % [t.zone, int(L.cct), int(L.lux)]
 	if scene_sphere.visible: scene_sphere.global_position = player.cam.global_position
+	_update_twin3d(dt)
 
 # =====================================================================================================
 #  sleeping and waking (the smart bed is the engine's: it waits for light sleep)
@@ -425,7 +442,9 @@ func label_for(it: Dictionary) -> String:
 		"rig": return "Resistance training (30 min)"
 		"recovery_chair": return "Sit in the VR recovery chair"
 		"sink": return "Wash up"
-		"suitport": return "Climb into your suit through the suitport (EVA)"
+		"suitport": return "Climb into your suit through the suitport (EVA)" if g_eva_ready() else "Suitport (run the EVA prep check first)"
+		"earth_window": return "Sit by the Earth window (20 min)"
+		"dock": return "Wellness Dock: posture, heart rate, Reaction Self Test"
 		"suitport_return": return "Back in through the suitport"
 		"boot_brush": return "Brush the dust off your boots"
 		"cartridge": return "Swap the sorbent cartridge (1 spare part)" if sim.fired.get("swap_task", false) else "Sorbent cartridge (OK)"
@@ -489,7 +508,14 @@ func _on_click(hit: Dictionary) -> void:
 				if sim.complete_player_offer("vrride"): _offer_effect("vrride"))
 		"recovery_chair": _recovery_chair()
 		"sink": start_activity("wash", "Washing up", 8.0, "hygiene", {"fx": {"stress": -0.05}})
-		"suitport": _eva_out()
+		"suitport":
+			if g_eva_ready(): _eva_out()
+			else: _toast("Run the pre-EVA check first: the EVA prep panel between the suitports (O₂, cooling water, readiness).")
+		"earth_window":
+			start_activity("earth", "By the Earth window", 20.0, "lounge", {"fx": {"connection": 0.2, "novelty": 0.15, "stress": -0.1}}, true, func():
+				flags["earth_%d" % sim.day()] = true; _toast("Earth turned a little while you watched. You feel less far away."))
+			if not player.vr: player.cam.position.y = 1.15
+		"dock": _toast("Step on the dock and use the screen in front of you: scan, then the Reaction Self Test.")
 		"suitport_return": _eva_in()
 		"boot_brush":
 			H.airlock_dust = max(0.0, H.airlock_dust - 0.3); _toast("Boots brushed: less dust carried past the curtain.")
@@ -736,6 +762,9 @@ func _objectives() -> void:
 	if d == 2:
 		list.append({"text": "Read last night's sleep on your pod desk", "done": flags.get("sleep_read", -1) == d})
 		list.append({"text": "Tend a greenhouse rack", "done": flags.get("tended_rack", -1) == d})
+	if d == 3:
+		list.append({"text": "Reaction Self Test at the Wellness Dock (exercise bay)", "done": flags.has("dock_3")})
+		list.append({"text": "Sit by the Earth window (social hub)", "done": flags.get("earth_3", false)})
 	list.append({"text": "Exercise 30 min (exercise bay)", "done": flags.get("exercise_%d" % d, false)})
 	for e in sim.pending:
 		list.append({"text": "Decide: %s (%s)" % [e.title, "social hub panel" if e.get("where", "ops") == "hub" else "Ops console"], "done": false})
@@ -812,6 +841,8 @@ func _shots(dir: String) -> void:
 		["09_calib", Vector3(11.2, 0, 19.3), PI, 0.0], ["10_medical", Vector3(5.6, 0, 15.6), 2.21, -0.1],
 		["11_exercise", Vector3(31.2, 0, 21.6), 0.0, -0.05], ["12_storage", Vector3(15.6, 0, 21.8), 0.0, -0.05],
 		["13_corridor", Vector3(2.6, 0, 11.9), -PI / 2.0, 0.0],
+		["16_wellness_center", Vector3(22.6, 0, 20.3), 0.62, -0.2], ["17_wellness_dock", Vector3(29.6, 0, 19.4), -2.1, -0.12],
+		["18_earth_corner", Vector3(25.2, 0, 6.6), -PI / 2.0, -0.05], ["19_eva_prep", Vector3(3.1, 0, 4.4), 0.0, -0.05],
 	]
 	for v in views:
 		player.place(v[1], v[2]); player.pitch = v[3]; player.cam.rotation.x = v[3]
@@ -914,3 +945,116 @@ func _autoplay(dir: String) -> void:
 func _save_shot(path: String) -> void:
 	var img = get_viewport().get_texture().get_image()
 	if img: img.save_png(path)
+
+
+func g_eva_ready() -> bool: return flags.get("eva_ready", -9999.0) > sim.now - 240.0
+
+# =====================================================================================================
+#  SELENE live link: the team's face + voice app sends its scores; you become a real sensor reading
+# =====================================================================================================
+func selene_status() -> String:
+	if selene_live:
+		return "SELENE live: stress %s · fatigue %s · low mood %s (from your last camera + voice check-in)" % [_f(selene_data.get("stress")), _f(selene_data.get("fatigue")), _f(selene_data.get("low_mood"))]
+	return "SELENE not connected. On this PC run selene_bridge.py next to SELENE to use your real face and voice."
+
+func _f(v) -> String: return "–" if v == null else "%.2f" % float(v)
+
+func _selene_tick(dt: float) -> void:
+	selene_t -= dt
+	if selene_t > 0.0 or selene_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED: return
+	selene_t = 2.0 if selene_live else (4.0 if selene_fail < 3 else 20.0)
+	selene_http.request(SELENE_URL)
+
+func _on_selene(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
+	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		if selene_live: _toast("SELENE disconnected. LUNA goes back to the habitat sensors alone.", "info")
+		selene_live = false; selene_fail += 1
+		return
+	var d = JSON.parse_string(body.get_string_from_utf8())
+	if typeof(d) != TYPE_DICTIONARY or not d.get("connected", false): return
+	selene_fail = 0
+	if not selene_live:
+		selene_live = true
+		_toast("SELENE connected. Your real face and voice check-ins now feed LUNA's read on you, live.")
+	selene_data = d
+	# you are the person SELENE measured: your state in the habitat follows it, and LUNA's normal
+	# sensing -> triage -> Tier 1 light/sound -> Tier 2 offer chain reacts on its own
+	var cr = sim.me()
+	if d.get("stress") != null: cr.stress = lerp(cr.stress, clamp(float(d.stress), 0.0, 1.0), 0.5)
+	if d.get("fatigue") != null: cr.fatigue = lerp(cr.fatigue, clamp(float(d.fatigue), 0.0, 1.0), 0.4)
+	if d.get("low_mood") != null: cr.mood = lerp(cr.mood, 0.45 - 1.1 * clamp(float(d.low_mood), 0.0, 1.0), 0.3)
+	var st = float(d.get("stress", 0.0) if d.get("stress") != null else 0.0)
+	if st > 0.7 and not selene_said_high:
+		selene_said_high = true
+		sim.say("Your SELENE check-in shows stress above your normal. I'll keep this room calm, and I'm here if you want a break.")
+	elif st < 0.5: selene_said_high = false
+
+# =====================================================================================================
+#  3D digital twin in the Wellness Operations Center: a 1:30 habitat, lit with each room's real light
+# =====================================================================================================
+const TWIN_S = 1.0 / 30.0
+
+func _build_twin3d() -> void:
+	var tw: Node3D = hab.dyn.get("twin3d")
+	if tw == null: return
+	var spin = Node3D.new(); spin.name = "spin"; tw.add_child(spin)
+	var c = Vector3(18.1, 0, 11.9)
+	for r in hab._regions():
+		var wr = hab.world_rect(r)
+		var mi = MeshInstance3D.new(); var bm = BoxMesh.new()
+		var hgt = hab.rh(r) * TWIN_S
+		bm.size = Vector3(wr.size.x * TWIN_S - 0.004, hgt, wr.size.y * TWIN_S - 0.004)
+		mi.mesh = bm
+		var m = StandardMaterial3D.new(); m.emission_enabled = true; m.albedo_color = Color(0.8, 0.85, 0.95, 0.85)
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mi.material_override = m
+		mi.position = Vector3((wr.get_center().x - c.x) * TWIN_S, hgt * 0.5, (wr.get_center().y - c.z) * TWIN_S)
+		spin.add_child(mi)
+		twin_rooms.append({"mat": m, "key": hab.light_key_of(r) if r != "communal" else "communal"})
+	for i in 4:
+		var p = MeshInstance3D.new(); var cm = CylinderMesh.new(); cm.top_radius = 0.022; cm.bottom_radius = 0.022; cm.height = 0.12; p.mesh = cm
+		p.material_override = Mats.glow(Avatar.SUIT[i] if i > 0 else Color(1, 1, 1), 2.0, "puck_%d" % i)
+		spin.add_child(p); twin_pucks.append(p)
+
+func _update_twin3d(dt: float) -> void:
+	if twin_rooms.is_empty(): return
+	var tw: Node3D = hab.dyn["twin3d"]
+	var spin = tw.get_node("spin")
+	spin.rotation.y += dt * 0.12
+	var c = Vector3(18.1, 0, 11.9)
+	for i in 4:
+		var wp: Vector3
+		if i == 0:
+			wp = player.global_position
+			twin_pucks[i].visible = not outside
+		else:
+			var cr: Crew = sim.crew[i]
+			var p2 = cr.prev.lerp(cr.pos, clamp(sim.acc, 0.0, 1.0))
+			wp = Vector3(p2.x / 16.0 * Habitat.CELL, 0, p2.y / 16.0 * Habitat.CELL)
+			twin_pucks[i].visible = not cr.outside
+		twin_pucks[i].position = Vector3((wp.x - c.x) * TWIN_S, 0.1, (wp.z - c.z) * TWIN_S)
+	twin_t -= dt
+	if twin_t > 0.0: return
+	twin_t = 0.5
+	for t in twin_rooms:
+		var L = sim.hab.light.get(t.key, sim.hab.light.get("communal", null))
+		if L == null: continue
+		var col = Mats.cct(L.cct)
+		t.mat.albedo_color = Color(col.r, col.g, col.b, 0.85)
+		t.mat.emission = col; t.mat.emission_energy_multiplier = 0.2 + hab.lux_energy(L.lux) * 0.5
+
+func _selenetest() -> void:
+	_start_desktop()
+	while state != "play": await get_tree().process_frame
+	time_mult = 3.0
+	var t0 = Time.get_ticks_msec()
+	var asked = []
+	while Time.get_ticks_msec() - t0 < 25000:
+		await get_tree().process_frame
+		if not asking.is_empty():
+			asked.append("%s %s" % [D.CONDS[asking.cond], asking.offer]); _answer(true)
+	print("SELENETEST live=%s data=%s" % [selene_live, selene_data])
+	print("SELENETEST you: stress %.2f fatigue %.2f mood %.2f | LUNA est anx %.2f dep %.2f fat %.2f | tier anx %d | t1 %s" % [sim.me().stress, sim.me().fatigue, sim.me().mood, sim.luna.est[0][0], sim.luna.est[0][1], sim.luna.est[0][3], sim.luna.tier[0][0], sim.luna.t1_active[0][0]])
+	print("SELENETEST asked ", asked)
+	for m in sim.messages: print("LUNA> ", m.text)
+	get_tree().quit()

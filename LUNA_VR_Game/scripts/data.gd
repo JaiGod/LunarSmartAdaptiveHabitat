@@ -209,7 +209,7 @@ const BLOCK = [
 	Vector2i(6, 12), Vector2i(6, 13), Vector2i(7, 12), Vector2i(7, 13), Vector2i(9, 12), Vector2i(9, 13), Vector2i(10, 12), Vector2i(10, 13),
 	Vector2i(11, 12), Vector2i(13, 12), Vector2i(11, 16), Vector2i(13, 16), Vector2i(11, 15),
 	# LUNA VR furniture
-	Vector2i(18, 14), Vector2i(19, 14), Vector2i(14, 16), Vector2i(14, 17), Vector2i(1, 14), Vector2i(7, 17), Vector2i(8, 17), Vector2i(9, 17),
+	Vector2i(18, 14), Vector2i(19, 14), Vector2i(14, 16), Vector2i(14, 17), Vector2i(1, 14), Vector2i(7, 17), Vector2i(8, 17), Vector2i(9, 17), Vector2i(16, 14),
 ]
 static func bed_spot(i: int) -> Array: return [Vector2i(7 + 2 * i, 3), "up"]
 static func bed_cells(i: int) -> Array: return [Vector2i(7 + 2 * i, 1), Vector2i(7 + 2 * i, 2)]

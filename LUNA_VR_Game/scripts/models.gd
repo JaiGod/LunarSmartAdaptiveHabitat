@@ -61,7 +61,7 @@ func airlock() -> void:
 		mb.box(Vector3(cx, 0.13, z0 + 0.45), Vector3(0.7, 0.26, 0.5), Mats.dark_metal(), 0.0, true)  # step
 		mb.box(Vector3(cx, 0.265, z0 + 0.69), Vector3(0.7, 0.012, 0.04), Mats.caution())
 		mb.tube_x(Vector3(cx, 1.95, z0 + 0.12), 0.02, 0.9, Mats.handrail())
-		label("SUITPORT %d\nSuit stays outside · dust stays outside" % (k + 1), Vector3(cx, 1.72, z0 + 0.1), 0.0, 22)
+		label("SUITPORT %d" % (k + 1), Vector3(cx, 1.72, z0 + 0.1), 0.0, 22)
 		h.add_inter("suitport", Vector3(cx, 1.2, z0 + 0.4), Vector3(0.8, 1.4, 0.6), "", Callable(), "airlock")
 	# HEPA vacuum: floor grilles feed a filter on the east wall (dust falls through the grating)
 	for zz in [3.0, 5.6]:
@@ -92,6 +92,7 @@ func airlock() -> void:
 	h.dyn["curtain_mat"] = Mats.cache["curtain_glow"]
 	# control + particle counter screen (clean side, east wall)
 	h.add_screen("airlock", Vector3(x1 - 0.07, 1.45, 8.9), -PI / 2.0, Vector2(0.62, 0.42), Vector2i(620, 420), null)
+	eva_prep(x0, z0)
 	# floating dust (shown when dust is in the airlock)
 	var p = CPUParticles3D.new(); p.name = "dust"
 	p.amount = 160; p.lifetime = 6.0; p.emitting = true
@@ -180,10 +181,12 @@ func _chair(p: Vector3, yaw: float, seat_mat: Material) -> void:
 func kiosk() -> void:
 	_begin("Mood_Checkin_Kiosk")
 	var x0 = 7 * C; var z0 = 6 * C
+	# acoustic privacy booth: fabric side panels, back panel and roof keep the check-in private
 	for zz in [z0 + 0.25, z0 + 2.25]:
 		mb.box(Vector3(x0 + 0.5, 1.1, zz), Vector3(0.9, 2.2, 0.08), Mats.fabric(Color(0.75, 0.72, 0.85), "fabric_kiosk"), 0.0, true)
 	mb.box(Vector3(x0 + 0.08, 1.1, z0 + 1.25), Vector3(0.06, 2.2, 2.0), Mats.fabric(Color(0.75, 0.72, 0.85), "fabric_kiosk"))
 	mb.box(Vector3(x0 + 0.5, 2.2, z0 + 1.25), Vector3(0.9, 0.06, 2.06), Mats.white_plastic())
+	# writing shelf under the touch screen
 	mb.box(Vector3(x0 + 0.3, 0.95, z0 + 1.25), Vector3(0.3, 0.04, 0.7), Mats.white_plastic())
 	h.add_screen("kiosk", Vector3(x0 + 0.13, 1.42, z0 + 1.25), PI / 2.0, Vector2(0.62, 0.42), Vector2i(620, 420), null)
 	label("Daily check-in · private by default", Vector3(x0 + 0.13, 1.82, z0 + 1.25), PI / 2.0, 22)
@@ -245,6 +248,7 @@ func hub() -> void:
 	part.position.y = 2.6
 	h.dyn["partition"] = part
 	label("Floor plan B partition", Vector3(px + 0.06, 2.75, W(0, 2.0).z), PI / 2.0, 18)
+	earth_corner()
 	# hub control panel
 	h.add_screen("hub", Vector3(23 * C - 0.07, 1.4, W(0, 3.0).z), -PI / 2.0, Vector2(0.58, 0.4), Vector2i(580, 400), null)
 	_end()
@@ -263,19 +267,20 @@ func greenhouse() -> void:
 	for k in 8:
 		var c = cells[k]
 		var p = Vector3((c.x + 0.5) * C, 0, (c.y + 0.5) * C - 0.12)
-		# frame
+		# rack frame: four posts + top
 		for ox in [-0.54, 0.54]:
 			for oz in [-0.26, 0.26]:
 				mb.box(p + Vector3(ox, 1.0, oz), Vector3(0.04, 2.0, 0.04), Mats.metal())
+		mb.box(p + Vector3(0, 2.02, 0), Vector3(1.12, 0.04, 0.54), Mats.metal())
 		mb.box(p + Vector3(0, 0.18, 0), Vector3(1.1, 0.36, 0.5), Mats.grey_plastic(), 0.0, true)            # nutrient tank
-		mb.box(p + Vector3(0, 0.2, 0.255), Vector3(0.9, 0.2, 0.01), Mats.water())
+		mb.box(p + Vector3(0, 0.2, 0.255), Vector3(0.9, 0.2, 0.01), Mats.water())               # nutrient tank water-level window
+		# three growing shelves: NFT channels + a grow-light bar each
 		for s in 3:
 			var y = 0.62 + s * 0.48
 			mb.box(p + Vector3(0, y, 0), Vector3(1.1, 0.03, 0.52), Mats.white_plastic())
 			for oz in [-0.12, 0.12]:
 				mb.tube_x(p + Vector3(0, y + 0.05, oz), 0.035, 1.06, Mats.white_plastic())              # NFT channels
 			mb.box(p + Vector3(0, y + 0.43, 0), Vector3(1.0, 0.025, 0.08), Mats.glow(Color(1.0, 0.45, 0.8), 1.6, "grow_led"))
-		mb.box(p + Vector3(0, 2.02, 0), Vector3(1.12, 0.04, 0.54), Mats.metal())
 		var pn = Node3D.new(); pn.name = "plants_%d" % k; root.add_child(pn)
 		pn.position = p
 		var lab = label("", p + Vector3(0, 2.15, 0.27), 0.0 if c.y == 5 else 0.0, 22)
@@ -432,6 +437,7 @@ func _rack(p: Vector3, text: String) -> void:
 # =====================================================================================================
 func robot_bay() -> void:
 	_begin("Robot_Bay_and_Stores")
+	# cargo-transfer-bag shelving (soft stowage, as on the ISS)
 	for c in [Vector2i(11, 12), Vector2i(13, 12)]:
 		var p = Vector3((c.x + 0.5) * C, 0, (c.y + 0.5) * C - 0.1)
 		for s in 4:
@@ -487,6 +493,7 @@ func parts_boxes(n: int) -> void:
 func ops() -> void:
 	_begin("Ops_LUNA")
 	var z0 = 11 * C
+	# analyst desks with twin monitors: the crew reviews LUNA's advice here
 	for cx in [15, 17, 19, 21]:
 		var p = Vector3((cx + 0.5) * C, 0, 12.5 * C)
 		mb.box(p + Vector3(0, 0.74, 0), Vector3(1.15, 0.04, 0.62), Mats.white_plastic(), 0.0, true)
@@ -522,6 +529,7 @@ func ops() -> void:
 		mb.box(lp + Vector3(0.405, 0.35 + k * 0.2, 0), Vector3(0.01, 0.12, 1.05), Mats.black())
 		for j in 4: mb.box(lp + Vector3(0.412, 0.35 + k * 0.2, -0.4 + j * 0.06), Vector3(0.005, 0.02, 0.02), Mats.glow(Color(0.2, 0.9, 0.4) if (j + k) % 5 else Color(0.3, 0.6, 1.0), 2.5))
 	label("LUNA · 2 redundant flight computers · 140 W\nsoftware only: it cannot touch medical or life-safety systems", lp + Vector3(0.42, 2.15, 0), PI / 2.0, 18, Color(0.15, 0.17, 0.2))
+	wellness_center()
 	_end()
 
 # =====================================================================================================
@@ -534,6 +542,7 @@ func ops() -> void:
 func exercise() -> void:
 	_begin("Exercise_Bay")
 	var z0 = 11 * C
+	# treadmill with load harness (ISS T2 style: bungees hold you on the belt)
 	var tp = W(23.5, 14.0)
 	mb.box(tp + Vector3(0, 0.12, 0), Vector3(0.8, 0.24, 1.9), Mats.dark_metal(), 0.0, true)
 	mb.box(tp + Vector3(0, 0.25, 0), Vector3(0.6, 0.02, 1.6), Mats.rubber())
@@ -543,6 +552,7 @@ func exercise() -> void:
 	mb.box(tp + Vector3(0, 1.2, -0.85), Vector3(0.5, 0.3, 0.05), Mats.black())
 	label("Treadmill + load harness", tp + Vector3(0, 2.2, -0.2), 0.0, 18)
 	h.add_inter("treadmill", tp + Vector3(0, 0.9, 0), Vector3(0.8, 1.2, 1.6), "", Callable(), "exercise")
+	# cycle ergometer (ISS CEVIS style)
 	var bp = W(25.5, 13.6)
 	mb.box(bp + Vector3(0, 0.35, 0.2), Vector3(0.3, 0.7, 0.5), Mats.dark_metal(), 0.0, true)
 	mb.box(bp + Vector3(0, 0.62, 0.4), Vector3(0.36, 0.08, 0.36), Mats.fabric(Color(0.3, 0.3, 0.32), "fabric_bike"))
@@ -550,6 +560,7 @@ func exercise() -> void:
 	mb.box(bp + Vector3(0, 0.95, -0.25), Vector3(0.45, 0.04, 0.04), Mats.black())
 	label("Cycle ergometer", bp + Vector3(0, 1.25, -0.3), 0.0, 18)
 	h.add_inter("bike", bp + Vector3(0, 0.8, 0.2), Vector3(0.6, 1.0, 0.9), "", Callable(), "exercise")
+	# resistance rig with vacuum cylinders (ISS ARED style)
 	var rp = W(27.5, 14.0)
 	mb.box(rp + Vector3(0, 0.06, 0), Vector3(1.0, 0.12, 1.4), Mats.dark_metal(), 0.0, true)
 	for ox in [-0.4, 0.4]: mb.cyl(rp + Vector3(ox, 0.8, -0.5), 0.09, 1.4, Mats.metal(), 12)
@@ -563,6 +574,7 @@ func exercise() -> void:
 	sm.uv1_scale = Vector3(0.5, 1.0, 1.0); sm.uv1_offset = Vector3(0.25, 0, 0)
 	scr.material_override = sm; scr.position = W(26.0, 0, 1.75) + Vector3(0, 0, z0 + 0.085); root.add_child(scr)
 	h.dyn["ex_screen_mat"] = sm
+	wellness_dock()
 	_end()
 
 # =====================================================================================================
@@ -573,16 +585,121 @@ func exercise() -> void:
 func hygiene() -> void:
 	_begin("Hygiene")
 	var x0 = 4 * C; var z0 = 1 * C
+	# shower stall: glass screens, shower head, drain tray
 	mb.box(Vector3(x0 + 0.62, 1.1, z0 + 0.62), Vector3(1.15, 2.2, 0.03), Mats.glass())
 	mb.box(Vector3(x0 + 1.2, 1.1, z0 + 0.6), Vector3(0.03, 2.2, 1.15), Mats.glass())
 	mb.cyl(Vector3(x0 + 0.5, 2.1, z0 + 0.4), 0.12, 0.04, Mats.metal(), 12)
 	mb.box(Vector3(x0 + 0.6, 0.03, z0 + 0.6), Vector3(1.1, 0.06, 1.1), Mats.white_plastic())
+	# toilet (urine is processed back into water)
 	var tp = W(6.5, 1.5)
 	mb.box(tp + Vector3(0, 0.25, -0.15), Vector3(0.45, 0.5, 0.55), Mats.white_plastic(), 0.0, true)
 	mb.box(tp + Vector3(0, 0.75, -0.48), Vector3(0.5, 0.6, 0.12), Mats.white_plastic())
+	# hand-wash sink + mirror
 	var sp = W(5.5, 1.3)
 	mb.box(sp + Vector3(0, 0.85, -0.1), Vector3(0.6, 0.1, 0.45), Mats.white_plastic(), 0.0, true)
 	mb.box(sp + Vector3(0, 1.35, -0.32), Vector3(0.5, 0.6, 0.02), Mats.metal())
 	label("Wash water is reclaimed (98%)", sp + Vector3(0, 1.75, -0.31), 0.0, 18)
 	h.add_inter("sink", sp + Vector3(0, 1.0, 0.1), Vector3(0.7, 0.6, 0.5), "", Callable(), "hygiene")
 	_end()
+
+
+# =====================================================================================================
+# EVA PREPARATION STATION (airlock, between the suitports)
+#  NASA need: suits are serviced between EVAs (O2 recharge, cooling water, batteries); EVA readiness checks.
+#  Gameplay: before any EVA you run the pre-EVA check: suit consumables + LUNA's read on your fatigue,
+#            stress and sleep. LUNA advises go / wait; you decide.
+#  Interaction: prep panel screen; umbilical hoses run to both suitports.
+#  Why needed: EVA is the riskiest thing the crew does; wellness should be checked before it, not after.
+# =====================================================================================================
+func eva_prep(x0: float, z0: float) -> void:
+	var cx = x0 + 1.5 * C
+	# suit service panel: O2, cooling-water and power umbilicals with status LEDs
+	mb.box(Vector3(cx, 1.15, z0 + 0.12), Vector3(0.9, 1.5, 0.18), Mats.white_plastic(), 0.0, true)
+	for k in 2:
+		var tx = cx - 0.25 + k * 0.5
+		mb.cyl(Vector3(tx, 0.62, z0 + 0.26), 0.07, 0.3, Mats.metal(), 10)                         # O2 + water quick-disconnects
+		mb.box(Vector3(tx, 0.45, z0 + 0.26), Vector3(0.05, 0.05, 0.05), Mats.glow(Color(0.2, 0.9, 0.5), 1.5) if k == 0 else Mats.glow(Color(0.3, 0.6, 1.0), 1.5))
+	for side in [-1.0, 1.0]:   # umbilicals to the two suitports
+		mb.tube_x(Vector3(cx + side * 0.75, 0.85, z0 + 0.2), 0.025, 0.65, Mats.cable(Color("#2b6fd6") if side < 0 else Color("#e9edf2")), 0.0, 8)
+	label("EVA prep · O₂ recharge · cooling water · readiness check", Vector3(cx, 2.02, z0 + 0.22), 0.0, 18)
+	h.add_screen("eva_prep", Vector3(cx, 1.38, z0 + 0.215), 0.0, Vector2(0.62, 0.42), Vector2i(620, 420), null)
+
+# =====================================================================================================
+# EARTH CONNECTION CORNER (social hub, east half)
+#  NASA need: isolation from Earth is a core long-duration stressor; contact with home protects mood.
+#  Gameplay: sit by the virtual window (live Earth view) and read / answer family messages.
+#  Interaction: armchairs by the window; family message station screen.
+#  Why needed: the brief's connection lever, made into a place you choose to go.
+# =====================================================================================================
+func earth_corner() -> void:
+	var wx = 23 * C - 0.08
+	# virtual window frame around a high-resolution Earth-view panel on the east wall
+	mb.box(Vector3(wx, 1.7, 5.6), Vector3(0.06, 1.5, 2.3), Mats.frame())
+	var scr = MeshInstance3D.new(); var qm = QuadMesh.new(); qm.size = Vector2(2.1, 1.3); scr.mesh = qm
+	var sm = StandardMaterial3D.new(); sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED; sm.albedo_texture = Mats.tex("scene_earth")
+	sm.uv1_scale = Vector3(0.5, 0.9, 1.0); sm.uv1_offset = Vector3(0.25, 0.04, 0)
+	scr.material_override = sm; scr.position = Vector3(wx - 0.035, 1.7, 5.6); scr.rotation.y = -PI / 2.0; root.add_child(scr)
+	h.dyn["earth_window_mat"] = sm
+	label("Earth window · live view from the south-pole camera", Vector3(wx - 0.04, 2.6, 5.6), -PI / 2.0, 18)
+	for k in 2:
+		var cp = Vector3(wx - 1.4, 0, 5.0 + k * 1.2)
+		var b = Basis(Vector3.UP, -PI / 2.0)
+		mb.box(cp + Vector3(0, 0.25, 0), Vector3(0.75, 0.5, 0.75), Mats.fabric(Color(0.5, 0.62, 0.8), "fabric_earth"), 0.0, true)
+		mb.box(cp + Vector3(-0.32, 0.62, 0), Vector3(0.14, 0.62, 0.75), Mats.fabric(Color(0.5, 0.62, 0.8), "fabric_earth"))
+	h.add_inter("earth_window", Vector3(wx - 1.4, 0.7, 5.6), Vector3(0.9, 0.8, 2.0), "", Callable(), "communal")
+	# family message station
+	var fp = Vector3(wx - 0.3, 0, 8.6)
+	mb.box(fp + Vector3(0, 0.74, 0), Vector3(0.55, 0.04, 0.9), Mats.white_plastic(), 0.0, true)
+	mb.box(fp + Vector3(0.05, 0.37, 0), Vector3(0.45, 0.74, 0.04), Mats.grey_plastic())
+	mb.torus(fp + Vector3(-0.05, 0.82, 0.3), 0.05, 0.075, Mats.black(), Basis(Vector3.FORWARD, PI / 2.0))   # headset
+	h.add_screen("family", fp + Vector3(0.22, 1.25, 0), -PI / 2.0, Vector2(0.62, 0.42), Vector2i(620, 420), null)
+
+# =====================================================================================================
+# WELLNESS OPERATIONS CENTER additions (the flagship room: Ops)
+#  NASA need: crew health monitoring and planning; the AI shows its work and humans plan the response.
+#  Gameplay: a live 3D twin of the habitat (crew pucks move, rooms light up with their real lighting),
+#            the crew-wide intervention planner (movie night, shared meals, a free afternoon, greenhouse
+#            session) and the SELENE live-sensor status.
+#  Interaction: watch the twin; plan crew-wide interventions at the planning station.
+#  Why needed: this room is where the whole project is visible: sensing -> AI -> human decisions.
+# =====================================================================================================
+func wellness_center() -> void:
+	# 3D twin plinth: a 1:30 model of the habitat on a slow turntable
+	var pp = Vector3(16.5 * C, 0, 14.5 * C)
+	mb.cyl(pp + Vector3(0, 0.45, 0), 0.62, 0.9, Mats.white_plastic(), 24)
+	mb.cyl(pp + Vector3(0, 0.92, 0), 0.72, 0.04, Mats.dark_metal(), 32)
+	mb.torus(pp + Vector3(0, 0.95, 0), 0.7, 0.74, Mats.glow(Color(0.3, 0.7, 1.0), 1.2, "twin_ring"))
+	var tw = Node3D.new(); tw.name = "twin3d"; tw.position = pp + Vector3(0, 0.96, 0); root.add_child(tw)
+	h.dyn["twin3d"] = tw
+	label("3D digital twin · 1:30 · live", pp + Vector3(0, 0.6, 0.66), 0.0, 18)
+	# intervention planning station (standing desk, crew-wide plans only)
+	var sp = Vector3(26.2, 0, 22.05)
+	mb.box(sp + Vector3(0, 0.5, 0), Vector3(0.9, 1.0, 0.5), Mats.white_plastic(), 0.0, true)
+	mb.box(sp + Vector3(0, 1.02, 0), Vector3(0.95, 0.04, 0.55), Mats.dark_metal())
+	h.add_screen("plan", sp + Vector3(0, 1.45, -0.1), PI, Vector2(0.75, 0.48), Vector2i(750, 480), null, -0.35)
+	label("Intervention planning · crew-wide, no names", sp + Vector3(0, 1.85, -0.1), PI, 18)
+
+# =====================================================================================================
+# WELLNESS DOCK (exercise bay): posture camera arch, finger-clip heart rate / SpO2, Reaction Self Test
+#  NASA need: ISS crews take a short reaction-time test (the Reaction Self Test, a psychomotor
+#             vigilance task) to catch fatigue; posture and heart rate are routine health checks.
+#  Gameplay: a 1-minute scan + a reaction test; your result updates LUNA's fatigue estimate (your consent:
+#            you chose to take it) and you get a wellness report.
+#  Interaction: step on the dock, use the screen (trigger / click when the light turns green).
+#  Why needed: a direct, measurable fatigue signal that the person controls.
+# =====================================================================================================
+func wellness_dock() -> void:
+	var dp = Vector3(25.5 * C, 0, 16.8 * C)
+	# dock platform: stand on the glowing ring for the 1-minute scan
+	mb.cyl(dp + Vector3(0, 0.04, 0), 0.6, 0.08, Mats.dark_metal(), 24, -1.0, Basis(), )
+	mb.torus(dp + Vector3(0, 0.085, 0), 0.5, 0.56, Mats.glow(Color(0.3, 0.9, 0.7), 1.4, "dock_ring"))
+	# posture camera arch
+	for side in [-1.0, 1.0]: mb.box(dp + Vector3(side * 0.75, 1.1, 0.25), Vector3(0.08, 2.2, 0.12), Mats.white_plastic())
+	mb.box(dp + Vector3(0, 2.25, 0.25), Vector3(1.6, 0.12, 0.14), Mats.white_plastic())
+	for k in 3: mb.box(dp + Vector3(-0.5 + k * 0.5, 2.18, 0.17), Vector3(0.1, 0.06, 0.05), Mats.black())
+	# console with finger clip
+	mb.box(dp + Vector3(0, 0.5, -0.75), Vector3(0.7, 1.0, 0.35), Mats.white_plastic(), 0.0, true)
+	mb.box(dp + Vector3(0.22, 1.03, -0.68), Vector3(0.1, 0.05, 0.12), Mats.grey_plastic())
+	label("Wellness Dock · posture · heart rate · Reaction Self Test (as on the ISS)", dp + Vector3(0, 2.45, 0.25), 0.0, 18)
+	h.add_screen("dock", dp + Vector3(0, 1.4, -0.8), 0.0, Vector2(0.7, 0.46), Vector2i(700, 460), null, -0.25)
+	h.add_inter("dock", dp + Vector3(0, 0.5, 0), Vector3(1.0, 1.0, 1.0), "", Callable(), "exercise")
