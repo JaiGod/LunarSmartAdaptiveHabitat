@@ -54,4 +54,5 @@ document.getElementById('rot').onclick=e=>{ctl.autoRotate=!ctl.autoRotate;e.targ
 const q=new URLSearchParams(location.search).get('m');if(q==='scifi'){m2.classList.remove('off');m1.classList.add('off');}
 load(q==='scifi'?'scifi':'real').catch(e=>{st.textContent='Could not load model: '+e.message});
 (function loop(){requestAnimationFrame(loop);ctl.update();R.render(S,C);})();
-</script></body></html>
+</script><script src="audio/ares-audio.js" data-base="audio/" data-default="habitat" data-sections='{}'></script>
+</body></html>

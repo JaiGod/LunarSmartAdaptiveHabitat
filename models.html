@@ -406,4 +406,5 @@ let vis = true; new IntersectionObserver(e => vis = e[0].isIntersecting).observe
 (function loop() { requestAnimationFrame(loop); if (!vis || document.hidden) return; ctl.update(); if (dirty || ctl.autoRotate) { R.render(S, C); dirty = false; } })();
 const q = new URLSearchParams(location.search).get('m'); show(M[q] ? q : 'habitat');
 </script>
+<script src="audio/ares-audio.js" data-base="audio/" data-default="habitat" data-sections='{}'></script>
 </body></html>
