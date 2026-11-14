@@ -117,7 +117,7 @@ scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; scene.
 const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.02, 400); camera.position.set(0, 1.1, 4.2);
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), C.bloom ?? 0.55, 0.5, 0.82); composer.addPass(bloom);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), C.bloom ?? 0.42, 0.4, C.bloomThreshold ?? 0.92); composer.addPass(bloom);
 composer.addPass(new OutputPass());
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enabled = false; controls.enableDamping = true; controls.dampingFactor = 0.08; controls.minDistance = 0.4; controls.maxDistance = 6;
@@ -231,6 +231,7 @@ loader.load(C.model, (g) => {
   ready = true; done();
 }, (e) => { const p = e.total ? Math.round((e.loaded / e.total) * 100) : 0; $('#load .bar i').style.width = p + '%'; $('#lpct').textContent = `Loading ${C.short} ${p}%`; },
 (err) => { console.error(err); $('#lpct').textContent = 'Could not load the 3D model. Scroll down for the renders.'; setTimeout(done, 1200); });
+window.LX = { get state() { return { ready, mode, curStep, R, H, parts: Object.keys(parts), hub: hub.has, glow: glow.length, meshes: meshes.length, cam: camera.position.toArray().map((x) => +x.toFixed(2)), dist: +camState.dist.toFixed(2) }; } };
 let t0 = 0; function done() { $('#load').classList.add('done'); t0 = performance.now(); }
 
 // ------------------------------------------------------------------ scan effects
@@ -493,14 +494,14 @@ function tick() {
   const S = curStep >= 0 ? C.steps[curStep] : null;
   let near = false;
   if (drawerPart && parts[drawerPart] && mode !== 'content') {
-    const P = parts[drawerPart]; wantRot = wrapNear(-Math.atan2(P.n.x, P.n.z), modelRot); want.target.copy(worldOf(P.local)).lerp(center, 0.15); want.dist = Math.max(R * 0.55, Math.min(R * 1.6, P.size * 2.6)) ; want.h = 0.12; near = true;
-  } else if (focus && mode !== 'scan') { wantRot = wrapNear(-Math.atan2(hub.n.x, hub.n.z), modelRot); want.target.copy(worldOf(hub.local)); want.dist = R * 1.1; want.h = 0.05; near = true; }
+    const P = parts[drawerPart]; wantRot = wrapNear(-Math.atan2(P.n.x, P.n.z), modelRot); want.target.copy(worldOf(P.local)).lerp(center, 0.15); want.dist = Math.max(R * 1.25, Math.min(R * 2.2, P.size * 3.2)); want.h = 0.12; near = true;
+  } else if (focus && mode !== 'scan') { wantRot = wrapNear(-Math.atan2(hub.n.x, hub.n.z), modelRot); want.target.copy(worldOf(hub.local)).lerp(center, 0.25); want.dist = R * 1.5; want.h = 0.05; near = true; }
   else if (mode === 'hero') { want.target.copy(center); want.dist = R * 3.1; want.h = 0.26; wantRot = Math.sin(T * 0.07) * 0.5 + (C.heroRot || 0); }
   else if (S && S.mode === 'turn') { want.target.copy(center); want.dist = R * (S.d || 2.6); want.h = S.h ?? 0.2; wantRot = (C.heroRot || 0) + stepP * Math.PI * 2; }
-  else if (S && S.mode.startsWith('part:')) { const P = parts[S.mode.slice(5)]; if (P) { wantRot = wrapNear(-Math.atan2(P.n.x, P.n.z) + (S.yaw || 0), modelRot); want.target.copy(worldOf(P.local)).lerp(center, 0.2); want.dist = R * (S.d || 1.1); want.h = S.h ?? 0.08; near = true; } }
-  else if (S && S.mode === 'hub') { wantRot = wrapNear(-Math.atan2(hub.n.x, hub.n.z), modelRot); want.target.copy(worldOf(hub.local)); want.dist = R * (S.d || 0.8); want.h = S.h ?? 0.04; near = true; }
+  else if (S && S.mode.startsWith('part:')) { const P = parts[S.mode.slice(5)]; if (P) { wantRot = wrapNear(-Math.atan2(P.n.x, P.n.z) + (S.yaw || 0), modelRot); want.target.copy(worldOf(P.local)).lerp(center, 0.35); want.dist = R * 1.45 * (S.d || 1.1); want.h = S.h ?? 0.08; near = true; } }
+  else if (S && S.mode === 'hub') { wantRot = wrapNear(-Math.atan2(hub.n.x, hub.n.z), modelRot); want.target.copy(worldOf(hub.local)).lerp(center, 0.25); want.dist = R * 1.45 * (S.d || 0.9); want.h = S.h ?? 0.04; near = true; }
   else if (S && S.mode === 'callouts') { wantRot = wrapNear((C.calloutRot || 0) + Math.sin(T * 0.15) * 0.25, modelRot); want.target.copy(center); want.dist = R * (S.d || 2.3); want.h = S.h ?? 0.14; }
-  else if (S && S.mode === 'scan') { wantRot = wrapNear(-Math.atan2(hub.n.x, hub.n.z), modelRot); want.target.copy(worldOf(hub.local)).lerp(center, 0.3); want.dist = R * (S.d || 1.6); want.h = 0.06; near = true; }
+  else if (S && S.mode === 'scan') { wantRot = wrapNear(-Math.atan2(hub.n.x, hub.n.z), modelRot); want.target.copy(worldOf(hub.local)).lerp(center, 0.35); want.dist = R * 1.3 * (S.d || 1.6); want.h = 0.06; near = true; }
   else { want.target.copy(center); want.dist = R * 3.3; want.h = 0.3; }
   modelRot += (wantRot - modelRot) * Math.min(1, dt * (mode === 'hero' ? 1 : 2.6)); model.rotation.y = modelRot;
   // breathing idle
