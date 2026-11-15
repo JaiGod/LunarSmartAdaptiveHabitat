@@ -22,6 +22,11 @@
   header .back{margin-left:auto;color:var(--dim);text-decoration:none;font-size:12px;border:1px solid var(--line);padding:6px 10px;border-radius:4px}
   header .back:hover{color:var(--acc);border-color:var(--acc)}
   .beat a{display:block}
+  header .dlall{margin-left:auto;color:#111;background:var(--acc);text-decoration:none;font-weight:600;font-size:12px;padding:7px 12px;border-radius:4px}
+  header .dlall + .back{margin-left:0}
+  .dlbtn{display:block;margin:10px 16px 0;text-align:center;text-decoration:none;color:var(--acc);border:1px solid var(--acc);border-radius:4px;padding:8px 10px;font-size:12.5px}
+  .dlbtn:hover{background:#16120a}
+  .dlbtn small{color:var(--dim);display:block;font-size:11px;margin-top:2px}
   main{display:grid;grid-template-columns:260px 1fr 340px;height:calc(100% - 53px)}
   aside{background:var(--panel);overflow:auto;border-right:1px solid var(--line)}
   aside.right{border-right:0;border-left:1px solid var(--line)}
@@ -63,10 +68,13 @@
   <span class="tag">LSAH ROBOTICS</span>
   <div><h1>PHMA-1 Robotic Maintenance Fleet</h1>
   <div class="sub">Lunar Smart Adaptive Habitat · NASA HUNCH · Jaineil R. (credit: Angel C., Farhan K.)</div></div>
+  <a class="dlall" href="downloads/PHMA-1_Complete_Set.zip" download>⬇ Download complete set (.zip · 53 MB)</a>
   <a class="back" href="../">← Back to the habitat</a>
 </header>
 <main>
   <aside>
+    <h2>Whole project</h2>
+    <div id="site"></div>
     <h2>Fleet</h2>
     <div id="fleet"></div>
     <h2>Tool heads</h2>
@@ -87,6 +95,7 @@
   <aside class="right">
     <h2>Specification</h2>
     <table id="spec"></table>
+    <a class="dlbtn" id="dl" href="#" download>⬇ Download this model (.glb)</a>
     <h2>Animation clips</h2>
     <div class="clips" id="clips"><p class="note">Select a model.</p></div>
     <h2>Engineering notes</h2>
@@ -102,21 +111,29 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
 const FLEET = [
- {id:'PHMA1_Exterior', name:'PHMA-1 Primary Habitat Engineering Arm', sub:'Type 1 · exterior, on the 120 m titanium track', cam:[13,7,13], target:[0,4,0],
+ {id:'PHMA1_Exterior', size:'13 MB', name:'PHMA-1 Primary Habitat Engineering Arm', sub:'Type 1 · exterior, on the 120 m titanium track', cam:[13,7,13], target:[0,4,0],
   spec:{'Reach':'8.5 m (telescoping boom +1.0 m)','Stowed / retracted':'3.2 m','Base (slewing ring)':'1.8 m diameter','Max operating height':'9.5 m (software-limited)','Lift capacity':'2,500 kg in lunar gravity','Precision handling':'0.1 – 100 kg','Mass':'1,450 kg','Axes':'7 rotary + 1 prismatic','J1 turret':'continuous (slip ring)','J2 shoulder':'±180°','J4 elbow':'±160°','J5 / J6 / J7 wrist':'±180° / ±180° / ±270°','Actuation':'harmonic-drive servos + electro-hydraulic shoulder assist','Structure':'Ti-6Al-4V (60%) + CFRP booms','Thermal':'MLI blankets (aluminised Kapton/Mylar), OSR radiators','Dust':'bellows, sealed ceramic hybrid bearings, EDS, self-cleaning dock','Track':'120 m · 0.75 m gauge · 2 m/s · ceiling / wall / exterior'},
   notes:'Every joint is a sealed harmonic-drive servo behind a dust bellows; the shoulder adds two electro-hydraulic assist cylinders for 2,500 kg lifts. Power comes from a covered 120 VDC bus bar beside the rail, so no cable drags in the regolith. Kevlar-sleeved harnesses resist abrasion. The carriage carries its own tool rack and a manual emergency override with a T-handle an EVA crew member can reach.'},
- {id:'PHMA1_Interior', name:'PHMA-1i Interior Service Arm', sub:'Type 1 variant · ceiling rail, 0.4 scale', cam:[5,2.5,5], target:[0,-1.5,0],
+ {id:'PHMA1_Interior', size:'7.5 MB', name:'PHMA-1i Interior Service Arm', sub:'Type 1 variant · ceiling rail, 0.4 scale', cam:[5,2.5,5], target:[0,-1.5,0],
   spec:{'Reach':'3.4 m','Mount':'inverted, ceiling titanium rail','Payload':'up to 100 kg','Speed limit':'0.25 m/s near crew (cobot zone)','Covers':'white thermal paint, soft bumpers','Jobs':'pump/valve service, sensor swaps, rack adjustment, medical-bay fetch'},
   notes:'Same kinematics as the exterior arm, scaled for the habitat module. No MLI or radiators indoors; rounded bumpers and speed limits make it safe to work beside the crew.'},
- {id:'MMR2A_PipeCrawler', name:'MMR-2A In-Pipe Crawler', sub:'Type 2 · transparent water network', cam:[0.5,0.3,0.5], target:[0,0,0],
+ {id:'MMR2A_PipeCrawler', size:'0.5 MB', name:'MMR-2A In-Pipe Crawler', sub:'Type 2 · transparent water network', cam:[0.5,0.3,0.5], target:[0,0,0],
   spec:{'Fits':'200 – 300 mm ID pipe','Mass':'1.8 kg','Drive':'3 spring-loaded legs, 6 wheels','Sensors':'HD camera, ultrasonic wall thickness, acoustic leak sensing','Autonomy':'LUNA-AI vision, no tether'},
   notes:'Three legs press the wheels against the pipe wall, so it can climb vertical runs without magnets. It swims with the flow and inspects welds and fluid flow from inside.'},
- {id:'MMR2B_SurfaceCrawler', name:'MMR-2B Surface Crawler', sub:'Type 2 · electrical diagnostics', cam:[0.7,0.45,0.7], target:[0,0.05,0],
+ {id:'MMR2B_SurfaceCrawler', size:'0.5 MB', name:'MMR-2B Surface Crawler', sub:'Type 2 · electrical diagnostics', cam:[0.7,0.45,0.7], target:[0,0.05,0],
   spec:{'Mass':'3.5 kg','Adhesion':'magnetic wheels (ferritic steel) + electroadhesive pad (Al/Ti)','Sensors':'eddy-current array, thermal camera','Jobs':'tank walls, pump skids, cable trays'},
   notes:'Magnets only stick to ferritic steel, and the habitat is mostly aluminium and titanium, so an electroadhesive belly pad holds it on those surfaces.'},
- {id:'EVA3_ExteriorRobot', name:'EVA-3 Exterior Robot', sub:'Type 3 · lunar surface maintenance', cam:[4,2.4,4], target:[0,0.7,0],
+ {id:'EVA3_ExteriorRobot', size:'8.5 MB', name:'EVA-3 Exterior Robot', sub:'Type 3 · lunar surface maintenance', cam:[4,2.4,4], target:[0,0.7,0],
   spec:{'Size / mass':'1.9 × 1.6 m · 420 kg','Mobility':'rocker-bogie, 6 titanium chevron wheels with fenders','Arm':'4-DOF with EDS dust wand + soft brush','Blade':'regolith dozer blade','Sensors':'stereo mast, LIDAR, gamma/neutron pod','Survival':'14-day lunar night on Li-ion + heaters'},
   notes:'Fenders stop wheel-thrown dust coating the radiators (Apollo 17 lost a fender and paid for it). It cleans solar arrays with an electrodynamic dust shield wand, moves regolith for shielding berms, and scans radiation shielding.'},
+];
+const SITE = [
+ {id:'LSAH_Exterior_Site', site:true, name:'Complete exterior site', sub:'Habitat, 120 m track, PHMA-1 arm, 3 EVA rovers, terrain', cam:[36,12,46], target:[-2,2,-2], dl:'models/LSAH_Exterior_Site.glb', size:'18 MB',
+  spec:{'Contains':'expansion + core modules, regolith shielding, airlock, solar arrays, radiators, comms dish','Track':'121.7 m titanium loop, 0.75 m gauge','Robots':'PHMA-1 arm on its carriage, EVA-3 A/B/C rovers','Terrain':'south-pole regolith with craters and rocks','Format':'GLB · Y-up · metres'},
+  notes:'The whole exterior set from the emergency film, in one file. Nothing stands alone: the arm rides the track around the modules, the rovers park beside the solar field and the dock sits next to the EVA airlock.'},
+ {id:'LSAH_Interior_Module', site:true, interior:true, name:'Complete interior module', sub:'Water network, farms, AI racks, interior arm, micro robots', cam:[7.2,-38.1,0.9], target:[0,-38.3,0], dl:'models/LSAH_Interior_Module.glb', size:'5 MB',
+  spec:{'Contains':'pump skid, transparent water pipes, aquaponics tank, hydroponic racks, AI server rack, crew console, medical bay, water-wall radiation shield','Robots':'PHMA-1i ceiling arm, MMR-2A in the pipe, MMR-2B on the pump skid','Format':'GLB · Y-up · metres'},
+  notes:'The habitat interior the robots maintain. Orbit inside the module to follow the water network the pipe crawler inspects.'},
 ];
 const TOOLS = [
  ['TL01','Precision Repair Gripper','0.6 × 0.3 m · force-torque sensor'],['TL02','Smart Welding Tool','3.5 kW laser + arc'],
@@ -165,6 +182,7 @@ const flood = new THREE.SpotLight(0xfff2e0, 0, 60, Math.PI/5, 0.5); flood.castSh
 function setEnv(mode){
   document.querySelectorAll('[data-env]').forEach(b=>b.classList.toggle('on',b.dataset.env===mode));
   if(mode==='day'){sun.intensity=4.5; sun.position.set(40,2.2,18); earthshine.intensity=0.08; flood.intensity=0; scene.environmentIntensity=0.25}
+  else if(mode==='interior'){sun.intensity=0; earthshine.intensity=1.6; flood.intensity=0; scene.environmentIntensity=1.0}
   else{sun.intensity=0; earthshine.intensity=0.35; flood.intensity=900; flood.position.set(8,9,10); scene.environmentIntensity=0.06}
 }
 document.querySelectorAll('[data-env]').forEach(b=>b.onclick=()=>setEnv(b.dataset.env));
@@ -174,27 +192,38 @@ const loader = new GLTFLoader();
 let current=null, mixer=null, actions={}, spin=false;
 const clock = new THREE.Clock();
 const fleetDiv=document.getElementById('fleet'), toolsDiv=document.getElementById('tools');
+const siteDiv=document.getElementById('site');
+SITE.forEach(m=>{const b=document.createElement('button');b.className='item';b.innerHTML=`<b>${m.name}</b><span>${m.sub}</span>`;b.onclick=()=>load(m,b);siteDiv.appendChild(b)});
 FLEET.forEach((m,i)=>{const b=document.createElement('button');b.className='item';b.innerHTML=`<b>${m.name}</b><span>${m.sub}</span>`;b.onclick=()=>load(m,b);fleetDiv.appendChild(b);if(i===0)setTimeout(()=>b.click(),0)});
 TOOLS.forEach(t=>{const b=document.createElement('button');b.className='item';b.innerHTML=`<b>${t[0]} · ${t[1]}</b><span>${t[2]}</span>`;
- b.onclick=()=>load({id:'tools/'+t[0],name:t[1],cam:[0.9,0.7,0.9],target:[0,0.35,0],spec:{'Tool':t[0],'Function':t[2],'Interface':'PHMA quick-change coupling (power, data, coolant)'},notes:'Each tool head locks onto the wrist with three alignment pins and a latch ring. Spare heads sit in the carriage tool rack and in the self-cleaning dock next to the EVA airlock.'},b);toolsDiv.appendChild(b)});
+ b.onclick=()=>load({id:'tools/'+t[0],dl:'downloads/tools/'+t[0]+'.glb',size:'0.5 MB',name:t[1],cam:[0.9,0.7,0.9],target:[0,0.35,0],spec:{'Tool':t[0],'Function':t[2],'Interface':'PHMA quick-change coupling (power, data, coolant)'},notes:'Each tool head locks onto the wrist with three alignment pins and a latch ring. Spare heads sit in the carriage tool rack and in the self-cleaning dock next to the EVA airlock.'},b);toolsDiv.appendChild(b)});
 
 function load(m, btn){
   document.querySelectorAll('.item').forEach(x=>x.classList.remove('on')); btn.classList.add('on');
   document.getElementById('loading').style.display='flex';
   const spec=document.getElementById('spec'); spec.innerHTML=Object.entries(m.spec).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('');
   document.getElementById('notes').textContent=m.notes||'';
+  const dl=document.getElementById('dl'); dl.href=m.dl||`downloads/${m.id}.glb`;
+  dl.innerHTML=`⬇ Download ${m.name} (.glb)<small>full quality · ${m.size||''} · Three.js / Unity / VR</small>`;
+  ground.visible=!m.site;
   loader.load(`models/${m.id}.glb`, g=>{
     if(current) scene.remove(current);
     current=g.scene; current.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true}});
     const box=new THREE.Box3().setFromObject(current), c=box.getCenter(new THREE.Vector3());
-    current.position.x-=c.x; current.position.z-=c.z; current.position.y-=box.min.y;
+    if(!m.site){current.position.x-=c.x; current.position.z-=c.z; current.position.y-=box.min.y;}
     scene.add(current);
+    if(m.site){
+      camera.position.set(...m.cam); controls.target.set(...m.target); camera.near=0.05; camera.far=6000; camera.updateProjectionMatrix(); controls.update();
+      setEnv(m.interior?'interior':'day');
+    }else{
     // frame by the model's own size so every robot fits, whatever its scale
     const size=box.getSize(new THREE.Vector3()), r=Math.max(size.x,size.y,size.z);
     const dir=new THREE.Vector3(...m.cam).normalize();
     controls.target.set(0,size.y*0.45,0);
     const vf=THREE.MathUtils.degToRad(camera.fov), hf=2*Math.atan(Math.tan(vf/2)*camera.aspect);
-    camera.position.copy(controls.target).addScaledVector(dir,r*0.62/Math.tan(Math.min(vf,hf)/2)); camera.near=r/200; camera.updateProjectionMatrix(); controls.update();
+    camera.position.copy(controls.target).addScaledVector(dir,r*0.62/Math.tan(Math.min(vf,hf)/2)); camera.near=r/200; camera.far=5000; camera.updateProjectionMatrix(); controls.update();
+    if(document.querySelector('[data-env].on')==null) setEnv('day');
+    }
     flood.target.position.set(0,1,0);
     // clips were authored at habitat-site coordinates: make the root motion start where the model rests
     g.animations.forEach(a=>a.tracks.forEach(t=>{
