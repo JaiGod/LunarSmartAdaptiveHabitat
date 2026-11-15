@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Presentation · Protecting Astronauts' Minds · Project ARES</title>
+<meta name="description" content="Project ARES NASA HUNCH presentation: a lunar habitat, AI and LUNA-X wearables that protect the crew's minds.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050816;--panel:#0b1230;--line:rgba(120,170,255,.18);--txt:#eaf2ff;--mut:#9fb2d8;--cyan:#5ee7ff;--gold:#ffd54a;--hd:'Orbitron',sans-serif}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:radial-gradient(1200px 700px at 70% -10%,#16245a 0,transparent 60%),var(--bg);color:var(--txt);font:16px/1.6 Inter,system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+a{color:var(--cyan);text-decoration:none}
+nav{position:sticky;top:0;z-index:10;display:flex;gap:6px 18px;align-items:center;flex-wrap:wrap;padding:14px 5vw;background:rgba(5,8,22,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);font-size:14px}
+nav .brand{font:700 15px var(--hd);letter-spacing:.08em;margin-right:auto;color:var(--txt)}
+nav a:not(.brand){color:var(--mut)}nav a:hover{color:var(--cyan)}
+header{text-align:center;padding:42px 5vw 18px}
+h1{font:900 clamp(26px,4.4vw,48px)/1.15 var(--hd);margin:0 0 10px;background:linear-gradient(90deg,#fff,var(--cyan),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{color:var(--mut);max-width:760px;margin:0 auto}
+.stage{max-width:1180px;margin:18px auto 0;padding:0 4vw}
+.frame{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(94,231,255,.08);background:#0a1128;aspect-ratio:16/9}
+.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(.97) translateY(12px);transition:opacity .6s ease,transform .7s cubic-bezier(.2,1.4,.4,1)}
+.frame img.on{opacity:1;transform:none}
+.arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:rgba(5,8,22,.6);color:#fff;font-size:24px;cursor:pointer;backdrop-filter:blur(6px);transition:.2s}
+.arrow:hover{background:rgba(94,231,255,.25)}.prev{left:12px}.next{right:12px}
+.fs{position:absolute;right:12px;bottom:12px;z-index:3;border:1px solid var(--line);background:rgba(5,8,22,.6);color:#fff;border-radius:10px;padding:6px 10px;cursor:pointer}
+.bar{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;margin:14px 2px}
+.count{font:700 14px var(--hd);color:var(--mut)}
+.btn{display:inline-block;padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(94,231,255,.18),rgba(255,213,74,.12));color:#fff;font-weight:600}
+.btn:hover{border-color:var(--cyan)}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:10px 0 50px}
+.thumbs img{width:100%;border-radius:8px;border:2px solid transparent;cursor:pointer;opacity:.6;transition:.2s}
+.thumbs img:hover{opacity:1}.thumbs img.on{opacity:1;border-color:var(--cyan)}
+.progress{height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));transition:width .4s}
+/* sparkle layer */
+#sky{position:fixed;inset:0;pointer-events:none;z-index:0}
+.spark{position:absolute;width:14px;height:14px;animation:tw 3s ease-in-out infinite}
+.spark svg{width:100%;height:100%}
+@keyframes tw{0%,100%{opacity:.15;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
+.burst{position:absolute;pointer-events:none;font-size:22px;animation:up 1.1s ease-out forwards;z-index:4}
+@keyframes up{to{transform:translate(var(--dx),-90px) scale(1.4);opacity:0}}
+main,nav,header{position:relative;z-index:1}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:0 5vw 40px}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<nav>
+  <a class="brand" href="../">← PROJECT ARES</a>
+  <a href="../luna-x/">LUNA-X wearables</a>
+  <a href="../rubric.html">Rubric</a>
+  <a href="Protecting_Astronauts_Minds.pdf" download>⬇ PDF</a>
+</nav>
+<header>
+  <h1>✨ Protecting Astronauts' Minds 🚀</h1>
+  <p>Our NASA HUNCH presentation: a lunar habitat, an AI the crew talks to, and LUNA-X wearables that protect the crew's minds as well as their bodies. Use the arrows, your keyboard (← →), or tap a slide below.</p>
+</header>
+<main class="stage">
+  <div class="frame" id="frame">
+    <button class="arrow prev" id="prev" aria-label="Previous slide">‹</button>
+    <button class="arrow next" id="next" aria-label="Next slide">›</button>
+    <button class="fs" id="fs" aria-label="Full screen">⛶ Full screen</button>
+  </div>
+  <div class="bar">
+    <span class="count" id="count">1 / 13</span>
+    <span><a class="btn" href="Protecting_Astronauts_Minds.pdf" target="_blank" rel="noopener">📄 Open PDF</a>
+    <a class="btn" href="Protecting_Astronauts_Minds.pdf" download>⬇ Download</a></span>
+  </div>
+  <div class="progress"><i id="prog"></i></div>
+  <div class="thumbs" id="thumbs"></div>
+</main>
+<footer>Project ARES · Jaineil Rana, Angel Castelan, Farhan Khan · NASA HUNCH</footer>
+<script>
+const N=13,frame=document.getElementById('frame'),thumbs=document.getElementById('thumbs');
+const titles=["Title","The solution","The problem","The habitat","How the AI senses and responds","Seven playable simulators","AI the crew talks to","LUNA-X wearables","Mobility Boot","Built and tested","Ethics in design","Next steps","Thank you"];
+const imgs=[],ths=[];let cur=0;
+for(let i=1;i<=N;i++){const n=String(i).padStart(2,'0');
+  const im=new Image();im.src=`slides/slide_${n}.jpg`;im.alt=`Slide ${i}: ${titles[i-1]}`;im.loading=i<3?'eager':'lazy';frame.appendChild(im);imgs.push(im);
+  const t=new Image();t.src=im.src;t.alt=im.alt;t.title=`${i}. ${titles[i-1]}`;t.onclick=()=>go(i-1);thumbs.appendChild(t);ths.push(t);}
+const emo=['✨','⭐','🚀','🌙','💫'];
+function burst(){const r=frame.getBoundingClientRect();for(let k=0;k<7;k++){const b=document.createElement('span');b.className='burst';b.textContent=emo[k%emo.length];
+  b.style.left=(20+Math.random()*(r.width-40))+'px';b.style.top=(r.height*.55+Math.random()*r.height*.35)+'px';b.style.setProperty('--dx',(Math.random()*80-40)+'px');frame.appendChild(b);setTimeout(()=>b.remove(),1200);}}
+function go(i){cur=(i+N)%N;imgs.forEach((m,k)=>m.classList.toggle('on',k===cur));ths.forEach((m,k)=>m.classList.toggle('on',k===cur));
+  document.getElementById('count').textContent=`${cur+1} / ${N} · ${titles[cur]}`;document.getElementById('prog').style.width=((cur+1)/N*100)+'%';burst();history.replaceState(null,'','#'+(cur+1));}
+document.getElementById('prev').onclick=()=>go(cur-1);document.getElementById('next').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+let sx=null;frame.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+frame.addEventListener('touchend',e=>{if(sx==null)return;const d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>40)go(cur+(d<0?1:-1));sx=null;});
+document.getElementById('fs').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():frame.requestFullscreen();}catch(e){}};
+const h=parseInt(location.hash.slice(1));go(h>=1&&h<=N?h-1:0);
+// twinkling sparkles in the background
+const sky=document.getElementById('sky'),cols=['#ffd54a','#5ee7ff','#ffffff'];
+for(let i=0;i<40;i++){const s=document.createElement('div');s.className='spark';const z=6+Math.random()*16;
+  s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;animation-delay:${-Math.random()*3}s;animation-duration:${2+Math.random()*3}s`;
+  s.innerHTML=`<svg viewBox="0 0 100 100"><path fill="${cols[i%3]}" d="M50 0C54 36 64 46 100 50C64 54 54 64 50 100C46 64 36 54 0 50C36 46 46 36 50 0Z"/></svg>`;sky.appendChild(s);}
+</script>
+</body>
+</html>
