@@ -778,7 +778,7 @@ func start_drill() -> void:
 	g.play("klaxon")
 	for cr in sim.crew:
 		if cr.i == 0 or cr.outside: continue
-		sim._do(cr, "drill", D.SPOTS["shelter%d" % cr.i], sim.now + 40.0, {"free": true})
+		sim._do(cr, "drill", D.SPOTS["shelter%d" % cr.i], sim.now + 65.0, {"free": true})     # they stay until the drill ends
 	sim.luna._log(sim.now, -1, "info", "Commander started a safety drill: muster in the storm shelter (Medical).")
 	g._toast("DRILL! Everyone go to Medical. Follow the gold path.", "alert")
 	_guide_to(Vector2i(2, 8))
@@ -788,20 +788,24 @@ func _drill() -> void:
 	var n = 0; var away = []
 	for cr in sim.crew:
 		var z = sim.hab.zone_of(cr.cell) if cr.i != 0 else sim.hab.zone_of(sim.player_cell)
+		var who = cr.name.split(" ")[0] if cr.i != 0 else "you"
 		if cr.outside: n += 1; continue          # on EVA: accounted for by radio
-		if z == "medical": n += 1
-		else: away.append(cr.name.split(" ")[0] if cr.i != 0 else "you")
+		if z == "medical": n += 1; drill[who] = true
+		elif not drill.get(who, false): away.append(who)      # only people who never got there go in the report
 	drill["n"] = n
 	if n >= 4:
 		var mins = int(sim.now - drill.start)
 		sim.luna._log(sim.now, -1, "info", "Safety drill complete: all 4 crew mustered in %d min." % mins)
 		g._toast("Drill done: all 4 in the shelter in %d minutes." % mins)
+		if OS.get_cmdline_user_args().size() > 0: print("DRILL done: all 4 mustered in %d min" % mins)
 		for cr in sim.crew:
 			if cr.act_id == "drill": cr.act_until = sim.now
 		mark("drill")
 		drill = {}
 	elif sim.now - drill.start > 60.0:
-		g._toast("Drill stopped after an hour: %s never reached the shelter. That goes in the report." % ", ".join(away), "info")
+		if OS.get_cmdline_user_args().size() > 0: print("DRILL stopped after 60 min; never reached: %s" % str(away))
+		if away.is_empty(): g._toast("Drill stopped after an hour: everyone reached the shelter, but not all at the same time.", "info")
+		else: g._toast("Drill stopped after an hour: %s never reached the shelter. That goes in the report." % ", ".join(away).replace("you", "you (the Commander)"), "info")
 		for cr in sim.crew:
 			if cr.act_id == "drill": cr.act_until = sim.now
 		drill = {}
@@ -1601,6 +1605,13 @@ func _autopilot(dt: float) -> void:
 		if card.has("buttons") and not card.buttons.is_empty(): card.buttons[0][1].call()
 		else: close_card()
 		return
+	if not drill.is_empty() or sim.hab.flare_until > sim.now:
+		# like a real crew member: the klaxon means stop what you're doing and go to the shelter now
+		if not g.activity.is_empty():
+			g._end_activity(false); auto_t = 0.0
+			g._toast("Autopilot: %s, so it stopped what you were doing and is heading to the shelter." % ("safety drill" if not drill.is_empty() else "solar flare"), "info")
+		if not auto_goal.is_empty() and auto_goal.get("cell", Vector2i(-1, -1)) != Vector2i(2, 8) and sim.hab.zone_of(sim.player_cell) != "medical":
+			auto_path = []; auto_goal = {}
 	if not g.activity.is_empty(): return
 	if auto_t > 0.0: auto_t -= dt; return
 	if auto_path.is_empty():

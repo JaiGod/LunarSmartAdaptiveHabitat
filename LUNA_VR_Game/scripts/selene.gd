@@ -857,6 +857,12 @@ func selftest() -> void:
 	g.toggle_selene()
 	for k in 10: await get_tree().process_frame
 	var vr_ok = g.selene_scr != null and g.selene_scr.visible and g.selene_scr.ui == g.selene_ui and g.selene_ui.input == null
+	if vr_ok:
+		# the panel's screen side faces you, at a comfortable distance and height
+		var to_me = g.player.cam.global_position - g.selene_scr.global_position
+		var facing = to_me.normalized().dot(g.selene_scr.global_transform.basis.z)
+		print("SELTEST vr panel facing=%.2f distance=%.2f m height diff=%.2f m" % [facing, Vector2(to_me.x, to_me.z).length(), -to_me.y])
+		vr_ok = facing > 0.9 and absf(Vector2(to_me.x, to_me.z).length() - 1.7) < 0.2
 	print("SELTEST vr panel ok=%s at %s" % [vr_ok, g.selene_scr.global_position if g.selene_scr else "-"])
 	if not vr_ok: bad += 1
 	g.toggle_selene()
