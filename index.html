@@ -436,6 +436,26 @@ footer a.gh{font:600 14px var(--bd);letter-spacing:0}
 .slides-banner .sb-go{position:relative;font-weight:800;padding:14px 22px;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#ec4899);white-space:nowrap;box-shadow:0 0 20px rgba(236,72,153,.5)}
 @media(max-width:700px){.slides-banner{flex-direction:column;align-items:flex-start;padding:20px}.slides-banner .sb-img{width:100%}}
 
+/* ---------- film banner + film buttons ---------- */
+.nav-film{color:#7dd3fc!important;font-weight:700}
+.btn.film-btn{background:linear-gradient(135deg,#0ea5e9,#6d28d9);border-color:rgba(125,211,252,.7);color:#fff;font-weight:800;box-shadow:0 0 22px rgba(56,189,248,.45)}
+.film-banner{position:relative;display:flex;align-items:center;gap:24px;padding:24px 28px;border-radius:22px;overflow:hidden;color:#fff;
+  background:linear-gradient(120deg,rgba(14,165,233,.22),rgba(109,40,217,.26) 50%,rgba(5,8,22,.6));border:1px solid rgba(125,211,252,.55);box-shadow:0 0 44px rgba(56,189,248,.25)}
+.film-banner .fb-glow{position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent,rgba(125,211,252,.18),transparent 30%);animation:sbspin 8s linear infinite;pointer-events:none}
+.film-banner .fb-img{position:relative;flex:0 0 min(380px,38vw);border-radius:14px;overflow:hidden;border:1px solid rgba(125,211,252,.6);box-shadow:0 0 30px rgba(56,189,248,.4)}
+.film-banner .fb-img img{width:100%;aspect-ratio:16/9;object-fit:cover}
+.film-banner .fb-play{position:absolute;inset:0;display:grid;place-items:center;font-size:44px;text-shadow:0 0 20px rgba(0,0,0,.8);transition:transform .25s}
+.film-banner .fb-img:hover .fb-play{transform:scale(1.15)}
+.film-banner .fb-txt{position:relative;display:flex;flex-direction:column;gap:6px;flex:1}
+.film-banner .fb-k{font:600 12px var(--mono,monospace);letter-spacing:.2em;text-transform:uppercase;color:#7dd3fc}
+.film-banner .fb-t{font:800 clamp(22px,3vw,38px)/1.08 var(--hd,system-ui)}
+.film-banner .fb-s{color:#e6ecfa;font-size:15px}
+.film-banner .fb-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.film-banner .fb-go,.film-banner .fb-go2{font-weight:800;padding:12px 20px;border-radius:999px;white-space:nowrap}
+.film-banner .fb-go{background:linear-gradient(135deg,#0ea5e9,#6d28d9);box-shadow:0 0 20px rgba(56,189,248,.5)}
+.film-banner .fb-go2{border:1px solid rgba(125,211,252,.7);background:rgba(5,8,22,.4)}
+@media(max-width:760px){.film-banner{flex-direction:column;align-items:stretch;padding:18px}.film-banner .fb-img{flex-basis:auto;width:100%}}
+
 /* ================= menu: every tab visible, wrapped onto two centered rows ================= */
 @media (min-width:821px){
   :root{--nav:112px}
@@ -521,7 +541,7 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
   </a>
   <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">≡</button>
   <nav id="nav">
-    <a href="#mission">Home</a><a href="#profile">Our project</a><a href="#descent">Descent</a><a href="#eva">Spacewalk</a><a href="#telemetry">Results</a><a href="#games">Games</a>
+    <a href="#mission">Home</a><a href="film/" class="nav-film">🎬 Film</a><a href="#profile">Our project</a><a href="#descent">Descent</a><a href="#eva">Spacewalk</a><a href="#telemetry">Results</a><a href="#games">Games</a>
     <a href="#presentation">Slides</a><a href="#brochure" class="nav-brochure">📄 Brochure</a><a href="#papers">Papers</a><a href="#models">3D designs</a><a href="models.html" target="_blank" rel="noopener">3D library ↗</a><a href="#floorplan">Floor plan</a><a href="#gallery">Gallery</a><a href="#exhibition">◉ 3D Exhibition</a><a href="luna-x/">LUNA-X wearables</a><a href="https://jaigod.github.io/lunar-brick-sets/">Brick sets ↗</a><a href="companion/">Luna companion</a><a href="https://jaigod.github.io/lunar-habitat-engineering/">Engineering portal</a>
   </nav>
 </header>
@@ -535,6 +555,8 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
       <h1><span class="l">Lunar Smart</span><span class="l">Adaptive</span><span class="l r">Habitat</span></h1>
       <div class="typed" id="typed" data-text="We designed a home on the Moon for four astronauts, and an AI that notices when someone is struggling and offers help they are free to turn down. We sketched it, modeled it, 3D-printed it and turned it into games you can play right here, one of them in VR."><span id="tt"></span><span class="cur"></span></div>
       <div class="cta">
+        <a class="btn film-btn" href="film/">🎬 Watch the film (30 min)</a>
+        <a class="btn" href="film/#trailer">▶ Trailer (4 min)</a>
         <a class="btn slides-btn" href="https://www.canva.com/design/DAHap5mo0bk/llF4zDK1fMKFc2njB36gWw/view" target="_blank" rel="noopener">▶ Watch our presentation</a>
         <a class="btn go" href="play/"><span class="ar">▶</span> Launch Simulator 1</a>
         <a class="btn red" href="play2/"><span class="ar">▶</span> Launch Simulator 2</a>
@@ -600,6 +622,18 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
         <img src="https://jaigod.github.io/lunar-brick-sets/sets/ls-301/thumb.jpg" alt="Box art: Moon Base Final" loading="lazy" width="800" height="600">
         <img src="https://jaigod.github.io/lunar-brick-sets/sets/ls-501/thumb.jpg" alt="Box art: LUNA-X Smart Suit" loading="lazy" width="800" height="600">
       </a>
+    </div>
+  </div>
+</section>
+<!-- ================= FILM ================= -->
+<section id="film" style="padding-top:10px">
+  <div class="wrap">
+    <div class="film-banner reveal">
+      <span class="fb-glow"></span>
+      <a class="fb-img" href="film/" aria-label="Watch the film"><img src="film/img/poster.jpg" alt="Lunar Smart Adaptive Habitat film title card" loading="lazy"><span class="fb-play">▶</span></a>
+      <span class="fb-txt"><span class="fb-k">New · our 30-minute film · 11 chapters</span><span class="fb-t">The Moon Was Never Meant For Humans</span>
+        <span class="fb-s">Arrival, a pump failure, a solar storm the habitat survives, the first meal grown on the Moon, and a child born there looking back at Earth. Plus a 4-minute trailer.</span>
+        <span class="fb-row"><a class="fb-go" href="film/">🎬 Watch the film</a><a class="fb-go2" href="film/#trailer">▶ Watch the trailer</a></span></span>
     </div>
   </div>
 </section>

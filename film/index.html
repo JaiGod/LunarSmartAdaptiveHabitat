@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Moon Was Never Meant For Humans · Lunar Smart Adaptive Habitat film</title>
+<meta name="description" content="A 30-minute film about the Lunar Smart Adaptive Habitat: arrival, survival, a solar storm, the first self-sustaining harvest, and the first generation born on the Moon.">
+<meta property="og:title" content="The Moon Was Never Meant For Humans">
+<meta property="og:description" content="A 30-minute Lunar Smart Adaptive Habitat film. NASA HUNCH · Project ARES.">
+<meta property="og:image" content="https://jaigod.github.io/LunarSmartAdaptiveHabitat/film/img/poster.jpg">
+<meta property="og:type" content="video.movie">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050816;--cyan:#38BDF8;--white:#E6F1FF;--mut:#93A4C8;--gold:#FFD76E;--red:#FC3D21;--line:rgba(56,189,248,.22);--glass:rgba(10,20,48,.66);
+  --hd:'Orbitron',system-ui,sans-serif;--bd:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0}
+body{background:var(--void);color:var(--white);font:16px/1.6 var(--bd);-webkit-font-smoothing:antialiased;min-height:100vh;
+  background-image:radial-gradient(60% 40% at 80% 0%,rgba(109,40,217,.22),transparent 70%),radial-gradient(50% 40% at 0% 30%,rgba(11,61,145,.35),transparent 70%)}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(16px,4vw,40px);
+  background:rgba(5,8,22,.78);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .home{font:600 14px var(--bd);color:var(--mut)}
+.top .home:hover{color:var(--white)}
+.top .brand{font:700 13px var(--hd);letter-spacing:.18em;color:var(--cyan)}
+.wrap{width:min(1180px,100% - 32px);margin:0 auto}
+header.hero{padding:42px 0 18px;text-align:center}
+.kicker{font:600 12px var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+h1{font:900 clamp(26px,4.6vw,54px)/1.08 var(--hd);letter-spacing:.04em;margin:12px 0 10px;text-shadow:0 0 30px rgba(56,189,248,.35)}
+.sub{color:#c9d6f2;font-size:clamp(15px,1.7vw,18px)}
+.meta{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:16px}
+.meta span{font:600 12px var(--mono);letter-spacing:.08em;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--glass);color:#cfe6ff}
+.player{position:relative;margin-top:22px;border-radius:18px;overflow:hidden;border:1px solid rgba(56,189,248,.35);box-shadow:0 0 60px rgba(56,189,248,.18);background:#000}
+.player video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+.bigplay{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.55));cursor:pointer;border:0;color:#fff;width:100%}
+.bigplay .b{display:flex;align-items:center;gap:14px;padding:16px 26px;border-radius:999px;background:linear-gradient(135deg,#0ea5e9,#6d28d9);font:800 clamp(15px,2vw,20px) var(--bd);box-shadow:0 0 40px rgba(56,189,248,.55)}
+.bigplay .b i{font-style:normal;font-size:1.4em;line-height:1}
+.bigplay[hidden]{display:none}
+.now{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+.now .t{font:700 15px var(--bd)}
+.now .t small{display:block;font:600 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.ctl{display:flex;gap:8px;flex-wrap:wrap}
+.ctl button{font:600 13px var(--bd);color:var(--white);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer}
+.ctl button:hover{border-color:var(--cyan);color:#fff}
+.film-bar{position:relative;height:30px;margin-top:12px;cursor:pointer;user-select:none;touch-action:none}
+.film-bar .rail{position:absolute;left:0;right:0;top:12px;height:6px;border-radius:6px;background:rgba(147,164,200,.25);overflow:hidden}
+.film-bar .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#38bdf8,#a78bfa)}
+.film-bar .tick{position:absolute;top:8px;width:2px;height:14px;background:rgba(230,241,255,.55);border-radius:2px}
+.film-bar .tip{position:absolute;bottom:26px;transform:translateX(-50%);white-space:nowrap;font:600 12px var(--mono);padding:4px 8px;border-radius:6px;background:rgba(5,8,22,.92);border:1px solid var(--line);pointer-events:none;opacity:0;transition:opacity .15s}
+.film-bar:hover .tip{opacity:1}
+.clock{font:600 13px var(--mono);color:var(--mut)}
+h2{font:700 clamp(18px,2.4vw,24px) var(--hd);letter-spacing:.06em;margin:44px 0 16px}
+.chapters{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.ch{display:flex;flex-direction:column;text-align:left;background:var(--glass);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;color:var(--white);padding:0;font:inherit;transition:transform .2s,border-color .2s,box-shadow .2s}
+.ch:hover{transform:translateY(-3px);border-color:var(--cyan)}
+.ch.on{border-color:var(--gold);box-shadow:0 0 26px rgba(255,215,110,.28)}
+.ch .im{position:relative}
+.ch img{width:100%;aspect-ratio:16/9;object-fit:cover}
+.ch .d{position:absolute;right:8px;bottom:8px;font:600 11px var(--mono);padding:3px 7px;border-radius:6px;background:rgba(0,0,0,.72)}
+.ch .n{position:absolute;left:8px;top:8px;font:700 12px var(--hd);padding:3px 8px;border-radius:6px;background:rgba(5,8,22,.8);color:var(--gold)}
+.ch .tx{padding:12px 14px 14px}
+.ch .ph{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.ch h3{font:700 16px var(--bd);margin:3px 0 4px}
+.ch p{font-size:13.5px;color:#c3cfe6;line-height:1.45}
+.trailer{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:20px;align-items:center;background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:16px}
+.trailer video{display:block;width:100%;aspect-ratio:16/9;border-radius:12px;background:#000}
+.trailer .ph{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.trailer h3{font:700 clamp(18px,2.2vw,24px) var(--hd);margin:6px 0 8px}
+.trailer p{color:#c9d6f2;font-size:14.5px}
+@media (max-width:800px){.trailer{grid-template-columns:1fr}}
+.about{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h4{font:700 14px var(--hd);letter-spacing:.08em;color:var(--gold);margin-bottom:8px}
+.card p,.card li{font-size:14px;color:#c9d6f2}
+.card ul{padding-left:18px}
+footer{margin:46px 0 30px;text-align:center;color:var(--mut);font-size:13px}
+footer a{color:var(--cyan)}
+@media (max-width:600px){.top .brand{display:none}.now{flex-direction:column;align-items:flex-start}}
+</style>
+<script src="../js/device.js" defer></script>
+</head>
+<body>
+<div class="top">
+  <a class="home" href="../">← Project ARES home</a>
+  <span class="brand">LUNAR SMART ADAPTIVE HABITAT · FILM</span>
+</div>
+<main class="wrap">
+  <header class="hero">
+    <div class="kicker">NASA HUNCH · Project ARES · a Lunar Smart Adaptive Habitat film</div>
+    <h1>The Moon Was Never Meant For Humans</h1>
+    <p class="sub">Arrival, survival, a solar storm, the first harvest grown on the Moon, and the first generation who call it home.</p>
+    <div class="meta"><span>FILM · 30 MIN</span><span>11 CHAPTERS</span><span><a href="#trailer">TRAILER · 4 MIN ↓</a></span><span>720p</span><span>MADE IN BLENDER</span><span>SUBTITLED</span></div>
+  </header>
+
+  <section aria-label="Film player">
+    <div class="player" id="player">
+      <video id="v" controls playsinline preload="metadata" poster="img/poster.jpg"></video>
+      <button class="bigplay" id="bigplay" aria-label="Play the film"><span class="b"><i>▶</i> Watch the film · 30 min</span></button>
+    </div>
+    <div class="film-bar" id="bar" role="slider" aria-label="Whole film position" tabindex="0">
+      <div class="rail"><div class="fill" id="fill"></div></div>
+      <div class="tip" id="tip"></div>
+    </div>
+    <div class="now">
+      <div class="t" id="nowt"><small>Chapter 1 of 11</small>Prologue</div>
+      <div class="clock" id="clock">00:00 / 30:09</div>
+      <div class="ctl">
+        <button id="prev" aria-label="Previous chapter">⏮ Previous</button>
+        <button id="next" aria-label="Next chapter">Next ⏭</button>
+        <button id="fs" aria-label="Full screen">⛶ Full screen</button>
+      </div>
+    </div>
+  </section>
+
+  <h2 id="trailer">Trailer</h2>
+  <div class="trailer">
+    <video id="tv" controls playsinline preload="metadata" poster="img/trailer_poster.jpg" src="media/trailer.mp4"></video>
+    <div><div class="ph">Trailer · 4 min</div><h3>The Moon Was Never Meant For Humans</h3>
+      <p>Every part of the project in four minutes: the LUNA-X suit, helmet, boot and glove, the AEGIS balance robot, the habitat, LUNA AI, VR and the games, and the golden power-up.</p></div>
+  </div>
+
+  <h2>Chapters</h2>
+  <div class="chapters" id="chapters"></div>
+
+  <h2>About the film</h2>
+  <div class="about">
+    <div class="card"><h4>The story</h4><p>Four astronauts land at the lunar south pole and wake a habitat that robots built for them. Their AI, LUNA, watches the air, water, power and crew, explains what it is doing, and lets people make the decisions. They survive a pump failure and a solar storm, grow their first meal on the Moon, build a city, and a generation later a child born there looks back at Earth.</p></div>
+    <div class="card"><h4>How it was made</h4><ul><li>The whole habitat, suits and sets modeled and animated in Blender, rendered in EEVEE: about 63,000 frames.</li><li>209 lines of dialogue. Each one sounds like where it's heard: suit radio, the Earth link with its 2.6-second delay, voice commands, habitat speakers.</li><li>The companion app, crew monitor and LUNA screens from this project appear inside the film.</li></ul></div>
+    <div class="card"><h4>Credits</h4><p>A film by Jaineil R., with Angel C. and Farhan K. · NASA HUNCH · Project ARES.</p><p style="margin-top:8px">Music (Pixabay Content License): AtlasAudio, leberch, echoes_of_lumen, Tunetank. Additional score and sound design generated for the film. Voices: Windows speech synthesis.</p></div>
+  </div>
+  <footer>Keys: <b>Space</b> play/pause · <b>← →</b> 10 seconds · <b>N</b>/<b>P</b> next/previous chapter · <b>F</b> full screen · <a href="../">Back to Project ARES</a></footer>
+</main>
+<script>
+const CH = [
+  ["Prologue", "The Moon was never meant for humans", 60.104, "Earth to the Moon. No air, no water, nights two weeks long, and people who decide to live there anyway."],
+  ["Arrival", "Phase 1", 140.042, "Touchdown at the south pole, the first steps, and a dark, frozen habitat waiting for its crew."],
+  ["First Light", "Phase 1", 126.0, "LUNA wakes the habitat section by section: power, air, pods, medical, airlock."],
+  ["Survival", "Phase 2", 129.958, "Every drop of water collected, cleaned and used again, and the first crop planted."],
+  ["Life on the Moon", "Phase 2", 138.0, "Health monitoring, a call home across a 2.6-second delay, and an AI that never gives orders."],
+  ["Discovery", "Phase 2", 143.958, "An EVA to a crater rim and a core of ancient ice: 5.6 % water by weight."],
+  ["Failure", "Phase 2", 148.042, "A pump fails. LUNA lays out the options, the crew decides, and VR drills prepare them for worse."],
+  ["The Solar Storm", "Phase 2", 371.958, "18 minutes to impact: water walls, regolith shields, a race to the airlock, and a habitat that defends itself."],
+  ["The First Self-Sustaining Harvest", "Phase 3 · Sustainability", 146.083, "One continuous shot from fish tank to kitchen, and the first meal grown entirely on the Moon."],
+  ["Expansion", "Phases 4 and 5", 170.833, "A crane builds phase two, and years later the lights of a lunar city."],
+  ["Two Worlds", "Phase 6 · The beginning of a lunar civilization", 234.042, "A generation later, a child in the observation dome asks where we all came from."]
+].map((c, i) => ({ n: i + 1, title: c[0], phase: c[1], dur: c[2], text: c[3], src: `media/ch${String(i + 1).padStart(2, "0")}.mp4`, img: `img/ch${String(i + 1).padStart(2, "0")}.jpg` }));
+let acc = 0; for (const c of CH) { c.start = acc; acc += c.dur; }
+const TOTAL = acc;
+const $ = s => document.querySelector(s);
+const v = $("#v"), bar = $("#bar"), fill = $("#fill"), tip = $("#tip"), big = $("#bigplay");
+const pre = document.createElement("video"); pre.preload = "auto"; pre.muted = true;
+let cur = 0, pending = null, preIdx = -1;
+const fmt = t => { t = Math.max(0, Math.floor(t)); return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`; };
+// chapter cards and ticks on the whole-film bar
+const list = $("#chapters");
+CH.forEach((c, i) => {
+  const b = document.createElement("button"); b.className = "ch"; b.dataset.i = i;
+  b.innerHTML = `<div class="im"><img src="${c.img}" alt="" loading="lazy"><span class="n">${String(c.n).padStart(2, "0")}</span><span class="d">${fmt(c.dur)}</span></div>` +
+                `<div class="tx"><div class="ph">${c.phase}</div><h3>${c.title}</h3><p>${c.text}</p></div>`;
+  b.addEventListener("click", () => { load(i, 0, true); $("#player").scrollIntoView({ behavior: "smooth", block: "center" }); });
+  list.appendChild(b);
+  if (i) { const t = document.createElement("div"); t.className = "tick"; t.style.left = (c.start / TOTAL * 100) + "%"; bar.appendChild(t); }
+});
+function load(i, offset, play) {
+  i = Math.max(0, Math.min(CH.length - 1, i));
+  cur = i; pending = { offset: offset || 0, play };
+  if (v.getAttribute("src") !== CH[i].src) { v.src = CH[i].src; v.load(); }
+  else apply();
+  ui();
+  history.replaceState(null, "", "#chapter-" + (i + 1));
+}
+function apply() {
+  if (!pending) return;
+  const p = pending; pending = null;
+  if (p.offset) { try { v.currentTime = p.offset; } catch (e) {} }
+  if (p.play) { big.hidden = true; v.play().catch(() => { big.hidden = false; }); }
+}
+v.addEventListener("loadedmetadata", apply);
+v.addEventListener("ended", () => { if (cur < CH.length - 1) load(cur + 1, 0, true); else big.hidden = false; });
+v.addEventListener("play", () => { big.hidden = true; });
+v.addEventListener("timeupdate", () => {
+  ui();
+  // warm the cache for the next chapter so the switch is quick
+  if (cur < CH.length - 1 && preIdx !== cur + 1 && v.duration && v.duration - v.currentTime < 40) { preIdx = cur + 1; pre.src = CH[cur + 1].src; pre.load(); }
+});
+function ui() {
+  const t = CH[cur].start + (v.currentTime || 0);
+  fill.style.width = (t / TOTAL * 100) + "%";
+  $("#clock").textContent = `${fmt(t)} / ${fmt(TOTAL)}`;
+  $("#nowt").innerHTML = `<small>Chapter ${cur + 1} of ${CH.length} · ${CH[cur].phase}</small>${CH[cur].title}`;
+  document.querySelectorAll(".ch").forEach(b => b.classList.toggle("on", +b.dataset.i === cur));
+  bar.setAttribute("aria-valuenow", Math.round(t)); bar.setAttribute("aria-valuemax", Math.round(TOTAL));
+}
+function seekFilm(t) {
+  t = Math.max(0, Math.min(TOTAL - 0.5, t));
+  let i = CH.findIndex(c => t < c.start + c.dur); if (i < 0) i = CH.length - 1;
+  const off = t - CH[i].start, playing = !v.paused;
+  if (i === cur && v.readyState > 0) { v.currentTime = off; } else load(i, off, playing);
+}
+const frac = e => { const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); };
+bar.addEventListener("pointerdown", e => { seekFilm(frac(e) * TOTAL); });
+bar.addEventListener("pointermove", e => {
+  const t = frac(e) * TOTAL, c = CH.find(c => t < c.start + c.dur) || CH[CH.length - 1];
+  tip.style.left = (frac(e) * 100) + "%"; tip.textContent = `${fmt(t)} · ${c.title}`;
+});
+bar.addEventListener("keydown", e => { if (e.key === "ArrowRight") seekFilm(CH[cur].start + v.currentTime + 10); if (e.key === "ArrowLeft") seekFilm(CH[cur].start + v.currentTime - 10); });
+big.addEventListener("click", () => { if (!v.getAttribute("src")) load(cur, 0, true); else { big.hidden = true; v.play(); } });
+$("#prev").addEventListener("click", () => load(v.currentTime > 4 ? cur : cur - 1, 0, !v.paused || true));
+$("#next").addEventListener("click", () => load(cur + 1, 0, true));
+$("#fs").addEventListener("click", () => { (v.requestFullscreen || v.webkitEnterFullscreen || (() => {})).call(v); });
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input,textarea") || e.altKey || e.ctrlKey || e.metaKey) return;
+  const k = e.key.toLowerCase();
+  if (k === "n") load(cur + 1, 0, true);
+  else if (k === "p") load(cur - 1, 0, true);
+  else if (k === "f") $("#fs").click();
+  else if (k === " " && e.target === document.body) { e.preventDefault(); if (!v.getAttribute("src")) load(cur, 0, true); else v.paused ? v.play() : v.pause(); }
+  else if ((k === "arrowright" || k === "arrowleft") && e.target === document.body) { e.preventDefault(); seekFilm(CH[cur].start + (v.currentTime || 0) + (k === "arrowright" ? 10 : -10)); }
+});
+// only one video plays at a time
+const tv = $("#tv");
+tv.addEventListener("play", () => v.pause());
+v.addEventListener("play", () => tv.pause());
+// deep link: #chapter-8
+const m = location.hash.match(/chapter-(\d+)/);
+if (m) { cur = Math.max(0, Math.min(CH.length - 1, +m[1] - 1)); v.poster = CH[cur].img; }
+v.src = CH[cur].src; ui();
+</script>
+<script src="../js/cosmos-bg.js" defer></script>
+</body>
+</html>
