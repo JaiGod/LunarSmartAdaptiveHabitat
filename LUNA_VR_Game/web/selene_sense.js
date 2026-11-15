@@ -14,7 +14,8 @@
   const st = {
     cam: "off", mic: "off", sr: "off", err: "", model: "",
     face: null, posture: null, voice: null, scores: null,
-    said: [], heard: "", frames: 0, base: null, baseN: 0, t0: 0
+    said: [], heard: "", frames: 0, base: null, baseN: 0, t0: 0,
+    gestures: [], last_gesture: "", gest_on: true
   };
   let video = null, stream = null, fl = null, pl = null, running = false, lastT = -1;
   let actx = null, analyser = null, micStream = null, buf = null, rec = null, wantSR = false;
@@ -32,7 +33,7 @@
     box.style.cssText = "position:fixed;left:12px;bottom:12px;z-index:50;background:#0b1430;border:2px solid #38bdf8;border-radius:10px;padding:4px;font:12px system-ui,sans-serif;color:#e8f0ff;pointer-events:none";
     pip = document.createElement("canvas"); pip.width = 192; pip.height = 144; pip.style.cssText = "display:block;border-radius:6px";
     pipLabel = document.createElement("div"); pipLabel.textContent = "● SELENE camera on · nothing is recorded";
-    pipLabel.style.cssText = "padding:3px 2px 0;color:#f87171";
+        pipLabel.style.cssText = "padding:3px 2px 0;color:#f87171";
     box.appendChild(pip); box.appendChild(pipLabel); document.body.appendChild(box);
     pipCtx = pip.getContext("2d");
     pip._box = box;
@@ -93,6 +94,53 @@
     setTimeout(loop, 110);           // about 9 analyses a second is plenty and keeps the game smooth
   }
 
+  // ---------------------------------------------------------------- face + posture COMMANDS (hands-free: gloves on, hands busy)
+  // nod = yes, shake = no (head pose: nose tip against the outer eye corners, scaled by eye distance, so it works at any
+  // distance from the camera); raise one hand above your head = call SELENE; both hands up = STOP (human override).
+  const GEST_WIN = 1400, GEST_COOL = 1500;
+  let headHist = [], lastGest = -1e9, oneSince = 0, bothSince = 0, oneFired = false, bothFired = false, gestFlash = 0;
+  function swings(xs, dead) {      // direction changes bigger than `dead`: a real nod or shake goes back and forth at least twice
+    if (xs.length < 3) return 0;
+    let n = 0, dir = 0, hi = xs[0], lo = xs[0], ext = xs[0];
+    for (const x of xs) {
+      if (dir === 0) {
+        if (x > lo + dead) { dir = 1; ext = x; } else if (x < hi - dead) { dir = -1; ext = x; }
+        hi = Math.max(hi, x); lo = Math.min(lo, x);
+      } else if (dir === 1) { if (x > ext) ext = x; else if (x < ext - dead) { n++; dir = -1; ext = x; } }
+      else { if (x < ext) ext = x; else if (x > ext + dead) { n++; dir = 1; ext = x; } }
+    }
+    return n;
+  }
+  function emit(g, now) {
+    lastGest = now; headHist = []; st.last_gesture = g; gestFlash = now;
+    st.gestures.push(g);
+    if (st.gestures.length > 8) st.gestures.shift();
+  }
+  function headGesture(p, now) {
+    if (!p || !p[1] || !p[33] || !p[263]) return;
+    const d = Math.hypot(p[263].x - p[33].x, p[263].y - p[33].y) || 0.1;
+    const yaw = (p[1].x - (p[33].x + p[263].x) / 2) / d, pitch = (p[1].y - (p[33].y + p[263].y) / 2) / d;
+    headHist.push([now, yaw, pitch]);
+    while (headHist.length && now - headHist[0][0] > GEST_WIN) headHist.shift();
+    if (now - lastGest < GEST_COOL || headHist.length < 5) return;
+    const ys = headHist.map((h) => h[1]), ps = headHist.map((h) => h[2]);
+    const yr = Math.max(...ys) - Math.min(...ys), pr = Math.max(...ps) - Math.min(...ps);
+    if (pr > 0.10 && yr < 0.8 * pr && swings(ps, 0.04) >= 2) emit("nod", now);
+    else if (yr > 0.14 && pr < 0.7 * yr && swings(ys, 0.05) >= 2) emit("shake", now);
+  }
+  function handGesture(q, now) {
+    const up = (k) => q && q[k] && q[0] && (q[k].visibility == null || q[k].visibility > 0.35) && q[k].y < q[0].y;
+    const l = up(15), r = up(16);
+    if (l && r) {
+      bothSince = bothSince || now;
+      if (!bothFired && now - bothSince > 1000) { bothFired = true; emit("hands_up", now); }
+    } else { bothSince = 0; bothFired = false; }
+    if ((l || r) && !(l && r)) {
+      oneSince = oneSince || now;
+      if (!oneFired && now - oneSince > 800) { oneFired = true; emit("hand", now); }
+    } else if (!l && !r) { oneSince = 0; oneFired = false; }
+  }
+
   function analyse(fr, pr, now) {
     st.frames++;
     const el = (now - st.t0) / 1000;
@@ -139,6 +187,8 @@
         present: true
       };
     } else if (st.posture) { st.posture.present = false; }
+    // ---- commands
+    if (st.gest_on) { headGesture(p, now); handGesture(q, now); }
     // ---- personal baseline (first 20 s), then scores relative to it
     const f = st.face, po = st.posture;
     if (el < BASELINE_S) {
@@ -195,7 +245,9 @@
       pipCtx.stroke();
     }
     pipCtx.restore();
-    if (pipLabel) pipLabel.textContent = (st.scores && st.scores.calibrating ? "● SELENE camera on · learning your baseline" : "● SELENE camera on · nothing is recorded");
+    const SEEN = { nod: "nod seen: yes", shake: "shake seen: no", hand: "hand up: calling SELENE", hands_up: "both hands up: STOP" };
+    if (pipLabel) pipLabel.textContent = performance.now() - gestFlash < 1800 && SEEN[st.last_gesture] ? "● " + SEEN[st.last_gesture]
+      : (st.scores && st.scores.calibrating ? "● SELENE camera on · learning your baseline" : "● SELENE camera on · nothing is recorded");
   }
 
   // ---------------------------------------------------------------- microphone: loudness + pitch, and voice commands
@@ -296,10 +348,11 @@
     stop: function () { stopCamera(); stopMic(); stopVoice(); st.cam = "off"; st.mic = "off"; st.err = ""; st.scores = null; st.face = null; st.posture = null; return true; },
     stopCamera: function () { stopCamera(); st.face = null; st.posture = null; return true; },
     stopVoice: function () { stopMic(); stopVoice(); return true; },
-    _t: { analyse: analyse, st: st },            // test hook (used by the headless check)
+    gestures: function (on) { st.gest_on = !!on; headHist = []; return true; },
+    _t: { analyse: analyse, st: st, swings: swings },            // test hook (used by the headless check)
     hasSpeech: function () { return !!(window.SpeechRecognition || window.webkitSpeechRecognition); },
     poll: function () {
-      const out = { cam: st.cam, mic: st.mic, sr: st.sr, err: st.err, model: st.model, face: st.face, posture: st.posture, voice: st.voice, scores: st.scores, said: st.said.splice(0), heard: st.heard };
+      const out = { cam: st.cam, mic: st.mic, sr: st.sr, err: st.err, model: st.model, face: st.face, posture: st.posture, voice: st.voice, scores: st.scores, said: st.said.splice(0), heard: st.heard, gestures: st.gestures.splice(0), last_gesture: st.last_gesture };
       return JSON.stringify(out);
     }
   };

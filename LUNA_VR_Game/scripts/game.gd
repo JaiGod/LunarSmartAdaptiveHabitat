@@ -252,14 +252,14 @@ func toggle_selene() -> void:
 	if selene_ui == null:
 		selene_ui = SeleneUI.Dash.new(self, player.vr)
 		if player.vr:
-			selene_scr = Screen3D.new(); selene_scr.setup("selene", Vector2(1.6, 0.9), Vector2i(1920, 1080), null, true)
+			selene_scr = Screen3D.new(); selene_scr.setup("selene", Vector2(2.0, 1.125), Vector2i(1920, 1080), null, true)   # big enough to read small text in a headset
 			add_child(selene_scr); selene_scr.set_ui(selene_ui)
 		else:
 			selene_layer = CanvasLayer.new(); selene_layer.layer = 20; add_child(selene_layer)
 			selene_layer.add_child(selene_ui)
 	if selene_scr:
 		selene_scr.visible = selene_open
-		if selene_open: _place_vr_panel(selene_scr, 1.5, 0.0)
+		if selene_open: _place_vr_panel(selene_scr, 1.7, -0.1)
 	else:
 		selene_ui.visible = selene_open
 		hud_layer.visible = not selene_open
@@ -268,6 +268,7 @@ func toggle_selene() -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if selene_open else (Input.MOUSE_MODE_CAPTURED if asking.is_empty() and r3.card.is_empty() else Input.MOUSE_MODE_VISIBLE)
 	selene_ui.dirty = true
 	if selene_open: flags["selene"] = true
+	if selene_open and r3.mode == "emergency": selene_emerg = true      # you opened it on purpose during the emergency
 	play("click")
 
 func _fit_selene() -> void:
@@ -276,7 +277,14 @@ func _fit_selene() -> void:
 	selene_ui.scale = Vector2(k, k)
 	selene_ui.position = (vs - Vector2(1920, 1080) * k) * 0.5
 
+var selene_emerg = false
 func _selene_frame(dt: float) -> void:
+	# a real emergency (drill, solar flare) must never hide behind a health dashboard: close it once, you can reopen it
+	var emerg = r3.mode == "emergency"
+	if emerg and not selene_emerg:
+		selene_emerg = true; toggle_selene()
+		_toast("Emergency: SELENE closed so you can see LUNA's alerts. %s to reopen it." % ("Use SELENE on your wrist" if player.vr else "Press U"), "alert")
+		return
 	if selene_scr:
 		selene_req -= dt
 		if selene_req <= 0.0: selene_req = 0.2; selene_scr.request(1)
@@ -332,6 +340,7 @@ func _process(dt: float) -> void:
 	var dmn = 0.0 if selene_now < 0.0 else max(0.0, sim.now - selene_now)
 	selene_now = sim.now
 	selene.tick(dt, dmn)
+	if r3.mode != "emergency": selene_emerg = false
 	if selene_open: _selene_frame(dt)
 	_sync_world(dt)
 	_messages(dt)
@@ -430,6 +439,7 @@ func _sync_world(dt: float) -> void:
 func go_to_bed(nap := false) -> void:
 	if OS.get_cmdline_user_args().size() > 0: print("BED at ", sim.clock(), " nap=", nap)
 	_end_activity(false)
+	if selene_open: toggle_selene()
 	flags["napping"] = nap
 	if nap: sim.player_nap(25.0)
 	else: sim.player_sleep()
@@ -683,7 +693,7 @@ func _messages(dt: float) -> void:
 		var m = sim.messages[seen_msgs]; seen_msgs += 1
 		_toast(m.text, m.kind)
 	# LUNA asks you something
-	if asking.is_empty() and state == "play" and r3.card.is_empty():
+	if asking.is_empty() and state == "play" and r3.card.is_empty() and not selene_open:     # LUNA waits while you're talking to SELENE
 		var a = sim.next_ask()
 		if not a.is_empty() and activity.is_empty():
 			asking = a; show_why = false
@@ -751,6 +761,8 @@ func _show_popup() -> void:
 		row.add_child(UI.btn("No thanks  [N]", func(): _answer(false), 0.02, 24))
 		row.add_child(UI.btn("Why are you asking?  [H]", func(): show_why = not show_why; _show_popup(), 0.6, 22))
 		v.add_child(row)
+		if selene and selene.gest_on and (player.vr or selene._js_on("cam")):
+			v.add_child(UI.lbl("Hands-free: nod for yes, shake your head for no.", 18, UI.MUT))
 		if show_why:
 			v.add_child(UI.lbl("What LUNA sees (only you get this list):", 18, UI.MUT))
 			for e in asking.evidence:
@@ -1194,3 +1206,6 @@ func _selenetest() -> void:
 ## break the one reference cycle (sim <-> LUNA) so everything is freed cleanly when the game closes
 func _exit_tree() -> void:
 	if sim and sim.luna: sim.luna.sim = null
+	# stop every sound still playing (music, vents, hum), so the audio server lets go of them cleanly
+	for t in ["AudioStreamPlayer", "AudioStreamPlayer3D"]:
+		for n in find_children("*", t, true, false): n.stop()

@@ -127,6 +127,19 @@ SELENE is the team's health companion ([lunar-crew-monitor](https://github.com/J
 | **Posture** | upright or slumped, fidgeting, shoulder tilt | browser version (camera); **VR: from your headset** (head height, angle, movement) |
 | **Voice** | spoken commands, loudness, pitch | Chrome and Edge (commands + tone); other browsers (tone only) |
 
+### Hands-free commands (gloves on, hands busy)
+
+| Do this | It means | Works with |
+|---|---|---|
+| **Nod** | yes: answers LUNA's offer, confirms "switch LUNA back on", or rates SELENE's suggestion as helpful | camera (browser) · headset (VR) |
+| **Shake your head** | no | camera (browser) · headset (VR) |
+| **Raise one hand** above your head | call SELENE (opens the dashboard) | camera (browser) · a controller above your head (VR) |
+| **Both hands up** for a second | **STOP**: autopilot, demo, breathing and check-in stop; you're in control | camera (browser) · both controllers (VR) |
+
+A nod or shake has to go back and forth at least twice within about 1.4 s, so looking around, glancing down at a tablet or snap-turning doesn't count. Gestures only act when there is something to answer. Turn them off on the dashboard ("Hands-free commands"). They are tested in `--seltest` (headset) and in a Node test of the browser detector (still head, talking, nods near and far from the camera, shakes, a glance down, a slow turn, a quick head scratch, one hand, both hands).
+
+SELENE ignores the microphone while it or LUNA is talking (and for about a second after), so its own voice from the speakers can never become a command.
+
 - **Camera and mic are optional.** Everything else works without them. Nothing starts until you press the button, read the consent card on the dashboard and say yes, and then the browser asks too.
 - **What leaves your device:** face and posture are analysed inside the browser tab (MediaPipe), and only scores from 0 to 1 reach the game. Nothing is recorded. Speech-to-text is done by the browser's own speech service (in Chrome that's Google's servers), and only the words of your commands reach the game.
 - The first 20 seconds learn **your** normal face and posture, so scores are relative to you. A 30-second check-in averages them. Not a medical device: it never diagnoses, and the CMO, a person, handles anything serious. Crisis words get real help lines (988 / 911); the game contacts no one.
@@ -147,10 +160,11 @@ SELENE is the team's health companion ([lunar-crew-monitor](https://github.com/J
 | Fast-forward | F | Y button / wrist panel |
 | Guided demo · autopilot · what it learned | T · P · L | wrist panel: Demo, Autopilot |
 | SELENE health companion | U (Esc closes) · say "Selene, …" | wrist panel: SELENE |
+| Hands-free | nod = yes · shake = no · raise a hand = SELENE · both hands up = STOP (camera) | the same with your head and controllers |
 
 ## Build
 
 Godot 4.3, Compatibility renderer (needed for WebXR). Export presets: **Web** (no threads, so it runs on GitHub Pages) and **Windows Desktop** (OpenXR on).
-Tools: `tools/simtest.gd` (headless 3-day run), `tools/export_glb.gd` (model export), `tools/selene_bridge.py` (SELENE link), `tools/blender/` (game → Blender scene), `--autoplay=<dir>` (the whole mission played by script), `--shots=<dir>` (screenshots of every room), `--selenetest` (SELENE link check), `--seltest` (every SELENE command, the dashboard for each person, the Ops wall, VR posture and the VR panel), `--selshot=<dir>` (SELENE screenshots). The browser camera / mic module is [`web/selene_sense.js`](web/selene_sense.js).
+Tools: `tools/simtest.gd` (headless 3-day run), `tools/export_glb.gd` (model export), `tools/selene_bridge.py` (SELENE link), `tools/blender/` (game → Blender scene), `--autoplay=<dir>` (the whole mission played by script), `--shots=<dir>` (screenshots of every room), `--selenetest` (SELENE link check), `--seltest` (every SELENE command, the dashboard for each person and that it fits the screen, the Ops wall, VR posture, the VR panel, hands-free head and controller commands, the echo guard), `--selshot=<dir>` (SELENE screenshots). The browser camera / mic module is [`web/selene_sense.js`](web/selene_sense.js).
 
 © 2026 Jaineil R. — with thanks to Angel C. and Farhan K.

@@ -7,6 +7,7 @@ const RED = Color("#f87171")
 const ORANGE = Color("#fb923c")
 const YEL = Color("#fbbf24")
 const GRN = Color("#34d399")
+const CMDC = Color("#7dd3fc")             # command hints: what you can do hands-free
 const SEV = {"RED": RED, "ORANGE": ORANGE, "YELLOW": YEL, "GREEN": GRN}
 
 static func sev_col(s: String) -> Color: return SEV.get(s, UI.MUT)
@@ -129,6 +130,7 @@ class Dash extends Control:
 	var t = 0.0
 	var who = 0                                    # whose data: 0 = you; crewmates only if they chose to share
 	var tabs = []
+	var voice_btn: Button
 
 	func _init(game, in_vr := false) -> void:
 		g = game; s = game.selene; vr = in_vr
@@ -167,6 +169,11 @@ class Dash extends Control:
 			input.text_submitted.connect(func(tx): s.ask(tx); input.text = "")
 			ih.add_child(input)
 			ih.add_child(UI.btn("Send", func(): s.ask(input.text); input.text = "", 0.55, 18))
+		voice_btn = UI.btn("", func():
+			if s.want.voice: s.stop_voice()
+			else: s.start_sensing(false, false, true), 0.4, 20)
+		voice_btn.clip_text = true; voice_btn.custom_minimum_size = Vector2(440, 46)
+		right.add_child(voice_btn)
 		var vrow = UI.hbox(6); right.add_child(vrow)
 		vrow.add_child(UI.btn("Spoken replies: " + ("on" if s.tts else "off"), func(): s.tts = not s.tts; dirty = true, 0.75, 17))
 		vrow.add_child(UI.btn("Delete my data", func(): s.learn = {}; s._save_learn(); s.chat = []; s.alerts = []; s._say("Deleted: what I learned about you, our chat and the alerts."), 0.0, 17))
@@ -179,11 +186,11 @@ class Dash extends Control:
 		state_l.text = {"idle": "ready · say \"Selene\" or tap a question", "listening": "listening…", "thinking": "thinking…", "speaking": "speaking"}.get(s.state, "") + \
 			("   ·   ● camera on" if s._js_on("cam") else "") + ("   ·   ● microphone on" if s._js_on("mic") else "") + ("   ·   monitoring paused" if s.paused else "")
 		heard.text = ("\"%s…\"" % s.heard) if s.heard != "" else ""
-		if t > 0.5 or dirty:
+		if t > 1.0 or dirty:
 			t = 0.0
 			if dirty: _chat()
 			dirty = false
-			_rebuild()
+			_rebuild()          # buttons fire on press (UI.btn), so a refresh can never swallow a click
 
 	func _chat() -> void:
 		UI.clear(chat_box)
@@ -198,6 +205,7 @@ class Dash extends Control:
 				chat_box.add_child(h)
 
 	func _rebuild() -> void:
+		if voice_btn: voice_btn.text = ("Mic on: say \"Selene, …\" (tap to stop)" if s._js_on("sr") else (("Turn on voice commands" if s.web else "Voice commands: browser version") if not s.want.voice else "Mic: " + _st("sr").replace(" (see chat)", "")))
 		for k in tabs.size(): tabs[k].modulate = Color(1, 1, 1) if k == who else Color(0.55, 0.6, 0.7)
 		UI.clear(cards)
 		var i = who
@@ -227,7 +235,7 @@ class Dash extends Control:
 		cm[1].add_child(SeleneUI.meter("Exercise", s.ex_min[i] / s.EX_GOAL, GRN, "%d / 120 min" % int(s.ex_min[i])))
 		cm[1].add_child(SeleneUI.meter("Resistive", s.res_min[i] / s.RES_GOAL, GRN, "%d / 60 min" % int(s.res_min[i])))
 		cm[1].add_child(SeleneUI.meter("Water", s.water[i] / s.WATER_GOAL, UI.ACC, "%d / 2500 ml" % int(s.water[i])))
-		cm[1].add_child(SeleneUI.meter("Sleep", v.sleep / 8.0, Color("#a970ff"), "%.1f / 8 h" % v.sleep))
+		cm[1].add_child(SeleneUI.meter("Sleep", v.sleep / 8.0, Color("#a970ff"), ("%.1f h so far" if v.asleep else "%.1f / 8 h") % v.sleep))
 		var dose = s.PRIOR_DOSE[i] + s.rad[i]
 		cm[1].add_child(SeleneUI.meter("Radiation", dose / s.RAD_CAREER, YEL, "%.1f / 600 mSv" % dose))
 		cm[1].add_child(UI.lbl("Today %.3f mSv · balance %d/100" % [s.rad_today[i], v.balance], 15, UI.MUT))
@@ -265,7 +273,7 @@ class Dash extends Control:
 		oc[1].add_child(UI.lbl("Solar activity %d/9 · dust %d/10 · sun %.1f°" % [x.solar, x.dust, x.elev], 16, UI.INK))
 		oc[1].add_child(UI.lbl("EVA: GO" if x.eva_ok else "EVA: HOLD", 22, GRN if x.eva_ok else RED))
 		oc[1].add_child(UI.lbl(s._cap(", ".join(x.notes)), 15, UI.MUT, true))
-		var ac = SeleneUI.card("Alerts + schedule"); ac[0].custom_minimum_size = Vector2(610, 0); r4.add_child(ac[0])
+		var ac = SeleneUI.card("Alerts + schedule"); ac[0].custom_minimum_size = Vector2(540, 0); r4.add_child(ac[0])
 		var any = false
 		for a in s.alerts.slice(0, 3):
 			ac[1].add_child(UI.lbl("%s %s · %s" % [a.t, a.sev, a.text], 15, SeleneUI.sev_col(a.sev), true)); any = true
@@ -289,13 +297,14 @@ class Dash extends Control:
 		var f = js.get("face", null); var po = js.get("posture", null); var vo = js.get("voice", null)
 		# face
 		var fc = UI.vbox(4); fc.custom_minimum_size.x = 400; r.add_child(fc)
-		fc.add_child(UI.lbl("Face · " + _st("cam") + ("" if not g.player.vr else " (not in a headset)"), 18, UI.INK))
+		fc.add_child(UI.lbl("Face · " + _st("cam") + ("" if not g.player.vr else " (not in a headset)"), 18, UI.INK, true))
 		if f is Dictionary:
 			fc.add_child(SeleneUI.meter("Smile", float(f.smile), GRN, "%d" % int(f.smile * 100), 150))
 			fc.add_child(SeleneUI.meter("Brow tension", float(f.brow), ORANGE, "%d" % int(f.brow * 100), 150))
 			fc.add_child(SeleneUI.meter("Eyes closed", float(f.eyes_closed) * 3.0, YEL, "%d %%" % int(f.eyes_closed * 100), 150))
 			fc.add_child(UI.lbl("Blinks %d/min (typical 15-20) · yawns %d" % [int(f.blink_rate), int(f.yawns)], 15, UI.MUT))
 		else: fc.add_child(UI.lbl("Expressions, blinks, eye closure, yawns", 15, UI.MUT, true))
+		fc.add_child(UI.lbl("Commands: nod = yes · shake your head = no", 15, CMDC))
 		# posture
 		var pc = UI.vbox(4); pc.custom_minimum_size.x = 400; r.add_child(pc)
 		if g.player.vr:
@@ -306,20 +315,25 @@ class Dash extends Control:
 				pc.add_child(SeleneUI.meter("Head down", vh.down, YEL, "%d" % int(vh.down * 100), 150))
 				pc.add_child(SeleneUI.meter("Fidgeting", vh.fidget, ORANGE, "%d" % int(vh.fidget * 100), 150))
 				if vh.base < 0.0: pc.add_child(UI.lbl("Stand or sit as you normally do: learning your height (20 s)", 15, UI.ACC, true))
+			pc.add_child(UI.lbl("Commands (no camera needed): nod / shake your head · a controller above your head = call SELENE · both = STOP", 15, CMDC, true))
 		else:
-			pc.add_child(UI.lbl("Posture · " + _st("cam"), 18, UI.INK))
+			pc.add_child(UI.lbl("Posture · " + _st("cam"), 18, UI.INK, true))
 			if po is Dictionary and po.get("present", false):
 				pc.add_child(SeleneUI.meter("Upright", clamp(float(po.upright) / 1.6, 0.0, 1.0), GRN, "%.2f" % float(po.upright), 150))
 				pc.add_child(SeleneUI.meter("Fidgeting", float(po.fidget) * 2.5, ORANGE, "%d" % int(po.fidget * 250), 150))
 				pc.add_child(SeleneUI.meter("Shoulder tilt", float(po.tilt) * 3.0, YEL, "%d" % int(po.tilt * 300), 150))
 			else: pc.add_child(UI.lbl("Slumped or upright, fidgeting (shoulders + head in view)", 15, UI.MUT, true))
+			pc.add_child(UI.lbl("Commands: raise a hand = call SELENE · both hands up = STOP", 15, CMDC, true))
 		# voice
 		var vc = UI.vbox(4); vc.custom_minimum_size.x = 400; r.add_child(vc)
-		vc.add_child(UI.lbl("Voice · mic " + _st("mic") + " · commands " + _st("sr"), 18, UI.INK))
+		vc.add_child(UI.lbl("Voice · mic " + _st("mic") + " · commands " + _st("sr"), 18, UI.INK, true))
 		if vo is Dictionary:
 			vc.add_child(SeleneUI.meter("Loudness", float(vo.level) * 12.0, UI.ACC, "", 150))
 			vc.add_child(UI.lbl("Pitch %d Hz · variation %d %% · talking %d %%" % [int(vo.pitch), int(vo.pitch_var * 100), int(vo.speech * 100)], 15, UI.MUT))
-		vc.add_child(UI.lbl("Say \"Selene, how am I doing?\"", 15, UI.MUT))
+		vc.add_child(UI.lbl("Commands: say \"Selene, …\" (wait until SELENE finishes talking)", 15, CMDC, true))
+		if Time.get_ticks_msec() - s.gest_t < 60000 and s.last_gesture != "":
+			var names = {"nod": "nod", "shake": "head shake", "hand": "hand raised", "hands_up": "both hands up"}
+			c[1].add_child(UI.lbl("Last hands-free command: %s · %s" % [names.get(s.last_gesture, s.last_gesture), s.gest_note], 17, CMDC))
 		var b = UI.hbox(8); c[1].add_child(b)
 		var on = s.want.face or s.want.posture or s.want.voice
 		if not on:
@@ -329,6 +343,7 @@ class Dash extends Control:
 		else:
 			b.add_child(UI.btn("Stop all sensing", func(): s.stop_sensing(), 0.0, 18))
 		b.add_child(UI.btn("30 s check-in", func(): s.start_checkin(), 0.6, 18))
+		b.add_child(UI.btn("Hands-free commands: " + ("on" if s.gest_on else "off"), func(): s.set_gestures(not s.gest_on), 0.55 if s.gest_on else 0.62, 18))
 		var sc = s.scores
 		if not sc.is_empty():
 			b.add_child(UI.lbl("Live read: %s%s" % [sc.mood, " (learning your baseline…)" if sc.calibrating else ""], 18, UI.ACC))
@@ -336,7 +351,7 @@ class Dash extends Control:
 
 	func _st(k: String) -> String:
 		var v = str(s.js.get(k, "off"))
-		if not s.web and k in ["cam", "mic", "sr"]: return "via the SELENE app" if g.selene_live else "browser version only"
+		if not s.web and k in ["cam", "mic", "sr"]: return "via the SELENE app" if g.selene_live else "browser only"
 		return {"on": "on", "off": "off", "starting": "starting…", "error": "couldn't start (see chat)", "unsupported": "not in this browser"}.get(v, v)
 
 # ======================================================================================================
@@ -364,7 +379,7 @@ class Wall extends Screens.SUI:
 			h.add_child(UI.lbl(nm, 62, UI.INK)); h.add_child(UI.lbl(p.status, 62, SeleneUI.sev_col(p.status)))
 			c[1].add_child(UI.lbl("%s · %d bpm" % ["asleep" if cr.asleep else ("on EVA" if cr.outside else "awake"), int(v.hr)], 42, UI.INK))
 			for m in [["Exercise", s.ex_min[i] / s.EX_GOAL, GRN, "%d / 120 min" % int(s.ex_min[i])], ["Water", s.water[i] / s.WATER_GOAL, UI.ACC, "%.1f / 2.5 L" % (s.water[i] / 1000.0)],
-					["Sleep", v.sleep / 8.0, Color("#a970ff"), "%.1f / 8 h" % v.sleep]]:
+					["Sleep", v.sleep / 8.0, Color("#a970ff"), ("%.1f h so far" if v.asleep else "%.1f / 8 h") % v.sleep]]:
 				c[1].add_child(UI.lbl("%s  %s" % [m[0], m[3]], 32, UI.MUT))
 				c[1].add_child(UI.bar(m[1], m[2], 410, 20))
 		var r2 = UI.hbox(50); body.add_child(r2)

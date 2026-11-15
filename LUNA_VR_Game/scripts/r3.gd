@@ -1023,7 +1023,7 @@ func key(k: int) -> bool:
 			if h.get("kind", "") == "inter": show_spec(h.node)
 			return true
 		KEY_K:
-			show_card({"title": "Keys", "lines": [["WASD move · mouse look · E / click use · F fast-forward · Y / N / H answer LUNA", UI.INK], ["T guided demo of the whole project · P autopilot (the AI plays) · L what it learned", UI.ACC], ["U SELENE, your health companion: face, posture + voice sensing · say \"Selene, how am I doing?\"", UI.ACC], ["Status lights: green working · blue standby · yellow warning · red emergency · purple night", UI.INK],
+			show_card({"title": "Keys", "lines": [["WASD move · mouse look · E / click use · F fast-forward · Y / N / H answer LUNA", UI.INK], ["T guided demo of the whole project · P autopilot (the AI plays) · L what it learned", UI.ACC], ["U SELENE, your health companion: face, posture + voice sensing · say \"Selene, how am I doing?\"", UI.ACC], ["Hands-free (camera or headset): nod = yes · shake = no · raise a hand = SELENE · both hands up = STOP", UI.ACC], ["Status lights: green working · blue standby · yellow warning · red emergency · purple night", UI.INK],
 				["G guide me to my next step · B path to my bed · I check on the crewmate next to you", UI.INK],
 				["O AI OFF switch · C floor plan A/B · J rubric checklist · Z zone card · X specs of what you point at · K this list · V voice", UI.INK]],
 				"buttons": [["Close", func(): close_card(), 0.62]]})
@@ -1683,10 +1683,11 @@ const DEMO = [
 	[Vector3(26.875, 0, 5.8), 0.0, -0.12, "4 · Greenhouse", "Grows food and cleans the air. Tending plants lifts mood."],
 	[Vector3(13.4, 0, 10.0), PI / 2.0, -0.08, "5 · Humans in charge", "AI OFF switch, AI dashboard and review board. LUNA advises; people decide. AI OFF also stops the autopilot."],
 	[Vector3(15.0, 0, 9.0), 0.4, -0.25, "6 · Ops console", "Every big decision happens here. The ring on the 3D twin is the habitat status light: green OK, yellow warning, red emergency."],
-	[Vector3(23.1, 0, 9.6), 2.54, -0.15, "7 · Wellness Dock", "1-minute health scan and the ISS reaction test. You choose to take it."],
-	[Vector3(3.1, 0, 8.2), 2.74, -0.1, "8 · Medical + storm shelter", "Water walls block solar radiation. Drills muster here. Tier 3 cases go to the doctor."],
-	[Vector3(2.6, 0, 3.4), 0.0, -0.05, "9 · Airlock + suitports", "Suits stay outside so moon dust does too. Check yourself and the suit before every EVA."],
-	[Vector3(6.875, 0, 11.6), 0.0, -0.05, "10 · Life support", "Makes oxygen, removes CO2, recycles 98 % of the water."],
+	[Vector3(16.9, 0, 8.8), PI, 0.05, "7 · SELENE, your health companion", "LUNA runs the habitat; SELENE looks after each person. This wall shows only crew who chose to share, and never mental data. Press U (or SELENE on your wrist) for your own dashboard. Talk to it, or use face, posture and voice. Hands-free: nod = yes, shake = no, both hands up = STOP."],
+	[Vector3(23.1, 0, 9.6), 2.54, -0.15, "8 · Wellness Dock", "1-minute health scan and the ISS reaction test. You choose to take it."],
+	[Vector3(3.1, 0, 8.2), 2.74, -0.1, "9 · Medical + storm shelter", "Water walls block solar radiation. Drills muster here. Tier 3 cases go to the doctor."],
+	[Vector3(2.6, 0, 3.4), 0.0, -0.05, "10 · Airlock + suitports", "Suits stay outside so moon dust does too. Check yourself and the suit before every EVA."],
+	[Vector3(6.875, 0, 11.6), 0.0, -0.05, "11 · Life support", "Makes oxygen, removes CO2, recycles 98 % of the water."],
 ]
 
 func start_demo() -> void:

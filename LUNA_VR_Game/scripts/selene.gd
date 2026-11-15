@@ -83,6 +83,14 @@ var breath = {}                             # {"t": seconds, "round": n}
 var confirm = ""                            # pending spoken confirmation ("luna_on")
 var heard = ""
 var rx = {}                                 # compiled RegEx cache
+# ---- hands-free commands (gloves on, hands busy): nod = yes, shake = no, raise a hand = call SELENE, both hands up = STOP
+var gest_on = true                          # camera gestures (browser) and headset / controller gestures (VR)
+var last_gesture = ""
+var gest_note = ""
+var gest_t = -100000
+var vrg = {"hist": [], "last": -100000, "t": 0.0, "yaw": 0.0, "prev": 0.0, "one": 0, "both": 0, "one_fired": false, "both_fired": false}
+var quiet_until = 0                         # ignore the microphone while SELENE or LUNA is talking (no echo commands)
+var was_speaking = false
 
 func setup(game) -> void:
 	g = game; sim = g.sim
@@ -143,7 +151,7 @@ func _vitals(i: int, dt: float) -> void:
 	var e = sim.luna.est[i]
 	vit[i] = {"hr": hr, "hrv": lerp(float(v.get("hrv", hrv)), hrv, a), "spo2": spo2, "temp": 36.6 + 0.6 * ex + 0.1 * cr.stress,
 		"sys": 112.0 + 14.0 * cr.stress + 18.0 * ex, "dia": 72.0 + 8.0 * cr.stress + 4.0 * ex, "pi": clamp(2.2 + 2.0 * ex - 1.2 * cr.stress, 0.3, 6.0),
-		"sleep": float(cr.night.get("hours", 7.0)), "eeg": eeg, "eeg_state": _eeg_state(eeg, cr.asleep),
+		"sleep": (max(0.0, sim.now - float(cr.night.get("start", sim.now))) / 60.0) if cr.asleep else float(cr.night.get("hours", 7.0)), "eeg": eeg, "eeg_state": _eeg_state(eeg, cr.asleep),
 		"balance": int(clamp(93.0 - 25.0 * cr.fatigue - 10.0 * debt, 40.0, 99.0)),
 		"fatigue": e[3], "stress": e[0], "low_mood": e[1], "act": act, "asleep": cr.asleep}
 	var h: Array = hr_hist[i]
@@ -180,7 +188,7 @@ func ppco2() -> float: return sim.hab.co2 * 1e-6 * CABIN_KPA * 7.50062
 func phys(i: int) -> Dictionary:
 	var v = vit[i]; var fl = []
 	if v.hrv < 35.0 and not v.act in EXERCISE: fl.append(["ORANGE", "Heart-rate variability low (%d ms): poor recovery or high stress." % int(v.hrv)])
-	if v.sleep < 6.0: fl.append(["YELLOW", "Short sleep (%.1f h). Aim for 8 hours." % v.sleep])
+	if v.sleep < 6.0 and not v.asleep: fl.append(["YELLOW", "Short sleep (%.1f h). Aim for 8 hours." % v.sleep])     # asleep now: the night isn't over
 	if ex_min[i] < 60.0 and sim.hour() > 15.0: fl.append(["YELLOW", "Exercise is well below today's countermeasure target (%d of %d min)." % [int(ex_min[i]), int(EX_GOAL)]])
 	if v.spo2 < 95.0: fl.append(["RED", "Blood oxygen %d %%." % int(v.spo2)])
 	var c = ppco2()
@@ -250,23 +258,36 @@ func alert(sev: String, text: String, chat_it := true) -> void:
 #  sensing: browser camera + microphone (web build), SELENE app bridge (PC), headset (VR)
 # =====================================================================================================
 func start_sensing(face: bool, posture: bool, voice: bool) -> void:
-	if not consent:
+	var cam_face = face and web and not g.player.vr          # a headset can't see your face
+	var cam_pose = posture and web and not g.player.vr       # in a headset, posture comes from the headset itself
+	var mic = voice and web
+	if (cam_face or cam_pose or mic) and not consent:
 		# asked inside the SELENE dashboard itself (never hidden behind it), before the browser's own permission prompt
 		ask_consent = [face, posture, voice]
 		open_dash(false)
 		if g.selene_ui: g.selene_ui.dirty = true
 		return
-	want.face = face or want.face; want.posture = posture or want.posture; want.voice = voice or want.voice
+	want.face = want.face or cam_face
+	want.posture = want.posture or cam_pose or (posture and g.player.vr)
+	want.voice = want.voice or mic
 	if g.player.vr and (face or posture):
-		_say("In the headset I read your posture from the headset itself: how you hold your head, slumping and fidgeting. A headset camera can't see your face, so face sensing works on the PC or browser version.")
-	if web and _js_init():
-		JavaScriptBridge.eval("window.seleneSense.start(%s,%s,%s)" % [str(face and not g.player.vr).to_lower(), str(posture and not g.player.vr).to_lower(), str(voice).to_lower()], true)
-		if voice and not JavaScriptBridge.eval("window.seleneSense.hasSpeech()", true):
+		_say("In the headset I read your posture from the headset itself: how you hold your head, slumping and fidgeting. A headset can't see your face; face sensing needs a computer's camera in the browser version.")
+	if web and (cam_face or cam_pose or mic) and _js_init():
+		JavaScriptBridge.eval("window.seleneSense.start(%s,%s,%s)" % [str(cam_face).to_lower(), str(cam_pose).to_lower(), str(mic).to_lower()], true)
+		JavaScriptBridge.eval("window.seleneSense.gestures(%s)" % str(gest_on).to_lower(), true)
+		if mic and not JavaScriptBridge.eval("window.seleneSense.hasSpeech()", true):
 			_say("This browser can't turn speech into words (Chrome or Edge can). I'll still read your voice's loudness and pitch, and you can tap the commands.")
-		_say("Starting. Your browser will ask for permission. I use the first 20 seconds to learn your normal face and posture.")
-	elif not web:
-		_say("On the PC version the camera and microphone run in the SELENE app: start selene_bridge.py next to SELENE and your check-ins flow in here live. Headset posture works on its own.")
+		_say("Starting. Your browser will ask for permission." + (" I use the first 20 seconds to learn your normal face and posture." if cam_face or cam_pose else ""))
+	elif not web and (face or voice or (posture and not g.player.vr)):
+		_say("On the PC version the camera and microphone run in the SELENE app: start selene_bridge.py next to SELENE and your check-ins flow in here live. In a headset, posture and head-nod commands work on their own.")
 	g.play("click")
+
+func stop_voice() -> void:
+	want.voice = false
+	if web and js_ready: JavaScriptBridge.eval("window.seleneSense.stopVoice()", true)
+	heard = ""
+	if g.selene_ui: g.selene_ui.dirty = true
+	_say("Microphone off.")
 
 func stop_sensing() -> void:
 	want = {"face": false, "posture": false, "voice": false}
@@ -298,12 +319,17 @@ func _sense(dt: float) -> void:
 				var was_err = str(js.get("err", ""))
 				js = d
 				if str(d.get("err", "")) != "" and str(d.err) != was_err: _say("I couldn't start that: %s." % d.err)
-				heard = str(d.get("heard", ""))
-				for t in d.get("said", []): _heard(str(t))
+				var quiet = _echo_quiet()                # SELENE's or LUNA's own voice coming out of the speakers is not a command
+				heard = "" if quiet else str(d.get("heard", ""))
+				if not quiet:
+					for t in d.get("said", []): _heard(str(t))
+				for gn in d.get("gestures", []): gesture(str(gn), "camera")
 				var sc = d.get("scores")
 				if sc is Dictionary:
 					scores = {"fatigue": float(sc.fatigue), "stress": float(sc.stress), "low_mood": float(sc.low_mood), "mood": str(sc.mood), "conf": float(sc.conf),
 						"calibrating": bool(sc.calibrating), "source": "SELENE · your camera + microphone, live"}
+	# --- headset + controller commands (VR): no camera needed, nothing leaves the headset
+	if g.player.vr and gest_on and g.state == "play": _vr_gestures(dt)
 	# --- headset posture (VR): head height and angle are real measurements of how you sit and stand
 	if g.player.vr and want.posture:
 		var cam: Node3D = g.player.cam
@@ -342,6 +368,125 @@ func _sense(dt: float) -> void:
 		cr.stress = lerp(cr.stress, scores.stress, dt * 0.02)
 		cr.fatigue = lerp(cr.fatigue, scores.fatigue, dt * 0.015)
 		cr.mood = lerp(cr.mood, 0.45 - 1.1 * scores.low_mood, dt * 0.01)
+
+## true while a voice (SELENE's or LUNA's) is coming out of the speakers, and for a moment after
+func _echo_quiet() -> bool:
+	var now = Time.get_ticks_msec()
+	var speaking = g.voice_id != "" and DisplayServer.tts_is_speaking()
+	if was_speaking and not speaking: quiet_until = now + 1200
+	was_speaking = speaking
+	return speaking or now < quiet_until
+
+# =====================================================================================================
+#  hands-free commands
+# =====================================================================================================
+## the same detector the browser module uses, in degrees, for the headset (your head) and controllers (your hands)
+static func swings(xs: Array, dead: float) -> int:
+	if xs.size() < 3: return 0
+	var n = 0; var dir = 0; var hi = float(xs[0]); var lo = float(xs[0]); var ext = float(xs[0])
+	for x in xs:
+		if dir == 0:
+			if x > lo + dead: dir = 1; ext = x
+			elif x < hi - dead: dir = -1; ext = x
+			hi = max(hi, x); lo = min(lo, x)
+		elif dir == 1:
+			if x > ext: ext = x
+			elif x < ext - dead: n += 1; dir = -1; ext = x
+		else:
+			if x < ext: ext = x
+			elif x > ext + dead: n += 1; dir = 1; ext = x
+	return n
+
+var test_ms = -1                             # the self-test drives the clock by hand
+func _now() -> int: return test_ms if test_ms >= 0 else Time.get_ticks_msec()
+
+func _vr_gestures(dt: float) -> void:
+	var now = _now()
+	vrg.t += dt
+	# head: yaw and pitch of the headset relative to your body (snap-turning the body doesn't count)
+	if vrg.t >= 0.05:
+		vrg.t = 0.0
+		var f = -g.player.cam.transform.basis.z
+		var yaw = rad_to_deg(atan2(-f.x, -f.z)); var pitch = rad_to_deg(asin(clamp(f.y, -1.0, 1.0)))
+		vrg.yaw += wrapf(yaw - vrg.prev, -180.0, 180.0); vrg.prev = yaw
+		var h: Array = vrg.hist
+		h.append([now, vrg.yaw, pitch])
+		while not h.is_empty() and now - h[0][0] > 1400: h.pop_front()
+		if now - vrg.last > 1500 and h.size() >= 8:
+			var ys = h.map(func(e): return e[1]); var ps = h.map(func(e): return e[2])
+			var yr = ys.max() - ys.min(); var pr = ps.max() - ps.min()
+			if pr > 8.0 and pr < 40.0 and yr < 0.8 * pr and swings(ps, 4.0) >= 2: vrg.last = now; h.clear(); gesture("nod", "headset")
+			elif yr > 12.0 and yr < 50.0 and pr < 0.7 * yr and swings(ys, 5.0) >= 2: vrg.last = now; h.clear(); gesture("shake", "headset")
+	# hands: a controller (or tracked hand) held above your head
+	var head_y = g.player.cam.global_position.y
+	var l = _ctrl_up(g.player.left, head_y); var r = _ctrl_up(g.player.right, head_y)
+	if l and r:
+		if vrg.both == 0: vrg.both = now
+		if not vrg.both_fired and now - vrg.both > 1000: vrg.both_fired = true; gesture("hands_up", "controllers")
+	else: vrg.both = 0; vrg.both_fired = false
+	if (l or r) and not (l and r):
+		if vrg.one == 0: vrg.one = now
+		if not vrg.one_fired and now - vrg.one > 800: vrg.one_fired = true; gesture("hand", "controllers")
+	elif not l and not r: vrg.one = 0; vrg.one_fired = false
+
+func _ctrl_up(c: Node3D, head_y: float) -> bool:
+	if c == null or not c.is_inside_tree(): return false
+	if c.has_method("get_has_tracking_data") and not c.get_has_tracking_data() and not test_ctrl: return false
+	return c.global_position.y > head_y + 0.05
+var test_ctrl = false                        # the self-test moves the controllers by hand
+
+## one place where every hands-free command lands, whether it came from the camera, the headset or the controllers
+func gesture(kind: String, src: String) -> void:
+	last_gesture = kind; gest_t = Time.get_ticks_msec()
+	match kind:
+		"nod", "shake":
+			var yes = kind == "nod"
+			var said = "You nodded: yes." if yes else "You shook your head: no."
+			if not g.asking.is_empty():
+				g._answer(yes); gest_note = "answered LUNA's offer: " + ("yes" if yes else "no")
+				g._toast(said, "info")
+			elif confirm == "luna_on":
+				confirm = ""
+				if yes:
+					g.r3.set_luna_off(false, "the Commander (nodded to confirm)"); _say("LUNA is back on. You nodded, so it's logged as your decision.")
+				else: _say("Okay, LUNA stays off.")
+				gest_note = "LUNA on: " + ("confirmed" if yes else "kept off")
+			elif _pending_feedback() != null:
+				var m = _pending_feedback()
+				rate(0, m.fb.mood, m.fb.a, yes); m.fb["a"] = ""
+				_log("selene", "Thanks, I'll remember that works for you." if yes else "Got it, I'll try something different next time.")
+				gest_note = "rated SELENE's suggestion: " + ("helpful" if yes else "not helpful")
+			else:
+				gest_note = "seen, but there was nothing to answer"
+		"hand":
+			gest_note = "called SELENE"
+			if not g.selene_open:
+				open_dash(true); _say("I'm here. Ask me anything, or tap a question.")
+		"hands_up":
+			var stopped = []
+			if g.r3.auto: g.r3.set_auto(false, "you raised both hands"); stopped.append("autopilot")
+			if g.r3.demo_i >= 0: g.r3.demo_i = -1; g.r3.close_card(); stopped.append("demo")
+			if not breath.is_empty(): breath = {}; stopped.append("breathing exercise")
+			if checkin_until > 0.0: checkin_until = -1.0; stopped.append("check-in")
+			if stopped.is_empty():
+				gest_note = "STOP seen: nothing was running"
+				g._toast("Both hands up: nothing was running to stop. To switch LUNA off too, say \"Selene, AI off\" or press O.", "info")
+			else:
+				gest_note = "STOP: " + ", ".join(stopped) + " stopped"
+				g._toast("STOP: you raised both hands. %s stopped. You're in control." % _cap(", ".join(stopped)), "info")
+	if g.selene_ui: g.selene_ui.dirty = true
+
+func _pending_feedback():
+	for k in range(chat.size() - 1, max(-1, chat.size() - 4), -1):
+		var m = chat[k]
+		if m.get("fb", {}).get("a", "") != "": return m
+	return null
+
+func set_gestures(on: bool) -> void:
+	gest_on = on
+	vrg.hist = []
+	if web and js_ready: JavaScriptBridge.eval("window.seleneSense.gestures(%s)" % str(on).to_lower(), true)
+	_say("Hands-free commands %s." % ("on: nod for yes, shake for no, raise a hand to call me, both hands up to stop" if on else "off"))
 
 func start_checkin() -> void:
 	if paused: _say("Monitoring is paused. Say \"resume monitoring\" first."); return
@@ -386,7 +531,7 @@ func _heard(text: String) -> void:
 	var t = text.strip_edges()
 	if t == "": return
 	var low = t.to_lower()
-	var m = _m(low, "(?:hey |ok |okay )?(?:selene|selena|celine|serene)[,.!]?\\s*(.*)")
+	var m = _m(low, "(?:hey |ok |okay )?(?:selene|selena|celine|serene|serena|salina|solene|seline|celene|silene)[,.!]?\\s*(.*)")
 	if m != null:
 		var rest = m.get_string(1).strip_edges()
 		if rest == "": open_dash(true); _say("I'm listening."); return
@@ -668,9 +813,20 @@ func selftest() -> void:
 	for who in 4:
 		g.selene_ui.who = who; g.selene_ui.dirty = true
 		for k in 4: await get_tree().process_frame
-		print("SELTEST dash who=%d cards=%d" % [who, g.selene_ui.cards.get_child_count()])
-		if g.selene_ui.cards.get_child_count() == 0: bad += 1
+		var root_w = g.selene_ui.get_child(1).get_combined_minimum_size().x
+		var rows = []
+		for r in g.selene_ui.cards.get_children(): rows.append(int(r.get_combined_minimum_size().x))
+		print("SELTEST dash who=%d cards=%d width=%d (fits 1880: %s) rows=%s" % [who, g.selene_ui.cards.get_child_count(), int(root_w), root_w <= 1880.0, rows])
+		if g.selene_ui.cards.get_child_count() == 0 or root_w > 1880.0: bad += 1
 	g.selene_ui.who = 0
+	# the dashboard shows the last hands-free command and what it did
+	gesture("nod", "camera"); g.selene_ui.dirty = true
+	for k in 4: await get_tree().process_frame
+	var found = ""
+	for l in g.selene_ui.find_children("*", "Label", true, false):
+		if l.text.begins_with("Last hands-free command"): found = l.text
+	print("SELTEST dashboard line: %s (visible size %s)" % [found if found != "" else "MISSING", str(g.selene_ui.find_children("*", "Label", true, false).filter(func(l): return l.text == found).map(func(l): return l.size))])
+	if found == "": bad += 1
 	start_breathing()
 	for k in 20: await get_tree().process_frame
 	print("SELTEST breath ", breath_phase())
@@ -706,6 +862,58 @@ func selftest() -> void:
 	g.toggle_selene()
 	if g.selene_scr.visible: bad += 1; print("SELTEST FAIL: VR panel did not close")
 	g.player.vr = false
+	# hands-free commands in a headset (no camera): nod / shake answer, a raised controller calls SELENE, both hands up = STOP
+	g.player.vr = true; gest_on = true; test_ctrl = true; test_ms = 1000000
+	var cam2: Node3D = g.player.cam
+	var drive = func(secs: float, f: Callable):
+		var steps = int(secs / 0.05)
+		for k in steps:
+			test_ms += 50
+			f.call(k * 0.05)
+			_vr_gestures(0.05)
+	var reset_head = func(): cam2.rotation = Vector3.ZERO; g.player.left.position = Vector3(-0.2, 1.0, -0.3); g.player.right.position = Vector3(0.2, 1.0, -0.3)
+	reset_head.call()
+	var cases = [["still head", 3.0, func(t): cam2.rotation = Vector3(deg_to_rad(randf_range(-1, 1)), deg_to_rad(randf_range(-1, 1)), 0), ""],
+		["look around slowly", 3.0, func(t): cam2.rotation = Vector3(0, deg_to_rad(min(40.0, t * 30.0)), 0), ""],
+		["look down at a tablet and back", 2.0, func(t): cam2.rotation = Vector3(deg_to_rad(-25.0 if t > 0.3 and t < 1.1 else 0.0), 0, 0), ""],
+		["snap-turn the body twice", 2.0, func(t): g.player.rotation.y = deg_to_rad(45.0 if t > 0.5 and t < 1.0 else 0.0), ""],
+		["nod", 1.6, func(t): cam2.rotation = Vector3(deg_to_rad(10.0 * sin(TAU * t / 0.55)), 0, 0), "nod"],
+		["shake", 1.6, func(t): cam2.rotation = Vector3(0, deg_to_rad(15.0 * sin(TAU * t / 0.6)), 0), "shake"]]
+	for cse in cases:
+		test_ms += 3000; reset_head.call(); g.player.rotation.y = 0.0; last_gesture = ""
+		drive.call(cse[1], cse[2])
+		var ok = last_gesture == cse[3]
+		print("SELTEST gesture %-32s got %-6s %s" % [cse[0], last_gesture if last_gesture != "" else "-", "ok" if ok else "FAIL"])
+		if not ok: bad += 1
+	reset_head.call()
+	# a nod rates SELENE's suggestion as helpful (it learns from it)
+	ask("I feel anxious")
+	var key = "0:anxious"; var before = 0
+	for a in learn.get(key, {}): before += learn[key][a][0]
+	test_ms += 3000; last_gesture = ""
+	drive.call(1.6, func(t): cam2.rotation = Vector3(deg_to_rad(10.0 * sin(TAU * t / 0.55)), 0, 0))
+	var after = 0
+	for a in learn.get(key, {}): after += learn[key][a][0]
+	print("SELTEST nod rated the suggestion: %d -> %d (%s)" % [before, after, gest_note])
+	if after != before + 1: bad += 1
+	reset_head.call()
+	# raise one controller above your head: SELENE opens; both: STOP the autopilot
+	if g.selene_open: g.toggle_selene()
+	test_ms += 3000
+	drive.call(1.2, func(t): g.player.right.position.y = 2.2)
+	print("SELTEST raised hand -> dashboard open: %s" % g.selene_open)
+	if not g.selene_open: bad += 1
+	g.toggle_selene()
+	g.r3.set_auto(true)
+	drive.call(1.5, func(t): g.player.left.position.y = 2.2; g.player.right.position.y = 2.2)
+	print("SELTEST both hands up -> autopilot %s (%s)" % ["off" if not g.r3.auto else "STILL ON", gest_note])
+	if g.r3.auto: bad += 1; g.r3.set_auto(false)
+	reset_head.call(); g.player.vr = false; test_ctrl = false; test_ms = -1
+	# echo guard: while a voice is coming out of the speakers, heard words are not commands
+	quiet_until = Time.get_ticks_msec() + 2000
+	print("SELTEST echo guard quiet=%s" % _echo_quiet())
+	if not _echo_quiet(): bad += 1
+	quiet_until = 0
 	# a full day of accounting
 	for k in 600: tick(0.1, 1.0)
 	print("SELTEST day: ex %s water %s rad %s" % [ex_min, water, rad])
@@ -719,7 +927,13 @@ func shots(dir: String) -> void:
 	g._start_desktop()
 	while g.state != "play": await get_tree().process_frame
 	for k in 60: await get_tree().process_frame
+	if dir.ends_with("_demo"):
+		g.r3.start_demo(); g.r3.demo_i = 6; g.r3._demo_show()
+		for k in 50: await get_tree().process_frame
+		get_viewport().get_texture().get_image().save_png(dir + "/demo_selene.png")
+		get_tree().quit(); return
 	reply("I feel anxious"); ask("how am I doing?"); ask("my brainwaves")
+	gesture("shake", "camera")
 	g.toggle_selene()
 	for k in 40: await get_tree().process_frame
 	get_viewport().get_texture().get_image().save_png(dir + "/selene_dash.png")
@@ -739,4 +953,9 @@ func shots(dir: String) -> void:
 		g.player.global_position = spot[1]; g.player.rotation.y = spot[2]; g.player.pitch = spot[3]; g.player.cam.rotation.x = spot[3]
 		for k in 50: await get_tree().process_frame
 		get_viewport().get_texture().get_image().save_png(dir + "/%s.png" % spot[0])
+	# the guided demo's SELENE stop
+	g.hud.visible = true
+	g.r3.start_demo(); g.r3.demo_i = 6; g.r3._demo_show()
+	for k in 50: await get_tree().process_frame
+	get_viewport().get_texture().get_image().save_png(dir + "/demo_selene.png")
 	get_tree().quit()
