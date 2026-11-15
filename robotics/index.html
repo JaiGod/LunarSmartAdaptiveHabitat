@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHMA-1 Robotic Maintenance Fleet — Lunar Smart Adaptive Habitat</title>
+<meta name="description" content="Interactive 3D viewer for the PHMA-1 habitat maintenance arm and its support robots, designed for the Lunar Smart Adaptive Habitat (NASA HUNCH).">
+<meta property="og:title" content="PHMA-1 Robotic Maintenance Fleet — Lunar Smart Adaptive Habitat">
+<meta property="og:description" content="Rigged 3D robots that keep the lunar habitat alive: a 7-axis maintenance arm on a 120 m track, pipe-crawling micro robots and EVA rovers.">
+<meta property="og:image" content="https://jaigod.github.io/LunarSmartAdaptiveHabitat/robotics/renders/og_card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#050816">
+<link rel="icon" href="../favicon.svg">
+<style>
+  :root{--bg:#07090c;--panel:#0e1217;--line:#1f2731;--txt:#d9dee5;--dim:#8793a1;--acc:#e8a33a;--ok:#2fd27a;--warn:#f0c419;--err:#ff4a3d;--blue:#3d7bff}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font:14px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif}
+  header{display:flex;align-items:center;gap:16px;padding:12px 20px;border-bottom:1px solid var(--line);background:#090c10}
+  header .tag{font:600 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;color:var(--acc);border:1px solid var(--acc);padding:5px 8px}
+  header h1{font-size:16px;margin:0;font-weight:600;letter-spacing:.02em}
+  header .sub{color:var(--dim);font-size:12px}
+  header .back{margin-left:auto;color:var(--dim);text-decoration:none;font-size:12px;border:1px solid var(--line);padding:6px 10px;border-radius:4px}
+  header .back:hover{color:var(--acc);border-color:var(--acc)}
+  .beat a{display:block}
+  main{display:grid;grid-template-columns:260px 1fr 340px;height:calc(100% - 53px)}
+  aside{background:var(--panel);overflow:auto;border-right:1px solid var(--line)}
+  aside.right{border-right:0;border-left:1px solid var(--line)}
+  h2{font:600 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.14em;color:var(--dim);margin:18px 16px 8px;text-transform:uppercase}
+  .item{display:block;width:calc(100% - 20px);margin:4px 10px;text-align:left;background:transparent;border:1px solid var(--line);color:var(--txt);padding:10px 12px;cursor:pointer;border-radius:4px}
+  .item:hover{border-color:#3a4654}
+  .item.on{border-color:var(--acc);background:#16120a}
+  .item b{display:block;font-size:13px}
+  .item span{color:var(--dim);font-size:12px}
+  #view{position:relative;overflow:hidden}
+  canvas{display:block;width:100%;height:100%}
+  .hud{position:absolute;left:14px;bottom:14px;display:flex;gap:6px;flex-wrap:wrap}
+  .btn{background:#0c1015cc;border:1px solid var(--line);color:var(--txt);padding:7px 11px;border-radius:4px;cursor:pointer;font-size:12px}
+  .btn.on{border-color:var(--acc);color:var(--acc)}
+  .status{position:absolute;right:14px;top:14px;font:12px ui-monospace,Consolas,monospace;background:#0c1015cc;border:1px solid var(--line);padding:8px 10px;border-radius:4px}
+  .led{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--blue);box-shadow:0 0 8px var(--blue)}
+  #loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--dim);font:13px ui-monospace,monospace;pointer-events:none}
+  table{width:calc(100% - 32px);margin:0 16px;border-collapse:collapse;font-size:12.5px}
+  td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  td:first-child{color:var(--dim);width:44%;padding-right:8px}
+  .clips{padding:0 12px}
+  .clips .btn{margin:3px 2px}
+  p.note{color:var(--dim);font-size:12px;margin:8px 16px}
+  #story{display:grid;grid-template-columns:1fr;gap:8px;padding:0 12px 16px}
+  .beat{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#0a0d11}
+  .beat img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;background:#111}
+  .beat div{padding:7px 9px;font-size:12px}
+  .beat div b{color:var(--acc);font:600 11px ui-monospace,monospace;margin-right:6px}
+  footer{position:absolute;right:14px;bottom:14px;color:#56606c;font-size:11px}
+  @media (max-width:1000px){main{grid-template-columns:1fr;grid-template-rows:auto 60vh auto;height:auto}aside{border:0}}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<header>
+  <span class="tag">LSAH ROBOTICS</span>
+  <div><h1>PHMA-1 Robotic Maintenance Fleet</h1>
+  <div class="sub">Lunar Smart Adaptive Habitat · NASA HUNCH · Jaineil R. (credit: Angel C., Farhan K.)</div></div>
+  <a class="back" href="../">← Back to the habitat</a>
+</header>
+<main>
+  <aside>
+    <h2>Fleet</h2>
+    <div id="fleet"></div>
+    <h2>Tool heads</h2>
+    <div id="tools"></div>
+  </aside>
+  <section id="view">
+    <canvas id="c"></canvas>
+    <div id="loading">Loading model…</div>
+    <div class="status"><span class="led" id="led"></span><span id="stat">NOMINAL · LUNA-AI supervising</span></div>
+    <div class="hud">
+      <button class="btn on" data-env="day">Lunar sunrise</button>
+      <button class="btn" data-env="night">Lunar night</button>
+      <button class="btn" id="spin">Turntable</button>
+      <button class="btn" id="emer">Simulate emergency</button>
+    </div>
+    <footer>Drag to orbit · scroll to zoom</footer>
+  </section>
+  <aside class="right">
+    <h2>Specification</h2>
+    <table id="spec"></table>
+    <h2>Animation clips</h2>
+    <div class="clips" id="clips"><p class="note">Select a model.</p></div>
+    <h2>Engineering notes</h2>
+    <p class="note" id="notes"></p>
+    <h2>Movie: micrometeorite at lunar night</h2>
+    <div id="story"></div>
+  </aside>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+const FLEET = [
+ {id:'PHMA1_Exterior', name:'PHMA-1 Primary Habitat Engineering Arm', sub:'Type 1 · exterior, on the 120 m titanium track', cam:[13,7,13], target:[0,4,0],
+  spec:{'Reach':'8.5 m (telescoping boom +1.0 m)','Stowed / retracted':'3.2 m','Base (slewing ring)':'1.8 m diameter','Max operating height':'9.5 m (software-limited)','Lift capacity':'2,500 kg in lunar gravity','Precision handling':'0.1 – 100 kg','Mass':'1,450 kg','Axes':'7 rotary + 1 prismatic','J1 turret':'continuous (slip ring)','J2 shoulder':'±180°','J4 elbow':'±160°','J5 / J6 / J7 wrist':'±180° / ±180° / ±270°','Actuation':'harmonic-drive servos + electro-hydraulic shoulder assist','Structure':'Ti-6Al-4V (60%) + CFRP booms','Thermal':'MLI blankets (aluminised Kapton/Mylar), OSR radiators','Dust':'bellows, sealed ceramic hybrid bearings, EDS, self-cleaning dock','Track':'120 m · 0.75 m gauge · 2 m/s · ceiling / wall / exterior'},
+  notes:'Every joint is a sealed harmonic-drive servo behind a dust bellows; the shoulder adds two electro-hydraulic assist cylinders for 2,500 kg lifts. Power comes from a covered 120 VDC bus bar beside the rail, so no cable drags in the regolith. Kevlar-sleeved harnesses resist abrasion. The carriage carries its own tool rack and a manual emergency override with a T-handle an EVA crew member can reach.'},
+ {id:'PHMA1_Interior', name:'PHMA-1i Interior Service Arm', sub:'Type 1 variant · ceiling rail, 0.4 scale', cam:[5,2.5,5], target:[0,-1.5,0],
+  spec:{'Reach':'3.4 m','Mount':'inverted, ceiling titanium rail','Payload':'up to 100 kg','Speed limit':'0.25 m/s near crew (cobot zone)','Covers':'white thermal paint, soft bumpers','Jobs':'pump/valve service, sensor swaps, rack adjustment, medical-bay fetch'},
+  notes:'Same kinematics as the exterior arm, scaled for the habitat module. No MLI or radiators indoors; rounded bumpers and speed limits make it safe to work beside the crew.'},
+ {id:'MMR2A_PipeCrawler', name:'MMR-2A In-Pipe Crawler', sub:'Type 2 · transparent water network', cam:[0.5,0.3,0.5], target:[0,0,0],
+  spec:{'Fits':'200 – 300 mm ID pipe','Mass':'1.8 kg','Drive':'3 spring-loaded legs, 6 wheels','Sensors':'HD camera, ultrasonic wall thickness, acoustic leak sensing','Autonomy':'LUNA-AI vision, no tether'},
+  notes:'Three legs press the wheels against the pipe wall, so it can climb vertical runs without magnets. It swims with the flow and inspects welds and fluid flow from inside.'},
+ {id:'MMR2B_SurfaceCrawler', name:'MMR-2B Surface Crawler', sub:'Type 2 · electrical diagnostics', cam:[0.7,0.45,0.7], target:[0,0.05,0],
+  spec:{'Mass':'3.5 kg','Adhesion':'magnetic wheels (ferritic steel) + electroadhesive pad (Al/Ti)','Sensors':'eddy-current array, thermal camera','Jobs':'tank walls, pump skids, cable trays'},
+  notes:'Magnets only stick to ferritic steel, and the habitat is mostly aluminium and titanium, so an electroadhesive belly pad holds it on those surfaces.'},
+ {id:'EVA3_ExteriorRobot', name:'EVA-3 Exterior Robot', sub:'Type 3 · lunar surface maintenance', cam:[4,2.4,4], target:[0,0.7,0],
+  spec:{'Size / mass':'1.9 × 1.6 m · 420 kg','Mobility':'rocker-bogie, 6 titanium chevron wheels with fenders','Arm':'4-DOF with EDS dust wand + soft brush','Blade':'regolith dozer blade','Sensors':'stereo mast, LIDAR, gamma/neutron pod','Survival':'14-day lunar night on Li-ion + heaters'},
+  notes:'Fenders stop wheel-thrown dust coating the radiators (Apollo 17 lost a fender and paid for it). It cleans solar arrays with an electrodynamic dust shield wand, moves regolith for shielding berms, and scans radiation shielding.'},
+];
+const TOOLS = [
+ ['TL01','Precision Repair Gripper','0.6 × 0.3 m · force-torque sensor'],['TL02','Smart Welding Tool','3.5 kW laser + arc'],
+ ['TL03','Hydraulic Cutter','0.8 m · 120 kN'],['TL04','Core Drill','bellows chip shroud'],['TL05','Inspection Camera','snake probe'],
+ ['TL06','Radiation Diagnostic Scanner','25 m · gamma/neutron/flux'],['TL07','Leak Detection Scanner','ultrasonic + mass-spec'],
+ ['TL08','Cargo Manipulator','3-wire snare latching effector']];
+const BEATS = [['01','Impact — lunar night','beat01.jpg'],['02','Sensors detect damage','beat02.jpg'],['03','LUNA AI identifies failure','beat03.jpg'],
+ ['04','PHMA-1 deploys automatically','beat04.jpg'],['05','EVA robots converge','beat05.jpg'],['06','Micro robot pipe inspection','beat06.jpg'],
+ ['07','Crew monitoring','beat07.jpg'],['08','Automatic repair — laser seal','beat08.jpg'],['10','The colony survives','beat10.jpg'],['HERO','Lunar sunrise hero shot','hero.jpg'],
+ ['DETAIL','Hero close-up (3.5 years)','hero_closeup.jpg'],['AGE 0','Mission age: factory new','closeup_age00.jpg'],['AGE 15','Mission age: 15 years — dust, wear, pitting','closeup_age15.jpg']];
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping = THREE.AgXToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x020305);
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environment = envTex;
+scene.environmentIntensity = 0.25;
+const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 5000);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+
+// stars (camera-only, like the real sky)
+{const g=new THREE.BufferGeometry(),n=3000,p=new Float32Array(n*3);
+ for(let i=0;i<n;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(1500);if(v.y<-50)v.y*=-1;p.set([v.x,v.y,v.z],i*3)}
+ g.setAttribute('position',new THREE.BufferAttribute(p,3));
+ scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:1.4,sizeAttenuation:false})))}
+// regolith ground
+const ground = new THREE.Mesh(new THREE.CircleGeometry(400,96), new THREE.MeshStandardMaterial({color:0x3a3936,roughness:1}));
+ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; scene.add(ground);
+// earth
+const earth = new THREE.Mesh(new THREE.SphereGeometry(18,64,32), new THREE.MeshStandardMaterial({color:0x2a5db0,roughness:0.6,emissive:0x0a1a3a}));
+earth.position.set(-420,40,-900); scene.add(earth);
+const sun = new THREE.DirectionalLight(0xfff1e0, 4.5);
+sun.castShadow = true; sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-15,right:15,top:15,bottom:-15,near:1,far:200});
+scene.add(sun);
+const earthshine = new THREE.HemisphereLight(0x8fb2ff, 0x111111, 0.08); scene.add(earthshine);
+const flood = new THREE.SpotLight(0xfff2e0, 0, 60, Math.PI/5, 0.5); flood.castShadow=true; scene.add(flood); scene.add(flood.target);
+
+function setEnv(mode){
+  document.querySelectorAll('[data-env]').forEach(b=>b.classList.toggle('on',b.dataset.env===mode));
+  if(mode==='day'){sun.intensity=4.5; sun.position.set(40,2.2,18); earthshine.intensity=0.08; flood.intensity=0; scene.environmentIntensity=0.25}
+  else{sun.intensity=0; earthshine.intensity=0.35; flood.intensity=900; flood.position.set(8,9,10); scene.environmentIntensity=0.06}
+}
+document.querySelectorAll('[data-env]').forEach(b=>b.onclick=()=>setEnv(b.dataset.env));
+setEnv('day');
+
+const loader = new GLTFLoader();
+let current=null, mixer=null, actions={}, spin=false;
+const clock = new THREE.Clock();
+const fleetDiv=document.getElementById('fleet'), toolsDiv=document.getElementById('tools');
+FLEET.forEach((m,i)=>{const b=document.createElement('button');b.className='item';b.innerHTML=`<b>${m.name}</b><span>${m.sub}</span>`;b.onclick=()=>load(m,b);fleetDiv.appendChild(b);if(i===0)setTimeout(()=>b.click(),0)});
+TOOLS.forEach(t=>{const b=document.createElement('button');b.className='item';b.innerHTML=`<b>${t[0]} · ${t[1]}</b><span>${t[2]}</span>`;
+ b.onclick=()=>load({id:'tools/'+t[0],name:t[1],cam:[0.9,0.7,0.9],target:[0,0.35,0],spec:{'Tool':t[0],'Function':t[2],'Interface':'PHMA quick-change coupling (power, data, coolant)'},notes:'Each tool head locks onto the wrist with three alignment pins and a latch ring. Spare heads sit in the carriage tool rack and in the self-cleaning dock next to the EVA airlock.'},b);toolsDiv.appendChild(b)});
+
+function load(m, btn){
+  document.querySelectorAll('.item').forEach(x=>x.classList.remove('on')); btn.classList.add('on');
+  document.getElementById('loading').style.display='flex';
+  const spec=document.getElementById('spec'); spec.innerHTML=Object.entries(m.spec).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  document.getElementById('notes').textContent=m.notes||'';
+  loader.load(`models/${m.id}.glb`, g=>{
+    if(current) scene.remove(current);
+    current=g.scene; current.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true}});
+    const box=new THREE.Box3().setFromObject(current), c=box.getCenter(new THREE.Vector3());
+    current.position.x-=c.x; current.position.z-=c.z; current.position.y-=box.min.y;
+    scene.add(current);
+    // frame by the model's own size so every robot fits, whatever its scale
+    const size=box.getSize(new THREE.Vector3()), r=Math.max(size.x,size.y,size.z);
+    const dir=new THREE.Vector3(...m.cam).normalize();
+    controls.target.set(0,size.y*0.45,0);
+    const vf=THREE.MathUtils.degToRad(camera.fov), hf=2*Math.atan(Math.tan(vf/2)*camera.aspect);
+    camera.position.copy(controls.target).addScaledVector(dir,r*0.62/Math.tan(Math.min(vf,hf)/2)); camera.near=r/200; camera.updateProjectionMatrix(); controls.update();
+    flood.target.position.set(0,1,0);
+    // clips were authored at habitat-site coordinates: make the root motion start where the model rests
+    g.animations.forEach(a=>a.tracks.forEach(t=>{
+      if(!/^Root\.position$/.test(t.name)) return;
+      const node=current.getObjectByName('Root'); if(!node) return;
+      const v=t.values, x0=v[0]-node.position.x, y0=v[1]-node.position.y, z0=v[2]-node.position.z;
+      for(let i=0;i<v.length;i+=3){v[i]-=x0;v[i+1]-=y0;v[i+2]-=z0}
+    }));
+    mixer=new THREE.AnimationMixer(current); actions={};
+    const cl=document.getElementById('clips'); cl.innerHTML='';
+    if(!g.animations.length){cl.innerHTML='<p class="note">Static asset (no clips).</p>'}
+    g.animations.forEach((a,i)=>{actions[a.name]=mixer.clipAction(a);const b=document.createElement('button');b.className='btn';b.textContent=a.name.replace(/_/g,' ');
+      b.onclick=()=>{Object.values(actions).forEach(x=>x.stop());actions[a.name].reset().play();cl.querySelectorAll('.btn').forEach(x=>x.classList.remove('on'));b.classList.add('on')};cl.appendChild(b);
+      if(/Deploy|PipeInspect|SolarPanelClean|^MMR2B_Crawl/.test(a.name)&&!cl.querySelector('.on'))setTimeout(()=>b.click(),0)});
+    document.getElementById('loading').style.display='none';
+  }, undefined, e=>{document.getElementById('loading').textContent='Model not found: models/'+m.id+'.glb'});
+}
+document.getElementById('spin').onclick=e=>{spin=!spin;e.target.classList.toggle('on',spin)};
+document.getElementById('emer').onclick=()=>{
+  const led=document.getElementById('led'),st=document.getElementById('stat');
+  const set=(c,t)=>{led.style.background=c;led.style.boxShadow='0 0 10px '+c;st.textContent=t};
+  set('var(--err)','EMERGENCY · hull breach, module B · pressure falling');
+  setEnv('night');
+  const em=Object.keys(actions).find(n=>/Emergency/.test(n)); if(em){Object.values(actions).forEach(x=>x.stop());actions[em].reset().play()}
+  setTimeout(()=>set('var(--warn)','LUNA-AI · breach located 0.42 m² · PHMA-1 dispatched'),2500);
+  setTimeout(()=>set('var(--ok)','REPAIR · laser seal in progress'),7000);
+  setTimeout(()=>set('var(--blue)','NOMINAL · breach sealed, crew safe'),14000);
+};
+const story=document.getElementById('story');
+BEATS.forEach(b=>{const d=document.createElement('div');d.className='beat';d.innerHTML=`<a href="renders/${b[2]}" target="_blank" rel="noopener"><img loading="lazy" src="renders/${b[2]}" alt="${b[1]}" onerror="this.style.display='none'"></a><div><b>${b[0]}</b>${b[1]}</div>`;story.appendChild(d)});
+
+function resize(){const r=canvas.parentElement.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
+addEventListener('resize',resize); resize();
+renderer.setAnimationLoop(()=>{const dt=clock.getDelta(); if(mixer)mixer.update(dt); if(spin&&current)current.rotation.y+=dt*0.25; controls.update(); renderer.render(scene,camera)});
+</script>
+</body>
+</html>
