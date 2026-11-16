@@ -35,6 +35,9 @@
 .flow{gap:2px!important}
 .flow div{font-size:5.7pt!important;padding:3px 1px!important}
 .flow div span{font-size:5pt!important}
+.panel{padding-top:.42in!important}
+.kickrow{display:flex;align-items:center;gap:5px}
+.kickrow img{width:13px;height:13px;object-fit:contain}
 </style>
 </head><body>
 
@@ -43,7 +46,7 @@
 
   <!-- OUTSIDE PANEL 1 · Testing & results (solution-led; rubric is a footnote, not the headline) -->
   <section class="panel">
-    <div class="kick">Proof it works</div>
+    <div class="kick kickrow"><img src="img/nasa_logo.png" alt="NASA">Proof it works</div>
     <h2>What Our Solution Showed</h2>
     <div class="rule"></div>
     <p style="font-size:7.1pt">We built the AI, the habitat and every LUNA-X device, then tried to break them: 70 simulated missions, planted wellness problems, and a full automated playthrough of the habitat story.</p>
@@ -80,12 +83,12 @@
       <li><b>Crew interface (+10):</b> working dashboards, voice checklists and route guidance across all 12 LUNA-X devices.</li>
     </ul>
     <p style="font-size:6.3pt;margin-top:2px"><b>Prototypes built:</b> a 1:150 printed habitat kit, a brick-set build, Blender CAD for every device, Unity/Godot VR games, the full Artemis Hub simulation in Unreal.</p>
-    <p class="small foot" style="margin-top:2px">Results are from our own simulations and playtests, not human trials. Specs are design targets, not flight-qualified hardware.</p>
+    <p class="small foot" style="margin-top:1px;font-size:6.2pt;line-height:1.25">Results are from our own simulations and playtests, not human trials. Specs are design targets, not flight-qualified hardware.</p>
   </section>
 
   <!-- OUTSIDE PANEL 2 · Ethics + team/QR -->
   <section class="panel">
-    <div class="kick">Ethics &amp; limits</div>
+    <div class="kick kickrow"><img src="img/nasa_logo.png" alt="NASA">Ethics &amp; limits</div>
     <h2>Trust Is the Design Requirement</h2>
     <div class="rule"></div>
     <p style="font-size:7.2pt">On an 18-month mission nobody can walk away from the system, every tension became a built-in limit. Eight hard limits, enforced in code:</p>
@@ -105,14 +108,14 @@
       <div class="av"><div class="c">AC</div><div class="nm">Angel C.</div><div class="rl">Team member</div></div>
       <div class="av"><div class="c">FK</div><div class="nm">Farhan K.</div><div class="rl">Team member</div></div>
     </div>
-    <div class="qrs" style="margin-top:3px">
+    <div class="qrs" style="margin-top:2px;row-gap:5px">
       <div class="qr"><img src="img/qr_site.svg" alt="QR: website"><div><b>Website</b><span>Every game, model &amp; paper</span></div></div>
       <div class="qr"><img src="img/qr_devices.svg" alt="QR: devices"><div><b>LUNA-X</b><span>All 12 devices, films, 3D</span></div></div>
       <div class="qr"><img src="img/qr_power.svg" alt="QR: full power"><div><b>Full Power</b><span>Film + posters</span></div></div>
       <div class="qr"><img src="img/qr_github.svg" alt="QR: github"><div><b>GitHub</b><span>Source, CAD, print kits</span></div></div>
     </div>
-    <p class="foot url">jaigod.github.io/LunarSmartAdaptiveHabitat</p>
-    <p class="small">Advisor: Mrs. Anjali Wahi · PCTVS STEM Academy, Wayne, NJ · NASA HUNCH 2026–27</p>
+    <p class="foot url" style="font-size:7.4pt;margin-top:2px">jaigod.github.io/LunarSmartAdaptiveHabitat</p>
+    <p class="small" style="margin-top:1px">NASA HUNCH 2026–27</p>
   </section>
 
   <!-- FRONT PANEL -->
@@ -140,7 +143,7 @@
 
   <!-- INSIDE PANEL 1 · Problem + solution + habitat visuals -->
   <section class="panel">
-    <div class="kick">Problem &amp; solution</div>
+    <div class="kick kickrow"><img src="img/nasa_logo.png" alt="NASA">Problem &amp; solution</div>
     <h2>One Habitat That Looks After Its Crew</h2>
     <div class="rule"></div>
     <p style="font-size:7pt">Isolation, poor sleep, cramped rooms and the same faces every day wear crews down. NASA's Human Research Program counts <b>behavioral health</b> among the key risks of long missions. On the Moon, Earth is 1.3 seconds away — a missed early warning costs sleep, performance and safety.</p>
@@ -165,13 +168,13 @@
     </div>
     <h4 style="margin-top:2px">Objectives &amp; success</h4>
     <p style="font-size:6.3pt;line-height:1.3">Detect early · respond with environment first, never force · keep a human in charge · fit real mass/power limits. Success: problems caught days earlier than self-report, fewer sleepless nights, almost no unwanted alerts, crews feel in control of their own data.</p>
-    <p style="font-size:6.1pt;line-height:1.3;margin-top:2px"><b>Habitat modules:</b> Main dome · Command/Comms · Recreation/Commons · Maintenance/Robotics · Hygiene 2 · Medical/Storm shelter, in a ring around the shared dome.</p>
-    <div class="quote foot" style="margin-top:2px">A shared core to live in, a private space that is truly yours, and help you are free to turn down.</div>
+    <p style="font-size:6.1pt;line-height:1.25;margin-top:2px"><b>Habitat modules:</b> Main dome · Command/Comms · Recreation/Commons · Maintenance/Robotics · Hygiene 2 · Medical/Storm shelter, in a ring around the shared dome.</p>
+    <div class="quote foot" style="margin-top:2px;font-size:6.9pt;line-height:1.3">A shared core to live in, a private space that is truly yours, and help you are free to turn down.</div>
   </section>
 
   <!-- INSIDE PANEL 2 · LUNA AI system ONLY -->
   <section class="panel">
-    <div class="kick">The LUNA AI system</div>
+    <div class="kick kickrow"><img src="img/nasa_logo.png" alt="NASA">The LUNA AI system</div>
     <h2>Notices Early. Offers, Never Forces.</h2>
     <div class="rule"></div>
     <p style="font-size:7pt">LUNA is the crew-health AI at the center of the habitat. It reads nine sensors, compares every reading only to that person's own 14-day baseline, and blends 4–6 signals so one noisy reading can never trigger action alone.</p>
@@ -199,12 +202,20 @@
     <p style="font-size:6.7pt">Built for Artemis-era south-pole missions: behavioral health, human factors and crew autonomy when Earth is 1.3 seconds away.</p>
     <h4 style="margin-top:3px">Data stays onboard</h4>
     <p style="font-size:6.6pt">Raw sensor streams never leave the habitat or a person's own device. Only a tier level and a reason, not the raw signal, ever reaches another crew member or Mission Control — and only after the person is told.</p>
+    <h4 style="margin-top:3px">Sensors → conditions</h4>
+    <table class="tbl">
+      <tr><th>Signal</th><th>Watches for</th></tr>
+      <tr><td>HRV, cortisol</td><td>Anxiety, chronic stress</td></tr>
+      <tr><td>Sleep, movement</td><td>Fatigue, low mood</td></tr>
+      <tr><td>Voice, face</td><td>Conflict, isolation</td></tr>
+      <tr><td>Task, proximity</td><td>Autonomy loss, monotony</td></tr>
+    </table>
     <div class="quote foot" style="margin-top:3px">Compared only to you, never to anyone else.</div>
   </section>
 
   <!-- INSIDE PANEL 3 · ALL TWELVE LUNA-X solutions -->
   <section class="panel">
-    <div class="kick">The full LUNA-X ecosystem</div>
+    <div class="kick kickrow"><img src="img/nasa_logo.png" alt="NASA">The full LUNA-X ecosystem</div>
     <h2>Twelve Devices. One Connected Crew.</h2>
     <div class="rule"></div>
     <div class="devgrid9">
@@ -226,6 +237,8 @@
     <p style="font-size:6.7pt">LunaCore taps the wrist · LunaEar speaks the route from the shelter's direction · LunaVision draws the blue path · LunaWall counts the crew in · the Smart Suit and Habitat Uniform report dose · the storm shelter's water wall does the shielding.</p>
     <h4 style="margin-top:3px">Why twelve, not one</h4>
     <p style="font-size:6.7pt">A ring, a watch or glasses alone misses EVA, sleep and common-area moments. Twelve devices mean the right sensor is always on the right part of the body, in the right place in the habitat, at the right time.</p>
+    <h4 style="margin-top:3px">How we built them</h4>
+    <p style="font-size:6.6pt">Every device started as a Blender CAD model, then an interactive 3D viewer and a launch-film ad on the project site, so each one can be inspected exploded, part by part, before any hardware is built.</p>
     <div class="quote foot" style="margin-top:4px">Nine sensors, twelve devices, one consistent promise: it asks before it acts.</div>
   </section>
 </div>
