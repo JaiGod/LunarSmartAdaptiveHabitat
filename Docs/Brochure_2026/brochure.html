@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Project ARES · Lunar Smart Adaptive Habitat · NASA HUNCH Tri-fold 2026</title>
+<link rel="stylesheet" href="brochure.css">
+</head><body>
+
+<!-- ================= OUTSIDE: [Results & Future (tuck-in flap)] [Team & resources (back)] [Front cover] ================= -->
+<div class="sheet">
+
+  <!-- BACK PANEL 2 · Testing results and future improvements -->
+  <section class="panel">
+    <div class="kick">Testing &amp; results</div>
+    <h2>What We Tested, and What It Showed</h2>
+    <div class="rule"></div>
+    <p>We tested the AI in simulation before anyone would ever live with it, then played the whole habitat story start to finish the way a crew member would.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">70</div><div class="l">simulated missions (189 crew-weeks) of the habitat AI</div></div>
+      <div class="stat"><div class="n">60/60</div><div class="l">planted wellness problems caught by the AI</div></div>
+      <div class="stat"><div class="n">0.02</div><div class="l">unwanted offers per person per week</div></div>
+      <div class="stat"><div class="n">83%</div><div class="l">accuracy of the stress classifier (Random Forest)</div></div>
+      <div class="stat"><div class="n">2/2</div><div class="l">story chapters completed on foot by an automated player (18 min)</div></div>
+      <div class="stat"><div class="n">29</div><div class="l">voiced lines checked against the health-care protocol</div></div>
+    </div>
+    <h4>Key findings</h4>
+    <ul class="dots">
+      <li>A <b>three-step response</b> (quiet change → offer → human) kept unwanted prompts rare.</li>
+      <li>Playtests exposed real layout problems (a hatch hidden by a task spot, a lost quest marker) that we fixed.</li>
+      <li>Crew trust depends on <b>consent first</b>: every check-in asks before acting.</li>
+    </ul>
+    <h4>Future improvements</h4>
+    <ul class="dots">
+      <li><b>MindRing prototype:</b> bench-test PPG and HRV against a chest strap, then a stress-task study.</li>
+      <li><b>More LUNA-X wearables:</b> AR glasses, watch, audio companion and a habitat wellness wall.</li>
+      <li><b>Real NASA use:</b> pilot in an analog habitat (HERA-style crew study) before any flight use.</li>
+    </ul>
+    <p class="small foot">Results come from our own simulations and playtests, not from human trials. MindRing figures are design targets.</p>
+  </section>
+
+  <!-- BACK PANEL 3 · Team, contact, QR codes -->
+  <section class="panel">
+    <div class="kick">Meet the team</div>
+    <h2>Project ARES</h2>
+    <div class="rule"></div>
+    <div class="team">
+      <div class="av"><div class="c">JR</div><div class="nm">Jaineil R.</div><div class="rl">Project Manager · Lead Designer · Programmer</div></div>
+      <div class="av"><div class="c">AC</div><div class="nm">Angel C.</div><div class="rl">Team member</div></div>
+      <div class="av"><div class="c">FK</div><div class="nm">Farhan K.</div><div class="rl">Team member</div></div>
+    </div>
+    <h4>Advisor &amp; contact</h4>
+    <p><b>Mrs. Anjali Wahi</b>, Teacher Advisor<br><span class="url">awahi@pcti.tec.nj.us</span></p>
+    <p><b>Passaic County Technical-Vocational Schools</b><br>STEM Academy · Wayne, New Jersey</p>
+    <h4>Scan to explore</h4>
+    <div class="qrs">
+      <div class="qr"><img src="img/qr_site.svg" alt="QR code: project website"><div><b>Website</b><span>Every game, model and paper</span></div></div>
+      <div class="qr"><img src="img/qr_github.svg" alt="QR code: GitHub repository"><div><b>GitHub</b><span>Source, CAD and 3D-print kits</span></div></div>
+      <div class="qr"><img src="img/qr_video.svg" alt="QR code: MindRing films"><div><b>Project video</b><span>MindRing launch film + mission trailer</span></div></div>
+      <div class="qr"><img src="img/qr_demo.svg" alt="QR code: habitat film"><div><b>Demo video</b><span>The habitat film</span></div></div>
+    </div>
+    <p class="foot url">jaigod.github.io/LunarSmartAdaptiveHabitat</p>
+    <p class="small">NASA HUNCH student design project. All renders and screenshots are our own Blender, Unreal Engine and game captures.</p>
+  </section>
+
+  <!-- FRONT PANEL -->
+  <section class="panel cover">
+    <div class="bg"><img src="img/cover.jpg" alt="The MindRing in front of Earth"></div>
+    <div class="shade"></div>
+    <div class="top"><div class="badge"><div class="o">NASA</div><span>HUNCH · 2026–27</span></div></div>
+    <div class="bot">
+      <div class="kick" style="margin-bottom:6px">Project ARES</div>
+      <h1>Lunar Smart Adaptive Habitat</h1>
+      <p style="color:var(--teal);font-size:9.2pt;margin:6px 0 10px;font-weight:600">with AI psychological monitoring for crew mental health</p>
+      <p style="color:#d6e0f5;font-size:8.4pt;margin-bottom:10px">A home for four astronauts on the Moon, an AI that notices when someone is struggling, and <b>MindRing</b>: a wellness ring that asks before it assumes.</p>
+      <dl>
+        <dt>Team</dt><dd>Project ARES</dd>
+        <dt>Members</dt><dd>Jaineil R. · Angel C. · Farhan K.</dd>
+        <dt>Advisor</dt><dd>Mrs. Anjali Wahi</dd>
+        <dt>School</dt><dd>PCTVS STEM Academy, Wayne, NJ</dd>
+      </dl>
+    </div>
+  </section>
+</div>
+
+<!-- ================= INSIDE: [Overview] [Key features + screenshots] [Design & development] ================= -->
+<div class="sheet">
+
+  <!-- INSIDE PANEL 1 · Project overview -->
+  <section class="panel">
+    <div class="kick">Problem statement</div>
+    <h2>Long Missions Challenge More Than the Body</h2>
+    <div class="rule"></div>
+    <p>Isolation, poor sleep, cramped rooms and the same faces every day wear crews down. NASA's Human Research Program counts <b>behavioral health</b> among the key risks of long missions, and crews often under-report strain. On the Moon, a missed early warning costs sleep, performance and safety.</p>
+    <img src="img/tr_s2.jpg" alt="Crew member in a dim sleep pod with heart rate, sleep and stress readouts" style="height:1.75in">
+    <p class="cap">Mission day 147: MindRing flags three short nights and falling heart-rate variability before the crew member says a word.</p>
+    <div class="kick" style="margin-top:4px">Project goals</div>
+    <ul class="dots">
+      <li><b>Detect early.</b> Spot stress, fatigue, low mood and isolation weeks before they become a crisis.</li>
+      <li><b>Respond gently.</b> Let the habitat adapt (light, sound, greenhouse time) before asking anything of the crew.</li>
+      <li><b>Protect privacy.</b> Health data stays onboard; a "no" always stops the AI; humans decide.</li>
+      <li><b>Prove it.</b> Test every idea in models, simulations and playable prototypes.</li>
+    </ul>
+    <h4>Expected outcomes</h4>
+    <p>Fewer sleepless nights, earlier support, and a crew that trusts the system because it asks first.</p>
+    <div class="quote foot">A shared core to live in, a private space that is truly yours, and help you are free to turn down.</div>
+  </section>
+
+  <!-- INSIDE PANEL 2 · Key features, each with its screenshot -->
+  <section class="panel">
+    <div class="kick">Key features</div>
+    <h2>One Habitat That Looks After Its Crew</h2>
+    <div class="rule"></div>
+    <div class="feat"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div>
+      <div><h3>1 · Artemis Hub habitat</h3><p>A shielded central dome, a ring corridor of four districts and four private sleep pods inside a regolith berm at Shackleton crater.</p></div></div>
+    <div class="shot"><img src="img/blueprint.jpg" alt="Artemis Hub floor plan blueprint"><p>Blueprint: dome, ring districts (living, farm, water, shelter), pods, berm and gates.</p></div>
+    <div class="feat"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 12h3l2-5 3 10 2-6 2 3h4"/></svg></div>
+      <div><h3>2 · LUNA crew-health AI</h3><p>Reads sleep, heart rate and how often people meet; responds in three steps: a quiet change, an offer, then a human.</p></div></div>
+    <div class="shot"><img src="img/dashboard.jpg" alt="Crew wellness dashboard"><p>LUNA's crew wellness board: one score per person, data stays onboard.</p></div>
+    <div class="feat"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="19" r=".8"/></svg></div>
+      <div><h3>3 · MindRing wellness ring</h3><p>PPG, on-demand ECG, skin conductance and temperature, with AI on the ring itself. It asks "Is this accurate?" before acting.</p></div></div>
+    <div class="shot"><img src="img/ad_ring.jpg" alt="MindRing sensor array"><p>MindRing sensor array: three PPG paths, skin-conductance and temperature contacts.</p></div>
+    <div class="feat"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 18c3-6 6-9 9-9s6 3 9 9"/><path d="M12 9V4"/><circle cx="12" cy="18" r="2"/></svg></div>
+      <div><h3>4 · Adaptive environment</h3><p>When stress rises, lighting warms, a soundscape starts and the greenhouse opens. The crew always has the final say.</p></div></div>
+    <div class="shot"><img src="img/tr_s5.jpg" alt="Habitat response panel after a stress spike"><p>Stress spike detected; the habitat answers with light, sound and greenhouse time.</p></div>
+  </section>
+
+  <!-- INSIDE PANEL 3 · Design & development -->
+  <section class="panel">
+    <div class="kick">Design &amp; development</div>
+    <h2>From Research to a Playable Habitat</h2>
+    <div class="rule"></div>
+    <div class="flow">
+      <div>Research<span>6 problems</span></div><i>›</i>
+      <div>Planning<span>rubric map</span></div><i>›</i>
+      <div>Design<span>Blender CAD</span></div><i>›</i>
+      <div>Prototype<span>print · games</span></div><i>›</i>
+      <div>Testing<span>70 missions</span></div>
+    </div>
+    <ol class="tiers" style="list-style:none">
+      <li class="tier"><div class="d" style="background:var(--cyan)">1</div><p><b>Research.</b> Split the brief into six problems: anxiety, low mood, conflict, fatigue, loss of control and monotony.</p></li>
+      <li class="tier"><div class="d" style="background:var(--teal)">2</div><p><b>Planning &amp; design.</b> Laid out the base at true scale, then modeled every room in Blender.</p></li>
+      <li class="tier"><div class="d" style="background:var(--gold)">3</div><p><b>Prototypes.</b> A 1:150 printed kit, a hand-wired mood tracker, Unity and Godot VR games, and the Artemis Hub simulation in Unreal Engine.</p></li>
+      <li class="tier"><div class="d" style="background:var(--orange)">4</div><p><b>Testing.</b> Simulated missions for the AI; automated full-story playthroughs for the habitat.</p></li>
+    </ol>
+    <h4>System architecture</h4>
+    <svg viewBox="0 0 320 112" style="width:100%;height:auto" font-family="Inter" font-size="7.4">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#5EEAD4"/></marker></defs>
+      <g fill="rgba(56,189,248,.1)" stroke="#38BDF8" stroke-width=".8">
+        <rect x="2" y="6" width="68" height="40" rx="5"/><rect x="86" y="6" width="68" height="40" rx="5"/><rect x="170" y="6" width="68" height="40" rx="5"/><rect x="254" y="6" width="64" height="40" rx="5"/>
+        <rect x="86" y="66" width="152" height="40" rx="5" stroke="#F5B942" fill="rgba(245,185,66,.08)"/>
+      </g>
+      <g fill="#EEF4FF" font-weight="700" text-anchor="middle">
+        <text x="36" y="22">Sensors</text><text x="120" y="22">Edge AI</text><text x="204" y="22">LUNA AI hub</text><text x="286" y="22">Crew</text><text x="162" y="82">Adaptive habitat</text>
+      </g>
+      <g fill="#A9B7D6" font-size="6.2" text-anchor="middle">
+        <text x="36" y="34">MindRing · LUNA-X</text><text x="36" y="42">room sensors</text>
+        <text x="120" y="34">on the ring</text><text x="120" y="42">and in each room</text>
+        <text x="204" y="34">scores + reasons</text><text x="204" y="42">consent rules</text>
+        <text x="286" y="34">check-ins</text><text x="286" y="42">dashboards</text>
+        <text x="162" y="95">light · sound · greenhouse · flight surgeon (1.3 s)</text>
+      </g>
+      <g stroke="#5EEAD4" stroke-width="1.1" fill="none" marker-end="url(#ar)"><path d="M70 26h14"/><path d="M154 26h14"/><path d="M238 26h14"/><path d="M204 46v18"/></g>
+    </svg>
+    <div class="duo">
+      <div><img src="img/mira.jpg" alt="Crew member model in her sleep pod" style="height:1.75in;object-position:50% 75%"><p class="cap">Crew in the Unreal simulation</p></div>
+      <div><img src="img/ring_exploded.jpg" alt="Exploded MindRing render" style="height:1.75in"><p class="cap">MindRing CAD in Blender</p></div>
+    </div>
+    <div class="foot">
+      <h4>NASA relevance</h4>
+      <p>Built for Artemis-era south-pole missions: behavioral health, human factors and crew autonomy when Earth is 1.3 seconds away.</p>
+    </div>
+  </section>
+</div>
+</body></html>
