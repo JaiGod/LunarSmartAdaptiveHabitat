@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LunaEar · LUNA-X · Project ARES</title>
+<meta name="description" content="LunaEar: AI audio companion for lunar crews. Part of the LUNA-X wearables family, NASA HUNCH Project ARES, by Jaineil R.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Project ARES · NASA HUNCH">
+<meta property="og:title" content="LunaEar · LUNA-X"><meta property="og:description" content="Hear beyond the horizon. AI audio companion for lunar crews.">
+<meta property="og:url" content="https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna-x/lunaear/"><meta property="og:image" content="https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna-x/lunaear/img/card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<meta name="theme-color" content="#050816">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050816;--cyan:#38BDF8;--teal:#5EEAD4;--white:#E6F1FF;--mut:#93A4C8;--line:rgba(56,189,248,.22);--glass:rgba(10,20,48,.66);--ok:#34D399;--amber:#FBBF24;--rose:#FB7185;--gold:#E8C27A;
+  --hd:'Orbitron',system-ui,sans-serif;--bd:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--white);font:16px/1.65 var(--bd);-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:radial-gradient(1200px 700px at 80% -10%,rgba(94,234,212,.08),transparent 60%),radial-gradient(900px 600px at -10% 30%,rgba(56,189,248,.07),transparent 60%)}
+a{color:inherit;text-decoration:none}
+img,video{max-width:100%;display:block}
+nav{position:sticky;top:0;z-index:20;display:flex;gap:6px 18px;align-items:center;flex-wrap:wrap;padding:14px max(5vw,16px);background:rgba(5,8,22,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);font-size:14px}
+nav .brand{font:700 15px var(--hd);letter-spacing:.08em;margin-right:auto}
+nav a:not(.brand){color:var(--mut)}nav a:hover{color:var(--cyan)}
+main{max-width:1160px;margin:0 auto;padding:0 max(5vw,16px)}
+.kick{font:600 12px var(--mono);letter-spacing:.22em;color:var(--teal);text-transform:uppercase}
+h1{font:900 clamp(30px,5vw,60px)/1.05 var(--hd);letter-spacing:.03em;margin:10px 0 12px;text-wrap:balance}
+h1 span{color:var(--teal)}
+h2{font:700 clamp(21px,2.6vw,30px)/1.2 var(--hd);margin:8px 0 14px;text-wrap:balance}
+h3{font:700 16px/1.3 var(--hd);letter-spacing:.03em;margin-bottom:6px}
+p{color:#c4d0ea}
+.lead{font-size:clamp(16px,1.6vw,19px);max-width:62ch}
+section{padding:72px 0;border-top:1px solid var(--line)}
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:36px;align-items:center;padding:56px 0 64px}
+.hero>*{min-width:0}
+.ad{border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 60px rgba(94,234,212,.08);background:#000}
+.ad video{width:100%;aspect-ratio:16/9;object-fit:cover}
+.adcap{font:600 11px var(--mono);letter-spacing:.16em;color:var(--mut);margin-top:10px;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{font:600 12px var(--mono);padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:var(--white);background:var(--glass)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:20px 20px 18px;min-width:0}
+.card p{font-size:15px;color:var(--mut)}
+.card .n{font:700 12px var(--mono);color:var(--teal);letter-spacing:.14em}
+#viewer{position:relative;height:min(78vh,620px);border-radius:18px;border:1px solid var(--line);overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#0d1a33,#03050d 70%)}
+#viewer canvas{display:block;width:100%;height:100%;touch-action:none}
+#vhud{position:absolute;left:16px;bottom:14px;right:16px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none}
+#vhud .btn{pointer-events:auto}
+.btn{font:600 13px var(--bd);padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:rgba(10,20,48,.8);backdrop-filter:blur(8px);cursor:pointer;color:var(--white)}
+.btn:hover,.btn.on{border-color:var(--teal);color:var(--teal)}
+#vtip{position:absolute;top:14px;left:16px;font:600 11px var(--mono);letter-spacing:.14em;color:var(--mut)}
+#vlabel{position:absolute;top:14px;right:16px;max-width:300px;font-size:14px;color:var(--white);background:rgba(7,14,36,.8);border:1px solid var(--line);border-radius:12px;padding:10px 13px;opacity:0;transition:opacity .4s}
+#vlabel.on{opacity:1}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid rgba(56,189,248,.12);vertical-align:top}
+th{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--teal);background:rgba(10,20,48,.6)}
+td{color:#c4d0ea}td b{color:var(--white);font-weight:600}
+tr:last-child td{border-bottom:0}
+.score{text-align:center}
+.score .v{font:900 30px var(--hd);color:var(--teal)}
+.score .bar{height:4px;border-radius:4px;background:rgba(94,234,212,.15);margin:8px 0 10px;overflow:hidden}
+.score .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--teal))}
+.score p{font-size:13px}
+.ask{max-width:420px;margin:0 auto;background:linear-gradient(180deg,rgba(14,28,60,.95),rgba(8,16,38,.95));border:1px solid rgba(94,234,212,.35);border-radius:22px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.ask .q{font-size:16px;color:var(--white);margin:6px 0 14px}
+.ask .opts{display:flex;gap:8px}
+.ask .opts button{flex:1;font:600 14px var(--bd);padding:10px;border-radius:12px;border:1px solid var(--line);background:rgba(10,20,48,.8);color:var(--white);cursor:pointer}
+.ask .opts button:hover{border-color:var(--teal)}
+.ask .r{font-size:13.5px;color:var(--mut);margin-top:12px;min-height:3em}
+.ladder{counter-reset:l;display:grid;gap:10px}
+.ladder li{list-style:none;display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.ladder li::before{counter-increment:l;content:counter(l);font:900 20px var(--hd);color:var(--void);background:var(--teal);border-radius:10px;height:36px;display:grid;place-items:center}
+.ladder li b{color:var(--white)}
+.arch{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:rgba(5,10,26,.6);padding:16px}
+.arch svg{min-width:860px;width:100%;height:auto}
+.note{font-size:13.5px;color:var(--mut);border-left:3px solid var(--amber);padding:6px 12px;margin-top:16px;background:rgba(251,191,36,.05);border-radius:0 8px 8px 0}
+ul.clean{padding-left:18px;color:#c4d0ea}ul.clean li{margin:4px 0}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:34px 16px;border-top:1px solid var(--line);margin-top:20px}
+.spec td:first-child{white-space:nowrap}
+.fam{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}.fam a{background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;font:600 12px var(--mono);letter-spacing:.06em;color:var(--mut)}.fam a.on,.fam a:hover{color:var(--teal);border-color:var(--teal)}.fam img{border-radius:8px;margin-bottom:6px;aspect-ratio:1;object-fit:cover;width:100%}
+@media(max-width:900px){.fam{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.g3,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.g2,.g3,.g5{grid-template-columns:1fr}.ask .opts{flex-direction:column}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="../">← LUNA-X</a>
+  <a href="#films">Films</a><a href="#model">3D model</a><a href="#features">Features</a><a href="#specs">Specs</a><a href="#mission">In the habitat</a><a href="#family">Family</a><a href="../../">Project ARES</a>
+</nav>
+<main>
+
+<div class="hero" id="films">
+  <div>
+    <div class="kick">LUNA-X Wearables · NASA HUNCH · AI audio companion</div>
+    <h1>LunaEar<br><span>Hear beyond the horizon.</span></h1>
+    <p class="lead">A small earbud that speaks only when it matters. LunaEar gives morning summaries, guided breathing and EVA mode prompts, and during an emergency it tells you which way to go, with spatial audio placing the voice in the direction of the shelter.</p>
+    <div class="chips"><span class="chip">Spatial audio</span><span class="chip">Beamforming mics</span><span class="chip">In-ear PPG + temperature</span><span class="chip">On-bud AI</span><span class="chip">Speaks offline</span><span class="chip">Hear-through for crew voices</span></div>
+  </div>
+  <div>
+    <div class="ad"><video src="video/LunaEar_MissionTrailer.mp4" poster="img/trailer_poster.jpg" controls playsinline preload="metadata"></video></div>
+    <div class="adcap">Mission trailer · 20 s · filmed inside the Artemis Hub habitat simulation</div>
+  </div>
+</div>
+
+<section style="padding-top:56px">
+  <div class="grid g2" style="align-items:center">
+    <div>
+      <div class="ad"><video src="video/LunaEar_LaunchFilm.mp4" poster="img/ad_poster.jpg" controls playsinline preload="metadata"></video></div>
+      <div class="adcap">Launch film · 15 s · rendered from the LunaEar CAD model</div>
+    </div>
+    <div>
+      <div class="kick">Two films, one system</div>
+      <h2>The device, and the mission it serves</h2>
+      <p>The <b>launch film</b> shows LunaEar itself: the materials, the parts inside and how they fit. The <b>mission trailer</b> shows it at work in the Artemis Hub, from a normal day to a solar particle event, alongside the rest of the LUNA-X family.</p>
+      <p style="margin-top:10px;color:var(--mut);font-size:14px">Readings in the films are simulated for demonstration. Specifications are design targets.</p>
+    </div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="kick">Interactive 3D</div>
+  <h2>Take LunaEar apart</h2>
+  <div id="viewer"><div id="vtip">DRAG TO ROTATE · SCROLL TO ZOOM</div><div id="vlabel"></div>
+    <div id="vhud"><button class="btn" data-m="explode">Exploded view</button><button class="btn" data-m="reset">Assemble</button></div></div>
+</section>
+
+<section id="features">
+  <div class="kick">Features</div>
+  <h2>What LunaEar does</h2>
+  <div class="grid g2"><div class="card"><div class="n">01</div><h3>Morning brief</h3><p>Sleep quality, today&#x27;s first task and anything that changed overnight, in under 15 seconds.</p></div><div class="card"><div class="n">02</div><h3>Guided breathing</h3><p>A 60-second exercise offered after a high-strain period, never forced.</p></div><div class="card"><div class="n">03</div><h3>EVA mode</h3><p>Route prompts, suit oxygen call-outs and crew check-ins with no screen to look at.</p></div><div class="card"><div class="n">04</div><h3>Directional alerts</h3><p>In an emergency the voice comes from the direction you need to go.</p></div></div>
+</section>
+
+<section id="specs">
+  <div class="grid g2" style="align-items:start">
+    <div>
+      <div class="kick">Hardware</div>
+      <h2>Specifications</h2>
+      <div class="tbl spec"><table style="min-width:0"><tr><th>Part</th><th>Design target</th></tr><tr><td><b>Audio</b></td><td>Spatial audio driver with head tracking</td></tr><tr><td><b>Mics</b></td><td>Beamforming pair that hears you over life-support noise</td></tr><tr><td><b>Sensors</b></td><td>In-ear PPG and temperature</td></tr><tr><td><b>Compute</b></td><td>On-bud AI chip; speech runs offline</td></tr><tr><td><b>Comms</b></td><td>Habitat mesh; relays Earth comms with the real 1.3 s delay</td></tr><tr><td><b>Battery</b></td><td>About 6 h, case charging</td></tr></table></div>
+    </div>
+    <div id="mission">
+      <div class="kick">In the habitat</div>
+      <h2>A day with LunaEar</h2>
+      <ol class="ladder"><li><div>&quot;Good morning. Your sleep quality is up twelve percent.&quot;</div></li><li><div>&quot;Would you like a sixty second breathing exercise?&quot;</div></li><li><div>&quot;Lunar EVA mode enabled.&quot;</div></li><li><div>&quot;Solar particle event detected. Head to the storm shelter. Follow the blue path.&quot;</div></li></ol>
+      <p class="note">Privacy rule for every LUNA-X device: raw data stays on the device, analysis runs on the device, and wellness data is shared only with the crew member's consent. Nothing here diagnoses; a human always decides.</p>
+    </div>
+  </div>
+</section>
+
+<section id="family">
+  <div class="kick">LUNA-X family</div>
+  <h2>One connected crew-wellness network</h2>
+  <p style="margin-bottom:18px">Each device does one job well and shares through the habitat's LUNA AI hub.</p>
+  <div class="fam"><a href="../mindring/"><img src="../mindring/img/card.jpg" alt="MindRing" loading="lazy">MINDRING</a><a href="../lunacore/"><img src="../lunacore/img/card.jpg" alt="LunaCore" loading="lazy">LUNACORE</a><a href="../lunavision/"><img src="../lunavision/img/card.jpg" alt="LunaVision" loading="lazy">LUNAVISION</a><a href="../lunalens/"><img src="../lunalens/img/card.jpg" alt="LunaLens" loading="lazy">LUNALENS</a><a href="../lunasense/"><img src="../lunasense/img/card.jpg" alt="LunaSense" loading="lazy">LUNASENSE</a><a href="../lunaear/" class="on"><img src="../lunaear/img/card.jpg" alt="LunaEar" loading="lazy">LUNAEAR</a><a href="../lunawall/"><img src="../lunawall/img/card.jpg" alt="LunaWall" loading="lazy">LUNAWALL</a></div>
+</section>
+
+</main>
+<footer>LunaEar · LUNA-X · NASA HUNCH Project ARES · © 2026 Jaineil R. · with thanks to Angel C. and Farhan K.</footer>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+const box=document.getElementById('viewer'), label=document.getElementById('vlabel');
+const R=new THREE.WebGLRenderer({antialias:true,alpha:true}); R.setPixelRatio(Math.min(devicePixelRatio,2));
+R.toneMapping=THREE.ACESFilmicToneMapping; R.toneMappingExposure=1.1; box.prepend(R.domElement);
+const S=new THREE.Scene(); const pm=new THREE.PMREMGenerator(R); S.environment=pm.fromScene(new RoomEnvironment(),0.04).texture;
+const C=new THREE.PerspectiveCamera(32,1,0.01,100);
+const O=new OrbitControls(C,R.domElement); O.enableDamping=true; O.autoRotate=true; O.autoRotateSpeed=0.8;
+const k=new THREE.DirectionalLight(0xffffff,1.6); k.position.set(1,2,1.5); S.add(k);
+const t=new THREE.DirectionalLight(0x5eead4,1.0); t.position.set(-1.5,0.5,-1); S.add(t);
+function size(){const w=box.clientWidth,h=box.clientHeight;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}
+addEventListener('resize',size); size();
+const parts=[]; let mode='', t0=0, rad=1;
+new GLTFLoader().load('model/LunaEar.glb',g=>{
+  const m=g.scene, bb=new THREE.Box3().setFromObject(m), c=bb.getCenter(new THREE.Vector3()); m.position.sub(c);
+  rad=bb.getSize(new THREE.Vector3()).length()/2; S.add(m);
+  C.position.set(rad*0.9,rad*0.6,rad*2.6); O.minDistance=rad*1.2; O.maxDistance=rad*6; O.update();
+  m.updateMatrixWorld(true);
+  m.traverse(o=>{if(o.isMesh){const p=new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
+    const dir=p.lengthSq()>1e-8?p.clone().normalize():new THREE.Vector3(0,1,0); parts.push({o,base:o.position.clone(),dir,ws:o.parent.getWorldScale(new THREE.Vector3()).x||1})}});
+});
+document.querySelectorAll('#vhud .btn').forEach(b=>b.onclick=()=>{
+  mode=b.dataset.m==='reset'?'':b.dataset.m; t0=performance.now();
+  document.querySelectorAll('#vhud .btn').forEach(x=>x.classList.toggle('on',x===b&&mode!==''));
+  label.textContent=mode?'Each part moves out along its own direction, so you can see how LunaEar is built.':''; label.classList.toggle('on',!!mode);
+});
+let ex=0;
+function tick(now){
+  requestAnimationFrame(tick); O.update();
+  const target=mode==='explode'?1:0; ex+=(target-ex)*0.08;
+  for(const p of parts) p.o.position.copy(p.base).addScaledVector(p.dir,ex*rad*0.45/p.ws);
+  R.render(S,C);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
