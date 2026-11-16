@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MindRing · LUNA-X · Project ARES</title>
+<meta name="description" content="MindRing: an AI-powered astronaut wellness ring for long-duration lunar missions. On-ring AI, check-ins that ask instead of assume, and a habitat that adapts. NASA HUNCH Project ARES, by Jaineil R.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Project ARES · NASA HUNCH">
+<meta property="og:title" content="MindRing · AI mental-health smart ring"><meta property="og:description" content="Clinical-grade sensing, on-ring AI and check-ins that ask instead of assume. Part of the LUNA-X wearables family.">
+<meta property="og:url" content="https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna-x/mindring/"><meta property="og:image" content="https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna-x/mindring/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<meta name="theme-color" content="#050816">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050816;--cyan:#38BDF8;--teal:#5EEAD4;--white:#E6F1FF;--mut:#93A4C8;--line:rgba(56,189,248,.22);--glass:rgba(10,20,48,.66);--ok:#34D399;--amber:#FBBF24;--rose:#FB7185;--gold:#E8C27A;
+  --hd:'Orbitron',system-ui,sans-serif;--bd:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--white);font:16px/1.65 var(--bd);-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:radial-gradient(1200px 700px at 80% -10%,rgba(94,234,212,.08),transparent 60%),radial-gradient(900px 600px at -10% 30%,rgba(56,189,248,.07),transparent 60%)}
+a{color:inherit;text-decoration:none}
+img,video{max-width:100%;display:block}
+nav{position:sticky;top:0;z-index:20;display:flex;gap:6px 18px;align-items:center;flex-wrap:wrap;padding:14px max(5vw,16px);background:rgba(5,8,22,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);font-size:14px}
+nav .brand{font:700 15px var(--hd);letter-spacing:.08em;margin-right:auto}
+nav a:not(.brand){color:var(--mut)}nav a:hover{color:var(--cyan)}
+main{max-width:1160px;margin:0 auto;padding:0 max(5vw,16px)}
+.kick{font:600 12px var(--mono);letter-spacing:.22em;color:var(--teal);text-transform:uppercase}
+h1{font:900 clamp(30px,5vw,60px)/1.05 var(--hd);letter-spacing:.03em;margin:10px 0 12px;text-wrap:balance}
+h1 span{color:var(--teal)}
+h2{font:700 clamp(21px,2.6vw,30px)/1.2 var(--hd);margin:8px 0 14px;text-wrap:balance}
+h3{font:700 16px/1.3 var(--hd);letter-spacing:.03em;margin-bottom:6px}
+p{color:#c4d0ea}
+.lead{font-size:clamp(16px,1.6vw,19px);max-width:62ch}
+section{padding:72px 0;border-top:1px solid var(--line)}
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:36px;align-items:center;padding:56px 0 64px}
+.hero>*{min-width:0}
+.ad{border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 60px rgba(94,234,212,.08);background:#000}
+.ad video{width:100%;aspect-ratio:16/9;object-fit:cover}
+.adcap{font:600 11px var(--mono);letter-spacing:.16em;color:var(--mut);margin-top:10px;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{font:600 12px var(--mono);padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:var(--white);background:var(--glass)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:20px 20px 18px;min-width:0}
+.card p{font-size:15px;color:var(--mut)}
+.card .n{font:700 12px var(--mono);color:var(--teal);letter-spacing:.14em}
+#viewer{position:relative;height:min(78vh,620px);border-radius:18px;border:1px solid var(--line);overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#0d1a33,#03050d 70%)}
+#viewer canvas{display:block;width:100%;height:100%;touch-action:none}
+#vhud{position:absolute;left:16px;bottom:14px;right:16px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none}
+#vhud .btn{pointer-events:auto}
+.btn{font:600 13px var(--bd);padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:rgba(10,20,48,.8);backdrop-filter:blur(8px);cursor:pointer;color:var(--white)}
+.btn:hover,.btn.on{border-color:var(--teal);color:var(--teal)}
+#vtip{position:absolute;top:14px;left:16px;font:600 11px var(--mono);letter-spacing:.14em;color:var(--mut)}
+#vlabel{position:absolute;top:14px;right:16px;max-width:300px;font-size:14px;color:var(--white);background:rgba(7,14,36,.8);border:1px solid var(--line);border-radius:12px;padding:10px 13px;opacity:0;transition:opacity .4s}
+#vlabel.on{opacity:1}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid rgba(56,189,248,.12);vertical-align:top}
+th{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--teal);background:rgba(10,20,48,.6)}
+td{color:#c4d0ea}td b{color:var(--white);font-weight:600}
+tr:last-child td{border-bottom:0}
+.score{text-align:center}
+.score .v{font:900 30px var(--hd);color:var(--teal)}
+.score .bar{height:4px;border-radius:4px;background:rgba(94,234,212,.15);margin:8px 0 10px;overflow:hidden}
+.score .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--teal))}
+.score p{font-size:13px}
+.ask{max-width:420px;margin:0 auto;background:linear-gradient(180deg,rgba(14,28,60,.95),rgba(8,16,38,.95));border:1px solid rgba(94,234,212,.35);border-radius:22px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.ask .q{font-size:16px;color:var(--white);margin:6px 0 14px}
+.ask .opts{display:flex;gap:8px}
+.ask .opts button{flex:1;font:600 14px var(--bd);padding:10px;border-radius:12px;border:1px solid var(--line);background:rgba(10,20,48,.8);color:var(--white);cursor:pointer}
+.ask .opts button:hover{border-color:var(--teal)}
+.ask .r{font-size:13.5px;color:var(--mut);margin-top:12px;min-height:3em}
+.ladder{counter-reset:l;display:grid;gap:10px}
+.ladder li{list-style:none;display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.ladder li::before{counter-increment:l;content:counter(l);font:900 20px var(--hd);color:var(--void);background:var(--teal);border-radius:10px;height:36px;display:grid;place-items:center}
+.ladder li b{color:var(--white)}
+.arch{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:rgba(5,10,26,.6);padding:16px}
+.arch svg{min-width:860px;width:100%;height:auto}
+.note{font-size:13.5px;color:var(--mut);border-left:3px solid var(--amber);padding:6px 12px;margin-top:16px;background:rgba(251,191,36,.05);border-radius:0 8px 8px 0}
+ul.clean{padding-left:18px;color:#c4d0ea}ul.clean li{margin:4px 0}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:34px 16px;border-top:1px solid var(--line);margin-top:20px}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.g3,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.g2,.g3,.g5{grid-template-columns:1fr}.ask .opts{flex-direction:column}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="../">← LUNA-X</a>
+  <a href="#films">Films</a><a href="#ring">3D ring</a><a href="#hardware">Hardware</a><a href="#ai">AI engine</a><a href="#support">Support</a><a href="#architecture">Architecture</a><a href="#testing">Testing</a><a href="#ethics">Privacy</a><a href="#launch">Launch</a><a href="../../">Project ARES</a>
+</nav>
+<main>
+
+<div class="hero" id="films">
+  <div>
+    <div class="kick">LUNA-X Wearables · NASA HUNCH · Biomedical Engineering</div>
+    <h1>MindRing<br><span>Monitoring mental health beyond Earth.</span></h1>
+    <p class="lead">A mission wellness device for long-duration lunar crews. MindRing reads the body's quiet stress signals day and night, keeps the raw data on the ring, <b>asks before it assumes</b>, and lets the habitat answer: warmer light, a calmer soundscape, an open greenhouse door. A human always decides.</p>
+    <div class="chips"><span class="chip">On-demand ECG HRV</span><span class="chip">3-path PPG</span><span class="chip">EDA + dual temp</span><span class="chip">On-ring NPU</span><span class="chip">7-day battery</span><span class="chip">Non-diagnostic</span></div>
+  </div>
+  <div>
+    <div class="ad"><video src="video/MindRing_Trailer.mp4" poster="img/trailer_poster.jpg" controls playsinline preload="metadata"></video></div>
+    <div class="adcap">Mission trailer · 20 s · filmed inside the Artemis Hub habitat simulation</div>
+  </div>
+</div>
+
+<section id="launch-film" style="padding-top:56px">
+  <div class="grid g2" style="align-items:center">
+    <div>
+      <div class="ad"><video src="video/MindRing_Ad.mp4" poster="img/ad_poster.jpg" controls playsinline preload="metadata"></video></div>
+      <div class="adcap">Launch film · 15 s · rendered from the MindRing CAD model</div>
+    </div>
+    <div>
+      <div class="kick">Two films, one system</div>
+      <h2>The device, and the mission it serves</h2>
+      <p>The <b>launch film</b> introduces the ring itself: titanium shell, sensor array, and the parts inside. The <b>mission trailer</b> shows it at work in the habitat, where a stress spike is detected, confirmed with the crew member, and answered by the environment.</p>
+      <p style="margin-top:10px;color:var(--mut);font-size:14px">Readings shown in the films are simulated for demonstration.</p>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="grid g2" style="align-items:start">
+    <div>
+      <div class="kick">Problem</div>
+      <h2>Long-duration missions challenge more than the body</h2>
+      <p>Isolation, confinement, disrupted sleep and distance from home build up slowly on a long mission. NASA's Human Research Program tracks behavioral health as one of the key human risks of exploration, and analog missions such as HERA and CHAPEA (Mars Dune Alpha) study it on Earth. Crews often under-report strain, and today's wearables are fitness devices first: they count steps and give a generic "stress" number. On the Moon, a missed early warning costs sleep, performance and safety.</p>
+    </div>
+    <div class="card">
+      <div class="n">CORE MISSION</div>
+      <ul class="clean">
+        <li>Detect elevated stress early, against <b>your own</b> baseline</li>
+        <li>Track recovery, resilience and sleep quality over weeks</li>
+        <li>Build emotional self-awareness through check-ins, not surveillance</li>
+        <li>Personalize support and learn what actually helps</li>
+        <li>Stay preventative and <b>non-diagnostic</b>; a human always decides</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="ring">
+  <div class="kick">Interactive 3D</div>
+  <h2>Inside the ring</h2>
+  <p style="max-width:70ch;margin-bottom:18px">Drag to turn it, scroll to zoom. Light up the sensor array or explode the ring to see how 24 grams of titanium, ceramic and silicon fit together.</p>
+  <div id="viewer">
+    <div id="vtip">DRAG · ZOOM</div>
+    <div id="vlabel"></div>
+    <div id="vhud">
+      <button class="btn" data-m="sense">Light the sensors</button>
+      <button class="btn" data-m="explode">Exploded view</button>
+      <button class="btn" data-m="pulse">Haptic nudge</button>
+      <button class="btn" data-m="reset">Reset</button>
+    </div>
+  </div>
+</section>
+
+<section id="hardware">
+  <div class="kick">Hardware design</div>
+  <h2>Why this is the strongest ring design</h2>
+  <div class="grid g3" style="margin-bottom:22px">
+    <div class="card"><div class="n">01 · ACCURACY</div><h3>Two ways to read HRV</h3><p>Continuous PPG for trends, plus a titanium ECG inlay on the outside: touch it with the other hand for a 30-second, medical-grade HRV reading whenever the ring flags a change.</p></div>
+    <div class="card"><div class="n">02 · PRIVACY</div><h3>AI on the ring itself</h3><p>A microcontroller with a neural processing unit runs the stress model on the ring. Raw physiology never has to leave your finger; only the scores you choose to share do.</p></div>
+    <div class="card"><div class="n">03 · SUPPORT</div><h3>It answers, quietly</h3><p>A haptic motor taps out breathing rhythms and gentle nudges. A tiny teal light confirms a check-in. No screen, no notifications fighting for attention.</p></div>
+  </div>
+  <div class="tbl"><table>
+    <tr><th>Subsystem</th><th>Specification</th><th>Why it matters</th></tr>
+    <tr><td><b>PPG array</b></td><td>3 optical paths: green (530 nm) + red (660 nm) + IR (940 nm) per path, 128 Hz</td><td>Picks the cleanest path in real time to reject motion artifacts; heart rate, HRV (RMSSD), SpO₂, respiration rate</td></tr>
+    <tr><td><b>ECG electrode</b></td><td>Single-lead, outer titanium inlay + inner reference, 512 Hz, 30 s spot reading</td><td>Gold-standard R-R intervals to confirm HRV changes before the AI acts on them</td></tr>
+    <tr><td><b>EDA (skin conductance)</b></td><td>2 gold electrodes, 0.01–100 µS, 8 Hz</td><td>Fast sympathetic arousal signal that heart metrics miss</td></tr>
+    <tr><td><b>Skin temperature</b></td><td>2 × NTC, ±0.05 °C, inner + shell reference</td><td>Circadian rhythm, illness onset, sleep phase; the shell sensor cancels room temperature</td></tr>
+    <tr><td><b>Motion</b></td><td>6-axis IMU (accelerometer + gyroscope), 50 Hz</td><td>Activity, sleep staging, and flagging motion so the AI ignores noisy windows</td></tr>
+    <tr><td><b>Environment</b></td><td>Ambient light + barometric pressure</td><td>Light exposure for circadian advice; habitat pressure context for crews</td></tr>
+    <tr><td><b>Compute</b></td><td>Cortex-M55 MCU + Ethos-U55 NPU, 2 MB RAM, 32 MB flash</td><td>On-ring inference under 1 mW average; 30 days of encrypted local history</td></tr>
+    <tr><td><b>Feedback</b></td><td>Linear resonant actuator (haptic), teal status LED</td><td>Breathing guidance and nudges without a screen</td></tr>
+    <tr><td><b>Power</b></td><td>24 mAh curved Li-ion, Qi wireless charging, ~7 days typical</td><td>A week between charges means it is worn during the nights that matter</td></tr>
+    <tr><td><b>Radio</b></td><td>Bluetooth LE 5.3, AES-256 link encryption</td><td>Low power, works with phones and habitat systems</td></tr>
+    <tr><td><b>Structure</b></td><td>Grade 5 titanium shell, black zirconia sensor face, medical-grade silicone lining, IP68 / 10 ATM, 4–6 g</td><td>Hypoallergenic, scratch- and impact-resistant; replaceable outer shells in sizes 6–13</td></tr>
+  </table></div>
+</section>
+
+<section id="ai">
+  <div class="kick">AI mental-health engine</div>
+  <h2>Five scores, measured against you</h2>
+  <p style="max-width:72ch;margin-bottom:20px">Everyone's "normal" is different. MindRing spends its first 14 days learning <b>your</b> baseline (resting heart rate, HRV, temperature rhythm, sleep), then scores each day against it. Every score shows the top reasons behind it, so the AI is never a black box.</p>
+  <div class="grid g5">
+    <div class="card score"><div class="n">WELLNESS</div><div class="v">78</div><div class="bar"><i style="width:78%"></i></div><p>Overall balance: recovery, sleep, stress and self-reported mood.</p></div>
+    <div class="card score"><div class="n">STRESS</div><div class="v">41</div><div class="bar"><i style="width:41%"></i></div><p>HRV drop + EDA arousal + elevated heart rate, motion-corrected.</p></div>
+    <div class="card score"><div class="n">RECOVERY</div><div class="v">72</div><div class="bar"><i style="width:72%"></i></div><p>Overnight HRV and resting heart rate versus your 30-day trend.</p></div>
+    <div class="card score"><div class="n">SLEEP INDEX</div><div class="v">84</div><div class="bar"><i style="width:84%"></i></div><p>Duration, efficiency, timing regularity and sleep stages.</p></div>
+    <div class="card score"><div class="n">STABILITY</div><div class="v">69</div><div class="bar"><i style="width:69%"></i></div><p>Day-to-day variability of stress and mood check-ins.</p></div>
+  </div>
+  <div class="grid g2" style="margin-top:28px;align-items:center">
+    <div>
+      <h3 style="font-size:20px">It asks. It doesn't assume.</h3>
+      <p>The ring detects physiological patterns, never emotions. When something changes, it asks you to confirm. Your answer is a training label: the model gets more personal with every check-in, and a "No" is just as valuable as a "Yes". Try it:</p>
+    </div>
+    <div class="ask" id="ask">
+      <div class="kick">MindRing · check-in</div>
+      <div class="q">Your indicators suggest higher-than-usual stress this afternoon. Is this accurate?</div>
+      <div class="opts"><button data-a="yes">Yes</button><button data-a="some">Somewhat</button><button data-a="no">No</button></div>
+      <div class="r" id="askr">Your answer stays on your ring and phone.</div>
+    </div>
+  </div>
+</section>
+
+<section id="support">
+  <div class="kick">Adaptive intervention system</div>
+  <h2>Support that scales with the need</h2>
+  <div class="grid g3" style="margin-bottom:26px">
+    <div class="card"><div class="n">STRESS SPIKE</div><h3>In the moment</h3><p>A haptic breathing rhythm (4-7-8 or box breathing), a calming visualization in the app, and lighting advice (warmer, dimmer).</p></div>
+    <div class="card"><div class="n">POOR RECOVERY</div><h3>Over the day</h3><p>Sleep-hygiene tips, an evening screen-time reminder, and light-exposure timing to shift a drifting body clock.</p></div>
+    <div class="card"><div class="n">ISOLATION SIGNS</div><h3>Over the week</h3><p>Low activity + low check-in mood + flat routines prompt a nudge to call a friend, join a crew meal or a community activity.</p></div>
+  </div>
+  <h3 style="font-size:19px;margin-bottom:12px">Wellness escalation ladder</h3>
+  <ol class="ladder">
+    <li><div><b>Notice.</b> A sustained change from your baseline. Nothing is sent anywhere.</div></li>
+    <li><div><b>Ask.</b> A gentle check-in on the ring or phone. You can always dismiss it.</div></li>
+    <li><div><b>Support.</b> Personalized techniques from CBT, mindfulness and positive psychology; the engine learns which ones work for you.</div></li>
+    <li><div><b>Check in more.</b> If a change lasts for weeks, check-ins become more frequent and self-care routines are suggested.</div></li>
+    <li><div><b>Connect.</b> Only with your prior opt-in: suggest contacting a trusted person or support resources, or (for crews) the flight surgeon. A human always decides.</div></li>
+  </ol>
+  <p class="note">MindRing is a wellness device. It does not diagnose or treat any medical or mental-health condition, and it is not a crisis service.</p>
+</section>
+
+<section id="app">
+  <div class="kick">Companion app</div>
+  <h2>One app, four spaces</h2>
+  <div class="grid g2">
+    <div class="card"><h3>Dashboard</h3><p>Real-time metrics, today's five scores with their reasons, weekly trends, monthly reports, goals and achievements.</p></div>
+    <div class="card"><h3>Mood journal</h3><p>Voice or text journaling with emotion tags. The AI writes weekly trend summaries on your phone; nothing is uploaded unless you choose to.</p></div>
+    <div class="card"><h3>Intervention center</h3><p>Breathing exercises, guided meditation, focus sessions, journaling prompts and relaxation techniques, ranked by what has helped you before.</p></div>
+    <div class="card"><h3>Crew mode (LUNA-X)</h3><p>On the Moon, MindRing feeds the habitat's LUNA AI with consented scores only, alongside the helmet, glove and boot. The habitat answers with lighting, sound and greenhouse access, and the flight surgeon is one call away (1.3 s delay).</p></div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="kick">Software architecture</div>
+  <h2>Eight layers, privacy at every one</h2>
+  <div class="arch">
+  <svg viewBox="0 0 1100 430" role="img" aria-label="MindRing system architecture diagram" font-family="Inter, system-ui, sans-serif">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5EEAD4"/></marker></defs>
+    <g font-size="12" fill="#93A4C8"><text x="20" y="26" font-weight="700" fill="#5EEAD4" letter-spacing="2">ON THE RING</text><text x="420" y="26" font-weight="700" fill="#5EEAD4" letter-spacing="2">ON THE PHONE</text><text x="830" y="26" font-weight="700" fill="#5EEAD4" letter-spacing="2">OPT-IN CLOUD</text></g>
+    <rect x="10" y="36" width="380" height="300" rx="16" fill="rgba(94,234,212,.04)" stroke="rgba(94,234,212,.3)"/>
+    <rect x="410" y="36" width="400" height="300" rx="16" fill="rgba(56,189,248,.04)" stroke="rgba(56,189,248,.3)"/>
+    <rect x="830" y="36" width="260" height="300" rx="16" fill="rgba(147,164,200,.04)" stroke="rgba(147,164,200,.3)" stroke-dasharray="6 5"/>
+    <g font-size="14" fill="#E6F1FF" font-weight="600">
+      <rect x="30" y="60" width="340" height="56" rx="10" fill="#0b1a36" stroke="#38BDF8"/><text x="46" y="84">1 · Sensor layer</text><text x="46" y="104" font-size="12" font-weight="400" fill="#93A4C8">PPG ×3 · ECG · EDA · temp ×2 · IMU · light</text>
+      <rect x="30" y="136" width="340" height="56" rx="10" fill="#0b1a36" stroke="#38BDF8"/><text x="46" y="160">2 · Edge processing</text><text x="46" y="180" font-size="12" font-weight="400" fill="#93A4C8">filtering · motion rejection · path selection</text>
+      <rect x="30" y="212" width="340" height="56" rx="10" fill="#0b1a36" stroke="#5EEAD4"/><text x="46" y="236">3 · AI prediction (NPU)</text><text x="46" y="256" font-size="12" font-weight="400" fill="#93A4C8">5 scores vs personal baseline</text>
+      <rect x="30" y="288" width="340" height="36" rx="10" fill="#0b1a36" stroke="#E8C27A"/><text x="46" y="311">Haptic + LED feedback</text>
+      <rect x="430" y="60" width="360" height="56" rx="10" fill="#0b1a36" stroke="#5EEAD4"/><text x="446" y="84">4 · Personalization engine</text><text x="446" y="104" font-size="12" font-weight="400" fill="#93A4C8">learns from check-in answers (on-device)</text>
+      <rect x="430" y="136" width="360" height="56" rx="10" fill="#0b1a36" stroke="#5EEAD4"/><text x="446" y="160">5 · Intervention engine</text><text x="446" y="180" font-size="12" font-weight="400" fill="#93A4C8">picks the support most likely to help you</text>
+      <rect x="430" y="212" width="360" height="56" rx="10" fill="#0b1a36" stroke="#38BDF8"/><text x="446" y="236">6 · App layer</text><text x="446" y="256" font-size="12" font-weight="400" fill="#93A4C8">dashboard · journal · intervention center</text>
+      <rect x="430" y="288" width="360" height="36" rx="10" fill="#0b1a36" stroke="#E8C27A"/><text x="446" y="311">Crew mode → habitat LUNA AI</text>
+      <rect x="850" y="60" width="220" height="80" rx="10" fill="#0b1a36" stroke="#93A4C8"/><text x="866" y="84">7 · Cloud analytics</text><text x="866" y="104" font-size="12" font-weight="400" fill="#93A4C8">federated learning:</text><text x="866" y="122" font-size="12" font-weight="400" fill="#93A4C8">model updates, never raw data</text>
+      <rect x="850" y="160" width="220" height="80" rx="10" fill="#0b1a36" stroke="#93A4C8"/><text x="866" y="184">Encrypted backup</text><text x="866" y="204" font-size="12" font-weight="400" fill="#93A4C8">end-to-end, user-held key</text><text x="866" y="222" font-size="12" font-weight="400" fill="#93A4C8">deletable any time</text>
+    </g>
+    <g stroke="#5EEAD4" stroke-width="2" fill="none" marker-end="url(#a)">
+      <path d="M200 116 V134"/><path d="M200 192 V210"/><path d="M200 268 V286"/>
+      <path d="M370 240 H428"/><path d="M610 116 V134"/><path d="M610 192 V210"/><path d="M610 268 V286"/>
+      <path d="M790 88 H848" stroke-dasharray="5 4"/><path d="M790 200 H848" stroke-dasharray="5 4"/>
+      <path d="M430 164 C400 164 400 306 372 306"/>
+    </g>
+    <rect x="10" y="356" width="1080" height="58" rx="12" fill="rgba(251,191,36,.06)" stroke="rgba(251,191,36,.5)"/>
+    <text x="30" y="381" font-size="14" font-weight="700" fill="#FBBF24">8 · Privacy layer (spans everything)</text>
+    <text x="30" y="401" font-size="12.5" fill="#c4d0ea">consent per data type · on-device by default · AES-256 at rest and BLE in transit · user owns and can export or delete all data · explanations for every score</text>
+  </svg>
+  </div>
+</section>
+
+<section id="testing">
+  <div class="kick">Testing methodology</div>
+  <h2>How we prove it works</h2>
+  <div class="tbl"><table>
+    <tr><th>Test</th><th>Method</th><th>Pass criterion</th></tr>
+    <tr><td><b>Baseline accuracy</b></td><td>Ring vs chest-strap ECG and lab thermometer, 30 participants, rest + daily life</td><td>HR MAE ≤ 2 bpm; RMSSD within 10% of ECG; temperature ±0.1 °C</td></tr>
+    <tr><td><b>Stress simulation</b></td><td>Trier Social Stress Test and a mental-arithmetic task, with salivary cortisol reference</td><td>Stress score rises within 3 min; AUC ≥ 0.80 vs cortisol response</td></tr>
+    <tr><td><b>Sleep deprivation</b></td><td>Controlled short-sleep nights vs normal nights (crossover)</td><td>Recovery score separates conditions in ≥ 85% of participants</td></tr>
+    <tr><td><b>Exercise recovery</b></td><td>Graded exercise then 60-min recovery</td><td>Motion-aware model does not flag exercise as stress (false-alarm rate ≤ 5%)</td></tr>
+    <tr><td><b>Long-term use</b></td><td>12-week field study, analog-habitat crew + student cohort</td><td>≥ 80% daily wear; personalization improves check-in agreement week over week</td></tr>
+    <tr><td><b>User experience</b></td><td>System Usability Scale, interviews, notification-burden diary</td><td>SUS ≥ 80; under 3 prompts per day on average</td></tr>
+    <tr><td><b>Intervention effect</b></td><td>Within-person randomized micro-trials of breathing vs no prompt</td><td>Measurable HRV recovery within 10 min after guided breathing</td></tr>
+    <tr><td><b>Privacy</b></td><td>Threat model, penetration test, data-flow audit</td><td>No raw physiology leaves the device without explicit opt-in</td></tr>
+  </table></div>
+</section>
+
+<section id="ethics">
+  <div class="kick">Data ethics and privacy</div>
+  <h2>Built to earn trust</h2>
+  <div class="grid g3">
+    <div class="card"><h3>Consent first</h3><p>Opt-in for each data type and each sharing target, revocable in one tap.</p></div>
+    <div class="card"><h3>Local by default</h3><p>Inference on the ring, personalization on the phone, cloud only by choice.</p></div>
+    <div class="card"><h3>Encrypted</h3><p>AES-256 at rest and over Bluetooth; backups with a key only the user holds.</p></div>
+    <div class="card"><h3>No emotion surveillance</h3><p>It reports body signals and asks; it never labels feelings or reports them to anyone.</p></div>
+    <div class="card"><h3>You own your data</h3><p>Export everything, delete everything, any time.</p></div>
+    <div class="card"><h3>Transparent AI</h3><p>Every score lists its top drivers and the model's confidence.</p></div>
+  </div>
+</section>
+
+<section id="launch">
+  <div class="kick">Risks · manufacturing · commercialization</div>
+  <h2>From prototype to product</h2>
+  <div class="grid g3">
+    <div class="card"><h3>Risk assessment</h3><ul class="clean"><li><b>Over-reliance</b>: non-diagnostic messaging, human escalation</li><li><b>False alarms</b>: ECG confirmation + check-in before action</li><li><b>Skin contact</b>: ISO 10993 biocompatible materials</li><li><b>Battery</b>: protected cell, thermal cut-off</li><li><b>Data breach</b>: on-device design limits exposure</li></ul></div>
+    <div class="card"><h3>Manufacturing</h3><ul class="clean"><li>CNC titanium shell, PVD finish</li><li>Zirconia face, laser-cut sensor windows</li><li>Rigid-flex PCB wrapped in the band</li><li>Epoxy potting for IP68</li><li>Prototype target: under $120 per unit at 1k</li></ul></div>
+    <div class="card"><h3>Go to market</h3><ul class="clean"><li><b>Phase 1</b>: analog-habitat and research crews</li><li><b>Phase 2</b>: university wellness programs</li><li><b>Phase 3</b>: consumer ring, optional subscription for advanced insights</li><li>Pursue FDA wellness-device guidance; no diagnostic claims</li></ul></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="n">DELIVERABLES</div>
+    <p>CAD model of the ring (above) · launch film and mission trailer · system architecture · interactive 3D viewer · scoring and check-in simulation · research paper · presentation · VR demo inside the Artemis Hub game, where crew wellness is part of the story.</p>
+  </div>
+</section>
+
+</main>
+<footer>MindRing · LUNA-X · NASA HUNCH Project ARES · © 2026 Jaineil R. · with thanks to Angel C. and Farhan K.</footer>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
+<script>
+// check-in demo: the answer is a training label, never a judgment
+const msgs={yes:"Thanks. Want a 2-minute breathing rhythm on your ring? Your answer helps MindRing learn what stress looks like for you.",
+ some:"Got it. I'll keep an eye on it and check back after lunch. A short walk in daylight often helps.",
+ no:"Thanks for telling me. I'll treat this as normal for you, so I won't flag a pattern like this again."};
+document.querySelectorAll('#ask button').forEach(b=>b.onclick=()=>{document.getElementById('askr').textContent=msgs[b.dataset.a]});
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+const box=document.getElementById('viewer'), label=document.getElementById('vlabel');
+const R=new THREE.WebGLRenderer({antialias:true,alpha:true}); R.setPixelRatio(Math.min(devicePixelRatio,2));
+R.toneMapping=THREE.ACESFilmicToneMapping; R.toneMappingExposure=1.1; box.prepend(R.domElement);
+const S=new THREE.Scene(); const pm=new THREE.PMREMGenerator(R); S.environment=pm.fromScene(new RoomEnvironment(),0.04).texture;
+const C=new THREE.PerspectiveCamera(32,1,0.01,50); C.position.set(0.15,0.22,0.62);
+const O=new OrbitControls(C,R.domElement); O.enableDamping=true; O.autoRotate=true; O.autoRotateSpeed=0.8; O.minDistance=0.25; O.maxDistance=1.6;
+const k=new THREE.DirectionalLight(0xffffff,1.6); k.position.set(1,2,1.5); S.add(k);
+const t=new THREE.DirectionalLight(0x5eead4,1.2); t.position.set(-1.5,0.5,-1); S.add(t);
+function size(){const w=box.clientWidth,h=box.clientHeight;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}
+addEventListener('resize',size); size();
+let ring=null, parts={}, base={}, mode='', t0=0;
+const info={sense:"Three PPG paths (green + red/IR), two gold EDA contacts and a skin-temperature window sit on the palm side, where blood flow is strongest.",
+ explode:"Titanium shell with ECG inlay · rigid-flex PCB · NPU + MCU · curved 24 mAh battery · haptic motor · zirconia sensor face · silicone lining.",
+ pulse:"The haptic motor taps a breathing rhythm: in for 4, hold for 7, out for 8. No screen needed."};
+new GLTFLoader().load('model/MindRing.glb',g=>{
+  ring=g.scene; const bb=new THREE.Box3().setFromObject(ring); const c=bb.getCenter(new THREE.Vector3()); ring.position.sub(c);
+  const grp=new THREE.Group(); grp.add(ring); S.add(grp);
+  ring.traverse(o=>{if(o.isMesh){parts[o.name]=o; base[o.name]=o.position.clone(); if(o.material) o.material=o.material.clone()}});
+});
+document.querySelectorAll('#vhud .btn').forEach(b=>b.onclick=()=>{
+  mode=b.dataset.m==='reset'?'':b.dataset.m; t0=performance.now();
+  document.querySelectorAll('#vhud .btn').forEach(x=>x.classList.toggle('on',x===b&&mode!==''));
+  label.textContent=info[mode]||''; label.classList.toggle('on',!!info[mode]);
+});
+const EX={Shell:[0,-1,0],ECGInlay:[0,-1.3,0],InnerFace:[0,0.8,0],Lining:[0,1.5,0],Battery:[0,0,-0.5],NPU:[0,0,0.5]};
+function tick(now){
+  requestAnimationFrame(tick); O.update();
+  if(ring){
+    const e=Math.min(1,(now-t0)/900), ex=mode==='explode'?e:0;
+    for(const n in parts){const p=parts[n], d=EX[n.replace(/\.\d+$/,'')];
+      const off=d?new THREE.Vector3(...d).multiplyScalar(0.1*ex):(/PPG|EDA|Temp/.test(n)?new THREE.Vector3(0,0.08*ex,0):new THREE.Vector3());
+      p.position.copy(base[n]).add(off);
+      const m=p.material; if(m&&m.emissive){
+        if(/PPG|EDA|Temp/.test(n)) m.emissiveIntensity=mode==='sense'?2+Math.sin(now/180)*1.2:0.15;
+        if(/Status/.test(n)) m.emissiveIntensity=mode==='pulse'?(Math.sin(now/120)>0?6:0.5):1.5;
+      }
+    }
+    if(mode==='pulse') ring.parent.scale.setScalar(1+0.012*Math.max(0,Math.sin(now/120)));
+    else ring.parent.scale.setScalar(1);
+  }
+  R.render(S,C);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
