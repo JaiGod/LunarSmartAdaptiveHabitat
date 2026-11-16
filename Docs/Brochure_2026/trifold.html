@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Project ARES · Lunar Smart Adaptive Habitat · NASA HUNCH Tri-fold 2026</title>
+<link rel="stylesheet" href="brochure.css">
+<style>
+/* extra rules for the all-solutions trifold */
+.devgrid9{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}
+.dev9{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:5px;overflow:hidden}
+.dev9 img{height:.46in;border-radius:0;object-fit:cover}
+.dev9 .b{padding:2.5px 4px 3px}
+.dev9 h3{font:800 5.6pt/1.05 'Inter Display',Inter;letter-spacing:.01em;color:var(--teal);text-transform:uppercase}
+.dev9 p{font-size:4.9pt;line-height:1.14;color:var(--mut);margin-top:1px}
+.tbl{width:100%;border-collapse:collapse;font-size:6.6pt}
+.tbl th{text-align:left;color:var(--cyan);font-size:5.9pt;text-transform:uppercase;letter-spacing:.08em;padding:2px 4px;border-bottom:1px solid var(--line)}
+.tbl td{padding:2.5px 4px;border-bottom:1px solid rgba(255,255,255,.06);color:var(--mut);vertical-align:top}
+.tbl td b{color:var(--white)}
+.tbl .n{color:var(--gold);font-weight:800;white-space:nowrap}
+.limits{columns:2;column-gap:10px;font-size:6.3pt;line-height:1.3;color:var(--mut);padding-left:11px}
+.limits li{margin-bottom:2px;break-inside:avoid}
+.tiers2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.tiers2 div{border-radius:6px;padding:5px 6px;font-size:6.2pt;line-height:1.3}
+.tiers2 .t1{background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.4)}
+.tiers2 .t2{background:rgba(245,185,66,.1);border:1px solid rgba(245,185,66,.4)}
+.tiers2 .t3{background:rgba(251,113,133,.1);border:1px solid rgba(251,113,133,.4)}
+.tiers2 b{display:block;font-size:6.6pt;color:var(--white);margin-bottom:1px}
+.mini2{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.mini2 .m{background:rgba(56,189,248,.08);border:1px solid var(--line);border-radius:5px;padding:4px 5px}
+.mini2 .m .n{font:800 10.5pt/1 'Inter Display',Inter;color:var(--white)}
+.mini2 .m .l{font-size:5.7pt;line-height:1.2;color:var(--mut);margin-top:2px}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.trio img{height:.72in;object-fit:cover}
+.trio p{font-size:5.6pt;text-align:center;margin-top:2px;color:#8291b3}
+.sensorlist{columns:2;column-gap:10px;font-size:6.2pt;line-height:1.35;color:var(--mut);padding-left:11px}
+.fitline{font-size:6.3pt;color:#8291b3;border-top:1px dashed rgba(255,255,255,.12);padding-top:3px;margin-top:3px;line-height:1.35}
+.flow{gap:2px!important}
+.flow div{font-size:5.7pt!important;padding:3px 1px!important}
+.flow div span{font-size:5pt!important}
+</style>
+</head><body>
+
+<!-- ================= OUTSIDE SHEET: [Testing & Results] [Ethics+Team/QR] [Front cover] ================= -->
+<div class="sheet">
+
+  <!-- OUTSIDE PANEL 1 · Testing & results (solution-led; rubric is a footnote, not the headline) -->
+  <section class="panel">
+    <div class="kick">Proof it works</div>
+    <h2>What Our Solution Showed</h2>
+    <div class="rule"></div>
+    <p style="font-size:7.1pt">We built the AI, the habitat and every LUNA-X device, then tried to break them: 70 simulated missions, planted wellness problems, and a full automated playthrough of the habitat story.</p>
+    <div class="mini2">
+      <div class="m"><div class="n">60/60</div><div class="l">planted problems caught, 70 sims</div></div>
+      <div class="m"><div class="n">0.02</div><div class="l">unwanted offers / person / week</div></div>
+      <div class="m"><div class="n">11.1 kg</div><div class="l">total LUNA-X sensor mass, 96 W</div></div>
+      <div class="m"><div class="n">0.83</div><div class="l">stress-classifier accuracy / F1</div></div>
+    </div>
+    <h4 style="margin-top:3px">Key findings</h4>
+    <ul class="dots" style="font-size:6.6pt">
+      <li>A <b>three-step response</b> (quiet change → offer → human) kept unwanted prompts rare.</li>
+      <li>Playtests exposed real layout problems (a hatch hidden by a task spot) that we fixed before finalizing.</li>
+      <li>Crew trust depends on <b>consent first</b>: every check-in asks before acting, every time.</li>
+    </ul>
+    <h4 style="margin-top:3px">Future work</h4>
+    <ul class="dots" style="font-size:6.6pt">
+      <li><b>MindRing prototype:</b> bench-test PPG/HRV against a chest strap, then a stress-task study.</li>
+      <li><b>Real NASA use:</b> pilot in an analog habitat (HERA-style crew study) before any flight use.</li>
+      <li>Retrain models on consented physiological data, not self-report alone; scale to 6+ crew.</li>
+    </ul>
+    <p class="fitline">Every result above answers a Project ARES rubric category and a NASA HUNCH design area (real need, research, design, prototype, testing, feasibility, communication) — the solution is what earns the score, not the other way around.</p>
+    <h4 style="margin-top:3px">From research to a tested build</h4>
+    <div class="flow">
+      <div>Research<span>6 problems</span></div><i>›</i>
+      <div>Planning<span>rubric map</span></div><i>›</i>
+      <div>Design<span>Blender CAD</span></div><i>›</i>
+      <div>Prototype<span>print · games</span></div><i>›</i>
+      <div>Testing<span>70 missions</span></div>
+    </div>
+    <h4 style="margin-top:3px">Bonus work</h4>
+    <ul class="dots" style="font-size:6.6pt">
+      <li><b>Tabletop simulation (+10):</b> a 72-hour run with a failed sensor and the CMO off-duty, logged start to finish.</li>
+      <li><b>Crew interface (+10):</b> working dashboards, voice checklists and route guidance across all 12 LUNA-X devices.</li>
+    </ul>
+    <p style="font-size:6.3pt;margin-top:2px"><b>Prototypes built:</b> a 1:150 printed habitat kit, a brick-set build, Blender CAD for every device, Unity/Godot VR games, the full Artemis Hub simulation in Unreal.</p>
+    <p class="small foot" style="margin-top:2px">Results are from our own simulations and playtests, not human trials. Specs are design targets, not flight-qualified hardware.</p>
+  </section>
+
+  <!-- OUTSIDE PANEL 2 · Ethics + team/QR -->
+  <section class="panel">
+    <div class="kick">Ethics &amp; limits</div>
+    <h2>Trust Is the Design Requirement</h2>
+    <div class="rule"></div>
+    <p style="font-size:7.2pt">On an 18-month mission nobody can walk away from the system, every tension became a built-in limit. Eight hard limits, enforced in code:</p>
+    <ol class="limits">
+      <li>Never share one person's mental-health data with another crew member without consent.</li>
+      <li>Never override a refusal; only a human (the CMO) may follow up.</li>
+      <li>Never touch medical, medkit protocols or life support (air, hatches, power).</li>
+      <li>Never alert Mission Control about someone before that person is told.</li>
+      <li>Only reviewable changes: light, sound, temperature or scent, never irreversible ones.</li>
+      <li>No cameras or microphones in pods, bathrooms, the VR retreat or family-call booth.</li>
+      <li>A human reviews the system at least every 7 days, or the AI drops to Tier 1.</li>
+      <li>Public indicators never show anyone's mood unless they choose to share it.</li>
+    </ol>
+    <h4 style="margin-top:2px">Meet the team</h4>
+    <div class="team">
+      <div class="av"><div class="c">JR</div><div class="nm">Jaineil R.</div><div class="rl">PM · Lead Designer · Programmer</div></div>
+      <div class="av"><div class="c">AC</div><div class="nm">Angel C.</div><div class="rl">Team member</div></div>
+      <div class="av"><div class="c">FK</div><div class="nm">Farhan K.</div><div class="rl">Team member</div></div>
+    </div>
+    <div class="qrs" style="margin-top:3px">
+      <div class="qr"><img src="img/qr_site.svg" alt="QR: website"><div><b>Website</b><span>Every game, model &amp; paper</span></div></div>
+      <div class="qr"><img src="img/qr_devices.svg" alt="QR: devices"><div><b>LUNA-X</b><span>All 12 devices, films, 3D</span></div></div>
+      <div class="qr"><img src="img/qr_power.svg" alt="QR: full power"><div><b>Full Power</b><span>Film + posters</span></div></div>
+      <div class="qr"><img src="img/qr_github.svg" alt="QR: github"><div><b>GitHub</b><span>Source, CAD, print kits</span></div></div>
+    </div>
+    <p class="foot url">jaigod.github.io/LunarSmartAdaptiveHabitat</p>
+    <p class="small">Advisor: Mrs. Anjali Wahi · PCTVS STEM Academy, Wayne, NJ · NASA HUNCH 2026–27</p>
+  </section>
+
+  <!-- FRONT PANEL -->
+  <section class="panel cover">
+    <div class="bg"><img src="img/base_halfcircle.jpg" alt="Artemis Hub half-circle lunar base"></div>
+    <div class="shade"></div>
+    <div class="top"><div class="badge"><img src="img/nasa_logo.png" alt="NASA logo" style="width:22px;height:22px;object-fit:contain;border-radius:0"><span>HUNCH · 2026–27</span></div></div>
+    <div class="bot">
+      <div class="kick" style="margin-bottom:6px">Project ARES</div>
+      <h1>Lunar Smart Adaptive Habitat</h1>
+      <p style="color:var(--teal);font-size:9.2pt;margin:6px 0 10px;font-weight:600">one habitat · one AI · twelve LUNA-X devices</p>
+      <p style="color:#d6e0f5;font-size:8.4pt;margin-bottom:10px">A home for four astronauts on the Moon: an AI that notices when someone is struggling, and the full LUNA-X ecosystem that carries that care onto the crew.</p>
+      <dl>
+        <dt>Team</dt><dd>Project ARES</dd>
+        <dt>Group partners</dt><dd>Jaineil R. · Angel C. · Farhan K.</dd>
+        <dt>Advisor</dt><dd>Mrs. Anjali Wahi</dd>
+        <dt>School</dt><dd>PCTVS STEM Academy, Wayne, NJ</dd>
+      </dl>
+    </div>
+  </section>
+</div>
+
+<!-- ================= INSIDE SHEET: [Problem+Solution+Habitat] [LUNA AI system] [All 12 LUNA-X solutions] ================= -->
+<div class="sheet">
+
+  <!-- INSIDE PANEL 1 · Problem + solution + habitat visuals -->
+  <section class="panel">
+    <div class="kick">Problem &amp; solution</div>
+    <h2>One Habitat That Looks After Its Crew</h2>
+    <div class="rule"></div>
+    <p style="font-size:7pt">Isolation, poor sleep, cramped rooms and the same faces every day wear crews down. NASA's Human Research Program counts <b>behavioral health</b> among the key risks of long missions. On the Moon, Earth is 1.3 seconds away — a missed early warning costs sleep, performance and safety.</p>
+    <h4 style="margin-top:3px">Five layers, one system</h4>
+    <ul class="dots" style="font-size:6.9pt">
+      <li><b>1 · Artemis Hub habitat.</b> One main dome, four work modules, five private sleep pods, regolith-shielded.</li>
+      <li><b>2 · LUNA crew-health AI.</b> Nine sensors, six conditions, a personal 14-day baseline, a three-tier response.</li>
+      <li><b>3 · LUNA-X devices.</b> All twelve wearables carry the AI's care onto the crew — see every one at right.</li>
+      <li><b>4 · Adaptive environment.</b> Light, sound, airflow and a second social space change, all reversible in seconds.</li>
+      <li><b>5 · Ethics built in.</b> Eight hard limits in code; no override of a refusal; the person is always told first.</li>
+    </ul>
+    <div class="trio" style="margin-top:3px">
+      <div><img src="img/base_halfcircle.jpg" alt="Artemis Hub half-circle base render"><p>Base render</p></div>
+      <div><img src="img/blueprint2.jpg" alt="Artemis Hub floor-plan blueprint with module dimensions"><p>Floor-plan blueprint</p></div>
+      <div><img src="img/brick_habitat.jpg" alt="Habitat built as a brick/LEGO-style set"><p>Brick-set build</p></div>
+    </div>
+    <div class="stats" style="margin-top:3px">
+      <div class="stat"><div class="n">6</div><div class="l">crew conditions tracked: anxiety, mood, conflict, fatigue, autonomy loss, monotony</div></div>
+      <div class="stat"><div class="n">4 crew</div><div class="l">for the 18-month mission; each baseline is personal, not population-wide</div></div>
+      <div class="stat"><div class="n">1.3 s</div><div class="l">each-way delay to Earth; the habitat must decide on board</div></div>
+      <div class="stat"><div class="n">12</div><div class="l">LUNA-X devices carrying the AI's care onto the crew</div></div>
+    </div>
+    <h4 style="margin-top:2px">Objectives &amp; success</h4>
+    <p style="font-size:6.3pt;line-height:1.3">Detect early · respond with environment first, never force · keep a human in charge · fit real mass/power limits. Success: problems caught days earlier than self-report, fewer sleepless nights, almost no unwanted alerts, crews feel in control of their own data.</p>
+    <p style="font-size:6.1pt;line-height:1.3;margin-top:2px"><b>Habitat modules:</b> Main dome · Command/Comms · Recreation/Commons · Maintenance/Robotics · Hygiene 2 · Medical/Storm shelter, in a ring around the shared dome.</p>
+    <div class="quote foot" style="margin-top:2px">A shared core to live in, a private space that is truly yours, and help you are free to turn down.</div>
+  </section>
+
+  <!-- INSIDE PANEL 2 · LUNA AI system ONLY -->
+  <section class="panel">
+    <div class="kick">The LUNA AI system</div>
+    <h2>Notices Early. Offers, Never Forces.</h2>
+    <div class="rule"></div>
+    <p style="font-size:7pt">LUNA is the crew-health AI at the center of the habitat. It reads nine sensors, compares every reading only to that person's own 14-day baseline, and blends 4–6 signals so one noisy reading can never trigger action alone.</p>
+    <h4 style="margin-top:3px">Nine sensors</h4>
+    <ul class="sensorlist">
+      <li>Heart-rate variability</li>
+      <li>Skin conductance</li>
+      <li>Sleep architecture</li>
+      <li>Voice prosody</li>
+      <li>Facial action coding</li>
+      <li>Movement / proximity</li>
+      <li>Cortisol patch</li>
+      <li>CO₂ / air quality</li>
+      <li>Task performance</li>
+    </ul>
+    <h4 style="margin-top:3px">Three-tier response</h4>
+    <div class="tiers2">
+      <div class="t1"><b>Tier 1 · Silent</b>Habitat log only; nothing announced, nothing secret.</div>
+      <div class="t2"><b>Tier 2 · Offer</b>A gentle offer in plain words, Yes or No. "No" stops it at once.</div>
+      <div class="t3"><b>Tier 3 · Human</b>Told first, then the Flight Surgeon or Mission Control.</div>
+    </div>
+    <h4 style="margin-top:3px">Confidence gate</h4>
+    <p style="font-size:6.7pt">Each tier only fires once the model's confidence crosses 0.35 / 0.55 / 0.75, held over a persistence window — so a single bad night never escalates on its own.</p>
+    <h4 style="margin-top:2px">NASA relevance</h4>
+    <p style="font-size:6.7pt">Built for Artemis-era south-pole missions: behavioral health, human factors and crew autonomy when Earth is 1.3 seconds away.</p>
+    <h4 style="margin-top:3px">Data stays onboard</h4>
+    <p style="font-size:6.6pt">Raw sensor streams never leave the habitat or a person's own device. Only a tier level and a reason, not the raw signal, ever reaches another crew member or Mission Control — and only after the person is told.</p>
+    <div class="quote foot" style="margin-top:3px">Compared only to you, never to anyone else.</div>
+  </section>
+
+  <!-- INSIDE PANEL 3 · ALL TWELVE LUNA-X solutions -->
+  <section class="panel">
+    <div class="kick">The full LUNA-X ecosystem</div>
+    <h2>Twelve Devices. One Connected Crew.</h2>
+    <div class="rule"></div>
+    <div class="devgrid9">
+      <div class="dev9"><img src="img/dev/mindring.jpg" alt="MindRing"><div class="b"><h3>MindRing</h3><p>Wellness ring: ECG, PPG, skin conductance. Asks before it acts.</p></div></div>
+      <div class="dev9"><img src="img/dev/lunacore.jpg" alt="LunaCore"><div class="b"><h3>LunaCore</h3><p>Mission watch: timeline, wellness ring, habitat status.</p></div></div>
+      <div class="dev9"><img src="img/dev/lunavision.jpg" alt="LunaVision"><div class="b"><h3>LunaVision</h3><p>AR glasses: status beside what you look at, hands-free checklists.</p></div></div>
+      <div class="dev9"><img src="img/dev/lunalens.jpg" alt="LunaLens"><div class="b"><h3>LunaLens</h3><p>2035+ contact-lens concept: suit O₂ and turnaround, edge of vision.</p></div></div>
+      <div class="dev9"><img src="img/dev/lunasense.jpg" alt="LunaSense"><div class="b"><h3>LunaSense</h3><p>Gesture glove: pinch, swipe, grab; tracks grip and tremor.</p></div></div>
+      <div class="dev9"><img src="img/dev/lunaear.jpg" alt="LunaEar"><div class="b"><h3>LunaEar</h3><p>AI earbud: morning brief, guided breathing, shelter guidance.</p></div></div>
+      <div class="dev9"><img src="img/dev/lunawall.jpg" alt="LunaWall"><div class="b"><h3>LunaWall</h3><p>Common-area display: crew board by consent, habitat twin.</p></div></div>
+      <div class="dev9"><img src="img/dev/helmet.jpg" alt="Adaptive Cognitive Helmet"><div class="b"><h3>Cognitive Helmet</h3><p>AI, vision, comms and environmental awareness on EVA.</p></div></div>
+      <div class="dev9"><img src="img/dev/glove.jpg" alt="Adaptive Wellness Glove"><div class="b"><h3>Wellness Glove</h3><p>Interaction, plant scans, vitals and gesture control.</p></div></div>
+      <div class="dev9"><img src="img/dev/boot.jpg" alt="Adaptive Mobility Boot"><div class="b"><h3>Mobility Boot</h3><p>Gait analysis, balance, dust defense, path lighting.</p></div></div>
+      <div class="dev9"><img src="img/dev/suit.jpg" alt="LUNA-X Smart Suit"><div class="b"><h3>Smart Suit</h3><p>Full EVA suit: XCore hub, life-support backpack.</p></div></div>
+      <div class="dev9"><img src="img/dev/uniform.jpg" alt="Habitat Operations Uniform"><div class="b"><h3>Habitat Uniform</h3><p>Everyday crew jumpsuit with the LUNA-X chest module.</p></div></div>
+    </div>
+    <p style="font-size:6.7pt;margin-top:3px">Every device does one job well, keeps raw data on itself, and shares only with consent. Specifications throughout are design targets, not flight-qualified hardware.</p>
+    <h4 style="margin-top:3px">Solar particle event: everything works as one</h4>
+    <p style="font-size:6.7pt">LunaCore taps the wrist · LunaEar speaks the route from the shelter's direction · LunaVision draws the blue path · LunaWall counts the crew in · the Smart Suit and Habitat Uniform report dose · the storm shelter's water wall does the shielding.</p>
+    <h4 style="margin-top:3px">Why twelve, not one</h4>
+    <p style="font-size:6.7pt">A ring, a watch or glasses alone misses EVA, sleep and common-area moments. Twelve devices mean the right sensor is always on the right part of the body, in the right place in the habitat, at the right time.</p>
+    <div class="quote foot" style="margin-top:4px">Nine sensors, twelve devices, one consistent promise: it asks before it acts.</div>
+  </section>
+</div>
+</body></html>
