@@ -7,7 +7,8 @@
 (function () {
   var d = document, root = d.documentElement;
   var css = [
-    ':focus-visible{outline:3px solid #ffc94d !important;outline-offset:3px !important;border-radius:4px}',
+    ':not(svg *):focus-visible{outline:3px solid #ffc94d !important;outline-offset:3px !important;border-radius:4px}',
+    'svg *:focus-visible{outline:none !important}',
     '@media (pointer:coarse){',
     '  nav a,header a,.top a,.brand,a.btn,a.pill,.btn,button,select,[role=button],.seg button,.quick button,.tools button,.views button{min-height:44px}',
     '  nav a,header a,.top a,.brand,a.pill{display:inline-flex;align-items:center}',
