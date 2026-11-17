@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solution Process · Mission Briefing · Project ARES</title>
+<meta name="description" content="Project ARES solution process: how we modeled, simulated and protected the crew's minds, plus a 5-beat guide for presenting to NASA scientists.">
+<style>
+:root{--bg:#050816;--panel:#0b1230;--line:rgba(120,170,255,.18);--txt:#eaf2ff;--mut:#9fb2d8;--cyan:#5ee7ff;--gold:#ffd54a;--violet:#9b7bff}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:radial-gradient(1200px 700px at 70% -10%,#16245a 0,transparent 60%),var(--bg);color:var(--txt);font:16px/1.6 Inter,system-ui,sans-serif;min-height:100vh}
+a{color:var(--cyan);text-decoration:none}
+nav{position:sticky;top:0;z-index:10;display:flex;gap:6px 18px;align-items:center;flex-wrap:wrap;padding:14px 5vw;background:rgba(5,8,22,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .brand{font-weight:700;font-size:15px;letter-spacing:.08em;margin-right:auto;color:var(--txt)}
+nav a:not(.brand){color:var(--mut)}nav a:hover{color:var(--cyan)}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 5vw 60px}
+header{text-align:center;padding:42px 0 10px}
+h1{font-size:clamp(26px,4.4vw,48px);line-height:1.15;margin:0 0 10px;background:linear-gradient(90deg,#fff,var(--cyan),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{color:var(--mut);margin:4px auto;max-width:760px}
+h2{font-size:22px;margin:44px 0 14px;letter-spacing:.04em}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.step{position:relative;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:16px 16px 14px}
+.step.lx{border-color:rgba(155,123,255,.6);background:#161040}
+.step b{display:block;color:var(--cyan);margin-bottom:4px}.step.lx b{color:var(--violet)}
+.step span{color:var(--mut);font-size:14px}
+.key{color:var(--mut);font-size:13px;margin-top:10px}
+.pics{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pic{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:14px;text-align:center}
+.pic svg{width:100%;max-width:260px;height:auto}
+.pic b{display:block;margin-top:6px}.pic span{color:var(--mut);font-size:14px}
+.beats{counter-reset:b;list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.beats li{counter-increment:b;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px 16px 12px 56px;position:relative}
+.beats li:before{content:counter(b);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--gold));color:#050816;font-weight:800;display:grid;place-items:center}
+.art{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;margin:34px 0 0;opacity:.95}
+.art svg{width:84px;height:84px}
+@media(max-width:820px){.flow{grid-template-columns:repeat(2,1fr)}.pics{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<nav>
+  <a class="brand" href="./">← PROJECT ARES</a>
+  <a href="luna-x/">LUNA-X wearables</a>
+  <a href="presentation/">Presentation</a>
+  <a href="rubric.html">Rubric</a>
+</nav>
+<main>
+<header>
+  <h1>🚀 Mission Briefing: Our Solution Process</h1>
+  <p>Model it, simulate it, protect the crew's minds.</p>
+  <p>Team: Jaineil R., Angel C., Farhan K.</p>
+</header>
+
+<h2>How we solved it</h2>
+<div class="flow">
+  <div class="step"><b>1. Read the brief</b><span>HUNCH rubric: 200 pts + bonus, max 4 crew</span></div>
+  <div class="step"><b>2. Model in Blender</b><span>Pill/dome habitat, 8 zones, textured; STL for 3D print</span></div>
+  <div class="step"><b>3. Build the Unity sim</b><span>VR + desktop habitat; sci-fi and realistic builds</span></div>
+  <div class="step"><b>4. Add AI crew health</b><span>Mood tracker, Luna face-mood AI, ethics guard</span></div>
+  <div class="step"><b>5. Test and grade</b><span>72-hr tabletop sim found a depression gap; fixed it</span></div>
+  <div class="step"><b>6. Make it realistic</b><span>Cut sci-fi extras; follow NASA practice, 4 crew</span></div>
+  <div class="step lx"><b>7. LUNA-X wearables</b><span>Glove, boot, helmet in blank Blender files, animated</span></div>
+  <div class="step"><b>8. Publish and present</b><span>GitHub site, Meta store, slides, 3D-print kits</span></div>
+</div>
+<p class="key">Blue: habitat work (NASA chats 1 and 2). Purple: LUNA-X chats.</p>
+
+<h2>The solutions</h2>
+<div class="pics">
+  <div class="pic">
+    <svg viewBox="0 0 300 200" aria-label="Smart suit drawing"><path d="M105 30 L135 20 Q150 40 165 20 L195 30 L238 78 L214 100 L196 84 L196 184 L104 184 L104 84 L86 100 L62 78 Z" fill="#E8ECF8" stroke="#00E5FF" stroke-width="3"/><circle cx="150" cy="84" r="24" fill="none" stroke="#00E5FF" stroke-width="3"/><circle cx="150" cy="84" r="13" fill="#00E5FF"/><line x1="150" y1="110" x2="150" y2="140" stroke="#00E5FF" stroke-width="3"/><rect x="104" y="140" width="92" height="10" fill="#7C4DFF"/></svg>
+    <b>Smart Suit</b><span>Chest core glows with crew health</span>
+  </div>
+  <div class="pic">
+    <svg viewBox="0 0 300 200" aria-label="Wellness glove drawing"><path d="M100 128 L100 66 Q100 36 130 36 L170 36 Q200 36 200 66 L200 128 Z" fill="#E8ECF8" stroke="#00E5FF" stroke-width="3"/><line x1="125" y1="56" x2="125" y2="112" stroke="#C9D3EE" stroke-width="3"/><line x1="150" y1="50" x2="150" y2="112" stroke="#C9D3EE" stroke-width="3"/><line x1="175" y1="56" x2="175" y2="112" stroke="#C9D3EE" stroke-width="3"/><circle cx="125" cy="46" r="4" fill="#FF4081"/><circle cx="150" cy="42" r="4" fill="#FF4081"/><circle cx="175" cy="46" r="4" fill="#FF4081"/><rect x="96" y="128" width="108" height="56" rx="12" fill="#C9D3EE" stroke="#00E5FF" stroke-width="3"/><rect x="108" y="148" width="84" height="16" rx="4" fill="#00E5FF"/></svg>
+    <b>Wellness Glove</b><span>Wrist display + sensors, calm check-ins</span>
+  </div>
+  <div class="pic">
+    <svg viewBox="0 0 300 200" aria-label="AI core drawing"><ellipse cx="150" cy="100" rx="120" ry="34" fill="none" stroke="#00E5FF" stroke-width="3"/><ellipse cx="150" cy="100" rx="34" ry="90" fill="none" stroke="#7C4DFF" stroke-width="3"/><circle cx="150" cy="100" r="60" fill="none" stroke="#FF4081" stroke-width="2"/><circle cx="150" cy="100" r="30" fill="#B388FF"/><circle cx="150" cy="100" r="14" fill="#fff"/><circle cx="270" cy="100" r="7" fill="#00E5FF"/><circle cx="150" cy="10" r="7" fill="#7C4DFF"/><circle cx="90" cy="47" r="6" fill="#FF4081"/></svg>
+    <b>AI family</b><span>Selena, LUNA and LUNA-X: one crew-care mission</span>
+  </div>
+</div>
+
+<h2>Present in 5 beats (about 5 minutes)</h2>
+<ol class="beats">
+  <li>Hook: astronauts' minds need protection</li>
+  <li>Habitat: Blender model + Unity sim</li>
+  <li>AI: Luna reads mood, ethics guard</li>
+  <li>Wearables: suit, glove, boot, helmet</li>
+  <li>Proof: 72-hr test, 4 crew. Thank you!</li>
+</ol>
+
+<div class="art" aria-hidden="true">
+  <svg viewBox="0 0 100 100"><path d="M50 8 Q68 28 66 60 L34 60 Q32 28 50 8 Z" fill="#E8ECF8" stroke="#90A4AE" stroke-width="2"/><circle cx="50" cy="36" r="8" fill="#00B8D4"/><path d="M34 48 L18 70 L34 66 Z" fill="#FF4081"/><path d="M66 48 L82 70 L66 66 Z" fill="#FF4081"/><path d="M40 60 L50 92 L60 60 Z" fill="#FFB300"/></svg>
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#1E88E5"/><path d="M26 40 Q40 22 56 36 Q50 54 34 56 Z" fill="#43A047"/><path d="M58 62 Q76 54 80 70 Q70 84 58 76 Z" fill="#43A047"/></svg>
+  <svg viewBox="0 0 100 100"><circle cx="46" cy="50" r="38" fill="#FFD54F"/><circle cx="64" cy="42" r="32" fill="#050816"/></svg>
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="26" fill="#FF8A65"/><ellipse cx="50" cy="50" rx="48" ry="13" fill="none" stroke="#FFE082" stroke-width="5"/></svg>
+  <svg viewBox="0 0 100 100"><polygon points="40,62 60,62 78,98 22,98" fill="#FFEB3B" opacity=".3"/><path d="M30 50 Q50 12 70 50 Z" fill="#80DEEA"/><ellipse cx="50" cy="54" rx="44" ry="11" fill="#B0BEC5"/><circle cx="26" cy="57" r="3" fill="#FFEB3B"/><circle cx="50" cy="60" r="3" fill="#FFEB3B"/><circle cx="74" cy="57" r="3" fill="#FFEB3B"/></svg>
+  <svg viewBox="0 0 100 100"><polygon points="72,22 6,52 70,38" fill="#80DEEA" opacity=".6"/><polygon points="74,34 18,88 78,46" fill="#B388FF" opacity=".5"/><circle cx="80" cy="32" r="13" fill="#ECEFF1"/></svg>
+  <svg viewBox="0 0 100 100"><polygon points="50,6 61,38 95,38 67,58 78,92 50,71 22,92 33,58 5,38 39,38" fill="#FFD54F"/></svg>
+</div>
+</main>
+<script>
+(function(){var c=document.getElementById('stars'),x=c.getContext('2d'),s=[];
+function r(){c.width=innerWidth;c.height=innerHeight;s=[];for(var i=0;i<110;i++)s.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.6+.3,p:Math.random()*6})}
+function d(t){x.clearRect(0,0,c.width,c.height);for(var i=0;i<s.length;i++){var a=s[i];x.globalAlpha=.4+.6*Math.abs(Math.sin(t/1200+a.p));x.fillStyle='#fff';x.beginPath();x.arc(a.x,a.y,a.r,0,7);x.fill()}requestAnimationFrame(d)}
+r();addEventListener('resize',r);requestAnimationFrame(d)})();
+</script>
+</body>
+</html>
