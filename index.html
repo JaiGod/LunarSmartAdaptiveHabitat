@@ -47,6 +47,22 @@ img{max-width:100%;display:block}
   background-size:56px 56px;mask-image:radial-gradient(ellipse at 50% 40%,#000 20%,transparent 75%)}
 main,header,footer{position:relative;z-index:2}
 
+/* ---------- live Canva deck ---------- */
+.deck-btn{background:linear-gradient(90deg,#0B3D91,#38BDF8)!important;border-color:#38BDF8!important;
+  box-shadow:0 0 22px rgba(56,189,248,.4)}
+.nav-deck{color:#38BDF8!important}
+.deck-live{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px 24px;
+  background:linear-gradient(120deg,rgba(11,61,145,.55),rgba(10,20,48,.75));
+  border:1px solid rgba(56,189,248,.5);border-radius:18px;padding:22px 26px;margin-bottom:18px;
+  box-shadow:0 0 34px rgba(56,189,248,.18);transition:box-shadow .25s,transform .25s}
+.deck-live:hover{box-shadow:0 0 46px rgba(56,189,248,.4);transform:translateY(-2px)}
+.deck-live .dl-k{grid-column:1;font:600 11px var(--hd);letter-spacing:.26em;text-transform:uppercase;color:var(--cyan)}
+.deck-live .dl-t{grid-column:1;font:900 clamp(21px,3vw,32px)/1.15 var(--hd);letter-spacing:.03em;text-transform:uppercase;margin:6px 0 4px}
+.deck-live .dl-s{grid-column:1;color:var(--mut);font-size:14px}
+.deck-live .dl-go{grid-column:2;grid-row:1/4;font:700 13px var(--hd);letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--cyan);border-radius:10px;padding:14px 20px;white-space:nowrap;background:rgba(56,189,248,.14)}
+@media(max-width:700px){.deck-live{grid-template-columns:1fr}.deck-live .dl-go{grid-column:1;grid-row:auto;text-align:center}}
+
 /* ---------- loader ---------- */
 #loader{position:fixed;inset:0;z-index:100;background:var(--void);display:grid;place-items:center;transition:opacity .6s,visibility .6s}
 #loader.gone{opacity:0;visibility:hidden}
@@ -542,7 +558,7 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
   <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">≡</button>
   <nav id="nav">
     <a href="#mission">Home</a><a href="film/" class="nav-film">🎬 Film</a><a href="#profile">Our project</a><a href="#descent">Descent</a><a href="#eva">Spacewalk</a><a href="#telemetry">Results</a><a href="#games">Games</a>
-    <a href="#presentation">Slides</a><a href="#brochure" class="nav-brochure">📄 Brochure</a><a href="#papers">Papers</a><a href="#models">3D designs</a><a href="models.html" target="_blank" rel="noopener">3D library ↗</a><a href="#floorplan">Floor plan</a><a href="#gallery">Gallery</a><a href="#exhibition">◉ 3D Exhibition</a><a href="luna-x/">LUNA-X wearables</a><a href="robotics/">Robotics fleet</a><a href="https://jaigod.github.io/lunar-brick-sets/">Brick sets ↗</a><a href="companion/">Luna companion</a><a href="https://jaigod.github.io/lunar-habitat-engineering/">Engineering portal</a>
+    <a href="https://www.canva.com/design/DAHbPCdeAnw/N3vO0xAmsF8UpRolbOrMDA/edit" target="_blank" rel="noopener" class="nav-deck">▶ Live deck</a><a href="#presentation">Slides</a><a href="#brochure" class="nav-brochure">📄 Brochure</a><a href="#papers">Papers</a><a href="#models">3D designs</a><a href="models.html" target="_blank" rel="noopener">3D library ↗</a><a href="#floorplan">Floor plan</a><a href="#gallery">Gallery</a><a href="#exhibition">◉ 3D Exhibition</a><a href="luna-x/">LUNA-X wearables</a><a href="robotics/">Robotics fleet</a><a href="https://jaigod.github.io/lunar-brick-sets/">Brick sets ↗</a><a href="companion/">Luna companion</a><a href="https://jaigod.github.io/lunar-habitat-engineering/">Engineering portal</a>
   </nav>
 </header>
 
@@ -555,9 +571,10 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
       <h1><span class="l">Lunar Smart</span><span class="l">Adaptive</span><span class="l r">Habitat</span></h1>
       <div class="typed" id="typed" data-text="We designed a home on the Moon for four astronauts, and an AI that notices when someone is struggling and offers help they are free to turn down. We sketched it, modeled it, 3D-printed it and turned it into games you can play right here, one of them in VR."><span id="tt"></span><span class="cur"></span></div>
       <div class="cta">
+        <a class="btn go deck-btn" href="https://www.canva.com/design/DAHbPCdeAnw/N3vO0xAmsF8UpRolbOrMDA/edit" target="_blank" rel="noopener"><span class="ar">▶</span> Open the presentation deck</a>
         <a class="btn film-btn" href="film/">🎬 Watch the film (30 min)</a>
         <a class="btn" href="film/#trailer">▶ Trailer (4 min)</a>
-        <a class="btn slides-btn" href="https://www.canva.com/design/DAHap5mo0bk/llF4zDK1fMKFc2njB36gWw/view" target="_blank" rel="noopener">▶ Watch our presentation</a>
+        <a class="btn slides-btn" href="https://www.canva.com/design/DAHap5mo0bk/llF4zDK1fMKFc2njB36gWw/view" target="_blank" rel="noopener">▶ Watch the 35-slide deck</a>
         <a class="btn go" href="play/"><span class="ar">▶</span> Launch Simulator 1</a>
         <a class="btn red" href="play2/"><span class="ar">▶</span> Launch Simulator 2</a>
         <a class="btn go" href="luna/"><span class="ar">▶</span> LUNA (2D)</a>
@@ -658,6 +675,12 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
 <!-- ================= PRESENTATION ================= -->
 <section id="presentation" style="padding-top:10px">
   <div class="wrap">
+    <a class="deck-live reveal" href="https://www.canva.com/design/DAHbPCdeAnw/N3vO0xAmsF8UpRolbOrMDA/edit" target="_blank" rel="noopener">
+      <span class="dl-k">Live deck · Canva · presenting from this</span>
+      <span class="dl-t">Base Design — open the presentation</span>
+      <span class="dl-s">The deck we present from. Opens in Canva, ready for presenter view.</span>
+      <span class="dl-go">Open in Canva ↗</span>
+    </a>
     <a class="slides-banner reveal" href="presentation/">
       <span class="sb-glow"></span>
       <img class="sb-img" src="presentation/slides/slide_01.jpg" alt="Protecting Astronauts' Minds title slide" loading="lazy">
@@ -912,6 +935,22 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
           <div class="specs"><div><b>8</b><span>Exercises</span></div><div><b>33</b><span>Body points</span></div><div><b>On device</b><span>Video stays local</span></div></div>
           <div class="row"><a class="btn go" href="workout/"><span class="ar">▶</span> Play in browser</a></div></div>
       </article>
+      <article class="glass game reveal">
+        <div class="media"><img src="luna-hub/card_title.jpg" alt="Luna AI Training Hub: a radar chart of six skill areas and the running totals of feedback, images and drills" loading="lazy">
+          <div class="tag"><span class="pulse"></span>SIM-09 · READY</div></div>
+        <div class="body"><div class="meta">Training the AI · web · runs offline</div><h3>Luna AI Training Hub</h3>
+          <p>Luna does not arrive knowing everything. This is where the crew corrects her. Ask her about oxygen, dust or anxiety and rate the answer; if she is wrong, type the right one and she stores it and uses yours next time. Show her a photograph of a panel and she scores its condition from brightness, colour and edge detail. Run her through six emergency drills and score the plan she gives you. Six skill areas move with every rating, and a console log at the bottom records each change with the exact number it moved. Nothing is uploaded — it all runs and saves in your browser.</p>
+          <div class="specs"><div><b>6</b><span>Skill areas</span></div><div><b>6</b><span>Emergency drills</span></div><div><b>On device</b><span>Nothing uploaded</span></div></div>
+          <div class="row"><a class="btn go" href="luna-hub/"><span class="ar">▶</span> Open the training hub</a></div></div>
+      </article>
+      <article class="glass game reveal">
+        <div class="media"><img src="lash-net/card_title.jpg" alt="LASH-Net network map: eight VLANs hanging off a multilayer switch, with life support on its own segment" loading="lazy">
+          <div class="tag"><span class="pulse"></span>SIM-10 · READY</div></div>
+        <div class="body"><div class="meta">Cybersecurity · Cisco Packet Tracer + web</div><h3>LASH-Net: habitat network defence</h3>
+          <p>A habitat network is not an office network. If the crew Wi-Fi drops people are annoyed; if a laptop can reach the oxygen controller, people die. So LASH-Net puts life support on a segment nothing a person types on can route to. Launch any of six attacks — a rogue laptop, malware scanning for life support, a rover hijack, a flood from Earth, fake radiation readings, a breach of Luna's own server — and watch her detect it, rank the severity and respond across four tiers, up to cutting the link to Earth while the habitat keeps breathing. The build guide has the parts list, addressing plan and every Cisco IOS configuration, so the whole thing can be assembled and proven in Packet Tracer.</p>
+          <div class="specs"><div><b>8</b><span>VLANs</span></div><div><b>46</b><span>Firewall rules</span></div><div><b>6</b><span>Attacks blocked</span></div></div>
+          <div class="row"><a class="btn go" href="lash-net/"><span class="ar">▶</span> Open the command centre</a><a class="btn" href="lash-net/build.html">⌥ Packet Tracer build guide</a></div></div>
+      </article>
     </div>
   </div>
 </section>
@@ -932,6 +971,8 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
       <a class="glass doc reveal" href="luna-x/habitat-uniform/"><div class="ic" style="padding:0;overflow:hidden;background:none"><img src="luna-x/habitat-uniform/img/LHC_01_hero_front.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"></div><div><div class="id">EXH-005 · 3D</div><h4>Habitat Operations Uniform</h4><p>Everyday crew jumpsuit with the LUNA-X chest module</p></div></a>
       <a class="glass doc reveal" href="luna-x/exhibit/habitat/"><div class="ic" style="padding:0;overflow:hidden;background:none"><img src="luna-x/exhibit/img/Habitat_Shell_Modular_Kit.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"></div><div><div class="id">EXH-H14 · 3D</div><h4>The whole habitat</h4><p>Every zone of the base, plus 13 more module exhibits</p></div></a>
       <a class="glass doc reveal" href="companion/"><div class="ic" style="padding:0;overflow:hidden;background:none"><img src="companion/card_title.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"></div><div><div class="id">SIM-06 · WEB</div><h4>Luna AI companion</h4><p>Mood-aware crew companion with a human in the loop</p></div></a>
+      <a class="glass doc reveal" href="luna-hub/"><div class="ic" style="padding:0;overflow:hidden;background:none"><img src="luna-hub/card_title.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"></div><div><div class="id">SIM-09 · WEB</div><h4>Luna AI Training Hub</h4><p>Teach Luna, correct her, and watch six skills move</p></div></a>
+      <a class="glass doc reveal" href="lash-net/"><div class="ic" style="padding:0;overflow:hidden;background:none"><img src="lash-net/card_title.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"></div><div><div class="id">SIM-10 · WEB</div><h4>LASH-Net defence</h4><p>Six attacks on the habitat network, and what stops them</p></div></a>
       <a class="glass doc reveal" href="https://jaigod.github.io/lunar-crew-monitor/" target="_blank" rel="noopener"><div class="ic" style="padding:0;overflow:hidden;background:none"><img src="selene/img/card_title.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"></div><div><div class="id">SIM-07 · WEB</div><h4>SELENE habitat AI</h4><p>Crew vitals, brainwaves, mood and a smart habitat</p></div></a>
       <a class="glass doc reveal" href="https://jaigod.github.io/lunar-habitat-engineering/" target="_blank" rel="noopener"><div class="ic" style="padding:0;overflow:hidden;background:none"><img src="selene/img/engineering_portal.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"></div><div><div class="id">ENG · WEB</div><h4>Engineering portal</h4><p>Water, fluids in 1/6 g, radiation, and an aquaponics vs hydroponics simulator</p></div></a>
     </div>
