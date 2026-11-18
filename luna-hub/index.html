@@ -298,7 +298,7 @@ function runLoop(){if(looping)return;looping=true;const st=$$('.stage');let i=0;
 /* chat */
 const STOP=new Set('the a an is are was what how do does can to of in on for and or i we you me my it this that with about tell please where when which who there here why'.split(' '));
 const words=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOP.has(w));
-function findAns(q){const lq=' '+q.toLowerCase()+' ';let best=null,bs=0;S.kb.forEach(e=>{let sc=0;e.k.forEach(k=>{if(lq.includes(k))sc+=k.length>3?2:1});sc*=e.w;if(sc>bs){bs=sc;best=e}});return bs>0?best:null}
+function findAns(q){const lq=' '+q.toLowerCase()+' ';let best=null,bs=0;S.kb.forEach(e=>{let sc=0;e.k.forEach(k=>{const kk=k.trim();const hit=kk.length>3?lq.includes(kk):new RegExp('\\b'+kk+'\\b').test(lq);if(hit)sc+=kk.length>3?2:1});sc*=e.w;if(sc>bs){bs=sc;best=e}});return bs>0?best:null}
 const chat=$('#chat');
 function addMsg(cls,html){const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
