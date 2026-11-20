@@ -181,7 +181,7 @@ const flood = new THREE.SpotLight(0xfff2e0, 0, 60, Math.PI/5, 0.5); flood.castSh
 
 function setEnv(mode){
   document.querySelectorAll('[data-env]').forEach(b=>b.classList.toggle('on',b.dataset.env===mode));
-  if(mode==='day'){sun.intensity=4.5; sun.position.set(40,2.2,18); earthshine.intensity=0.08; flood.intensity=0; scene.environmentIntensity=0.25}
+  if(mode==='day'){sun.intensity=4.5; sun.position.set(40,16,18); earthshine.intensity=0.35; flood.intensity=0; scene.environmentIntensity=0.55}
   else if(mode==='interior'){sun.intensity=0; earthshine.intensity=1.6; flood.intensity=0; scene.environmentIntensity=1.0}
   else{sun.intensity=0; earthshine.intensity=0.35; flood.intensity=900; flood.position.set(8,9,10); scene.environmentIntensity=0.06}
 }
