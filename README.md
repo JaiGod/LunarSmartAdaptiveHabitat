@@ -32,11 +32,40 @@
 <p align="center"><b>All four games run in the browser:</b> no download (LUNA VR also runs in a VR headset), works in Chrome or Edge on any PC, including school computers · <a href="https://jaigod.github.io/LunarSmartAdaptiveHabitat/"><b>Project home page</b></a></p>
 
 
+
+## 🚀 Everything in Project ARES
+
+The whole project lives on the **[project website](https://jaigod.github.io/LunarSmartAdaptiveHabitat/)**. Every sim runs in the browser, with nothing to install.
+
+| # | Sim | What it is | Open |
+|---|---|---|---|
+| SIM-01 | **Lunar Smart Adaptive Habitat** | Realistic Unity 6 base in 1/6 g: an AI reads 9 sensors, scores 6 crew conditions and responds in 3 tiers (VR + desktop) | [▶ Play](https://jaigod.github.io/LunarSmartAdaptiveHabitat/play/) |
+| SIM-02 | **Lunar Habitat Commander** | Sci-fi Unity 6 VR adventure: command the base with ARIA, mine, build, survive storms and lunar night | [▶ Play](https://jaigod.github.io/LunarSmartAdaptiveHabitat/play2/) |
+| SIM-03 | **LUNA** | 2D pixel-art Godot 4 game where you are the habitat AI | [▶ Play](https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna/) |
+| SIM-04 | **LUNA VR** | First person as the Commander, in the browser or a VR headset | [▶ Play](https://jaigod.github.io/LunarSmartAdaptiveHabitat/vr/) |
+| SIM-05 | **Astronaut Voice Log** | Voice-controlled crew log that reads mood from words and voice | [▶ Open](https://jaigod.github.io/LunarSmartAdaptiveHabitat/voice-log/) |
+| SIM-06 | **Luna: AI Crew Companion** | Mood-aware companion with a camera check-in and a human in the loop | [▶ Open](https://jaigod.github.io/LunarSmartAdaptiveHabitat/companion/) |
+| SIM-07 | **SELENE** | Crew health AI: vitals, sleep, brainwaves, mood, smart habitat, and AI mode (Claude or free AI) | [▶ Open](https://jaigod.github.io/lunar-crew-monitor/) · [source](https://github.com/JaiGod/lunar-crew-monitor) |
+| SIM-08 | **Luna Workout Coach** | Camera pose tracking that counts reps and coaches form | [▶ Open](https://jaigod.github.io/LunarSmartAdaptiveHabitat/workout/) |
+| SIM-09 | **Luna AI Training Hub** | Teach and correct Luna, and watch six skills improve | [▶ Open](https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna-hub/) |
+| SIM-10 | **LASH-Net** | Habitat network defence against six cyber attacks (Cisco Packet Tracer + web) | [▶ Open](https://jaigod.github.io/LunarSmartAdaptiveHabitat/lash-net/) |
+| AI | **LUNA-X AI** | The habitat's AI operating system: Claude, Gemini, Llama and Copilot in one brain with SELENE, separate AI chats, web search, files, memory and agents | [▶ Open](https://jaigod.github.io/LUNA-AI/) · [source](https://github.com/JaiGod/LUNA-AI) |
+
+| More | |
+|---|---|
+| 🎬 [Film (30 min)](https://jaigod.github.io/LunarSmartAdaptiveHabitat/film/) · [Presentation deck](https://jaigod.github.io/LunarSmartAdaptiveHabitat/presentation/) · [Brochure (PDF)](Docs/Brochure_2026/Project_ARES_Trifold_2026.pdf) | The story, the slides and the printed brochure |
+| 🧊 [3D gallery, 82 models](https://jaigod.github.io/LunarHabitat-3D/) · [3D model library](https://jaigod.github.io/LunarSmartAdaptiveHabitat/models.html) · [3D Exhibition hall](https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna-x/exhibit/) | Every habitat model, viewable in the browser |
+| 🦾 [LUNA-X wearables](https://jaigod.github.io/LunarSmartAdaptiveHabitat/luna-x/) · [Robotics fleet](https://jaigod.github.io/LunarSmartAdaptiveHabitat/robotics/) | Helmet, glove, boot, suit, MindRing and the other devices; the habitat robots |
+| 🧱 [Brick sets](https://jaigod.github.io/lunar-brick-sets/) · [Engineering portal](https://jaigod.github.io/lunar-habitat-engineering/) | Buildable brick models; water, radiation and aquaponics engineering |
+| 🏆 [Rubric report](https://jaigod.github.io/LunarSmartAdaptiveHabitat/rubric.html) · [Code highlights](https://jaigod.github.io/LunarSmartAdaptiveHabitat/code.html) · [Solution process](https://jaigod.github.io/LunarSmartAdaptiveHabitat/solution-process.html) | The evidence for every rubric line |
+
+The website scales to the screen: it fills large monitors (up to 4K) and still works on phones.
+
 **AI Psychological Monitoring for Positive Crew Mental Health** · Project ARES · 4-person lunar habitat · 2 Unity games (VR + desktop) · every 3D model · 3D-printable model kits · presentation, research, proposal and rubric deliverables
 
 ![Project 3 finished print model](3D_Print_Kits/images/project3_finished_model.png)
 
-## 🎮 The two games
+## 🎮 The two Unity games
 
 | | Game 1: Lunar Smart Adaptive Habitat | Game 2: Lunar Habitat Commander |
 |---|---|---|
