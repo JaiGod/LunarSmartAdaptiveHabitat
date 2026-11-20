@@ -517,6 +517,27 @@ nav a:nth-child(12){--h:308}nav a:nth-child(13){--h:320}nav a:nth-child(14){--h:
 #bricks:target{animation:brFlash 1.6s ease-out 2}
 @media(max-width:900px){.bricks{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.bk-boxes img{transition:none}#bricks:target{animation:none}}
+
+/* ===== Big screens: spread the site out to match the display =====
+   The content (.wrap), the header and the scroll-scene captions scale up in steps with the screen width,
+   so a 2560px or 4K monitor shows the same layout a laptop does, just larger and wider, instead of a narrow
+   strip. Full-screen 3D scenes and screen-height sections are not scaled, so they keep filling the screen. */
+:root{--z:1}
+@media (min-width:1680px){:root{--z:1.1}}
+@media (min-width:1920px){:root{--z:1.2}}
+@media (min-width:2240px){:root{--z:1.35}}
+@media (min-width:2560px){:root{--z:1.5}}
+@media (min-width:3000px){:root{--z:1.7}}
+@media (min-width:3600px){:root{--z:1.95}}
+@media (min-width:1680px){
+  .wrap,header,.descent .caps,.eva .evatext{zoom:var(--z)}
+  .wrap{max-width:min(1320px,calc(92vw / var(--z)));padding:0 calc(max(16px,3vw) / var(--z))}
+  header{padding:0 calc(max(20px,3vw) / var(--z))}
+  .hero{padding-top:calc((var(--nav) + 30px) * var(--z))}
+  html{scroll-padding-top:calc((var(--nav) + 12px) * var(--z))}
+  .hero .wrap{align-items:start;grid-template-columns:1fr 1fr;gap:48px}
+  .hero .orbitwrap{position:sticky;top:calc(var(--nav) + 20px);width:min(620px,100%);margin:0 auto}
+}
 </style>
 <script src="js/device.js" defer></script>
 </head>
