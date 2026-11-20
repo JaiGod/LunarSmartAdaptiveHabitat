@@ -154,9 +154,9 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x020305);
 const pmrem = new THREE.PMREMGenerator(renderer);
-const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+const envTex = pmrem.fromScene(new RoomEnvironment(), 0.5).texture;
 scene.environment = envTex;
-scene.environmentIntensity = 0.25;
+scene.environmentIntensity = 0.55;
 const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 5000);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
@@ -178,6 +178,8 @@ Object.assign(sun.shadow.camera,{left:-15,right:15,top:15,bottom:-15,near:1,far:
 scene.add(sun);
 const earthshine = new THREE.HemisphereLight(0x8fb2ff, 0x111111, 0.08); scene.add(earthshine);
 const flood = new THREE.SpotLight(0xfff2e0, 0, 60, Math.PI/5, 0.5); flood.castShadow=true; scene.add(flood); scene.add(flood.target);
+// fill light opposite the sun so glossy dark metal doesn't read as a black silhouette
+const fill = new THREE.DirectionalLight(0xbfd4ff, 1.6); fill.position.set(-30,10,-20); scene.add(fill);
 
 function setEnv(mode){
   document.querySelectorAll('[data-env]').forEach(b=>b.classList.toggle('on',b.dataset.env===mode));
